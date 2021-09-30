@@ -1,20 +1,20 @@
 ﻿import React, { Component } from 'react';
-import ShopDirection from '../components/ShopDirection';
-import Shops from '../mockdata/Shops';
+import Direction from '../components/Direction';
+import Stores from '../mockdata/Stores';
 
-class ShopDirectionList extends Component {
+class DirectionList extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            shops: Shops
+            stores: Stores
         }
     };
 
-    renderShopDirection = () => {
-        return this.state.shops.map((shop) => {
+    renderDirection = () => {
+        return this.state.stores.map((store) => {
             return (
-                <ShopDirection shop={shop} />
+                <Direction store={store} />
             )
         });
     };
@@ -32,11 +32,11 @@ class ShopDirectionList extends Component {
                 </div>
 
                 <div class="row">
-                    {this.renderShopDirection()}
+                    {this.renderDirection()}
                 </div>
             </div>
         )
     }
 }
 
-export default ShopDirectionList;
+export default DirectionList;

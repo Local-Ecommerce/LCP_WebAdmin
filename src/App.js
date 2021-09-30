@@ -2,7 +2,8 @@
 import Home from './components/Home';
 import ProductList from './components/ProductList';
 import CategoryList from './components/CategoryList';
-import ShopDirectionList from './components/ShopDirectionList';
+import DirectionList from './components/DirectionList';
+import StoreList from './components/StoreList';
 
 import { BrowserRouter as Router, Route, NavLink } from "react-router-dom";
 
@@ -24,7 +25,7 @@ class App extends Component {
                             </li>
 
                             <li>
-                                <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Sản phẩm</a>
+                                <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle sidebarDropdown-toggle">Sản phẩm</a>
                                 <ul class="collapse list-unstyled" id="homeSubmenu">
                                     <li>
                                         <NavLink to="/products" exact activeClassName="active">Danh sách sản phẩm</NavLink>
@@ -39,7 +40,7 @@ class App extends Component {
                             </li>
 
                             <li>
-                                <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Bảng giá</a>
+                                <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle sidebarDropdown-toggle">Bảng giá</a>
                                 <ul class="collapse list-unstyled" id="pageSubmenu">
                                     <li>
                                         <NavLink to="/pricelists" exact activeClassName="active">Danh sách bảng giá</NavLink>
@@ -115,7 +116,7 @@ class App extends Component {
                                                 </div>
 
                                                 <div class="modal-body">
-                                                    <ShopDirectionList />
+                                                    <DirectionList />
                                                 </div>
 
                                                 <div class="modal-footer">
@@ -134,7 +135,7 @@ class App extends Component {
                         <Route path="/collections" component={ProductList} />
                         <Route path="/pricelists" component={ProductList} />
                         <Route path="/applicables" component={ProductList} />
-                        <Route path="/stores" component={ProductList} />
+                        <Route path="/stores" component={StoreList} />
                     </nav>
                 </Router>
             </div>

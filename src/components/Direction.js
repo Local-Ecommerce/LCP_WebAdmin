@@ -1,15 +1,15 @@
 ﻿import React, { Component } from 'react';
 
-class ShopDirection extends Component {
+class Direction extends Component {
 
     render() {
-        let { shop } = this.props;
+        let { store } = this.props;
 
         return (
             <div class="col-md-4">
                 <div class="card mb-3">
                     <h5 class="card-header bg-white">
-                        {shop.name}
+                        {store.name}
                         <div class="col-md-3 float-right">
                             <button type="button" class="btn btn-info">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-arrow-right mx-2 float-right" viewBox="0 0 16 16">
@@ -20,8 +20,8 @@ class ShopDirection extends Component {
                     </h5>
 
                     <div class="card-body">
-                        <p class="card-text mb-0">{shop.address}</p>
-                        <p class="card-text">{shop.manager}</p>
+                        <p class="card-text mb-0">{store.address}</p>
+                        <p class="card-text">{store.manager}</p>
                     </div>
                 </div>
             </div>
@@ -29,4 +29,4 @@ class ShopDirection extends Component {
     }
 }
 
-export default ShopDirection;
+export default Direction;
