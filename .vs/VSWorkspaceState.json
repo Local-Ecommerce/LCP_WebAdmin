@@ -1,13 +1,16 @@
 {
   "ExpandedNodes": [
     "",
-    "\\public",
-    "\\public\\css",
-    "\\public\\images",
     "\\src",
-    "\\src\\components",
-    "\\src\\mockdata"
+    "\\src\\mockdata",
+    "\\src\\pages",
+    "\\src\\pages\\Category",
+    "\\src\\pages\\Collection",
+    "\\src\\pages\\Home",
+    "\\src\\pages\\Menu",
+    "\\src\\pages\\Product",
+    "\\src\\pages\\Store"
   ],
-  "SelectedNode": "\\public\\index.html",
+  "SelectedNode": "\\src\\mockdata\\Products.js",
   "PreviewInSolutionExplorer": false
 }

@@ -20,8 +20,8 @@ class Direction extends Component {
                     </h5>
 
                     <div class="card-body">
-                        <p class="card-text mb-0">{store.address}</p>
-                        <p class="card-text">{store.manager}</p>
+                        <h6 class="card-text">{store.address}</h6>
+                        <h6 class="card-text">{store.manager}</h6>
                     </div>
                 </div>
             </div>

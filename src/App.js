@@ -1,9 +1,12 @@
 ﻿import React, { Component } from 'react';
-import Home from './components/Home';
-import ProductList from './components/ProductList';
-import CategoryList from './components/CategoryList';
-import DirectionList from './components/DirectionList';
-import StoreList from './components/StoreList';
+import Home from './pages/Home/Home';
+
+import MenuList from './pages/Menu/MenuList';
+import StoreList from './pages/Store/StoreList';
+import ProductList from './pages/Product/ProductList';
+import CategoryList from './pages/Category/CategoryList';
+import DirectionList from './pages/Direction/DirectionList';
+import CollectionList from './pages/Collection/CollectionList';
 
 import { BrowserRouter as Router, Route, NavLink } from "react-router-dom";
 
@@ -15,7 +18,7 @@ class App extends Component {
                 <Router>
                     <nav id="sidebar">
                         <div class="sidebar-header">
-                            <img class="logo" src="../images/loich.png" alt="Loich Logo" />
+                            <img class="mt-3" src='./images/loich.png' alt="Loich Logo" />
                         </div>
 
                         <ul class="list-unstyled components">
@@ -43,7 +46,7 @@ class App extends Component {
                                 <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle sidebarDropdown-toggle">Bảng giá</a>
                                 <ul class="collapse list-unstyled" id="pageSubmenu">
                                     <li>
-                                        <NavLink to="/pricelists" exact activeClassName="active">Danh sách bảng giá</NavLink>
+                                        <NavLink to="/menus" exact activeClassName="active">Danh sách bảng giá</NavLink>
                                     </li>
                                     <li>
                                         <NavLink to="/applicables" exact activeClassName="active">Cửa hàng áp dụng</NavLink>
@@ -82,7 +85,7 @@ class App extends Component {
                                          Điều hướng
                                     </button>
 
-                                    <img class="avatar" src="../images/user.png" alt="Loich Logo" />
+                                    <img class="avatar" src="./images/user.png" alt="Loich Logo" />
 
                                     <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
                                         <div class="modal-dialog modal-lg">
@@ -132,8 +135,8 @@ class App extends Component {
                         <Route exact path="/" component={Home} />
                         <Route path="/products" component={ProductList} />
                         <Route path="/categories" component={CategoryList} />
-                        <Route path="/collections" component={ProductList} />
-                        <Route path="/pricelists" component={ProductList} />
+                        <Route path="/collections" component={CollectionList} />
+                        <Route path="/menus" component={MenuList} />
                         <Route path="/applicables" component={ProductList} />
                         <Route path="/stores" component={StoreList} />
                     </nav>

@@ -1,6 +1,6 @@
 ﻿import React, { Component } from 'react';
-import Direction from '../components/Direction';
-import Stores from '../mockdata/Stores';
+import Direction from '../Direction/Direction';
+import Stores from '../../mockdata/Stores';
 
 class DirectionList extends Component {
     constructor(props) {
