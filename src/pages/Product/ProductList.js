@@ -17,7 +17,7 @@ class ProductList extends Component {
             page: 1,
             total: Products.length,
             pageSize: 5,
-            maxLink: 5
+            maxLink: 5,
         }
     };
 
