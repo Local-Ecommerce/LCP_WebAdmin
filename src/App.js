@@ -1,39 +1,57 @@
-﻿import React, { Component } from 'react';
-import Sidebar from './pages/Sidebar/Sidebar';
+﻿import styled from "styled-components";
+import React from 'react';
+import Sidebar from './pages/Sidebar';
 import Home from './pages/Home/Home';
-import MenuList from './pages/Menu/MenuList';
-import StoreList from './pages/Store/StoreList';
-import ProductList from './pages/Product/ProductList';
-import CategoryList from './pages/Category/CategoryList';
-import CollectionList from './pages/Collection/CollectionList';
-
-import Header from './pages/Header/Header';
-
+import Menu from './pages/Menu';
+import MenuDetail from './pages/MenuDetail';
+import Store from './pages/Store';
+import StoreDetail from './pages/StoreDetail';
+import Product from './pages/Product';
+import ProductDetail from './pages/ProductDetail';
+import Category from './pages/Category';
+import Collection from './pages/Collection';
+import Header from './pages/Header';
+import AddStore from './pages/AddStore';
 import { BrowserRouter as Router, Route } from "react-router-dom";
 
-class App extends Component {
+const Main = styled.div`
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+`;
 
-    render() {
-        return (
-            <div class="wrapper">
-                <Router>
-                    <Sidebar />
+const Content = styled.div`
+    background: white;
+    width: 100%;
+    margin: 20px 20px 20px 310px;
+    transition: all 0.3s;
+`;
 
-                    <nav id="content">
-                        <Header />
+const App = () => {
 
-                        <Route exact path="/" component={Home} />
-                        <Route path="/products" component={ProductList} />
-                        <Route path="/categories" component={CategoryList} />
-                        <Route path="/collections" component={CollectionList} />
-                        <Route path="/menus" component={MenuList} />
-                        <Route path="/applicables" component={ProductList} />
-                        <Route path="/stores" component={StoreList} />
-                    </nav>
-                </Router>
-            </div>
-        )
-    }
+    return (
+        <Main>
+            <Router>
+                <Sidebar />
+
+                <Content>
+                    <Header />
+
+                    <Route exact path="/">          <Home />            </Route>
+                    <Route path="/products">        <Product />         </Route>
+                    <Route path="/product/:id">     <ProductDetail />   </Route>
+                    <Route path="/categories">      <Category />        </Route>
+                    <Route path="/collections">     <Collection />      </Route>
+                    <Route path="/menus">           <Menu />            </Route>
+                    <Route path="/menu/:id">        <MenuDetail />      </Route>
+                    <Route path="/applicables">     <Home />            </Route>
+                    <Route path="/stores">          <Store />           </Route>
+                    <Route path="/addStore">        <AddStore />        </Route>
+                    <Route path="/store/:id">       <StoreDetail />     </Route>
+                </Content>
+            </Router>
+        </Main>
+    )
 }
 
 export default App;

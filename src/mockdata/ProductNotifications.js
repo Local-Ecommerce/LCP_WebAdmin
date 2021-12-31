@@ -13,7 +13,7 @@
         shopName: 'Tên cửa hàng 2',
         address: 'Địa chỉ 2',
         manager: 'Quản lí B',
-        status: 0
+        status: 1
     },
     {
         id: 3,
@@ -29,7 +29,7 @@
         shopName: 'Tên cửa hàng 4',
         address: 'Địa chỉ 4',
         manager: 'Quản lí D',
-        status: 1
+        status: 0
     },
     {
         id: 5,
@@ -37,7 +37,7 @@
         shopName: 'Tên cửa hàng 5',
         address: 'Địa chỉ 5',
         manager: 'Quản lí E',
-        status: 1
+        status: 0
     },
 ];
 

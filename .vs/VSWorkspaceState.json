@@ -1,14 +1,16 @@
 {
   "ExpandedNodes": [
     "",
-    "\\public",
-    "\\public\\css",
     "\\src",
+    "\\src\\components",
+    "\\src\\components\\Direction",
+    "\\src\\components\\Header",
+    "\\src\\components\\Notification",
+    "\\src\\components\\Product",
     "\\src\\mockdata",
     "\\src\\pages",
-    "\\src\\pages\\Notification",
-    "\\src\\pages\\Product"
+    "\\src\\pages\\Home"
   ],
-  "SelectedNode": "\\src\\mockdata\\ShopNotifications.js",
+  "SelectedNode": "\\src\\components\\Header\\NotificationButton.js",
   "PreviewInSolutionExplorer": false
 }
