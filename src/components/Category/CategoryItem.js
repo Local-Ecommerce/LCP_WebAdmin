@@ -147,7 +147,7 @@ const CategoryItem = ({ item, handleDeleteItem }) => {
         <>
             <CategoryContent level={item.level} onClick={item.child && showChild}>
                 <NameWrapper>
-                    {item.name}
+                    {item.SysCategoryName}
 
                     {item.child && child
                     ? <DropupIcon />

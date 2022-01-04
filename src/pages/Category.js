@@ -2,6 +2,7 @@
 import styled from 'styled-components';
 import CategoryList from '../components/Category/CategoryList';
 import Categories from '../mockdata/Categories';
+import { publicRequest } from "../RequestMethod";
 
 const Title = styled.h1`
     font-size: 30px;
@@ -52,8 +53,22 @@ const Button = styled.button`
     }
 `;
 
-const Category = () =>  {
-    const [data, setData] = useState(Categories);
+const Category = () => {
+
+    const [data, setData] = useState([]);
+
+    useEffect(() => {
+        const url = "systemCategory/all";
+
+        const fetchData = async () => {
+            try {
+                const res = await fetch(publicRequest(url));
+                const json = await res.json();
+                setData(json.Data);
+            } catch (error) { }
+        };
+        fetchData();
+    }, []);
 
     const handleDeleteItem = (id) => {
         setData(data.filter((item) => item.id !== id));
@@ -63,7 +78,7 @@ const Category = () =>  {
     return (
         <div>
             <Title>Danh mục</Title>
-
+            
             <ButtonWrapper>
                 <Input placeholder="Search tên danh mục" />
                 <Button>Clear</Button>
