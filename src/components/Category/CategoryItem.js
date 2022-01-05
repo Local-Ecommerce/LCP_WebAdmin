@@ -1,10 +1,7 @@
 ﻿import React, { useState } from 'react';
 import styled from 'styled-components';
 import Modal from 'react-modal';
-import ArrowDropDown from '@mui/icons-material/ArrowDropDown';
-import ArrowDropUp from '@mui/icons-material/ArrowDropUp';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { ArrowDropUp, ArrowDropDown, Edit, Delete, ContentPasteSearch } from '@mui/icons-material';
 import { Link } from "react-router-dom";
 
 const CategoryContent = styled.div`
@@ -132,6 +129,24 @@ const customStyles = {
     },
 };
 
+const StyledSearchIcon = styled(ContentPasteSearch)`
+    &:hover {
+    color: #dc3545;
+    }
+`;
+
+const StyledEditIcon = styled(Edit)`
+    &:hover {
+    color: #dc3545;
+    }
+`;
+
+const StyledDeleteIcon = styled(Delete)`
+    &:hover {
+    color: #dc3545;
+    }
+`;
+
 const CategoryItem = ({ item, handleDeleteItem }) => {
     const [child, setChild] = useState(false);
     const [DeleteModal, toggleDeleteModal] = React.useState(false);
@@ -163,14 +178,20 @@ const CategoryItem = ({ item, handleDeleteItem }) => {
                 </DiscountWrapper>
 
                 <ButtonWrapper>
-                    <Link to={"/category/" + id}>
+                    <Link to={"/category/" + item.CollectionId}>
                         <Button>
-                            <EditIcon />
+                            <StyledSearchIcon />
+                        </Button>
+                    </Link>
+
+                    <Link to={"/"}>
+                        <Button>
+                            <StyledEditIcon />
                         </Button>
                     </Link>
 
                     <Button onClick={toggleModal}>
-                        <DeleteIcon />
+                        <StyledDeleteIcon />
                     </Button>
 
                     <Modal isOpen={DeleteModal} onRequestClose={toggleModal} style={customStyles}>

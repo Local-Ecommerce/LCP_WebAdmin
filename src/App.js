@@ -6,10 +6,12 @@ import Menu from './pages/Menu';
 import MenuDetail from './pages/MenuDetail';
 import Store from './pages/Store';
 import StoreDetail from './pages/StoreDetail';
+import EditStore from './pages/EditStore';
 import Product from './pages/Product';
 import ProductDetail from './pages/ProductDetail';
 import Category from './pages/Category';
 import Collection from './pages/Collection';
+import CollectionDetail from './pages/CollectionDetail';
 import Header from './pages/Header';
 import AddStore from './pages/AddStore';
 import { BrowserRouter as Router, Route } from "react-router-dom";
@@ -42,12 +44,14 @@ const App = () => {
                     <Route path="/product/:id">     <ProductDetail />   </Route>
                     <Route path="/categories">      <Category />        </Route>
                     <Route path="/collections">     <Collection />      </Route>
+                    <Route path="/collection/:id">  <CollectionDetail /></Route>
                     <Route path="/menus">           <Menu />            </Route>
                     <Route path="/menu/:id">        <MenuDetail />      </Route>
                     <Route path="/applicables">     <Home />            </Route>
                     <Route path="/stores">          <Store />           </Route>
-                    <Route path="/addStore">        <AddStore />        </Route>
                     <Route path="/store/:id">       <StoreDetail />     </Route>
+                    <Route path="/addStore">        <AddStore />        </Route>
+                    <Route path="/editStore/:id">   <EditStore />       </Route>
                 </Content>
             </Router>
         </Main>

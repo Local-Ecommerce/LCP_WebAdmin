@@ -1,8 +1,7 @@
 ﻿import React from 'react';
 import styled from 'styled-components';
 import Modal from 'react-modal';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { Edit, Delete, ContentPasteSearch } from '@mui/icons-material';
 import { Link } from "react-router-dom";
 
 const Button = styled.button`
@@ -100,10 +99,27 @@ const customStyles = {
     },
 };
 
+const StyledSearchIcon = styled(ContentPasteSearch)`
+    &:hover {
+    color: #dc3545;
+    }
+`;
+
+const StyledEditIcon = styled(Edit)`
+    &:hover {
+    color: #dc3545;
+    }
+`;
+
+const StyledDeleteIcon = styled(Delete)`
+    &:hover {
+    color: #dc3545;
+    }
+`;
+
 const StoreItem = ({ item, handleDeleteItem }) => {
 
     const [DeleteModal, toggleDeleteModal] = React.useState(false);
-    const id = item.id;
 
     const toggleModal = () => {
         toggleDeleteModal(!DeleteModal);
@@ -142,14 +158,20 @@ const StoreItem = ({ item, handleDeleteItem }) => {
             <TableData center><Status active={activeCheck}>{activeLabel}</Status></TableData>
 
             <TableData center>
-                <Link to={"/store/" + id}>
+                <Link to={"/store/" + item.id}>
                     <Button>
-                        <EditIcon/>
+                        <StyledSearchIcon />
+                    </Button>
+                </Link>
+
+                <Link to={"/editStore/" + item.id}>
+                    <Button>
+                        <StyledEditIcon/>
                     </Button>
                 </Link>
 
                 <Button onClick={toggleModal}>
-                    <DeleteIcon />
+                    <StyledDeleteIcon />
                 </Button>
 
                 <Modal isOpen={DeleteModal} onRequestClose={toggleModal} style={customStyles}>

@@ -11,6 +11,7 @@ const Title = styled.h1`
 `;
 
 const CategoryListWrapper = styled.div`
+    margin-top: 20px;
     margin-bottom: 50px;
 `
 

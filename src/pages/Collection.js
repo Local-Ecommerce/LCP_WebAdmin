@@ -1,10 +1,10 @@
 ﻿import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import CollectionList from '../components/Collection/CollectionList';
-import Collections from '../mockdata/Collections';
 import ReactPaginate from "react-paginate";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { Link } from "react-router-dom";
+import { publicRequest } from "../RequestMethod";
 
 const Title = styled.h1`
     font-size: 30px;
@@ -200,16 +200,26 @@ const StyledPaginateContainer = styled.div`
 
 
 const Collection = () =>  {
-    const [data, setData] = useState(Collections);
+    const [data, setData] = useState([]);
     const [currentItems, setCurrentItems] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [itemOffset, setItemOffset] = useState(0);
     const itemsPerPage = 5;
 
     useEffect(() => {
-        const endOffset = itemOffset + itemsPerPage;
-        setCurrentItems(data.slice(itemOffset, endOffset));
-        setPageCount(Math.ceil(data.length / itemsPerPage));
+        const url = "collection/all";
+
+        const fetchData = async () => {
+            try {
+                const res = await fetch(publicRequest(url));
+                const json = await res.json();
+                setData(json.Data);
+                const endOffset = itemOffset + itemsPerPage;
+                setCurrentItems(data.slice(itemOffset, endOffset));
+                setPageCount(Math.ceil(data.length / itemsPerPage));
+            } catch (error) { }
+        };
+        fetchData();
     }, [data, itemOffset, itemsPerPage]);
 
     const handlePageClick = (event) => {

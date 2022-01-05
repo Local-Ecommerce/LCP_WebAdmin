@@ -1,8 +1,7 @@
 ﻿import React from 'react';
 import styled from 'styled-components';
 import Modal from 'react-modal';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { Edit, Delete, ContentPasteSearch } from '@mui/icons-material';
 import { Link } from "react-router-dom";
 
 const Button = styled.button`
@@ -70,7 +69,7 @@ const ModalButton = styled.button`
 const Title = styled.h1`
     font-size: 30px;
     margin: 15px;
-    color: #dc3545;
+    color: #dc3545; //red
     border-bottom: 1px solid #dee2e6;
 `;
 
@@ -100,6 +99,24 @@ const customStyles = {
     },
 };
 
+const StyledSearchIcon = styled(ContentPasteSearch)`
+    &:hover {
+    color: #dc3545;
+    }
+`;
+
+const StyledEditIcon = styled(Edit)`
+    &:hover {
+    color: #dc3545;
+    }
+`;
+
+const StyledDeleteIcon = styled(Delete)`
+    &:hover {
+    color: #dc3545;
+    }
+`;
+
 const CollectionItem = ({ item, handleDeleteItem }) =>  {
     const [DeleteModal, toggleDeleteModal] = React.useState(false);
 
@@ -118,7 +135,7 @@ const CollectionItem = ({ item, handleDeleteItem }) =>  {
     }
     let activeCheck = '';
     let activeLabel = '';
-    switch (item.status) {
+    switch (item.Status) {
         case 1:
             activeCheck = 'active';
             activeLabel = 'Active';
@@ -131,21 +148,27 @@ const CollectionItem = ({ item, handleDeleteItem }) =>  {
 
     return (
         <TableRow>
-            <TableData>{item.name}</TableData>
+            <TableData>{item.CollectionName}</TableData>
 
             <TableData center>
                 <Status active={activeCheck}>{activeLabel}</Status>
             </TableData>
 
             <TableData center>
+                <Link to={"/collection/" + item.CollectionId}>
+                    <Button>
+                        <StyledSearchIcon />
+                    </Button>
+                </Link>
+
                 <Link to={"/"}>
                     <Button>
-                        <EditIcon/>
+                        <StyledEditIcon/>
                     </Button>
                 </Link>
 
                 <Button onClick={toggleModal}>
-                    <DeleteIcon />
+                    <StyledDeleteIcon />
                 </Button>
 
                 <Modal isOpen={DeleteModal} onRequestClose={toggleModal} style={customStyles}>
