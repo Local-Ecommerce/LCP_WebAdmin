@@ -128,7 +128,7 @@ const ProductItem = ({ item, handleDeleteItem }) => {
     if (item === 0) {
         return (
             <tr>
-                <TableData>
+                <TableData colspan="6">
                     <h4>Không tìm thấy sản phẩm.</h4>
                 </TableData>
             </tr>
@@ -136,8 +136,8 @@ const ProductItem = ({ item, handleDeleteItem }) => {
     }
     let activeCheck = '';
     let activeLabel = '';
-    switch (item.status) {
-        case 1:
+    switch (item.Status) {
+        case 1003:
             activeCheck = 'active';
             activeLabel = 'Active';
             break;
@@ -149,19 +149,10 @@ const ProductItem = ({ item, handleDeleteItem }) => {
 
     return (
         <TableRow>
-            <TableData><Image src={item.image} alt={item.alt} /></TableData>
-            <TableData>{item.name}</TableData>
-            <TableData>
-                {item.collection.map((collection, index) => {
-                    return <Chip key={index}>{collection.name}</Chip>
-                })}
-            </TableData>
-            <TableData>
-                {item.category.map((category, index) => {
-                    return (<Chip key={index}>{category.name}</Chip>)
-                })}
-            </TableData>
-            <TableData center>{item.price}</TableData>
+            <TableData center><Image src={item.Image} /></TableData>
+            <TableData>{item.ProductName}</TableData>
+            <TableData>{item.ProductType}</TableData>
+            <TableData center>{item.DefaultPrice}</TableData>
 
             <TableData center>
                 <Status active={activeCheck}>{activeLabel}</Status>

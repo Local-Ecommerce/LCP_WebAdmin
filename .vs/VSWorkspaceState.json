@@ -3,14 +3,13 @@
     "",
     "\\src",
     "\\src\\components",
+    "\\src\\components\\Category",
     "\\src\\components\\Collection",
-    "\\src\\components\\Menu",
     "\\src\\components\\Notification",
     "\\src\\components\\Product",
+    "\\src\\components\\Sidebar",
     "\\src\\components\\Store",
-    "\\src\\mockdata",
     "\\src\\pages"
   ],
-  "SelectedNode": "\\src\\pages\\StoreDetail.js",
   "PreviewInSolutionExplorer": false
 }

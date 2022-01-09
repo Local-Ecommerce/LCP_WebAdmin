@@ -27,7 +27,7 @@ const TableRow = styled.tr`
 const TableData = styled.td`
     padding: 1rem;
     vertical-align: top;
-    border-top: 1px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6;
     vertical-align: middle;
     text-align: ${props => props.center ? "center" : "left"};
     overflow: hidden;
@@ -42,15 +42,12 @@ const Status = styled.span`
     white-space: nowrap;
     vertical-align: baseline;
     border-radius: 0.25rem;
-    color: #fff;
-    background-color: ${
-    props => props.active === "verified" ? "#28a745"
+    color: ${props => props.active === "inactive" ? "grey" : "#fff"};
+    background-color: ${props => props.active === "active" ? "#28a745"
+    :
+    props.active === "inactive" ? "#E0E0E0"
         :
-    props.active === "unverified" ? "#FF8800"
-        :
-    props.active === "deleted" ? "#dc3545"
-        :
-    "#dc3545"};
+        "#dc3545"};
 `;
 
 const ModalButton = styled.button`
@@ -76,7 +73,7 @@ const ModalButton = styled.button`
 const Title = styled.h1`
     font-size: 30px;
     margin: 15px;
-    color: #dc3545;
+    color: #dc3545; //red
     border-bottom: 1px solid #dee2e6;
 `;
 
@@ -90,6 +87,17 @@ const Text = styled.p`
     font-size: 0.9em;
     display: inline-block;
 `;
+
+const customStyles = {
+    content: {
+        top: '50%',
+        left: '50%',
+        right: '65%',
+        bottom: 'auto',
+        marginRight: '-50%',
+        transform: 'translate(-50%, -50%)',
+    },
+};
 
 const StyledSearchIcon = styled(ContentPasteSearch)`
     &:hover {
@@ -109,23 +117,11 @@ const StyledDeleteIcon = styled(Delete)`
     }
 `;
 
-const customStyles = {
-    content: {
-        top: '50%',
-        left: '50%',
-        right: '60%',
-        bottom: 'auto',
-        marginRight: '-50%',
-        transform: 'translate(-50%, -50%)',
-    },
-};
-
-const StoreItem = ({ item, handleDeleteItem }) => {
-
-    const [DeleteModal, toggleDeleteModal] = React.useState(false);
+const PoiItem = ({ item, handleDeleteItem }) =>  {
+    const [modal, setModal] = React.useState(false);
 
     const toggleModal = () => {
-        toggleDeleteModal(!DeleteModal);
+        setModal(!modal);
     }
 
     if (item === 0) {
@@ -137,45 +133,42 @@ const StoreItem = ({ item, handleDeleteItem }) => {
             </tr>
         )
     }
-
     let activeCheck = '';
     let activeLabel = '';
     let disabledCheck = false;
     switch (item.Status) {
-        case 6004:
+        case 8001:
+            activeCheck = 'active';
+            activeLabel = 'Active';
+            break;
+        case 8002:
+            activeCheck = 'inactive';
+            activeLabel = 'Inactive';
+            break;
+        case 8004:
             activeCheck = 'deleted';
             activeLabel = 'Deleted';
             disabledCheck = true;
-            break;
-        case 6005:
-            activeCheck = 'verified';
-            activeLabel = 'Verified';
-            break;
-        case 6006:
-            activeCheck = 'unverified';
-            activeLabel = 'Unverified - Create';
-            break;
-        case 6007:
-            activeCheck = 'unverified';
-            activeLabel = 'Unverified - Update';
             break;
     }
 
     return (
         <TableRow>
-            <TableData>{item.StoreName}</TableData>
-            <TableData>{item.MerchantId}</TableData>
-            <TableData>{item.AparmentId}</TableData>
-            <TableData center><Status active={activeCheck}>{activeLabel}</Status></TableData>
+            <TableData></TableData>
+            <TableData></TableData>
 
             <TableData center>
-                <Link to={"/store/" + item.MerchantStoreId}>
+                <Status active={activeCheck}>{activeLabel}</Status>
+            </TableData>
+
+            <TableData center>
+                <Link to={"/"}>
                     <Button>
                         <StyledSearchIcon />
                     </Button>
                 </Link>
 
-                <Link to={"/editStore/" + item.MerchantStoreId}>
+                <Link to={"/"}>
                     <Button>
                         <StyledEditIcon/>
                     </Button>
@@ -185,15 +178,15 @@ const StoreItem = ({ item, handleDeleteItem }) => {
                     <StyledDeleteIcon disabled={disabledCheck} />
                 </Button>
 
-                <Modal isOpen={DeleteModal} onRequestClose={toggleModal} style={customStyles} ariaHideApp={false}>
+                <Modal isOpen={modal} onRequestClose={toggleModal} style={customStyles}>
                     <Title>Xác Nhận Xóa</Title>
-                    <Row><Text>Bạn có chắc chắn muốn xóa cửa hàng【<b>{item.StoreName}</b>】?</Text></Row>
+                    <Row><Text>Bạn có chắc chắn muốn xóa POI【<b>{item.PoiName}</b>】?</Text></Row>
                     <ModalButton onClick={toggleModal}>Quay lại</ModalButton>
-                    <ModalButton red onClick={() => { handleDeleteItem(item.MerchantStoreId); toggleModal()}}>Xóa</ModalButton>
+                    <ModalButton red onClick={() => { handleDeleteItem(item.PoiId); toggleModal()}}>Xóa</ModalButton>
                 </Modal>
             </TableData>
         </TableRow>
     )
 }
 
-export default StoreItem;
+export default PoiItem;

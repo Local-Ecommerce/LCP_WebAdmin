@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import styled from 'styled-components';
-import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import { Link } from "react-router-dom";
+import { publicRequest } from "../RequestMethod";
 
 const StyledLink = styled(Link)`
     text-decoration: none;
@@ -21,18 +21,8 @@ const ContainerWrapper = styled.div`
 `;
 
 const Form = styled.form`
-    display: flex;
-    justify-content: space-between;
-    margin: 0px 20px 0px 20px;
     padding: 20px;
-`;
-
-const LeftSide = styled.div`
-    width: 50%;
-    float: right;
-`;
-
-const RightSide = styled.div`
+    margin: 0 auto;
     width: 50%;
 `;
 
@@ -40,6 +30,7 @@ const Item = styled.div`
     display: flex;
     flex-direction: column;
     margin-top: 10px;
+    margin-bottom: 20px;
 `;
 
 const ItemLabel = styled.label`
@@ -49,7 +40,6 @@ const ItemLabel = styled.label`
 
 const ItemInput = styled.input`
     border: none;
-    width: 75%;
     height: 30px;
     border-bottom: 1px solid gray;
     outline: none;
@@ -59,106 +49,62 @@ const ItemInput = styled.input`
     }
 `;
 
-const ItemInputTime = styled(ItemInput)`
-    height: 32px;
-`;
-
 const AddButton = styled.button`
     border-radius: 5px;
     border: none;
-    padding: 5px;
+    padding: 15px;
     cursor: pointer;
     background-color: #17a2b8;
     color: white;
     font-weight: 600;
-    width: 75%;
-    margin-top: 10px;
-`;
-
-const InputFileWrapper = styled.div`
-    margin: 30px 0px;
-`;
-
-const InputFileLabel = styled.label`
-    cursor: pointer;
-    border: 2px dashed #727272;
-    height: 100px;
-    width: 100px;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    color: #383838;
-    font-size: 0.8em;
-
-    &:active {
-    border: 2px solid #727272;
-    }
-`;
-
-const HiddenInputFile = styled.input`
-    opacity: 0;
-    position: absolute;
-    z-index: -1;
+    width: 100%;
+    margin-top: 50px;
 `;
 
 const AddStore = () => {
+
+    const handleAddStore = (event) => {
+        event.preventDefault();
+        const url = "store/create";
+
+        const updateCollection = async () => {
+            try {
+                const res = await fetch(publicRequest(url), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        storeName: event.target.elements.storeName.value,
+                        merchantId: event.target.elements.merchantId.value,
+                        aparmentId: event.target.elements.aparmentId.value
+                    })
+                });
+            } catch (error) { }
+        };
+        updateCollection();
+    }
 
     return (
         <div>
             <Title><StyledLink to={"/stores"}>Danh sách cửa hàng</StyledLink> / Tạo cửa hàng mới </Title>
 
             <ContainerWrapper>
-                <Form>
-                    <LeftSide>
-                        <Item>
-                            <ItemLabel>Mã cửa hàng</ItemLabel>
-                            <ItemInput type="text" placeholder="" />
-                        </Item>
+                <Form onSubmit={handleAddStore}>
+                    <Item>
+                        <ItemLabel>Tên cửa hàng</ItemLabel>
+                        <ItemInput type="text" name="storeName" placeholder="" />
+                    </Item>
 
-                        <Item>
-                            <ItemLabel>Tên cửa hàng</ItemLabel>
-                            <ItemInput type="text" placeholder="" />
-                        </Item>
+                    <Item>
+                        <ItemLabel>ID chủ cửa hàng</ItemLabel>
+                        <ItemInput type="text" name="merchantId" placeholder="" />
+                    </Item>
 
-                        <Item>
-                            <ItemLabel>Tên rút gọn</ItemLabel>
-                            <ItemInput type="text" placeholder="" />
-                        </Item>
+                    <Item>
+                        <ItemLabel>ID Chung cư</ItemLabel>
+                        <ItemInput type="text" name="aparmentId" placeholder="" />
+                    </Item>
 
-                        <Item>
-                            <ItemLabel>Địa chỉ</ItemLabel>
-                            <ItemInput type="text" placeholder="" />
-                        </Item>
-
-                        <Item>
-                            <ItemLabel>Quản lí</ItemLabel>
-                            <ItemInput type="text" placeholder="" />
-                        </Item>
-
-                    </LeftSide>
-
-
-                    <RightSide>
-
-                        <Item>
-                            <ItemLabel>Giờ mở cửa</ItemLabel>
-                            <ItemInputTime type="time" id="appt" name="appt" min="00:00" max="24:00" value="00:00" />
-                        </Item>
-
-                        <Item>
-                            <ItemLabel>Giờ đóng cửa</ItemLabel>
-                            <ItemInputTime type="time" id="appt" name="appt" min="00:00" max="24:00" value="00:00" />
-                        </Item>
-
-                        <InputFileWrapper>
-                            <InputFileLabel for="upload-photo"> <AddPhotoAlternateIcon />Thêm ảnh</InputFileLabel>
-                            <HiddenInputFile type="file" id="upload-photo" />
-                        </InputFileWrapper>
-
-                        <AddButton>Tạo cửa hàng</AddButton>
-                    </RightSide>
+                    <AddButton>Tạo cửa hàng</AddButton>
                 </Form>
 
             </ContainerWrapper>

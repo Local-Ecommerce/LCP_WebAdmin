@@ -1,6 +1,6 @@
 ﻿import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import CollectionList from '../components/Collection/CollectionList';
+import PoiList from '../components/Poi/PoiList';
 import ReactPaginate from "react-paginate";
 import { publicRequest } from "../RequestMethod";
 
@@ -200,7 +200,7 @@ const StyledPaginateContainer = styled.div`
     }
 `;
 
-const Collection = () =>  {
+const Poi = () =>  {
     const [APIdata, setAPIdata] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [currentItems, setCurrentItems] = useState([]);
@@ -236,64 +236,32 @@ const Collection = () =>  {
     };
 
     const handleDeleteItem = (id) => {
-        const url = "collection/delete/" + id;
-        try {
-            fetch(publicRequest(url), { method: 'PUT' });
-        } catch (error) {}
     };
 
     const handleSearch = (searchValue) => {
         setSearch(searchValue);
-
-        const result = APIdata.filter((item) => {
-            if (status !== '0') {
-                return item.CollectionName.toLowerCase().includes(searchValue.toLowerCase())
-                    && item.Status === parseInt(status)
-            } else {
-                return item.CollectionName.toLowerCase().includes(searchValue.toLowerCase())
-            }
-        })
-        setFilteredData(result);
     }
 
     const handleFilterStatus = (statusValue) => {
         setStatus(statusValue);
-
-        if (statusValue !== '0') {
-            const result = APIdata.filter((item) => {
-                if (search !== '') {
-                    return item.CollectionName.toLowerCase().includes(search.toLowerCase())
-                        && item.Status === parseInt(statusValue)
-                } else {
-                    return item.Status === parseInt(statusValue)
-                }
-            })
-            setFilteredData(result);
-        } else {
-            const result = APIdata.filter((item) => {
-                return item.CollectionName.toLowerCase().includes(search.toLowerCase())
-            })
-            setFilteredData(result);
-        }
     }
 
     return (
         <div>
-            <Title>Bộ sưu tập</Title>
+            <Title>POI</Title>
 
             <TableWrapper>
                 <Row>
                     <ButtonWrapper>
-                        <Input placeholder="Search theo tên bộ sưu tập" onChange={(event) => handleSearch(event.target.value)}/>
+                        <Input placeholder="Search POI" onChange={(event) => handleSearch(event.target.value)}/>
                         <Button className="btn btn-info" type="button">Clear</Button>
                     </ButtonWrapper>
 
                     <SelectWrapper>
                         <Select value={status} onChange={(event) => handleFilterStatus(event.target.value)}>
                             <option value="0">--- Lọc trạng thái ---</option>
-                            <option value="8004">Deleted</option>
-                            <option value="8002">Inactive</option>
-                            <option value="8001">Active</option>
+                            <option value="13001">Active</option>
+                            <option value="13002">Inactive</option>
                         </Select>
                     </SelectWrapper>
                 </Row>
@@ -301,14 +269,13 @@ const Collection = () =>  {
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableHeader width="50%">Tên bộ sưu tập</TableHeader>
-                            <TableHeader width="20%">Chủ cửa hàng</TableHeader>
+                            <TableHeader width="70%">Tên địa điểm</TableHeader>
                             <TableHeader width="15%" center>Trạng thái</TableHeader>
                             <TableHeader width="15%" center>Chỉnh sửa</TableHeader>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        <CollectionList currentItems={currentItems} handleDeleteItem={handleDeleteItem} />
+                        <PoiList currentItems={currentItems} handleDeleteItem={handleDeleteItem} />
                     </TableBody>
                 </Table>
 
@@ -343,4 +310,4 @@ const Collection = () =>  {
     )
 }
 
-export default Collection;
+export default Poi;

@@ -7,14 +7,23 @@ import SidebarItem from '../components/Sidebar/SidebarItem';
 const SidebarWrapper = styled.div`
     background-color: #F8F8F8;
     text-decoration: none;
-    min-width: 290px;
-    max-width: 290px;
+    min-width: 260px;
+    max-width: 260px;
     height: 100vh;
     border-right: 1px solid #E0E0E0;
     position: fixed; 
     z-index: 1; 
     top: 0; 
     left: 0;
+    overflow-y:scroll;
+
+    &::-webkit-scrollbar {
+    display: none;
+    }
+`;
+
+const PaddingBlock = styled.div`
+    height: 100px;
 `;
 
 const Sidebar = () => {
@@ -25,6 +34,8 @@ const Sidebar = () => {
             {SidebarData.map((item, index) => {
                 return <SidebarItem item={item} key={index} />;
             })}
+
+            <PaddingBlock />
         </SidebarWrapper>
     );
 };

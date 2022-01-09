@@ -81,7 +81,7 @@ const Title = styled.h1`
 
 const NameWrapper = styled.div`
     display: flex;
-    flex: 6;
+    flex: 8;
     text-align: left;
     margin-left: 20px;
 `;
@@ -92,11 +92,6 @@ const DropdownIcon = styled(ArrowDropDown)`
 
 const DropupIcon = styled(ArrowDropUp)`
     margin-left: 10px;
-`;
-
-const DiscountWrapper = styled.div`
-    flex: 3;
-    text-align: left;
 `;
 
 const ButtonWrapper = styled.div`
@@ -150,7 +145,6 @@ const StyledDeleteIcon = styled(Delete)`
 const CategoryItem = ({ item, handleDeleteItem }) => {
     const [child, setChild] = useState(false);
     const [DeleteModal, toggleDeleteModal] = React.useState(false);
-    const id = item.id;
 
     const showChild = () => setChild(!child);
 
@@ -160,22 +154,16 @@ const CategoryItem = ({ item, handleDeleteItem }) => {
 
     return (
         <>
-            <CategoryContent level={item.level} onClick={item.child && showChild}>
+            <CategoryContent level={item.CategoryLevel} onClick={item.Child && showChild}>
                 <NameWrapper>
                     {item.SysCategoryName}
 
-                    {item.child && child
+                    {item.Child && child
                     ? <DropupIcon />
-                    : item.child
+                        : item.Child
                         ? <DropdownIcon />
                         : null}
                 </NameWrapper>
-
-                
-
-                <DiscountWrapper>
-                    {!item.parent ? "Chiết khấu: " + (item.discount) + "%" : null}
-                </DiscountWrapper>
 
                 <ButtonWrapper>
                     <Link to={"/category/" + item.CollectionId}>
@@ -207,7 +195,7 @@ const CategoryItem = ({ item, handleDeleteItem }) => {
             </CategoryContent>
 
             {child &&
-                item.child.map((item, index) => {
+                item.Child.map((item, index) => {
                     return (
                         <CategoryItem item={item} handleDeleteItem={handleDeleteItem} key={index} />
                     );

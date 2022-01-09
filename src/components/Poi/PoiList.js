@@ -1,15 +1,15 @@
 ﻿import React from 'react';
-import CollectionItem from './CollectionItem';
+import PoiItem from './PoiItem';
 
-const CollectionList = ({ currentItems, handleDeleteItem }) => {
+const PoiList = ({ currentItems, handleDeleteItem }) => {
 
     if (currentItems.length === 0) {
-        return <CollectionItem item={0} />
+        return <PoiItem item={0} />
     }
 
     return currentItems && currentItems.map((item, index) => {
         return (
-            <CollectionItem
+            <PoiItem
                 item={item}
                 handleDeleteItem={handleDeleteItem} key={index}
             />
@@ -17,4 +17,4 @@ const CollectionList = ({ currentItems, handleDeleteItem }) => {
     });
 }
 
-export default CollectionList;
+export default PoiList;

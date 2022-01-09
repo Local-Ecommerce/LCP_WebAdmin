@@ -1,10 +1,10 @@
 ﻿import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import StoreList from '../components/Store/StoreList';
-import Stores from '../mockdata/Stores';
 import ReactPaginate from "react-paginate";
 import AddBusinessIcon from '@mui/icons-material/AddBusiness';
 import { Link } from "react-router-dom";
+import { publicRequest } from "../RequestMethod";
 
 const Title = styled.h1`
     font-size: 30px;
@@ -72,7 +72,6 @@ const SelectWrapper = styled.div`
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
-    margin-right: 4%;
 `;
 
 const Select = styled.select`
@@ -87,13 +86,14 @@ const Select = styled.select`
     }
 `;
 
-const CreateButton = styled(Link)`
+const AddStoreButton = styled(Link)`
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: #28a745;
     height: 44px;
     width: 12%;
+    margin-left: 35%;
     border-style: none;
     border-radius: 5px;
     color: #fff;
@@ -105,15 +105,11 @@ const CreateButton = styled(Link)`
     }
 `;
 
-const AddStoreButton = styled(AddBusinessIcon)`
+const AddStoreIcon = styled(AddBusinessIcon)`
     padding-right: 5px;
 `;
 
-const TableWrapper = styled.div`
-    width: 100%;
-    margin-right: auto;
-    margin-left: auto;
-`;
+const TableWrapper = styled.div``;
 
 const Table = styled.table`
     table-layout: fixed;
@@ -226,30 +222,79 @@ const StyledPaginateContainer = styled.div`
 `;
 
 const Store = () => {
-    const [data, setData] = useState(Stores);
+    const [APIdata, setAPIdata] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
     const [currentItems, setCurrentItems] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [itemOffset, setItemOffset] = useState(0);
     const itemsPerPage = 5;
-    const [status, setStatus] = useState(0);
+    const [search, setSearch] = useState(''); //search filter
+    const [status, setStatus] = useState('0'); //status filter
+
+    useEffect(() => {
+        const url = "store/all";
+
+        const fetchData = async () => {
+            try {
+                const res = await fetch(publicRequest(url), { method: 'GET' });
+                const json = await res.json();
+                setAPIdata(json.Data);
+                setFilteredData(json.Data);
+            } catch (error) { }
+        };
+        fetchData();
+    }, []);
 
     useEffect(() => {
         const endOffset = itemOffset + itemsPerPage;
-        setCurrentItems(data.slice(itemOffset, endOffset));
-        setPageCount(Math.ceil(data.length / itemsPerPage));
-    }, [data, itemOffset, itemsPerPage]);
+        setCurrentItems(filteredData.slice(itemOffset, endOffset));
+        setPageCount(Math.ceil(filteredData.length / itemsPerPage));
+    }, [filteredData, status, itemOffset]);
 
     const handlePageClick = (event) => {
-        const newOffset = event.selected * itemsPerPage % data.length;
+        const newOffset = event.selected * itemsPerPage % filteredData.length;
         setItemOffset(newOffset);
     };
 
-    const handleStatusChange = (event) => {
-        setStatus(event.target.value);
+    const handleSearch = (searchValue) => {
+        setSearch(searchValue);
+
+        const result = APIdata.filter((item) => {
+            if (status !== '0') {
+                return [item.StoreName, item.MerchantId, item.AparmentId].join('').toLowerCase().includes(searchValue.toLowerCase())
+                    && item.Status === parseInt(status)
+            } else {
+                return [item.StoreName, item.MerchantId, item.AparmentId].join('').toLowerCase().includes(searchValue.toLowerCase())
+            }
+        })
+        setFilteredData(result);
+    }
+
+    const handleFilterStatus = (statusValue) => {
+        setStatus(statusValue);
+        if (statusValue !== '0') {
+            const result = APIdata.filter((item) => {
+                if (search !== '') {
+                    return [item.StoreName, item.MerchantId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
+                        && item.Status === parseInt(statusValue)
+                } else {
+                    return item.Status === parseInt(statusValue)
+                }
+            })
+            setFilteredData(result);
+        } else {
+            const result = APIdata.filter((item) => {
+                return [item.StoreName, item.MerchantId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
+            })
+            setFilteredData(result);
+        }
     }
 
     const handleDeleteItem = (id) => {
-        setData(data.filter((item) => item.id !== id));
+        const url = "store/delete/" + id;
+        try {
+            fetch(publicRequest(url), { method: 'PUT' });
+        } catch (error) { }
     };
 
     return (
@@ -259,39 +304,34 @@ const Store = () => {
             <TableWrapper>
                 <Row>
                     <ButtonWrapper>
-                        <Input placeholder="Search theo mã cửa hàng" />
-                        <Button>Clear</Button>
-                    </ButtonWrapper>
-
-                    <ButtonWrapper>
-                        <Input placeholder="Search theo tên cửa hàng" />
+                        <Input placeholder="Search cửa hàng" onChange={(event) => handleSearch(event.target.value)}/>
                         <Button>Clear</Button>
                     </ButtonWrapper>
 
                     <SelectWrapper>
-                        <Select value={status} onChange={handleStatusChange}>
-                            <option value="0">--- Lọc theo trạng thái ---</option>
-                            <option value="1">Active</option>
-                            <option value="2">Deactive</option>
+                        <Select value={status} onChange={(event) => handleFilterStatus(event.target.value)}>
+                            <option value="0">--- Lọc trạng thái ---</option>
+                            <option value="6004">Deleted</option>
+                            <option value="6005">Verified</option>
+                            <option value="6006">Unverified - Create</option>
+                            <option value="6007">Unverified - Update</option>
                         </Select>
                     </SelectWrapper>
 
-                    <CreateButton to={"/addStore/"}>
-                        <AddStoreButton />
+                    <AddStoreButton to={"/addStore/"}>
+                        <AddStoreIcon />
                         Tạo cửa hàng
-                    </CreateButton>
+                    </AddStoreButton>
                 </Row>
 
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableHeader width="15%">Mã</TableHeader>
-                            <TableHeader width="25%">Tên cửa hàng</TableHeader>
-                            <TableHeader width="20%">Tên rút gọn</TableHeader>
-                            <TableHeader width="10%" center>Mở cửa</TableHeader>
-                            <TableHeader width="10%" center>Đóng cửa</TableHeader>
-                            <TableHeader width="10%" center>Trạng thái</TableHeader>
-                            <TableHeader width="10%" center>Chỉnh sửa</TableHeader>
+                            <TableHeader width="30%">Tên cửa hàng</TableHeader>
+                            <TableHeader width="20%">Chủ cửa hàng</TableHeader>
+                            <TableHeader width="20%">Chung cư</TableHeader>
+                            <TableHeader width="15%" center>Trạng thái</TableHeader>
+                            <TableHeader width="15%" center>Chỉnh sửa</TableHeader>
                         </TableRow>
                     </TableHead>
                     <TableBody>

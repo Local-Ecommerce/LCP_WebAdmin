@@ -1,7 +1,6 @@
 ﻿import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useParams } from "react-router-dom";
-import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { Link } from "react-router-dom";
 import { publicRequest } from "../RequestMethod";
 
@@ -21,7 +20,7 @@ const ContainerWrapper = styled.div`
     margin-top: 20px;
 `;
 
-const StoreDetailWrapper = styled.div`
+const CollectionDetailWrapper = styled.div`
     flex: 2;
     padding: 20px 40px;
     background-color: #ffffff;
@@ -29,7 +28,7 @@ const StoreDetailWrapper = styled.div`
     box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
-const StoreUpdateWrapper = styled.div`
+const CollectionUpdateWrapper = styled.div`
     flex: 2;
     padding: 20px 40px;
     background-color: #ffffff;
@@ -70,14 +69,7 @@ const DetailStatus = styled.span`
     vertical-align: baseline;
     border-radius: 0.25rem;
     color: #fff;
-    background-color: ${
-    props => props.active === "verified" ? "#28a745"
-        :
-        props.active === "unverified" ? "#FF8800"
-            :
-            props.active === "deleted" ? "#dc3545"
-                :
-                "#dc3545"};
+    background-color: ${props => props.active === "active" ? "#28a745" : "#dc3545"};
 `;
 
 const UpdateTitle = styled.span`
@@ -90,17 +82,18 @@ const UpdateTitle = styled.span`
 const UpdateForm = styled.form`
     display: flex;
     flex-direction: column;
-    margin-top: 10px;
+    margin-top: 20px;
 `;
 
 const UpdateItem = styled.div`
     display: flex;
     flex-direction: column;
     margin-top: 10px;
-    margin-bottom: 10px;
 `;
 
 const UpdateItemLabel = styled.label`
+    margin-top: 20px;
+    margin-bottom: 5px;
     font-size: 14px;
 `;
 
@@ -157,31 +150,31 @@ const SuccessSpan = styled.span`
     background-color: #dc3545;
 `;
 
-const EditStore = () => {
+const EditCollection = () => {
     const { id } = useParams();
-    const [store, setStore] = useState({});
-    const [status, setStatus] = useState(6006);
+    const [collection, setCollection] = useState({ Merchant: { MerchantName: '' } });
+    const [status, setStatus] = useState(8001);
     const [success, setSuccess] = useState(false);
     const showSuccess = () => setSuccess(!success);
     let activeCheck = '';
     let activeLabel = '';
 
     useEffect(() => {
-        const url = "store/" + id;
+        const url = "collection/" + id;
 
-        const fetchStore = async () => {
+        const fetchCollection = async () => {
             try {
                 const res = await fetch(publicRequest(url));
                 const json = await res.json();
-                setStore(json.Data);
+                setCollection(json.Data);
             } catch (error) { }
         };
-        fetchStore();
-    }, [id, store]);
+        fetchCollection();
+    }, [id, collection]);
 
-    const handleEditStore = (event) => {
+    const handleEditCollection = (event) => {
         event.preventDefault();
-        const url = "store/" + id;
+        const url = "collection/" + id;
 
         const updateCollection = async () => {
             try {
@@ -189,9 +182,8 @@ const EditStore = () => {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        storeName: event.target.elements.storeName.value,
-                        merchantId: event.target.elements.merchantId.value,
-                        aparmentId: event.target.elements.aparmentId.value
+                        collectionName: event.target.elements.collectionName.value,
+                        merchantId: "M001"
                     })
                 });
             } catch (error) { }
@@ -204,60 +196,58 @@ const EditStore = () => {
         setStatus(event.target.value);
     }
 
-    switch (store.Status) {
-        case 6004:
+    switch (collection.Status) {
+        case 8001:
+            activeCheck = 'active';
+            activeLabel = 'Active';
+            break;
+        case 8002:
+            activeCheck = 'inactive';
+            activeLabel = 'Inactive';
+            break;
+        case 8004:
             activeCheck = 'deleted';
             activeLabel = 'Deleted';
-            break;
-        case 6005:
-            activeCheck = 'verified';
-            activeLabel = 'Verified';
-            break;
-        case 6006:
-            activeCheck = 'unverified';
-            activeLabel = 'Unverified';
-            break;
-        case 6007:
-            activeCheck = 'unverified';
-            activeLabel = 'Unverified';
             break;
     }
 
     return (
         <div>
-            <Title><StyledLink to={"/stores"}>Danh sách cửa hàng</StyledLink> / {store.StoreName} </Title>
+            <Title><StyledLink to={"/collections"}>
+                Bộ sưu tập</StyledLink> / {collection.CollectionName}    
+            </Title>
 
             <ContainerWrapper>
-                <StoreDetailWrapper>
+                <CollectionDetailWrapper>
                     <UpdateTitle>
-                        Chi tiết {success ? <SuccessSpan>Cập nhật thành công</SuccessSpan> : null}
+                        Chi tiết { success ? <SuccessSpan>Cập nhật thành công</SuccessSpan> : null }
                     </UpdateTitle>
 
                     <DetailBottom>
 
-                        <DetailTitle>Tên cửa hàng</DetailTitle>
+                        <DetailTitle>Tên bộ sưu tập</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{store.StoreName}</DetailInfoText>
+                            <DetailInfoText>{collection.CollectionName}</DetailInfoText>
                         </DetailInfo>
 
-                        <DetailTitle>Mã cửa hàng</DetailTitle>
+                        <DetailTitle>Mã bộ sưu tập</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{store.MerchantStoreId}</DetailInfoText>
+                            <DetailInfoText>{collection.CollectionId}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Ngày tạo</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{store.CreatedDate}</DetailInfoText>
+                            <DetailInfoText>{collection.CreatedDate}</DetailInfoText>
+                        </DetailInfo>
+
+                        <DetailTitle>Lần cuối cập nhật</DetailTitle>
+                        <DetailInfo>
+                            <DetailInfoText>{collection.UpdatedDate}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Chủ cửa hàng</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{store.MerchantId}</DetailInfoText>
-                        </DetailInfo>
-
-                        <DetailTitle>Thuộc chung cư</DetailTitle>
-                        <DetailInfo>
-                            <DetailInfoText>{store.AparmentId}</DetailInfoText>
+                            <DetailInfoText>{collection.Merchant.MerchantName}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Trạng thái</DetailTitle>
@@ -266,42 +256,32 @@ const EditStore = () => {
                         </DetailInfo>
 
                     </DetailBottom>
-                </StoreDetailWrapper>
+                </CollectionDetailWrapper>
 
 
-                <StoreUpdateWrapper>
+                <CollectionUpdateWrapper>
                     <UpdateTitle>Chỉnh sửa</UpdateTitle>
 
-                    <UpdateForm onSubmit={handleEditStore}>
+                    <UpdateForm onSubmit={handleEditCollection}>
                         <UpdateItem>
-                            <UpdateItemLabel>Tên cửa hàng</UpdateItemLabel>
-                            <UpdateItemInput type="text" name="storeName" defaultValue={store.StoreName} />
-                        </UpdateItem>
-
-                        <UpdateItem>
-                            <UpdateItemLabel>Chủ cửa hàng</UpdateItemLabel>
-                            <UpdateItemInput type="text" name="merchantId" defaultValue={store.MerchantId} />
-                        </UpdateItem>
-
-                        <UpdateItem>
-                            <UpdateItemLabel>Thuộc chung cư</UpdateItemLabel>
-                            <UpdateItemInput type="text" name="aparmentId" defaultValue={store.AparmentId} />
+                            <UpdateItemLabel>Tên bộ sưu tập</UpdateItemLabel>
+                            <UpdateItemInput type="text" name="collectionName" placeholder={collection.CollectionName} />
                         </UpdateItem>
 
                         <UpdateItem>
                             <UpdateItemLabel>Trạng thái</UpdateItemLabel>
-                            <UpdateItemSelect value={status} name="storeStatus" onChange={handleStatusChange}>
-                                <option value="6006">Active</option>
-                                <option value="6007">Deactive</option>
+                            <UpdateItemSelect value={status} name="collectionStatus" onChange={handleStatusChange}>
+                                <option value="8001">Active</option>
+                                <option value="8004">Deactive</option>
                             </UpdateItemSelect>
                         </UpdateItem>
 
                         <UpdateButton>Cập nhật</UpdateButton>
                     </UpdateForm>
-                </StoreUpdateWrapper>
+                </CollectionUpdateWrapper>
             </ContainerWrapper>
         </div>
     )
 }
 
-export default EditStore;
+export default EditCollection;

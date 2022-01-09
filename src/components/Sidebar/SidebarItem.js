@@ -11,7 +11,6 @@ const SidebarLink = styled(Link)`
     list-style: none;
     height: 60px;
     text-decoration: none;
-    font-size: 18px;
     color: #404040;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 

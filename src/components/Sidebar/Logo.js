@@ -3,7 +3,6 @@ import styled from "styled-components";
 const Image = styled.img`
     width: 80%;
     padding: 10%;
-    margin-top: 20px;
 `;
 
 const Logo = () => {
