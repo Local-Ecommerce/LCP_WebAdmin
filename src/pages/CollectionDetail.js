@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import StoreProducts from '../mockdata/Products';
 import { useParams, Link } from "react-router-dom";
+import { publicRequest } from "../RequestMethod";
 import ProductList from '../components/Product/ProductList';
 
 const StyledLink = styled(Link)`
@@ -15,9 +15,9 @@ const Title = styled.h1`
     margin: 15px;
 `;
 
-const StoreDetail = () => {
+const CollectionDetail = () => {
     const { id } = useParams();
-    const [store, setStore] = useState({});
+    const [collection, setCollection] = useState({});
     const [data, setData] = useState([]);
     const [currentItems, setCurrentItems] = useState([]);
     const [pageCount, setPageCount] = useState(0);
@@ -25,24 +25,30 @@ const StoreDetail = () => {
     const itemsPerPage = 5;
 
     useEffect(() => {
-        const url = "store/" + id;
+        const url = "collection/" + id;
 
-        const fetchStore = async () => {
+        const fetchCollection = async () => {
             try {
-                /* const res = await fetch(publicRequest(url));
+                const res = await fetch(publicRequest(url));
                 const json = await res.json();
-                setStore(json.Data); */
-                setStore({ "StoreName": "Shop Bánh mì 2 trứng BBC"});
+                setCollection(json.Data);
             } catch (error) { }
         };
-        fetchStore();
-
-        //fetch products data from Store
-        setData(StoreProducts);
-    }, [id, store]);
+        fetchCollection();
+    }, [id, collection]);
 
     useEffect(() => {
-        console.log(store);
+        const url = "collection/" + id + "/products";
+
+        const fetchProducts = async () => {
+            try {
+                const res = await fetch(publicRequest(url));
+                const json = await res.json();
+                setData(json.Data);
+            } catch (error) { }
+        };
+        fetchProducts();
+
         const endOffset = itemOffset + itemsPerPage;
         setCurrentItems(data.slice(itemOffset, endOffset));
         setPageCount(Math.ceil(data.length / itemsPerPage));
@@ -54,12 +60,12 @@ const StoreDetail = () => {
     };
 
     const handleDeleteItem = (id) => {
-        setData(data.filter((item) => store.id !== id));
+        setData(data.filter((item) => collection.id !== id));
     };
 
     return (
         <div>
-            <Title><StyledLink to={"/stores"}>Danh sách cửa hàng</StyledLink> / {store.StoreName}</Title>
+            <Title><StyledLink to={"/collections"}>Bộ sưu tập</StyledLink> / {collection.CollectionName}</Title>
 
             <ProductList
                 currentItems={currentItems}
@@ -71,4 +77,4 @@ const StoreDetail = () => {
     )
 }
 
-export default StoreDetail;
+export default CollectionDetail;

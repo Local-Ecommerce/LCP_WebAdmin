@@ -1,10 +1,7 @@
 ﻿import React, { useState } from 'react';
 import styled from 'styled-components';
 import Modal from 'react-modal';
-import ArrowDropDown from '@mui/icons-material/ArrowDropDown';
-import ArrowDropUp from '@mui/icons-material/ArrowDropUp';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { ArrowDropUp, ArrowDropDown, Edit, Delete, ContentPasteSearch } from '@mui/icons-material';
 import { Link } from "react-router-dom";
 
 const CategoryContent = styled.div`
@@ -84,7 +81,7 @@ const Title = styled.h1`
 
 const NameWrapper = styled.div`
     display: flex;
-    flex: 6;
+    flex: 8;
     text-align: left;
     margin-left: 20px;
 `;
@@ -95,11 +92,6 @@ const DropdownIcon = styled(ArrowDropDown)`
 
 const DropupIcon = styled(ArrowDropUp)`
     margin-left: 10px;
-`;
-
-const DiscountWrapper = styled.div`
-    flex: 3;
-    text-align: left;
 `;
 
 const ButtonWrapper = styled.div`
@@ -132,10 +124,27 @@ const customStyles = {
     },
 };
 
+const StyledSearchIcon = styled(ContentPasteSearch)`
+    &:hover {
+    color: #dc3545;
+    }
+`;
+
+const StyledEditIcon = styled(Edit)`
+    &:hover {
+    color: #dc3545;
+    }
+`;
+
+const StyledDeleteIcon = styled(Delete)`
+    &:hover {
+    color: #dc3545;
+    }
+`;
+
 const CategoryItem = ({ item, handleDeleteItem }) => {
     const [child, setChild] = useState(false);
     const [DeleteModal, toggleDeleteModal] = React.useState(false);
-    const id = item.id;
 
     const showChild = () => setChild(!child);
 
@@ -145,32 +154,32 @@ const CategoryItem = ({ item, handleDeleteItem }) => {
 
     return (
         <>
-            <CategoryContent level={item.level} onClick={item.child && showChild}>
+            <CategoryContent level={item.CategoryLevel} onClick={item.Child && showChild}>
                 <NameWrapper>
                     {item.SysCategoryName}
 
-                    {item.child && child
+                    {item.Child && child
                     ? <DropupIcon />
-                    : item.child
+                        : item.Child
                         ? <DropdownIcon />
                         : null}
                 </NameWrapper>
 
-                
-
-                <DiscountWrapper>
-                    {!item.parent ? "Chiết khấu: " + (item.discount) + "%" : null}
-                </DiscountWrapper>
-
                 <ButtonWrapper>
-                    <Link to={"/category/" + id}>
+                    <Link to={"/category/" + item.CollectionId}>
                         <Button>
-                            <EditIcon />
+                            <StyledSearchIcon />
+                        </Button>
+                    </Link>
+
+                    <Link to={"/"}>
+                        <Button>
+                            <StyledEditIcon />
                         </Button>
                     </Link>
 
                     <Button onClick={toggleModal}>
-                        <DeleteIcon />
+                        <StyledDeleteIcon />
                     </Button>
 
                     <Modal isOpen={DeleteModal} onRequestClose={toggleModal} style={customStyles}>
@@ -186,7 +195,7 @@ const CategoryItem = ({ item, handleDeleteItem }) => {
             </CategoryContent>
 
             {child &&
-                item.child.map((item, index) => {
+                item.Child.map((item, index) => {
                     return (
                         <CategoryItem item={item} handleDeleteItem={handleDeleteItem} key={index} />
                     );

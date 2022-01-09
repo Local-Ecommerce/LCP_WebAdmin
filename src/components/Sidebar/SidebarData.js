@@ -1,29 +1,28 @@
-﻿import DropdownIcon from '@mui/icons-material/ArrowDropDown';
-import DropupIcon from '@mui/icons-material/ArrowDropUp';
-import HomeIcon from '@mui/icons-material/Home';
-import CartIcon from '@mui/icons-material/ShoppingCart';
-import HouseIcon from '@mui/icons-material/House';
-import SellIcon from '@mui/icons-material/Sell';
+﻿import {
+    ArrowDropDown,
+    ArrowDropUp,
+    Home,
+    ShoppingCart,
+    House,
+    Sell,
+    LocationOn,
+    Article
+} from '@mui/icons-material';
 
 const SidebarData = [
     {
         title: 'Trang chủ',
         path: '/',
-        icon: <HomeIcon />,
+        icon: <Home />,
     },
     {
         title: 'Sản phẩm',
-        path: '/products',
-        icon: <CartIcon />,
-        iconClosed: <DropdownIcon />,
-        iconOpened: <DropupIcon />,
+        path: '/',
+        icon: <ShoppingCart />,
+        iconClosed: <ArrowDropDown />,
+        iconOpened: <ArrowDropUp />,
 
         subNav: [
-            {
-                title: 'Danh sách sản phẩm',
-                path: '/products',
-                icon: '',
-            },
             {
                 title: 'Bộ sưu tập',
                 path: '/collections',
@@ -39,9 +38,9 @@ const SidebarData = [
     {
         title: 'Bảng giá',
         path: '/menus',
-        icon: <SellIcon />,
-        iconClosed: <DropdownIcon />,
-        iconOpened: <DropupIcon />,
+        icon: <Sell />,
+        iconClosed: <ArrowDropDown />,
+        iconOpened: <ArrowDropUp />,
 
         subNav: [
             {
@@ -59,7 +58,17 @@ const SidebarData = [
     {
         title: 'Cửa hàng',
         path: '/stores',
-        icon: <HouseIcon />
+        icon: <House />
+    },
+    {
+        title: 'POIs',
+        path: '/pois',
+        icon: <LocationOn />
+    },
+    {
+        title: 'News',
+        path: '/news',
+        icon: <Article />
     },
 ];
 

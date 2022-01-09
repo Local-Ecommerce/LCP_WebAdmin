@@ -3,13 +3,13 @@
     "",
     "\\src",
     "\\src\\components",
-    "\\src\\components\\Direction",
-    "\\src\\components\\Header",
+    "\\src\\components\\Category",
+    "\\src\\components\\Collection",
     "\\src\\components\\Notification",
     "\\src\\components\\Product",
-    "\\src\\mockdata",
-    "\\src\\pages",
-    "\\src\\pages\\Home"
+    "\\src\\components\\Sidebar",
+    "\\src\\components\\Store",
+    "\\src\\pages"
   ],
   "PreviewInSolutionExplorer": false
 }
