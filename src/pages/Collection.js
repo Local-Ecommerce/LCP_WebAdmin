@@ -215,7 +215,7 @@ const Collection = () =>  {
 
         const fetchData = async () => {
             try {
-                const res = await fetch(publicRequest(url));
+                const res = await fetch(publicRequest(url), { method: 'GET' });
                 const json = await res.json();
                 setAPIdata(json.Data);
                 setFilteredData(json.Data);

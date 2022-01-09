@@ -265,7 +265,7 @@ const EditCollection = () => {
                     <UpdateForm onSubmit={handleEditCollection}>
                         <UpdateItem>
                             <UpdateItemLabel>Tên bộ sưu tập</UpdateItemLabel>
-                            <UpdateItemInput type="text" name="collectionName" placeholder={collection.CollectionName} />
+                            <UpdateItemInput type="text" name="collectionName" defaultValue={collection.CollectionName} />
                         </UpdateItem>
 
                         <UpdateItem>
