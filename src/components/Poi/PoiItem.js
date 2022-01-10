@@ -22,6 +22,7 @@ const TableRow = styled.tr`
     &:hover {
     background-color: rgba(0, 0, 0, 0.075);
     }
+    
 `;
 
 const TableData = styled.td`
@@ -30,8 +31,8 @@ const TableData = styled.td`
     border-bottom: 1px solid #dee2e6;
     vertical-align: middle;
     text-align: ${props => props.center ? "center" : "left"};
-    overflow: hidden;
-    white-space: nowrap;
+
+    height: 80px;
 `;
 
 const Status = styled.span`
@@ -137,25 +138,23 @@ const PoiItem = ({ item, handleDeleteItem }) =>  {
     let activeLabel = '';
     let disabledCheck = false;
     switch (item.Status) {
-        case 8001:
+        case 13001:
             activeCheck = 'active';
             activeLabel = 'Active';
             break;
-        case 8002:
+        case 13002:
             activeCheck = 'inactive';
             activeLabel = 'Inactive';
-            break;
-        case 8004:
-            activeCheck = 'deleted';
-            activeLabel = 'Deleted';
             disabledCheck = true;
             break;
     }
 
     return (
         <TableRow>
-            <TableData></TableData>
-            <TableData></TableData>
+            <TableData>{item.Title}</TableData>
+            <TableData>{item.Text}</TableData>
+            <TableData>{item.MarketManagerId}</TableData>
+            <TableData>{item.ApartmentId}</TableData>
 
             <TableData center>
                 <Status active={activeCheck}>{activeLabel}</Status>
@@ -178,9 +177,9 @@ const PoiItem = ({ item, handleDeleteItem }) =>  {
                     <StyledDeleteIcon disabled={disabledCheck} />
                 </Button>
 
-                <Modal isOpen={modal} onRequestClose={toggleModal} style={customStyles}>
+                <Modal isOpen={modal} onRequestClose={toggleModal} style={customStyles} ariaHideApp={false}>
                     <Title>Xác Nhận Xóa</Title>
-                    <Row><Text>Bạn có chắc chắn muốn xóa POI【<b>{item.PoiName}</b>】?</Text></Row>
+                    <Row><Text>Bạn có chắc chắn muốn xóa POI【<b>{item.Title}</b>】?</Text></Row>
                     <ModalButton onClick={toggleModal}>Quay lại</ModalButton>
                     <ModalButton red onClick={() => { handleDeleteItem(item.PoiId); toggleModal()}}>Xóa</ModalButton>
                 </Modal>

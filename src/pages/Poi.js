@@ -2,6 +2,8 @@
 import styled from 'styled-components';
 import PoiList from '../components/Poi/PoiList';
 import ReactPaginate from "react-paginate";
+import AddBusinessIcon from '@mui/icons-material/AddBusiness';
+import { Link } from "react-router-dom";
 import { publicRequest } from "../RequestMethod";
 
 const Title = styled.h1`
@@ -14,6 +16,7 @@ const Row = styled.div`
     display: flex;
     width: 100%;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: 15px;
 `;
 
@@ -29,7 +32,6 @@ const ButtonWrapper = styled.div`
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
-    margin-right: 2%;
 `;
 
 const Input = styled.input`
@@ -84,11 +86,30 @@ const Select = styled.select`
     }
 `;
 
-const TableWrapper = styled.div`
-    width: 100%;
-    margin-right: auto;
-    margin-left: auto;
+const AddPoiButton = styled(Link)`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #28a745;
+    height: 44px;
+    width: 12%;
+    margin-left: 35%;
+    border-style: none;
+    border-radius: 5px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.9em;
+
+    &:focus {
+    opacity: 0.5;
+    }
 `;
+
+const AddPoiIcon = styled(AddBusinessIcon)`
+    padding-right: 5px;
+`;
+
+const TableWrapper = styled.div``;
 
 const Table = styled.table`
     table-layout: fixed;
@@ -206,72 +227,115 @@ const Poi = () =>  {
     const [currentItems, setCurrentItems] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [itemOffset, setItemOffset] = useState(0);
+    const [currentPage, setCurrentPage] = useState(0);
     const itemsPerPage = 5;
+    const [change, setChange] = useState(false);
     const [search, setSearch] = useState(''); //search filter
     const [status, setStatus] = useState('0'); //status filter
 
-    useEffect(() => {
-        const url = "collection/all";
+    useEffect( () => {
+        const url = "poi/all";
 
         const fetchData = async () => {
             try {
-                const res = await fetch(publicRequest(url));
+                const res = await fetch(publicRequest(url), { method: 'GET' });
                 const json = await res.json();
-                setAPIdata(json.Data);
-                setFilteredData(json.Data);
+                await setAPIdata(json.Data);
             } catch (error) { }
         };
         fetchData();
-    }, []);
+    }, [change]);
+
+    useEffect(() => {   //paging
+        const paging = async () => {
+            try {
+                const endOffset = await (itemOffset + itemsPerPage);
+                await setCurrentItems(filteredData.slice(itemOffset, endOffset));
+                await setPageCount(Math.ceil(filteredData.length / itemsPerPage));
+            } catch (error) { }
+        };
+        paging();
+    }, [filteredData, itemOffset]);
 
     useEffect(() => {
-        const endOffset = itemOffset + itemsPerPage;
-        setCurrentItems(filteredData.slice(itemOffset, endOffset));
-        setPageCount(Math.ceil(filteredData.length / itemsPerPage));
-    }, [filteredData, status, itemOffset]);
+        if (currentItems.length === 0) {
+            if (itemOffset >= 5) {
+                setItemOffset(itemOffset - 5);
+                setCurrentPage(filteredData.length / itemsPerPage - 1);
+            }
+        }
+    }, [currentItems]);
 
     const handlePageClick = (event) => {
         const newOffset = event.selected * itemsPerPage % filteredData.length;
         setItemOffset(newOffset);
+        setCurrentPage(event.selected);
     };
+
+    const handleSearch = (searchValue, statusValue) => {
+        setSearch(searchValue);
+        setStatus(statusValue);
+        setItemOffset(0);   //back to page 1
+        setCurrentPage(0);
+    }
+
+    useEffect(() => {   //filter based on 'search' & 'status'
+        const result = APIdata.filter((item) => {
+            if (status !== '0') {
+                return [item.Title, item.Text, item.MarketManagerId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
+                    && item.Status === parseInt(status)
+            } else {
+                return [item.Title, item.Text, item.MarketManagerId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
+            }
+        })
+        setFilteredData(result);
+    }, [search, status, APIdata]);
 
     const handleDeleteItem = (id) => {
+        const url = "poi/delete/" + id;
+        const deleteData = async () => {
+            try {
+                await fetch(publicRequest(url), { method: 'PUT' });
+                await setChange(!change);
+            } catch (error) { }
+        };
+        deleteData();
     };
-
-    const handleSearch = (searchValue) => {
-        setSearch(searchValue);
-    }
-
-    const handleFilterStatus = (statusValue) => {
-        setStatus(statusValue);
-    }
 
     return (
         <div>
-            <Title>POI</Title>
+            <Title>POIs</Title>
 
             <TableWrapper>
                 <Row>
                     <ButtonWrapper>
-                        <Input placeholder="Search POI" onChange={(event) => handleSearch(event.target.value)}/>
-                        <Button className="btn btn-info" type="button">Clear</Button>
+                        <Input placeholder="Search POI" onChange={(event) => handleSearch(event.target.value, status)} />
+                        <Button>Clear</Button>
                     </ButtonWrapper>
 
                     <SelectWrapper>
-                        <Select value={status} onChange={(event) => handleFilterStatus(event.target.value)}>
+                        <Select value={status} onChange={(event) => handleSearch(search, event.target.value)}>
                             <option value="0">--- Lọc trạng thái ---</option>
                             <option value="13001">Active</option>
                             <option value="13002">Inactive</option>
                         </Select>
                     </SelectWrapper>
+
+                    <AddPoiButton to={"/addPoi/"}>
+                        <AddPoiIcon />
+                        Tạo POI mới
+                    </AddPoiButton>
                 </Row>
 
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableHeader width="70%">Tên địa điểm</TableHeader>
-                            <TableHeader width="15%" center>Trạng thái</TableHeader>
-                            <TableHeader width="15%" center>Chỉnh sửa</TableHeader>
+                            <TableHeader width="20%">Tựa đề</TableHeader>
+                            <TableHeader width="30%">Nội dung</TableHeader>
+                            <TableHeader width="15%">Quản lý</TableHeader>
+                            <TableHeader width="15%">Chung cư</TableHeader>
+                            <TableHeader width="10%" center>Trạng thái</TableHeader>
+                            <TableHeader width="10%" center>Chỉnh sửa</TableHeader>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -300,6 +364,7 @@ const Poi = () =>  {
                                 breakLinkClassName="page-link"
                                 containerClassName="pagination"
                                 activeClassName="active"
+                                forcePage={currentPage}
                                 renderOnZeroPageCount={null}
                             />
                         </StyledPaginateContainer>

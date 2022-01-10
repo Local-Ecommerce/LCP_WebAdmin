@@ -3,13 +3,10 @@
     "",
     "\\src",
     "\\src\\components",
-    "\\src\\components\\Category",
     "\\src\\components\\Collection",
-    "\\src\\components\\Notification",
-    "\\src\\components\\Product",
-    "\\src\\components\\Sidebar",
-    "\\src\\components\\Store",
+    "\\src\\components\\Poi",
     "\\src\\pages"
   ],
+  "SelectedNode": "\\src\\App.js",
   "PreviewInSolutionExplorer": false
 }
