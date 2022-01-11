@@ -1,15 +1,15 @@
 ﻿import React from 'react';
-import ProductItem from '../Product/ProductItem';
+import NewsItem from './NewsItem';
 
-const ProductList = ({ currentItems, handleDeleteItem }) => {
+const NewsList = ({ currentItems, handleDeleteItem }) => {
 
     if (currentItems.length === 0) {
-        return <ProductItem item={0} />
+        return <NewsItem item={0} />
     }
 
     return currentItems && currentItems.map((item, index) => {
         return (
-            <ProductItem
+            <NewsItem
                 item={item}
                 handleDeleteItem={handleDeleteItem} key={index}
             />
@@ -17,4 +17,4 @@ const ProductList = ({ currentItems, handleDeleteItem }) => {
     });
 }
 
-export default ProductList;
+export default NewsList;

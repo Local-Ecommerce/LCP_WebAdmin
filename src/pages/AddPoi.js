@@ -51,6 +51,17 @@ const ItemInput = styled.input`
     }
 `;
 
+const ItemTextArea = styled.textarea`
+    border: none;
+    height: 60px;
+    border-bottom: 1px solid gray;
+    outline: none;
+
+    &: focus {
+    outline: none;
+    }
+`;
+
 const AddButton = styled.button`
     border-radius: 5px;
     border: none;
@@ -86,7 +97,7 @@ const SuccessSpan = styled.span`
     background-color: #dc3545;
 `;
 
-const AddStore = () => {
+const AddPoi = () => {
     const [success, setSuccess] = useState(false);
     const delay = ms => new Promise(res => setTimeout(res, ms));
     const showSuccess = async () => {
@@ -96,19 +107,20 @@ const AddStore = () => {
         setSuccess(false);
     };
 
-    const handleAddStore = (event) => {
+    const handleAddPoi = (event) => {
         event.preventDefault();
-        const url = "store/create";
+        const url = "poi/create";
 
-        const addStore = async () => {
+        const addPoi = async () => {
             try {
                 const res = await fetch(publicRequest(url), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        storeName: event.target.elements.storeName.value,
-                        merchantId: event.target.elements.merchantId.value,
-                        aparmentId: event.target.elements.aparmentId.value
+                        title: event.target.elements.title.value,
+                        text: event.target.elements.text.value,
+                        marketManagerId: event.target.elements.marketManagerId.value,
+                        apartmentId: event.target.elements.apartmentId.value
                     })
                 });
                 const json = await res.json();
@@ -117,32 +129,37 @@ const AddStore = () => {
                 }
             } catch (error) { }
         };
-        addStore();
+        addPoi();
     }
 
     return (
         <div>
             <Title>
-                <StyledLink to={"/stores"}>Danh sách cửa hàng</StyledLink>
-                &nbsp;/ Tạo cửa hàng mới
-                {success ? <SuccessSpan>Tạo mới thành công</SuccessSpan> : null}
+                <StyledLink to={"/pois"}>POIs </StyledLink>
+                &nbsp;/ Tạo POI mới
+                { success ? <SuccessSpan>Tạo mới thành công</SuccessSpan> : null }
             </Title>
-
+            
             <ContainerWrapper>
-                <Form onSubmit={handleAddStore} id="form">
+                <Form onSubmit={handleAddPoi} id="form">
                     <Item>
-                        <ItemLabel>Tên cửa hàng</ItemLabel>
-                        <ItemInput type="text" name="storeName" placeholder="" />
+                        <ItemLabel>Tựa đề</ItemLabel>
+                        <ItemInput type="text" name="title" />
                     </Item>
 
                     <Item>
-                        <ItemLabel>ID chủ cửa hàng</ItemLabel>
-                        <ItemInput type="text" name="merchantId" placeholder="" />
+                        <ItemLabel>Nội dung</ItemLabel>
+                        <ItemTextArea type="text" name="text" />
+                    </Item>
+
+                    <Item>
+                        <ItemLabel>ID Quản lý</ItemLabel>
+                        <ItemInput type="text" name="marketManagerId" />
                     </Item>
 
                     <Item>
                         <ItemLabel>ID Chung cư</ItemLabel>
-                        <ItemInput type="text" name="aparmentId" placeholder="" />
+                        <ItemInput type="text" name="apartmentId" />
                     </Item>
 
                     <AddButton>Tạo cửa hàng</AddButton>
@@ -153,4 +170,4 @@ const AddStore = () => {
     )
 }
 
-export default AddStore;
+export default AddPoi;

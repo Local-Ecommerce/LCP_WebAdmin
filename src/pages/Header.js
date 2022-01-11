@@ -6,27 +6,19 @@ import Avatar from '../components/Header/Avatar';
 
 const Row = styled.div`
     display: flex;
-    flex-wrap: wrap;
-    margin-right: -15px;
 `;
 
 const Wrapper = styled.div`
-    max-width: 100%;
-    position: relative;
     width: 100%;
-    min-height: 1px;
-    padding-right: 15px;
-    padding-left: 15px;
-    margin: 5px;
+    padding: 12x 0px;
     border-bottom: 1px solid #dee2e6;
-    align-items: flex-start;
 `;
 
 const FloatRight = styled.div`
     float: right;
-    margin-bottom: 10px;
     display: flex;
     align-items: center;
+    margin-bottom: 15px;
 `;
 
 const Header = () => {

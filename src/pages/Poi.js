@@ -233,7 +233,7 @@ const Poi = () =>  {
     const [search, setSearch] = useState(''); //search filter
     const [status, setStatus] = useState('0'); //status filter
 
-    useEffect( () => {
+    useEffect( () => {  //fetch api data
         const url = "poi/all";
 
         const fetchData = async () => {
@@ -246,6 +246,18 @@ const Poi = () =>  {
         fetchData();
     }, [change]);
 
+    useEffect(() => {   //filter based on 'search' & 'status'
+        const result = APIdata.filter((item) => {
+            if (status !== '0') {
+                return [item.Title, item.Text, item.MarketManagerId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
+                    && item.Status === parseInt(status)
+            } else {
+                return [item.Title, item.Text, item.MarketManagerId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
+            }
+        })
+        setFilteredData(result);
+    }, [search, status, APIdata]);
+
     useEffect(() => {   //paging
         const paging = async () => {
             try {
@@ -257,7 +269,7 @@ const Poi = () =>  {
         paging();
     }, [filteredData, itemOffset]);
 
-    useEffect(() => {
+    useEffect(() => {   //set active page
         if (currentItems.length === 0) {
             if (itemOffset >= 5) {
                 setItemOffset(itemOffset - 5);
@@ -278,18 +290,6 @@ const Poi = () =>  {
         setItemOffset(0);   //back to page 1
         setCurrentPage(0);
     }
-
-    useEffect(() => {   //filter based on 'search' & 'status'
-        const result = APIdata.filter((item) => {
-            if (status !== '0') {
-                return [item.Title, item.Text, item.MarketManagerId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
-                    && item.Status === parseInt(status)
-            } else {
-                return [item.Title, item.Text, item.MarketManagerId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
-            }
-        })
-        setFilteredData(result);
-    }, [search, status, APIdata]);
 
     const handleDeleteItem = (id) => {
         const url = "poi/delete/" + id;

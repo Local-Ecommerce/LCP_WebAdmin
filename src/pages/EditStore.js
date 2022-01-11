@@ -162,7 +162,7 @@ const EditStore = () => {
     const [store, setStore] = useState({});
     const [status, setStatus] = useState(6006);
     const [success, setSuccess] = useState(false);
-    const showSuccess = () => setSuccess(!success);
+    const showSuccess = () => setSuccess(true);
     let activeCheck = '';
     let activeLabel = '';
 
@@ -177,7 +177,7 @@ const EditStore = () => {
             } catch (error) { }
         };
         fetchStore();
-    }, [id, store]);
+    }, [success]);
 
     const handleEditStore = (event) => {
         event.preventDefault();
@@ -194,10 +194,13 @@ const EditStore = () => {
                         aparmentId: event.target.elements.aparmentId.value
                     })
                 });
+                const json = await res.json();
+                if (json.ResultMessage === "SUCCESS") {
+                    showSuccess();
+                }
             } catch (error) { }
         };
         updateCollection();
-        showSuccess();
     }
 
     const handleStatusChange = (event) => {

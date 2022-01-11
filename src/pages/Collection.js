@@ -206,76 +206,80 @@ const Collection = () =>  {
     const [currentItems, setCurrentItems] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [itemOffset, setItemOffset] = useState(0);
+    const [currentPage, setCurrentPage] = useState(0);
     const itemsPerPage = 5;
+    const [change, setChange] = useState(false);
     const [search, setSearch] = useState(''); //search filter
     const [status, setStatus] = useState('0'); //status filter
 
-    useEffect(() => {
+    useEffect(() => {  //fetch api data
         const url = "collection/all";
 
         const fetchData = async () => {
             try {
                 const res = await fetch(publicRequest(url), { method: 'GET' });
                 const json = await res.json();
-                setAPIdata(json.Data);
-                setFilteredData(json.Data);
+                await setAPIdata(json.Data);
             } catch (error) { }
         };
         fetchData();
-    }, []);
+    }, [change]);
 
-    useEffect(() => {
-        const endOffset = itemOffset + itemsPerPage;
-        setCurrentItems(filteredData.slice(itemOffset, endOffset));
-        setPageCount(Math.ceil(filteredData.length / itemsPerPage));
-    }, [filteredData, status, itemOffset]);
+    useEffect(() => {   //filter based on 'search' & 'status'
+        const result = APIdata.filter((item) => {
+            if (status !== '0') {
+                return [item.CollectionName, item.Merchant.MerchantName].join('').toLowerCase().includes(search.toLowerCase())
+                    && item.Status === parseInt(status)
+            } else {
+                return [item.CollectionName, item.Merchant.MerchantName].join('').toLowerCase().includes(search.toLowerCase())
+            }
+        })
+        setFilteredData(result);
+    }, [search, status, APIdata]);
+
+    useEffect(() => {   //paging
+        const paging = async () => {
+            try {
+                const endOffset = await (itemOffset + itemsPerPage);
+                await setCurrentItems(filteredData.slice(itemOffset, endOffset));
+                await setPageCount(Math.ceil(filteredData.length / itemsPerPage));
+            } catch (error) { }
+        };
+        paging();
+    }, [filteredData, itemOffset]);
+
+    useEffect(() => {   //set active page
+        if (currentItems.length === 0) {
+            if (itemOffset >= 5) {
+                setItemOffset(itemOffset - 5);
+                setCurrentPage(filteredData.length / itemsPerPage - 1);
+            }
+        }
+    }, [currentItems]);
 
     const handlePageClick = (event) => {
         const newOffset = event.selected * itemsPerPage % filteredData.length;
         setItemOffset(newOffset);
+        setCurrentPage(event.selected);
     };
+
+    const handleSearch = (searchValue, statusValue) => {
+        setSearch(searchValue);
+        setStatus(statusValue);
+        setItemOffset(0);   //back to page 1
+        setCurrentPage(0);
+    }
 
     const handleDeleteItem = (id) => {
         const url = "collection/delete/" + id;
-        try {
-            fetch(publicRequest(url), { method: 'PUT' });
-        } catch (error) {}
+        const deleteData = async () => {
+            try {
+                await fetch(publicRequest(url), { method: 'PUT' });
+                await setChange(!change);
+            } catch (error) { }
+        };
+        deleteData();
     };
-
-    const handleSearch = (searchValue) => {
-        setSearch(searchValue);
-
-        const result = APIdata.filter((item) => {
-            if (status !== '0') {
-                return item.CollectionName.toLowerCase().includes(searchValue.toLowerCase())
-                    && item.Status === parseInt(status)
-            } else {
-                return item.CollectionName.toLowerCase().includes(searchValue.toLowerCase())
-            }
-        })
-        setFilteredData(result);
-    }
-
-    const handleFilterStatus = (statusValue) => {
-        setStatus(statusValue);
-
-        if (statusValue !== '0') {
-            const result = APIdata.filter((item) => {
-                if (search !== '') {
-                    return item.CollectionName.toLowerCase().includes(search.toLowerCase())
-                        && item.Status === parseInt(statusValue)
-                } else {
-                    return item.Status === parseInt(statusValue)
-                }
-            })
-            setFilteredData(result);
-        } else {
-            const result = APIdata.filter((item) => {
-                return item.CollectionName.toLowerCase().includes(search.toLowerCase())
-            })
-            setFilteredData(result);
-        }
-    }
 
     return (
         <div>
@@ -284,12 +288,12 @@ const Collection = () =>  {
             <TableWrapper>
                 <Row>
                     <ButtonWrapper>
-                        <Input placeholder="Search theo tên bộ sưu tập" onChange={(event) => handleSearch(event.target.value)}/>
+                        <Input placeholder="Search theo tên bộ sưu tập" onChange={(event) => handleSearch(event.target.value, status)}/>
                         <Button className="btn btn-info" type="button">Clear</Button>
                     </ButtonWrapper>
 
                     <SelectWrapper>
-                        <Select value={status} onChange={(event) => handleFilterStatus(event.target.value)}>
+                        <Select value={status} onChange={(event) => handleSearch(search, event.target.value)}>
                             <option value="0">--- Lọc trạng thái ---</option>
                             <option value="8004">Deleted</option>
                             <option value="8002">Inactive</option>
@@ -333,6 +337,7 @@ const Collection = () =>  {
                                 breakLinkClassName="page-link"
                                 containerClassName="pagination"
                                 activeClassName="active"
+                                forcePage={currentPage}
                                 renderOnZeroPageCount={null}
                             />
                         </StyledPaginateContainer>

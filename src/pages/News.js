@@ -1,8 +1,8 @@
 ﻿import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import StoreList from '../components/Store/StoreList';
+import NewsList from '../components/News/NewsList';
 import ReactPaginate from "react-paginate";
-import AddBusinessIcon from '@mui/icons-material/AddBusiness';
+import { AddCircle } from '@mui/icons-material';
 import { Link } from "react-router-dom";
 import { publicRequest } from "../RequestMethod";
 
@@ -86,7 +86,7 @@ const Select = styled.select`
     }
 `;
 
-const AddStoreButton = styled(Link)`
+const AddNewsButton = styled(Link)`
     display: flex;
     justify-content: center;
     align-items: center;
@@ -105,7 +105,7 @@ const AddStoreButton = styled(Link)`
     }
 `;
 
-const AddStoreIcon = styled(AddBusinessIcon)`
+const AddNewsIcon = styled(AddCircle)`
     padding-right: 5px;
 `;
 
@@ -221,7 +221,7 @@ const StyledPaginateContainer = styled.div`
     }
 `;
 
-const Store = () => {
+const News = () =>  {
     const [APIdata, setAPIdata] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [currentItems, setCurrentItems] = useState([]);
@@ -233,8 +233,8 @@ const Store = () => {
     const [search, setSearch] = useState(''); //search filter
     const [status, setStatus] = useState('0'); //status filter
 
-    useEffect(() => {  //fetch api data
-        const url = "store/all";
+    useEffect( () => {  //fetch api data
+        const url = "news/all";
 
         const fetchData = async () => {
             try {
@@ -249,10 +249,10 @@ const Store = () => {
     useEffect(() => {   //filter based on 'search' & 'status'
         const result = APIdata.filter((item) => {
             if (status !== '0') {
-                return [item.StoreName, item.MerchantId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
+                return [item.Title, item.Text, item.MarketManagerId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
                     && item.Status === parseInt(status)
             } else {
-                return [item.StoreName, item.MerchantId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
+                return [item.Title, item.Text, item.MarketManagerId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
             }
         })
         setFilteredData(result);
@@ -292,7 +292,7 @@ const Store = () => {
     }
 
     const handleDeleteItem = (id) => {
-        const url = "store/delete/" + id;
+        const url = "news/delete/" + id;
         const deleteData = async () => {
             try {
                 await fetch(publicRequest(url), { method: 'PUT' });
@@ -304,43 +304,42 @@ const Store = () => {
 
     return (
         <div>
-            <Title>Danh sách cửa hàng</Title>
+            <Title>News</Title>
 
             <TableWrapper>
                 <Row>
                     <ButtonWrapper>
-                        <Input placeholder="Search cửa hàng" onChange={(event) => handleSearch(event.target.value, status)}/>
+                        <Input placeholder="Search news" onChange={(event) => handleSearch(event.target.value, status)} />
                         <Button>Clear</Button>
                     </ButtonWrapper>
 
                     <SelectWrapper>
                         <Select value={status} onChange={(event) => handleSearch(search, event.target.value)}>
                             <option value="0">--- Lọc trạng thái ---</option>
-                            <option value="6004">Deleted</option>
-                            <option value="6005">Verified</option>
-                            <option value="6006">Unverified - Create</option>
-                            <option value="6007">Unverified - Update</option>
+                            <option value="12001">Active</option>
+                            <option value="12002">Inactive</option>
                         </Select>
                     </SelectWrapper>
 
-                    <AddStoreButton to={"/addStore/"}>
-                        <AddStoreIcon />
-                        Tạo cửa hàng
-                    </AddStoreButton>
+                    <AddNewsButton to={"/addNews/"}>
+                        <AddNewsIcon />
+                        Tạo tin mới
+                    </AddNewsButton>
                 </Row>
 
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableHeader width="30%">Tên cửa hàng</TableHeader>
-                            <TableHeader width="20%">Chủ cửa hàng</TableHeader>
-                            <TableHeader width="20%">Chung cư</TableHeader>
-                            <TableHeader width="15%" center>Trạng thái</TableHeader>
-                            <TableHeader width="15%" center>Chỉnh sửa</TableHeader>
+                            <TableHeader width="20%">Tựa đề</TableHeader>
+                            <TableHeader width="30%">Nội dung</TableHeader>
+                            <TableHeader width="15%">Quản lý</TableHeader>
+                            <TableHeader width="15%">Chung cư</TableHeader>
+                            <TableHeader width="10%" center>Trạng thái</TableHeader>
+                            <TableHeader width="10%" center>Chỉnh sửa</TableHeader>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        <StoreList currentItems={currentItems} handleDeleteItem={handleDeleteItem} />
+                        <NewsList currentItems={currentItems} handleDeleteItem={handleDeleteItem} />
                     </TableBody>
                 </Table>
 
@@ -376,4 +375,4 @@ const Store = () => {
     )
 }
 
-export default Store;
+export default News;

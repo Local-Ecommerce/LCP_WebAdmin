@@ -4,7 +4,9 @@
     "\\src",
     "\\src\\components",
     "\\src\\components\\Collection",
-    "\\src\\components\\Poi",
+    "\\src\\components\\News",
+    "\\src\\components\\Product",
+    "\\src\\components\\Store",
     "\\src\\pages"
   ],
   "SelectedNode": "\\src\\App.js",

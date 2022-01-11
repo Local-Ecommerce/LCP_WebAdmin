@@ -20,7 +20,7 @@ const ContainerWrapper = styled.div`
     margin-top: 20px;
 `;
 
-const CollectionDetailWrapper = styled.div`
+const PoiDetailWrapper = styled.div`
     flex: 2;
     padding: 20px 40px;
     background-color: #ffffff;
@@ -28,14 +28,13 @@ const CollectionDetailWrapper = styled.div`
     box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
-const CollectionUpdateWrapper = styled.div`
+const PoiUpdateWrapper = styled.div`
     flex: 2;
     padding: 20px 40px;
     background-color: #ffffff;
     border-radius: 5px;
     box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
     margin-left: 20px;
-    position:relative;
 `;
 
 const DetailBottom = styled.div`
@@ -50,7 +49,7 @@ const DetailTitle = styled.span`
 
 const DetailInfo = styled.div`
     align-items: center;
-    margin: 10px;
+    margin: 12px 10px;
     color: #444;
 `;
 
@@ -82,19 +81,19 @@ const UpdateTitle = styled.span`
 const UpdateForm = styled.form`
     display: flex;
     flex-direction: column;
-    margin-top: 20px;
 `;
 
 const UpdateItem = styled.div`
     display: flex;
     flex-direction: column;
-    margin-top: 10px;
 `;
 
 const UpdateItemLabel = styled.label`
     margin-top: 20px;
     margin-bottom: 5px;
     font-size: 14px;
+    font-weight: 600;
+    color: rgb(175, 170, 170);
 `;
 
 const UpdateItemInput = styled.input`
@@ -103,6 +102,19 @@ const UpdateItemInput = styled.input`
     height: 30px;
     border-bottom: 1px solid gray;
     outline: none;
+
+    &: focus {
+    outline: none;
+    }
+`;
+
+const UpdateItemTextField = styled.textarea`
+    border: none;
+    width: 75%;
+    height: 60px;
+    border-bottom: 1px solid gray;
+    outline: none;
+    resize: none;
 
     &: focus {
     outline: none;
@@ -129,11 +141,8 @@ const UpdateButton = styled.button`
     background-color: #17a2b8;
     color: white;
     font-weight: 600;
-    width: 65%;
-    margin: 40px; 
-    position: absolute;
-    left: 0;
-    bottom: 0;
+    width: 75%;
+    margin-top: 30px;
 `;
 
 const SuccessSpan = styled.span`
@@ -150,40 +159,42 @@ const SuccessSpan = styled.span`
     background-color: #dc3545;
 `;
 
-const EditCollection = () => {
+const EditPoi = () => {
     const { id } = useParams();
-    const [collection, setCollection] = useState({ Merchant: { MerchantName: '' } });
-    const [status, setStatus] = useState(8001);
+    const [poi, setPoi] = useState({});
+    const [status, setStatus] = useState(13001);
     const [success, setSuccess] = useState(false);
     const showSuccess = () => setSuccess(true);
     let activeCheck = '';
     let activeLabel = '';
 
     useEffect(() => {
-        const url = "collection/" + id;
+        const url = "poi/" + id;
 
-        const fetchCollection = async () => {
+        const fetchPoi = async () => {
             try {
                 const res = await fetch(publicRequest(url));
                 const json = await res.json();
-                setCollection(json.Data);
+                setPoi(json.Data);
             } catch (error) { }
         };
-        fetchCollection();
+        fetchPoi();
     }, [success]);
 
-    const handleEditCollection = (event) => {
+    const handleEditPoi = (event) => {
         event.preventDefault();
-        const url = "collection/" + id;
+        const url = "poi/update/" + id;
 
-        const updateCollection = async () => {
+        const updatePoi = async () => {
             try {
                 const res = await fetch(publicRequest(url), {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        collectionName: event.target.elements.collectionName.value,
-                        merchantId: "M001"
+                        title: event.target.elements.title.value,
+                        text: event.target.elements.text.value,
+                        marketManagerId: event.target.elements.marketManagerId.value,
+                        apartmentId: event.target.elements.apartmentId.value
                     })
                 });
                 const json = await res.json();
@@ -192,65 +203,65 @@ const EditCollection = () => {
                 }
             } catch (error) { }
         };
-        updateCollection();
+        updatePoi();
     }
 
     const handleStatusChange = (event) => {
         setStatus(event.target.value);
     }
 
-    switch (collection.Status) {
-        case 8001:
+    switch (poi.Status) {
+        case 13001:
             activeCheck = 'active';
             activeLabel = 'Active';
             break;
-        case 8002:
+        case 13002:
             activeCheck = 'inactive';
             activeLabel = 'Inactive';
-            break;
-        case 8004:
-            activeCheck = 'deleted';
-            activeLabel = 'Deleted';
             break;
     }
 
     return (
         <div>
-            <Title><StyledLink to={"/collections"}>
-                Bộ sưu tập</StyledLink> / {collection.CollectionName}    
+            <Title><StyledLink to={"/pois"}>POIs</StyledLink> / {poi.Title}
             </Title>
 
             <ContainerWrapper>
-                <CollectionDetailWrapper>
+                <PoiDetailWrapper>
                     <UpdateTitle>
                         Chi tiết { success ? <SuccessSpan>Cập nhật thành công</SuccessSpan> : null }
                     </UpdateTitle>
 
                     <DetailBottom>
 
-                        <DetailTitle>Tên bộ sưu tập</DetailTitle>
+                        <DetailTitle>POI ID</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{collection.CollectionName}</DetailInfoText>
+                            <DetailInfoText>{poi.PoiId}</DetailInfoText>
                         </DetailInfo>
 
-                        <DetailTitle>Mã bộ sưu tập</DetailTitle>
+                        <DetailTitle>Tiêu đề</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{collection.CollectionId}</DetailInfoText>
+                            <DetailInfoText>{poi.Title}</DetailInfoText>
+                        </DetailInfo>
+
+                        <DetailTitle>Nội dung</DetailTitle>
+                        <DetailInfo>
+                            <DetailInfoText>{poi.Text}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Ngày tạo</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{collection.CreatedDate}</DetailInfoText>
+                            <DetailInfoText>{poi.ReleaseDate}</DetailInfoText>
                         </DetailInfo>
 
-                        <DetailTitle>Lần cuối cập nhật</DetailTitle>
+                        <DetailTitle>Quản lý</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{collection.UpdatedDate}</DetailInfoText>
+                            <DetailInfoText>{poi.MarketManagerId}</DetailInfoText>
                         </DetailInfo>
 
-                        <DetailTitle>Chủ cửa hàng</DetailTitle>
+                        <DetailTitle>Chung cư</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{collection.Merchant.MerchantName}</DetailInfoText>
+                            <DetailInfoText>{poi.ApartmentId}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Trạng thái</DetailTitle>
@@ -259,32 +270,47 @@ const EditCollection = () => {
                         </DetailInfo>
 
                     </DetailBottom>
-                </CollectionDetailWrapper>
+                </PoiDetailWrapper>
 
 
-                <CollectionUpdateWrapper>
+                <PoiUpdateWrapper>
                     <UpdateTitle>Chỉnh sửa</UpdateTitle>
 
-                    <UpdateForm onSubmit={handleEditCollection}>
+                    <UpdateForm onSubmit={handleEditPoi}>
                         <UpdateItem>
-                            <UpdateItemLabel>Tên bộ sưu tập</UpdateItemLabel>
-                            <UpdateItemInput type="text" name="collectionName" defaultValue={collection.CollectionName} />
+                            <UpdateItemLabel>Tiêu đề</UpdateItemLabel>
+                            <UpdateItemInput type="text" name="title" defaultValue={poi.Title} />
+                        </UpdateItem>
+
+                        <UpdateItem>
+                            <UpdateItemLabel>Nội dung</UpdateItemLabel>
+                            <UpdateItemTextField type="text" name="text" defaultValue={poi.Text} />
+                        </UpdateItem>
+
+                        <UpdateItem>
+                            <UpdateItemLabel>ID Quản lý</UpdateItemLabel>
+                            <UpdateItemInput type="text" name="marketManagerId" defaultValue={poi.MarketManagerId} />
+                        </UpdateItem>
+
+                        <UpdateItem>
+                            <UpdateItemLabel>ID Chung cư</UpdateItemLabel>
+                            <UpdateItemInput type="text" name="apartmentId" defaultValue={poi.ApartmentId} />
                         </UpdateItem>
 
                         <UpdateItem>
                             <UpdateItemLabel>Trạng thái</UpdateItemLabel>
-                            <UpdateItemSelect value={status} name="collectionStatus" onChange={handleStatusChange}>
-                                <option value="8001">Active</option>
-                                <option value="8004">Deactive</option>
+                            <UpdateItemSelect value={status} name="poiStatus" onChange={handleStatusChange}>
+                                <option value="13001">Active</option>
+                                <option value="13002">Inactive</option>
                             </UpdateItemSelect>
                         </UpdateItem>
 
                         <UpdateButton>Cập nhật</UpdateButton>
                     </UpdateForm>
-                </CollectionUpdateWrapper>
+                </PoiUpdateWrapper>
             </ContainerWrapper>
         </div>
     )
 }
 
-export default EditCollection;
+export default EditPoi;

@@ -1,8 +1,7 @@
 ﻿import React from 'react';
 import styled from 'styled-components';
 import Modal from 'react-modal';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { Edit, Delete, ContentPasteSearch } from '@mui/icons-material';
 import { Link } from "react-router-dom";
 
 const Image = styled.img`
@@ -19,7 +18,7 @@ const Button = styled.button`
     cursor: pointer;
     overflow: hidden;
     outline: none;
-    color: grey;
+    color: ${props => props.disabled === true ? "#E0E0E0" : "grey"};
 
     &:focus {
     outline: none;
@@ -51,7 +50,13 @@ const Status = styled.span`
     vertical-align: baseline;
     border-radius: 0.25rem;
     color: #fff;
-    background-color: ${props => props.active === "active" ? "#28a745" : "#dc3545"};
+    background-color: ${props => props.active === "verified" ? "#28a745"
+        :
+        props.active === "unverified" ? "#FF8800"
+            :
+            props.active === "deleted" ? "#dc3545"
+                :
+                "#dc3545"};
 `;
 
 const ModalButton = styled.button`
@@ -96,6 +101,24 @@ const Name = styled(Text)`
     font-weight: bold;
 `;
 
+const StyledSearchIcon = styled(ContentPasteSearch)`
+    &:hover {
+    color: #dc3545;
+    }
+`;
+
+const StyledEditIcon = styled(Edit)`
+    &:hover {
+    color: #dc3545;
+    }
+`;
+
+const StyledDeleteIcon = styled(Delete)`
+    &:hover {
+    color: ${props => props.disabled === true ? "#E0E0E0" : "#dc3545"};
+    }
+`;
+
 const customStyles = {
     content: {
         top: '50%',
@@ -107,17 +130,6 @@ const customStyles = {
     },
 };
 
-const Chip = styled.div`
-    display: inline-block;
-    margin: 2px 2px 2px 0px;
-    padding: 0 11px;
-    height: 35px;
-    font-size: 13px;
-    line-height: 35px;
-    border-radius: 25px;
-    background-color: #f1f1f1;
-`;
-
 const ProductItem = ({ item, handleDeleteItem }) => {
     const [DeleteModal, toggleDeleteModal] = React.useState(false);
 
@@ -127,23 +139,33 @@ const ProductItem = ({ item, handleDeleteItem }) => {
 
     if (item === 0) {
         return (
-            <tr>
-                <TableData colspan="6">
-                    <h4>Không tìm thấy sản phẩm.</h4>
-                </TableData>
-            </tr>
+            <TableRow>
+                <td colspan="6">
+                    <h4>Không tìm thấy dữ liệu.</h4>
+                </td>
+            </TableRow>
         )
     }
     let activeCheck = '';
     let activeLabel = '';
+    let disabledCheck = false;
     switch (item.Status) {
-        case 1003:
-            activeCheck = 'active';
-            activeLabel = 'Active';
+        case 1004:
+            activeCheck = 'deleted';
+            activeLabel = 'Deleted';
+            disabledCheck = true;
             break;
-        default:
-            activeCheck = 'inactive';
-            activeLabel = 'Inactive';
+        case 1005:
+            activeCheck = 'verified';
+            activeLabel = 'Verified';
+            break;
+        case 1006:
+            activeCheck = 'unverified';
+            activeLabel = 'Unverified - Create';
+            break;
+        case 1007:
+            activeCheck = 'unverified';
+            activeLabel = 'Unverified - Update';
             break;
     }
 
@@ -159,21 +181,27 @@ const ProductItem = ({ item, handleDeleteItem }) => {
             </TableData>
 
             <TableData center>
-                <Link to={"/product/" + item.id}>
+                <Link to={"/"}>
                     <Button>
-                        <EditIcon/>
+                        <StyledSearchIcon />
                     </Button>
                 </Link>
 
-                <Button onClick={toggleModal}>
-                    <DeleteIcon />
+                <Link to={"/"}>
+                    <Button>
+                        <StyledEditIcon />
+                    </Button>
+                </Link>
+
+                <Button disabled={disabledCheck} onClick={toggleModal}>
+                    <StyledDeleteIcon disabled={disabledCheck} />
                 </Button>
 
-                <Modal isOpen={DeleteModal} onRequestClose={toggleModal} style={customStyles}>
+                <Modal isOpen={DeleteModal} onRequestClose={toggleModal} style={customStyles} ariaHideApp={false}>
                     <Title>Xác Nhận Xóa</Title>
                     <Row><Text>Bạn có chắc chắn muốn xóa sản phẩm【<Name>{item.name}</Name>】?</Text></Row>
                     <ModalButton onClick={toggleModal}>Quay lại</ModalButton>
-                    <ModalButton red onClick={() => { handleDeleteItem(item.id); toggleModal()}}>Xóa</ModalButton>
+                    <ModalButton red onClick={() => { handleDeleteItem(item.ProductId); toggleModal()}}>Xóa</ModalButton>
                 </Modal>
             </TableData>
         </TableRow>

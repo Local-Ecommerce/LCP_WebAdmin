@@ -132,7 +132,9 @@ const StoreItem = ({ item, handleDeleteItem }) => {
         return (
             <tr>
                 <TableData>
-                    <h4>Không tìm thấy sản phẩm.</h4>
+                    <td colspan="5">
+                        <h4>Không tìm thấy dữ liệu.</h4>
+                    </td>
                 </TableData>
             </tr>
         )

@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import styled from 'styled-components';
 import Modal from 'react-modal';
-import { Edit, Delete, ContentPasteSearch } from '@mui/icons-material';
+import { Edit, Delete } from '@mui/icons-material';
 import { Link } from "react-router-dom";
 
 const Button = styled.button`
@@ -100,12 +100,6 @@ const customStyles = {
     },
 };
 
-const StyledSearchIcon = styled(ContentPasteSearch)`
-    &:hover {
-    color: #dc3545;
-    }
-`;
-
 const StyledEditIcon = styled(Edit)`
     &:hover {
     color: #dc3545;
@@ -129,7 +123,9 @@ const PoiItem = ({ item, handleDeleteItem }) =>  {
         return (
             <tr>
                 <TableData>
-                    <h4>Không tìm thấy sản phẩm.</h4>
+                    <td colspan="6">
+                        <h4>Không tìm thấy dữ liệu.</h4>
+                    </td>
                 </TableData>
             </tr>
         )
@@ -161,13 +157,8 @@ const PoiItem = ({ item, handleDeleteItem }) =>  {
             </TableData>
 
             <TableData center>
-                <Link to={"/"}>
-                    <Button>
-                        <StyledSearchIcon />
-                    </Button>
-                </Link>
 
-                <Link to={"/"}>
+                <Link to={"/editPoi/" + item.PoiId}>
                     <Button>
                         <StyledEditIcon/>
                     </Button>
