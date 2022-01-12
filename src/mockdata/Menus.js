@@ -1,4 +1,4 @@
-﻿const Menus = [
+const Menus = [
     {
         id: '1',
         name: 'Bảng giá 1',

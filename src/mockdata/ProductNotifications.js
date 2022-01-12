@@ -1,4 +1,4 @@
-﻿const ProductNotifications = [
+const ProductNotifications = [
     {
         id: 1,
         name: 'Đơn hàng "Cơm Cuộn" chờ duyệt.',

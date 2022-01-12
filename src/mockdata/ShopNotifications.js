@@ -1,4 +1,4 @@
-﻿const ShopNotifications = [
+const ShopNotifications = [
     {
         id: 1,
         name: 'Cửa hàng "Bánh mì 2 trứng" chờ duyệt.',

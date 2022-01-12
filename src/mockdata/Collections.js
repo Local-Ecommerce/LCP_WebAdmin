@@ -1,4 +1,4 @@
-﻿const Collections = [
+const Collections = [
     {
         id: 1,
         name: 'Bộ sưu tập 1',
