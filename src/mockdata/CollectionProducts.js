@@ -1,4 +1,4 @@
-﻿const CollectionProducts = [
+const CollectionProducts = [
     {   
         id: '1',
         image: "../images/product1.png",

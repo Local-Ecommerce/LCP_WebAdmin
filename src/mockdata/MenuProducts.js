@@ -1,4 +1,4 @@
-﻿const MenuProducts = [
+const MenuProducts = [
     {   
         id: '1',
         image: "../images/product1.png",

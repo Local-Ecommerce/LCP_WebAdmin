@@ -1,4 +1,4 @@
-﻿const Stores = [
+const Stores = [
     {
         id: '123-bbc-xxxx',
         image: "../images/store1.png",
