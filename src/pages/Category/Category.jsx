@@ -54,7 +54,7 @@ const Button = styled.button`
 `;
 
 const Category = () => {
-
+    const [change, setChange] = useState(false);
     const [data, setData] = useState([]);
 
     useEffect(() => {
@@ -68,11 +68,17 @@ const Category = () => {
             } catch (error) { }
         };
         fetchData();
-    }, []);
+    }, [change]);
 
     const handleDeleteItem = (id) => {
-        setData(data.filter((item) => item.id !== id));
-        console.log(data);
+        const url = "systemCategory/delete/" + id;
+        const deleteData = async () => {
+            try {
+                await fetch(publicRequest(url), { method: 'PUT' });
+                setChange(!change);
+            } catch (error) { }
+        };
+        deleteData();
     };
 
     return (
@@ -83,6 +89,7 @@ const Category = () => {
                 <Input placeholder="Search tên danh mục" />
                 <Button>Clear</Button>
             </ButtonWrapper>
+            
 
             <CategoryListWrapper>
                 <CategoryList currentItems={data} handleDeleteItem={handleDeleteItem} />

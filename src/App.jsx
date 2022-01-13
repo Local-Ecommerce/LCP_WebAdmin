@@ -13,6 +13,7 @@ import Category from './pages/Category/Category';
 
 import Menu from './pages/Menu/Menu';
 import MenuDetail from './pages/Menu/MenuDetail';
+import EditMenu from './pages/Menu/EditMenu';
 
 import Store from './pages/Store/Store';
 import AddStore from './pages/Store/AddStore';
@@ -61,6 +62,7 @@ const App = () => {
 
                     <Route path="/menus">               <Menu />                </Route>
                     <Route path="/menu/:id">            <MenuDetail />          </Route>
+                    <Route path="/editMenu/:id">        <EditMenu />            </Route>
 
                     <Route path="/applicables">         <Home />                </Route>
 

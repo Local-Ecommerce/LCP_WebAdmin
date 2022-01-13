@@ -359,8 +359,8 @@ const Store = () => {
                     <TableHead>
                         <TableRow>
                             <TableHeader width="30%">Tên cửa hàng</TableHeader>
-                            <TableHeader width="20%">Chủ cửa hàng</TableHeader>
-                            <TableHeader width="20%">Chung cư</TableHeader>
+                            <TableHeader width="30%">Địa chỉ chung cư</TableHeader>
+                            <TableHeader width="10%">Quản lý</TableHeader>
                             <TableHeader width="15%" center>Trạng thái</TableHeader>
                             <TableHeader width="15%" center>Chỉnh sửa</TableHeader>
                         </TableRow>

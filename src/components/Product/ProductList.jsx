@@ -1,5 +1,5 @@
 import React from 'react';
-import ProductItem from '../Product/ProductItem';
+import ProductItem from './ProductItem';
 
 const ProductList = ({ currentItems, handleDeleteItem }) => {
 

@@ -1,20 +1,20 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import Menus from '../../mockdata/Menus';
-import MenuProducts from '../../mockdata/MenuProducts';
-import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
-import MenuProductList from '../../components/Product/ProductList';
+import { useParams, Link } from "react-router-dom";
+import { publicRequest } from "../../RequestMethod";
+import ProductList from '../../components/Product/ProductList';
 import ReactPaginate from "react-paginate";
-
-const StyledLink = styled(Link)`
-    text-decoration: none;
-    color: #727272;
-`;
 
 const Title = styled.h1`
     font-size: 30px;
     color: #383838;
+    margin: 15px;
+`;
+
+const StyledLink = styled(Link)`
+    text-decoration: none;
+    color: #727272;
 `;
 
 const Row = styled.div`
@@ -59,8 +59,35 @@ const Button = styled.button`
     border-style: none;
     border-radius: 5px;
     color: #fff;
+
     &:focus {
     opacity: 0.5;
+    }
+`;
+
+const SelectWrapper = styled.div`
+    display: flex;
+    width: ${props => props.width};
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    border-color: #E0E0E0;
+    border-style: solid;
+    border-width: thin;
+    height: 44px;
+    padding: 0px 3px 0px 8px;
+    background-color: #ffffff;
+`;
+
+const Select = styled.select`
+    padding: 4px;
+    flex-grow: 1;
+    background-color: transparent;
+    outline: none;
+    border: none;
+
+    &:focus {
+    outline: 0;
     }
 `;
 
@@ -99,12 +126,16 @@ const TableBody = styled.tbody`
 
 const TableRow = styled.tr``;
 
-const FloatRight = styled.div`
-    margin-left: auto;
-    margin-right: 3rem;
+const ItemsPerPageWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 47%;
 `;
 
 const StyledPaginateContainer = styled.div`
+    margin-right: 20px;
+
     .pagination {
     padding: 0px;
     margin: 0px;
@@ -182,102 +213,188 @@ const StyledPaginateContainer = styled.div`
 
 const MenuDetail = () => {
     const { id } = useParams();
-    const [item, setItem] = useState({});
-    const [data, setData] = useState(MenuProducts);
+    const [menu, setMenu] = useState({});
+    const [APIdata, setAPIdata] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
     const [currentItems, setCurrentItems] = useState([]);
-    const [pageCount, setPageCount] = useState(0);
+    const [pageCount, setPageCount] = useState(1);
     const [itemOffset, setItemOffset] = useState(0);
-    const itemsPerPage = 5;
+    const [currentPage, setCurrentPage] = useState(0);
+    const [itemsPerPage, setItemsPerPage] = useState(5);
+    const [change, setChange] = useState(false);
+    const [search, setSearch] = useState(''); //search filter
+    const [status, setStatus] = useState('0'); //status filter
 
     useEffect(() => {
-        for (let i = 0; i < Menus.length; i++) {
-            if (Menus[i].id === id) {
-                setItem(Menus[i]);
-                console.log(item);
-                break;
+        const url = "menu/" + id;
+
+        const fetchMenu = async () => {
+            try {
+                const res = await fetch(publicRequest(url));
+                const json = await res.json();
+                setMenu(json.Data);
+            } catch (error) { }
+        };
+        fetchMenu();
+    }, [id]);
+
+    useEffect(() => {  //fetch api data
+        const url = "menu/" + id + "/product";
+
+        const fetchData = async () => {
+            try {
+                const res = await fetch(publicRequest(url), { method: 'GET' });
+                const json = await res.json();
+                setAPIdata(json.Data);
+            } catch (error) { }
+        };
+        fetchData();
+    }, [change]);
+
+    useEffect(() => {   //filter based on 'search' & 'status'
+        const result = APIdata.filter((item) => {
+            if (status !== '0') {
+                return [item.ProductName, item.ProductType, item.DefaultPrice].join('').toLowerCase().includes(search.toLowerCase())
+                    && item.Status === parseInt(status)
+            } else {
+                return [item.ProductName, item.ProductType, item.DefaultPrice].join('').toLowerCase().includes(search.toLowerCase())
+            }
+        })
+        setFilteredData(result);
+    }, [search, status, APIdata, itemsPerPage]);
+
+    useEffect(() => {   //paging
+        const paging = () => {
+            try {
+                const endOffset = (itemOffset + itemsPerPage);
+                setCurrentItems(filteredData.slice(itemOffset, endOffset));
+                setPageCount(Math.ceil(filteredData.length / itemsPerPage));
+            } catch (error) { }
+        };
+        paging();
+    }, [filteredData, itemOffset]);
+
+    useEffect(() => {   //set active page
+        if (currentItems.length === 0) {
+            if (itemOffset >= 5) {
+                setItemOffset(itemOffset - 5);
+                setCurrentPage(filteredData.length / itemsPerPage - 1);
             }
         }
-    }, [id, item]);
-
-    useEffect(() => {
-        const endOffset = itemOffset + itemsPerPage;
-        setCurrentItems(data.slice(itemOffset, endOffset));
-        setPageCount(Math.ceil(data.length / itemsPerPage));
-    }, [data, itemOffset, itemsPerPage]);
+    }, [currentItems]);
 
     const handlePageClick = (event) => {
-        const newOffset = event.selected * itemsPerPage % data.length;
+        const newOffset = event.selected * itemsPerPage % filteredData.length;
         setItemOffset(newOffset);
+        setCurrentPage(event.selected);
     };
 
+    const handleSearch = (searchValue, statusValue) => {
+        setSearch(searchValue);
+        setStatus(statusValue);
+        setItemOffset(0);   //back to page 1
+        setCurrentPage(0);
+    }
+
+    const handleChangeItemsPerPage = (value) => {
+        setItemsPerPage(parseInt(value));
+        setItemOffset(0);   //back to page 1
+        setCurrentPage(0);
+    }
+
     const handleDeleteItem = (id) => {
-        setData(data.filter((item) => item.id !== id));
+        const url = "product/delete/base/" + id;
+        const deleteData = () => {
+            try {
+                fetch(publicRequest(url), { method: 'PUT' });
+                setChange(!change);
+            } catch (error) { }
+        };
+        deleteData();
     };
 
     return (
         <div>
-            <Title><StyledLink to={"/menus"}>Danh sách bảng giá</StyledLink> / {item.name}</Title>
+            <Title><StyledLink to={"/menus"}>Danh sách bảng giá</StyledLink> / {menu.MenuName}</Title>
 
             <TableWrapper>
                 <Row>
                     <ButtonWrapper>
-                        <Input placeholder="Search tên sản phẩm" />
+                        <Input placeholder="Search sản phẩm" onChange={(event) => handleSearch(event.target.value, status)} />
                         <Button>Clear</Button>
                     </ButtonWrapper>
 
-                    <ButtonWrapper>
-                        <Input placeholder="Search theo bộ sưu tập" />
-                        <Button>Clear</Button>
-                    </ButtonWrapper>
+                    <SelectWrapper width="16%">
+                        <Select value={status} onChange={(event) => handleSearch(search, event.target.value)}>
+                            <option value="0">--- Lọc trạng thái ---</option>
+                            <option value="1004">Deleted</option>
+                            <option value="1005">Verified</option>
+                            <option value="1006">Unverified - Create</option>
+                            <option value="1007">Unverified - Update</option>
+                        </Select>
+                    </SelectWrapper>
 
-                    <ButtonWrapper>
-                        <Input placeholder="Search theo danh mục" />
-                        <Button>Clear</Button>
-                    </ButtonWrapper>
+                    <ItemsPerPageWrapper>
+                        Số hàng mỗi trang:&nbsp;
+                        <SelectWrapper width="40px">
+                            <Select value={itemsPerPage} onChange={(event) => handleChangeItemsPerPage(event.target.value)}>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                            </Select>
+                        </SelectWrapper>              
+                    </ItemsPerPageWrapper>  
                 </Row>
 
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableHeader width="8%">Hình ảnh</TableHeader>
-                            <TableHeader width="15%">Tên sản phẩm</TableHeader>
-                            <TableHeader width="26%">Bộ sưu tập</TableHeader>
-                            <TableHeader width="26%">Danh mục</TableHeader>
-                            <TableHeader width="5%" center>Giá</TableHeader>
-                            <TableHeader width="10%" center>Trạng thái</TableHeader>
+                            <TableHeader width="10%" center>Hình ảnh</TableHeader>
+                            <TableHeader width="25%">Tên sản phẩm</TableHeader>
+                            <TableHeader width="15%">Loại</TableHeader>
+                            <TableHeader width="10%" center>Giá</TableHeader>
+                            <TableHeader width="15%" center>Trạng thái</TableHeader>
                             <TableHeader width="10%" center>Chỉnh sửa</TableHeader>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        <MenuProductList currentItems={currentItems} handleDeleteItem={handleDeleteItem} />
+                        <ProductList currentItems={currentItems} handleDeleteItem={handleDeleteItem} />
                     </TableBody>
                 </Table>
 
                 <Row>
-                    <FloatRight>
-                        <StyledPaginateContainer>
-                            <ReactPaginate
-                                nextLabel="Next >"
-                                onPageChange={handlePageClick}
-                                pageRangeDisplayed={3}
-                                marginPagesDisplayed={2}
-                                pageCount={pageCount}
-                                previousLabel="< Prev"
-                                pageClassName="page-item"
-                                pageLinkClassName="page-link"
-                                previousClassName="page-item"
-                                previousLinkClassName="page-link"
-                                nextClassName="page-item"
-                                nextLinkClassName="page-link"
-                                breakLabel="..."
-                                breakClassName="page-item"
-                                breakLinkClassName="page-link"
-                                containerClassName="pagination"
-                                activeClassName="active"
-                                renderOnZeroPageCount={null}
-                            />
-                        </StyledPaginateContainer>
-                    </FloatRight>
+                    { currentItems.length !== 0 
+                    ? <small>Hiển thị {currentPage * itemsPerPage + 1} - {currentPage * itemsPerPage + currentItems.length} trong tổng số {filteredData.length} bộ sưu tập.</small>
+                    : null }
+
+                    <StyledPaginateContainer>
+                        <ReactPaginate
+                            nextLabel="Next >"
+                            onPageChange={handlePageClick}
+                            pageRangeDisplayed={3}
+                            marginPagesDisplayed={2}
+                            pageCount={pageCount}
+                            previousLabel="< Prev"
+                            pageClassName="page-item"
+                            pageLinkClassName="page-link"
+                            previousClassName="page-item"
+                            previousLinkClassName="page-link"
+                            nextClassName="page-item"
+                            nextLinkClassName="page-link"
+                            breakLabel="..."
+                            breakClassName="page-item"
+                            breakLinkClassName="page-link"
+                            containerClassName="pagination"
+                            activeClassName="active"
+                            forcePage={currentPage}
+                            renderOnZeroPageCount={null}
+                        />
+                    </StyledPaginateContainer>
                 </Row>
             </TableWrapper>
         </div>

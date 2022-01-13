@@ -245,7 +245,7 @@ const CollectionDetail = () => {
             try {
                 const res = await fetch(publicRequest(url), { method: 'GET' });
                 const json = await res.json();
-                await setAPIdata(json.Data);
+                setAPIdata(json.Data);
             } catch (error) { }
         };
         fetchData();

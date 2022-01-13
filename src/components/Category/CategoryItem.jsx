@@ -109,10 +109,6 @@ const Text = styled.p`
     display: inline-block;
 `;
 
-const Name = styled(Text)`
-    font-weight: bold;
-`;
-
 const customStyles = {
     content: {
         top: '50%',
@@ -147,20 +143,19 @@ const CategoryItem = ({ item, handleDeleteItem }) => {
     const [DeleteModal, toggleDeleteModal] = React.useState(false);
 
     const showChild = () => setChild(!child);
-
+    console.log(item.Child);
     const toggleModal = () => {
         toggleDeleteModal(!DeleteModal);
     }
 
     return (
         <>
-            <CategoryContent level={item.CategoryLevel} onClick={item.Child && showChild}>
+            <CategoryContent level={item.CategoryLevel} onClick={(typeof item.Child != "undefined" && item.Child != null && item.Child.length != null && item.Child.length > 0) && showChild}>
                 <NameWrapper>
                     {item.SysCategoryName}
-
-                    {item.Child && child
+                    {(typeof item.Child != "undefined" && item.Child != null && item.Child.length != null && item.Child.length > 0) && child
                     ? <DropupIcon />
-                        : item.Child
+                        : (typeof item.Child != "undefined" && item.Child != null && item.Child.length != null && item.Child.length > 0)
                         ? <DropdownIcon />
                         : null}
                 </NameWrapper>
@@ -185,10 +180,10 @@ const CategoryItem = ({ item, handleDeleteItem }) => {
                     <Modal isOpen={DeleteModal} onRequestClose={toggleModal} style={customStyles}>
                         <Title>Xác Nhận Xóa</Title>
                         <ModalTextWrapper>
-                            <Text>Bạn có chắc chắn muốn xóa danh mục【<Name>{item.name}</Name>】?</Text>
+                            <Text>Bạn có chắc chắn muốn xóa danh mục【<b>{item.SysCategoryName}</b>】?</Text>
                         </ModalTextWrapper>
                         <ModalButton onClick={toggleModal}>Quay lại</ModalButton>
-                        <ModalButton red onClick={() => { handleDeleteItem(item.id); toggleModal() }}>Xóa</ModalButton>
+                        <ModalButton red onClick={() => { handleDeleteItem(item.SystemCategoryId); toggleModal() }}>Xóa</ModalButton>
                     </Modal>
                 </ButtonWrapper>
 

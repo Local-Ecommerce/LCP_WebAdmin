@@ -151,8 +151,8 @@ const NewsItem = ({ item, handleDeleteItem }) =>  {
         <TableRow>
             <TableData>{item.Title}</TableData>
             <TableData>{item.Text}</TableData>
-            <TableData>{item.MarketManagerId}</TableData>
-            <TableData>{item.ApartmentId}</TableData>
+            <TableData>{item.Apartment.Address}</TableData>
+            <TableData>{item.MarketManager.MarketManagerName}</TableData>
 
             <TableData center>
                 <Status active={activeCheck}>{activeLabel}</Status>

@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import Modal from 'react-modal';
 import { Edit, Delete } from '@mui/icons-material';
-import { Link } from "react-router-dom";
 
 const Image = styled.img`
     vertical-align: middle;
@@ -113,6 +112,35 @@ const StyledDeleteIcon = styled(Delete)`
     }
 `;
 
+const Form = styled.form`
+    padding: 20px;
+    margin: 0 auto;
+    width: 50%;
+`;
+
+const Item = styled.div`
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    margin-bottom: 20px;
+`;
+
+const ItemLabel = styled.label`
+    margin-bottom: 5px;
+    font-size: 14px;
+`;
+
+const ItemInput = styled.input`
+    border: none;
+    height: 30px;
+    border-bottom: 1px solid gray;
+    outline: none;
+
+    &: focus {
+    outline: none;
+    }
+`;
+
 const customStyles = {
     content: {
         top: '50%',
@@ -125,18 +153,17 @@ const customStyles = {
 };
 
 const ProductItem = ({ item, handleDeleteItem }) => {
-    const [DeleteModal, toggleDeleteModal] = React.useState(false);
-
-    const toggleModal = () => {
-        toggleDeleteModal(!DeleteModal);
-    }
+    const [DeleteModal, changeDeleteModal] = React.useState(false);
+    const [EditModal, changeEditModal] = React.useState(false);
+    const toggleDeleteModal = () => changeDeleteModal(!DeleteModal);
+    const toggleEditModal = () => changeEditModal(!EditModal);
 
     if (item === 0) {
         return (
             <TableRow>
-                <td colspan="6">
+                <TableData colSpan={4} >
                     <h4>Không tìm thấy dữ liệu.</h4>
-                </td>
+                </TableData>
             </TableRow>
         )
     }
@@ -179,21 +206,48 @@ const ProductItem = ({ item, handleDeleteItem }) => {
             </TableData>
 
             <TableData center>
-                <Link to={"/editProduct/" + item.ProductId}>
-                    <Button>
-                        <StyledEditIcon />
-                    </Button>
-                </Link>
+                <Button onClick={toggleEditModal}>
+                    <StyledEditIcon />
+                </Button>
 
-                <Button disabled={disabledCheck} onClick={toggleModal}>
+                <Button disabled={disabledCheck} onClick={toggleDeleteModal}>
                     <StyledDeleteIcon disabled={disabledCheck} />
                 </Button>
 
-                <Modal isOpen={DeleteModal} onRequestClose={toggleModal} style={customStyles} ariaHideApp={false}>
+                <Modal isOpen={EditModal} onRequestClose={toggleEditModal} style={customStyles} ariaHideApp={false}>
+                    <Title>Chỉnh sửa sản phẩm</Title>
+
+                    <Form id="form">
+                    <Item>
+                        <ItemLabel>Tựa đề</ItemLabel>
+                        <ItemInput type="text" name="title" />
+                    </Item>
+
+                    <Item>
+                        <ItemLabel>Nội dung</ItemLabel>
+                        <ItemInput type="text" name="text" />
+                    </Item>
+
+                    <Item>
+                        <ItemLabel>ID Quản lý</ItemLabel>
+                        <ItemInput type="text" name="marketManagerId" />
+                    </Item>
+
+                    <Item>
+                        <ItemLabel>ID Chung cư</ItemLabel>
+                        <ItemInput type="text" name="apartmentId" />
+                    </Item>
+
+                    <ModalButton red onClick={() => { handleDeleteItem(item.ProductId); toggleEditModal()}}>Cập nhật</ModalButton>
+                </Form>
+
+                </Modal>
+
+                <Modal isOpen={DeleteModal} onRequestClose={toggleDeleteModal} style={customStyles} ariaHideApp={false}>
                     <Title>Xác Nhận Xóa</Title>
                     <Row><Text>Bạn có chắc chắn muốn xóa sản phẩm【<Name>{item.ProductName}</Name>】?</Text></Row>
-                    <ModalButton onClick={toggleModal}>Quay lại</ModalButton>
-                    <ModalButton red onClick={() => { handleDeleteItem(item.ProductId); toggleModal()}}>Xóa</ModalButton>
+                    <ModalButton onClick={toggleDeleteModal}>Quay lại</ModalButton>
+                    <ModalButton red onClick={() => { handleDeleteItem(item.ProductId); toggleDeleteModal()}}>Xóa</ModalButton>
                 </Modal>
             </TableData>
         </TableRow>

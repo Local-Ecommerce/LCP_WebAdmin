@@ -358,8 +358,8 @@ const News = () =>  {
                         <TableRow>
                             <TableHeader width="20%">Tựa đề</TableHeader>
                             <TableHeader width="30%">Nội dung</TableHeader>
-                            <TableHeader width="15%">Quản lý</TableHeader>
-                            <TableHeader width="15%">Chung cư</TableHeader>
+                            <TableHeader width="20%">Địa chỉ chung cư</TableHeader>
+                            <TableHeader width="10%">Quản lý</TableHeader>
                             <TableHeader width="10%" center>Trạng thái</TableHeader>
                             <TableHeader width="10%" center>Chỉnh sửa</TableHeader>
                         </TableRow>
