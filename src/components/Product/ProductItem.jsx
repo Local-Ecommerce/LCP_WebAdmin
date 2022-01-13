@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import Modal from 'react-modal';
-import { Edit, Delete, ContentPasteSearch } from '@mui/icons-material';
+import { Edit, Delete } from '@mui/icons-material';
 import { Link } from "react-router-dom";
 
 const Image = styled.img`
@@ -32,14 +32,13 @@ const TableRow = styled.tr`
 `;
 
 const TableData = styled.td`
-    padding: 0.75rem;
+    padding: 1rem;
     vertical-align: top;
-    border-top: 1px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6;
     vertical-align: middle;
     text-align: ${props => props.center ? "center" : "left"};
     overflow: hidden;
     white-space: nowrap;
-    height: 45px;
 `;
 
 const Status = styled.span`
@@ -100,12 +99,6 @@ const Text = styled.p`
 
 const Name = styled(Text)`
     font-weight: bold;
-`;
-
-const StyledSearchIcon = styled(ContentPasteSearch)`
-    &:hover {
-    color: #dc3545;
-    }
 `;
 
 const StyledEditIcon = styled(Edit)`
@@ -186,13 +179,7 @@ const ProductItem = ({ item, handleDeleteItem }) => {
             </TableData>
 
             <TableData center>
-                <Link to={"/"}>
-                    <Button>
-                        <StyledSearchIcon />
-                    </Button>
-                </Link>
-
-                <Link to={"/"}>
+                <Link to={"/editProduct/" + item.ProductId}>
                     <Button>
                         <StyledEditIcon />
                     </Button>
@@ -204,7 +191,7 @@ const ProductItem = ({ item, handleDeleteItem }) => {
 
                 <Modal isOpen={DeleteModal} onRequestClose={toggleModal} style={customStyles} ariaHideApp={false}>
                     <Title>Xác Nhận Xóa</Title>
-                    <Row><Text>Bạn có chắc chắn muốn xóa sản phẩm【<Name>{item.name}</Name>】?</Text></Row>
+                    <Row><Text>Bạn có chắc chắn muốn xóa sản phẩm【<Name>{item.ProductName}</Name>】?</Text></Row>
                     <ModalButton onClick={toggleModal}>Quay lại</ModalButton>
                     <ModalButton red onClick={() => { handleDeleteItem(item.ProductId); toggleModal()}}>Xóa</ModalButton>
                 </Modal>

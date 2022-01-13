@@ -135,7 +135,7 @@ const AddNews = () => {
     return (
         <div>
             <Title>
-                <StyledLink to={"/news"}>POIs </StyledLink>
+                <StyledLink to={"/news"}>News </StyledLink>
                 &nbsp;/ Tạo tin mới
                 { success ? <SuccessSpan>Tạo mới thành công</SuccessSpan> : null }
             </Title>

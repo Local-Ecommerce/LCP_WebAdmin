@@ -6,10 +6,22 @@ import { publicRequest } from "../../RequestMethod";
 import ProductList from '../../components/Product/ProductList';
 import ReactPaginate from "react-paginate";
 
+const Title = styled.h1`
+    font-size: 30px;
+    color: #383838;
+    margin: 15px;
+`;
+
+const StyledLink = styled(Link)`
+    text-decoration: none;
+    color: #727272;
+`;
+
 const Row = styled.div`
     display: flex;
     width: 100%;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: 15px;
 `;
 
@@ -25,7 +37,6 @@ const ButtonWrapper = styled.div`
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
-    margin-right: 2%;
 `;
 
 const Input = styled.input`
@@ -48,6 +59,7 @@ const Button = styled.button`
     border-style: none;
     border-radius: 5px;
     color: #fff;
+
     &:focus {
     opacity: 0.5;
     }
@@ -55,7 +67,7 @@ const Button = styled.button`
 
 const SelectWrapper = styled.div`
     display: flex;
-    width: 16%;
+    width: ${props => props.width};
     justify-content: center;
     align-items: center;
     border-radius: 5px;
@@ -77,17 +89,6 @@ const Select = styled.select`
     &:focus {
     outline: 0;
     }
-`;
-
-const StyledLink = styled(Link)`
-    text-decoration: none;
-    color: #727272;
-`;
-
-const Title = styled.h1`
-    font-size: 30px;
-    color: #383838;
-    margin: 15px;
 `;
 
 const TableWrapper = styled.div`
@@ -125,13 +126,16 @@ const TableBody = styled.tbody`
 
 const TableRow = styled.tr``;
 
-
-const FloatRight = styled.div`
-    margin-left: auto;
-    margin-right: 3rem;
+const ItemsPerPageWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 47%;
 `;
 
 const StyledPaginateContainer = styled.div`
+    margin-right: 20px;
+
     .pagination {
     padding: 0px;
     margin: 0px;
@@ -213,10 +217,10 @@ const CollectionDetail = () => {
     const [APIdata, setAPIdata] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [currentItems, setCurrentItems] = useState([]);
-    const [pageCount, setPageCount] = useState(0);
+    const [pageCount, setPageCount] = useState(1);
     const [itemOffset, setItemOffset] = useState(0);
-    const [currentPage, setCurrentPage] = useState(-1);
-    const itemsPerPage = 5;
+    const [currentPage, setCurrentPage] = useState(0);
+    const [itemsPerPage, setItemsPerPage] = useState(5);
     const [change, setChange] = useState(false);
     const [search, setSearch] = useState(''); //search filter
     const [status, setStatus] = useState('0'); //status filter
@@ -245,7 +249,7 @@ const CollectionDetail = () => {
             } catch (error) { }
         };
         fetchData();
-    }, [id, change]);
+    }, [change]);
 
     useEffect(() => {   //filter based on 'search' & 'status'
         const result = APIdata.filter((item) => {
@@ -257,14 +261,14 @@ const CollectionDetail = () => {
             }
         })
         setFilteredData(result);
-    }, [search, status, APIdata]);
+    }, [search, status, APIdata, itemsPerPage]);
 
     useEffect(() => {   //paging
-        const paging = async () => {
+        const paging = () => {
             try {
-                const endOffset = await (itemOffset + itemsPerPage);
-                await setCurrentItems(filteredData.slice(itemOffset, endOffset));
-                await setPageCount(Math.ceil(filteredData.length / itemsPerPage));
+                const endOffset = (itemOffset + itemsPerPage);
+                setCurrentItems(filteredData.slice(itemOffset, endOffset));
+                setPageCount(Math.ceil(filteredData.length / itemsPerPage));
             } catch (error) { }
         };
         paging();
@@ -292,6 +296,12 @@ const CollectionDetail = () => {
         setCurrentPage(0);
     }
 
+    const handleChangeItemsPerPage = (value) => {
+        setItemsPerPage(parseInt(value));
+        setItemOffset(0);   //back to page 1
+        setCurrentPage(0);
+    }
+
     const handleDeleteItem = (id) => {
         const url = "product/delete/base/" + id;
         const deleteData = async () => {
@@ -314,7 +324,7 @@ const CollectionDetail = () => {
                         <Button>Clear</Button>
                     </ButtonWrapper>
 
-                    <SelectWrapper>
+                    <SelectWrapper width="16%">
                         <Select value={status} onChange={(event) => handleSearch(search, event.target.value)}>
                             <option value="0">--- Lọc trạng thái ---</option>
                             <option value="1004">Deleted</option>
@@ -323,6 +333,22 @@ const CollectionDetail = () => {
                             <option value="1007">Unverified - Update</option>
                         </Select>
                     </SelectWrapper>
+
+                    <ItemsPerPageWrapper>
+                        Số hàng mỗi trang:&nbsp;
+                        <SelectWrapper width="40px">
+                            <Select value={itemsPerPage} onChange={(event) => handleChangeItemsPerPage(event.target.value)}>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                            </Select>
+                        </SelectWrapper>              
+                    </ItemsPerPageWrapper>  
                 </Row>
 
                 <Table>
@@ -342,31 +368,33 @@ const CollectionDetail = () => {
                 </Table>
 
                 <Row>
-                    <FloatRight>
-                        <StyledPaginateContainer>
-                            <ReactPaginate
-                                nextLabel="Next >"
-                                onPageChange={handlePageClick}
-                                pageRangeDisplayed={3}
-                                marginPagesDisplayed={2}
-                                pageCount={pageCount}
-                                previousLabel="< Prev"
-                                pageClassName="page-item"
-                                pageLinkClassName="page-link"
-                                previousClassName="page-item"
-                                previousLinkClassName="page-link"
-                                nextClassName="page-item"
-                                nextLinkClassName="page-link"
-                                breakLabel="..."
-                                breakClassName="page-item"
-                                breakLinkClassName="page-link"
-                                containerClassName="pagination"
-                                activeClassName="active"
-                                forcePage={currentPage}
-                                renderOnZeroPageCount={null}
-                            />
-                        </StyledPaginateContainer>
-                    </FloatRight>
+                    { currentItems.length !== 0 
+                    ? <small>Hiển thị {currentPage * itemsPerPage + 1} - {currentPage * itemsPerPage + currentItems.length} trong tổng số {filteredData.length} bộ sưu tập.</small>
+                    : null }
+
+                    <StyledPaginateContainer>
+                        <ReactPaginate
+                            nextLabel="Next >"
+                            onPageChange={handlePageClick}
+                            pageRangeDisplayed={3}
+                            marginPagesDisplayed={2}
+                            pageCount={pageCount}
+                            previousLabel="< Prev"
+                            pageClassName="page-item"
+                            pageLinkClassName="page-link"
+                            previousClassName="page-item"
+                            previousLinkClassName="page-link"
+                            nextClassName="page-item"
+                            nextLinkClassName="page-link"
+                            breakLabel="..."
+                            breakClassName="page-item"
+                            breakLinkClassName="page-link"
+                            containerClassName="pagination"
+                            activeClassName="active"
+                            forcePage={currentPage}
+                            renderOnZeroPageCount={null}
+                        />
+                    </StyledPaginateContainer>
                 </Row>
             </TableWrapper>
         </div>

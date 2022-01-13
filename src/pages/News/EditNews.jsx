@@ -227,7 +227,7 @@ const EditNews = () => {
 
     return (
         <div>
-            <Title><StyledLink to={"/news"}>POIs</StyledLink> / {news.Title}
+            <Title><StyledLink to={"/news"}>News</StyledLink> / {news.Title}
             </Title>
 
             <ContainerWrapper>

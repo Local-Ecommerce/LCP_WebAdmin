@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import Products from '../mockdata/Products';
+import Products from '../../mockdata/Products';
 import { useParams } from "react-router-dom";
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { Link } from "react-router-dom";
