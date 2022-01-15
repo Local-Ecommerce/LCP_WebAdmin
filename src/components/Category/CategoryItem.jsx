@@ -143,31 +143,31 @@ const CategoryItem = ({ item, handleDeleteItem }) => {
     const [DeleteModal, toggleDeleteModal] = React.useState(false);
 
     const showChild = () => setChild(!child);
-    console.log(item.Child);
+
     const toggleModal = () => {
         toggleDeleteModal(!DeleteModal);
     }
 
     return (
         <>
-            <CategoryContent level={item.CategoryLevel} onClick={(typeof item.Child != "undefined" && item.Child != null && item.Child.length != null && item.Child.length > 0) && showChild}>
+            <CategoryContent level={item.CategoryLevel} onClick={item.InverseBelongToNavigation && showChild}>
                 <NameWrapper>
                     {item.SysCategoryName}
-                    {(typeof item.Child != "undefined" && item.Child != null && item.Child.length != null && item.Child.length > 0) && child
+                    {Array.isArray(item.InverseBelongToNavigation) && item.InverseBelongToNavigation.length && child
                     ? <DropupIcon />
-                        : (typeof item.Child != "undefined" && item.Child != null && item.Child.length != null && item.Child.length > 0)
+                        : Array.isArray(item.InverseBelongToNavigation) && item.InverseBelongToNavigation.length
                         ? <DropdownIcon />
                         : null}
                 </NameWrapper>
 
                 <ButtonWrapper>
-                    <Link to={"/category/" + item.CollectionId}>
+                    <Link to={"/"}>
                         <Button>
                             <StyledSearchIcon />
                         </Button>
                     </Link>
 
-                    <Link to={"/"}>
+                    <Link to={"/editCategory/" + item.SystemCategoryId}>
                         <Button>
                             <StyledEditIcon />
                         </Button>
@@ -190,7 +190,7 @@ const CategoryItem = ({ item, handleDeleteItem }) => {
             </CategoryContent>
 
             {child &&
-                item.Child.map((item, index) => {
+                item.InverseBelongToNavigation.map((item, index) => {
                     return (
                         <CategoryItem item={item} handleDeleteItem={handleDeleteItem} key={index} />
                     );

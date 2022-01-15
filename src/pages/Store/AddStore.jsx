@@ -108,7 +108,7 @@ const AddStore = () => {
                     body: JSON.stringify({
                         storeName: event.target.elements.storeName.value,
                         merchantId: event.target.elements.merchantId.value,
-                        aparmentId: event.target.elements.aparmentId.value
+                        apartmentId: event.target.elements.apartmentId.value
                     })
                 });
                 const json = await res.json();
@@ -142,7 +142,7 @@ const AddStore = () => {
 
                     <Item>
                         <ItemLabel>ID Chung cư</ItemLabel>
-                        <ItemInput type="text" name="aparmentId" placeholder="" />
+                        <ItemInput type="text" name="apartmentId" placeholder="" />
                     </Item>
 
                     <AddButton>Tạo cửa hàng</AddButton>

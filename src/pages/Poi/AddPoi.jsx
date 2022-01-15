@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
 
 const StyledLink = styled(Link)`
@@ -12,8 +12,6 @@ const Title = styled.h1`
     font-size: 30px;
     color: #383838;
     margin: 15px;
-    display: flex;
-    align-items: center;
 `;
 
 const ContainerWrapper = styled.div`
@@ -83,22 +81,9 @@ const AddButton = styled.button`
     }
 `;
 
-const SuccessSpan = styled.span`
-    font-size: 18px;
-    font-weight: 600;
-    display: inline-block;
-    padding: 0.25em 0.4em;
-    margin-left: 20px;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    border-radius: 0.25rem;
-    color: #fff;
-    background-color: #dc3545;
-`;
-
 const AddPoi = () => {
     const [success, setSuccess] = useState(false);
+    let history = useHistory();
     const delay = ms => new Promise(res => setTimeout(res, ms));
     const showSuccess = async () => {
         await setSuccess(true);
@@ -125,7 +110,7 @@ const AddPoi = () => {
                 });
                 const json = await res.json();
                 if (json.ResultMessage === "SUCCESS") {
-                    showSuccess();
+                    history.push("/pois");
                 }
             } catch (error) { }
         };
@@ -135,9 +120,7 @@ const AddPoi = () => {
     return (
         <div>
             <Title>
-                <StyledLink to={"/pois"}>POIs </StyledLink>
-                &nbsp;/ Tạo POI mới
-                { success ? <SuccessSpan>Tạo mới thành công</SuccessSpan> : null }
+                <StyledLink to={"/pois"}>POIs </StyledLink>/ Tạo POI mới
             </Title>
             
             <ContainerWrapper>

@@ -20,7 +20,7 @@ const ContainerWrapper = styled.div`
     margin-top: 20px;
 `;
 
-const StoreDetailWrapper = styled.div`
+const CategoryDetailWrapper = styled.div`
     flex: 2;
     padding: 20px 40px;
     background-color: #ffffff;
@@ -28,7 +28,7 @@ const StoreDetailWrapper = styled.div`
     box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
-const StoreUpdateWrapper = styled.div`
+const CategoryUpdateWrapper = styled.div`
     flex: 2;
     padding: 20px 40px;
     background-color: #ffffff;
@@ -69,14 +69,7 @@ const DetailStatus = styled.span`
     vertical-align: baseline;
     border-radius: 0.25rem;
     color: #fff;
-    background-color: ${
-    props => props.active === "verified" ? "#28a745"
-        :
-        props.active === "unverified" ? "#FF8800"
-            :
-            props.active === "deleted" ? "#dc3545"
-                :
-                "#dc3545"};
+    background-color: ${props => props.active === "active" ? "#28a745" : "#dc3545"};
 `;
 
 const UpdateTitle = styled.span`
@@ -89,17 +82,18 @@ const UpdateTitle = styled.span`
 const UpdateForm = styled.form`
     display: flex;
     flex-direction: column;
-    margin-top: 10px;
+    margin-top: 20px;
 `;
 
 const UpdateItem = styled.div`
     display: flex;
     flex-direction: column;
     margin-top: 10px;
-    margin-bottom: 10px;
 `;
 
 const UpdateItemLabel = styled.label`
+    margin-top: 20px;
+    margin-bottom: 5px;
     font-size: 14px;
 `;
 
@@ -156,41 +150,40 @@ const SuccessSpan = styled.span`
     background-color: #dc3545;
 `;
 
-const EditStore = () => {
+const EditCategory = () => {
     const { id } = useParams();
-    const [store, setStore] = useState({});
-    const [status, setStatus] = useState(6006);
+    const [category, setCategory] = useState({});
+    const [status, setStatus] = useState(3001);
     const [success, setSuccess] = useState(false);
     const showSuccess = () => setSuccess(true);
     let activeCheck = '';
     let activeLabel = '';
 
     useEffect(() => {
-        const url = "store/" + id;
+        const url = "systemCategory/" + id;
 
-        const fetchStore = async () => {
+        const fetchCategory = async () => {
             try {
                 const res = await fetch(publicRequest(url));
                 const json = await res.json();
-                setStore(json.Data);
+                setCategory(json.Data);
             } catch (error) { }
         };
-        fetchStore();
+        fetchCategory();
     }, [id, success]);
 
-    const handleEditStore = (event) => {
+    const handleEditCategory = (event) => {
         event.preventDefault();
-        const url = "store/" + id;
+        const url = "systemCategory/" + id;
 
-        const updateCollection = async () => {
+        const updateCategory = async () => {
             try {
                 const res = await fetch(publicRequest(url), {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        storeName: event.target.elements.storeName.value,
-                        merchantId: event.target.elements.merchantId.value,
-                        apartmentId: event.target.elements.apartmentId.value
+                        sysCategoryName: event.target.elements.sysCategoryName.value,
+                        belongTo: category.BelongTo
                     })
                 });
                 const json = await res.json();
@@ -199,29 +192,25 @@ const EditStore = () => {
                 }
             } catch (error) { }
         };
-        updateCollection();
+        updateCategory();
     }
 
     const handleStatusChange = (event) => {
         setStatus(event.target.value);
     }
 
-    switch (store.Status) {
-        case 6004:
+    switch (category.Status) {
+        case 3001:
+            activeCheck = 'active';
+            activeLabel = 'Active';
+            break;
+        case 3002:
+            activeCheck = 'inactive';
+            activeLabel = 'Inactive';
+            break;
+        case 3004:
             activeCheck = 'deleted';
             activeLabel = 'Deleted';
-            break;
-        case 6005:
-            activeCheck = 'verified';
-            activeLabel = 'Verified';
-            break;
-        case 6006:
-            activeCheck = 'unverified';
-            activeLabel = 'Unverified';
-            break;
-        case 6007:
-            activeCheck = 'unverified';
-            activeLabel = 'Unverified';
             break;
         default:
             activeCheck = 'inactive';
@@ -231,39 +220,46 @@ const EditStore = () => {
 
     return (
         <div>
-            <Title><StyledLink to={"/stores"}>Danh sách cửa hàng</StyledLink> / {store.StoreName} </Title>
+            <Title><StyledLink to={"/categories"}>
+                Danh mục</StyledLink> / {category.CategoryName}    
+            </Title>
 
             <ContainerWrapper>
-                <StoreDetailWrapper>
+                <CategoryDetailWrapper>
                     <UpdateTitle>
-                        Chi tiết {success ? <SuccessSpan>Cập nhật thành công</SuccessSpan> : null}
+                        Chi tiết { success ? <SuccessSpan>Cập nhật thành công</SuccessSpan> : null }
                     </UpdateTitle>
 
                     <DetailBottom>
 
-                        <DetailTitle>Tên cửa hàng</DetailTitle>
+                        <DetailTitle>Tên bộ sưu tập</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{store.StoreName}</DetailInfoText>
+                            <DetailInfoText>{category.SysCategoryName}</DetailInfoText>
                         </DetailInfo>
 
-                        <DetailTitle>Mã cửa hàng</DetailTitle>
+                        <DetailTitle>Mã bộ sưu tập</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{store.MerchantStoreId}</DetailInfoText>
+                            <DetailInfoText>{category.SystemCategoryId}</DetailInfoText>
                         </DetailInfo>
 
-                        <DetailTitle>Ngày tạo</DetailTitle>
+                        <DetailTitle>Được duyệt bởi</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{store.CreatedDate}</DetailInfoText>
+                            <DetailInfoText>{category.ApproveBy}</DetailInfoText>
                         </DetailInfo>
 
-                        <DetailTitle>Chủ cửa hàng</DetailTitle>
+                        <DetailTitle>Lần cuối cập nhật</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{store.MerchantId}</DetailInfoText>
+                            <DetailInfoText>{category.UpdatedDate}</DetailInfoText>
                         </DetailInfo>
 
-                        <DetailTitle>Thuộc chung cư</DetailTitle>
+                        <DetailTitle>Danh mục cha</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{store.ApartmentId}</DetailInfoText>
+                            <DetailInfoText>{category.BelongTo}</DetailInfoText>
+                        </DetailInfo>
+
+                        <DetailTitle>Danh mục con</DetailTitle>
+                        <DetailInfo>
+                            <DetailInfoText>{category.InverseBelongToNavigation}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Trạng thái</DetailTitle>
@@ -272,42 +268,33 @@ const EditStore = () => {
                         </DetailInfo>
 
                     </DetailBottom>
-                </StoreDetailWrapper>
+                </CategoryDetailWrapper>
 
 
-                <StoreUpdateWrapper>
+                <CategoryUpdateWrapper>
                     <UpdateTitle>Chỉnh sửa</UpdateTitle>
 
-                    <UpdateForm onSubmit={handleEditStore}>
+                    <UpdateForm onSubmit={handleEditCategory}>
                         <UpdateItem>
-                            <UpdateItemLabel>Tên cửa hàng</UpdateItemLabel>
-                            <UpdateItemInput type="text" name="storeName" defaultValue={store.StoreName} />
-                        </UpdateItem>
-
-                        <UpdateItem>
-                            <UpdateItemLabel>Chủ cửa hàng</UpdateItemLabel>
-                            <UpdateItemInput type="text" name="merchantId" defaultValue={store.MerchantId} />
-                        </UpdateItem>
-
-                        <UpdateItem>
-                            <UpdateItemLabel>Thuộc chung cư</UpdateItemLabel>
-                            <UpdateItemInput type="text" name="apartmentId" defaultValue={store.AparmentId} />
+                            <UpdateItemLabel>Tên danh mục</UpdateItemLabel>
+                            <UpdateItemInput type="text" name="sysCategoryName" defaultValue={category.SysCategoryName} />
                         </UpdateItem>
 
                         <UpdateItem>
                             <UpdateItemLabel>Trạng thái</UpdateItemLabel>
-                            <UpdateItemSelect value={status} name="storeStatus" onChange={handleStatusChange}>
-                                <option value="6006">Active</option>
-                                <option value="6007">Deactive</option>
+                            <UpdateItemSelect value={status} name="sysCategoryStatus" onChange={handleStatusChange}>
+                                <option value="3001">Active</option>
+                                <option value="3002">Inactive</option>
+                                <option value="3004">Deleted</option>
                             </UpdateItemSelect>
                         </UpdateItem>
 
                         <UpdateButton>Cập nhật</UpdateButton>
                     </UpdateForm>
-                </StoreUpdateWrapper>
+                </CategoryUpdateWrapper>
             </ContainerWrapper>
         </div>
     )
 }
 
-export default EditStore;
+export default EditCategory;

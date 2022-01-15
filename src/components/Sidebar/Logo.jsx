@@ -7,7 +7,7 @@ const Image = styled.img`
 
 const Logo = () => {
     return (
-        <Image src='./images/loich.png' alt="Loich Logo" />
+        <Image src='./images/lcp.png' alt="Loich Logo" />
     )
 };
 

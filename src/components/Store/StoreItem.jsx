@@ -169,7 +169,7 @@ const StoreItem = ({ item, handleDeleteItem }) => {
     return (
         <TableRow>
             <TableData>{item.StoreName}</TableData>
-            <TableData>{item.Apartment.Address}</TableData>
+            <TableData>{item.ApartmentId}</TableData>
             <TableData>{item.Merchant.MerchantName}</TableData>
             <TableData center><Status active={activeCheck}>{activeLabel}</Status></TableData>
 

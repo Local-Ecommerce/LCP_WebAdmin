@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import PoiList from '../../components/Poi/PoiList';
 import ReactPaginate from "react-paginate";
-import AddBusinessIcon from '@mui/icons-material/AddBusiness';
+import AddCircle from '@mui/icons-material/AddCircle';
 import { Link } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
 
@@ -105,7 +105,7 @@ const AddPoiButton = styled(Link)`
     }
 `;
 
-const AddPoiIcon = styled(AddBusinessIcon)`
+const AddPoiIcon = styled(AddCircle)`
     padding-right: 5px;
 `;
 
@@ -253,10 +253,10 @@ const Poi = () =>  {
     useEffect(() => {   //filter based on 'search' & 'status'
         const result = APIdata.filter((item) => {
             if (status !== '0') {
-                return [item.Title, item.Text, item.MarketManagerId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
+                return [item.Title, item.PoiId, item.Text, item.MarketManagerId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
                     && item.Status === parseInt(status)
             } else {
-                return [item.Title, item.Text, item.MarketManagerId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
+                return [item.Title, item.PoiId, item.Text, item.MarketManagerId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
             }
         })
         setFilteredData(result);

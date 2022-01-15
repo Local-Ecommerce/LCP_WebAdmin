@@ -10,6 +10,8 @@ import CollectionDetail from './pages/Collection/CollectionDetail';
 import EditCollection from './pages/Collection/EditCollection';
 
 import Category from './pages/Category/Category';
+import AddCategory from './pages/Category/AddCategory';
+import EditCategory from './pages/Category/EditCategory';
 
 import Menu from './pages/Menu/Menu';
 import MenuDetail from './pages/Menu/MenuDetail';
@@ -59,6 +61,8 @@ const App = () => {
                     <Route path="/editCollection/:id">  <EditCollection />      </Route>
 
                     <Route path="/categories">          <Category />            </Route>
+                    <Route path="/addCategory">         <AddCategory />         </Route>
+                    <Route path="/editCategory/:id">    <EditCategory />        </Route>
 
                     <Route path="/menus">               <Menu />                </Route>
                     <Route path="/menu/:id">            <MenuDetail />          </Route>
