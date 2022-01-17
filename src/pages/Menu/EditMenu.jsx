@@ -122,7 +122,7 @@ const UpdateButton = styled.button`
 
 const EditMenu = () => {
     const { id } = useParams();
-    const [item, setItem] = useState({ Merchant: { MerchantName: '' } });
+    const [item, setItem] = useState({ Resident: { ResidentName: '' } });
     const [updateName, setUpdateName] = useState('');
     const [updateStatus, setUpdateStatus] = useState(14001);
 
@@ -239,7 +239,7 @@ const EditMenu = () => {
 
                         <DetailTitle>Chủ cửa hàng</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{item.MerchantId}</DetailInfoText>
+                            <DetailInfoText>{item.ResidentId}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Trạng thái</DetailTitle>

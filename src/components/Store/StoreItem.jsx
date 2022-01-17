@@ -113,7 +113,7 @@ const StoreItem = ({ item, handleGetDeleteItem }) => {
         <TableRow>
             <TableData>{item.StoreName}</TableData>
             <TableData>{item.ApartmentId}</TableData>
-            <TableData>{item.Merchant.MerchantName}</TableData>
+            <TableData>{item.Resident.ResidentName}</TableData>
             <TableData center><Status active={activeCheck}>{activeLabel}</Status></TableData>
 
             <TableData center>

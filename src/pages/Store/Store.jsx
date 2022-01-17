@@ -326,10 +326,10 @@ const Store = () => {
     useEffect(() => {   //filter based on 'search' & 'status'
         const result = APIdata.filter((item) => {
             if (status !== '0') {
-                return [item.StoreName, item.MerchantId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
+                return [item.StoreName, item.ResidentId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
                     && item.Status === parseInt(status)
             } else {
-                return [item.StoreName, item.MerchantId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
+                return [item.StoreName, item.ResidentId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
             }
         })
         setFilteredData(result);

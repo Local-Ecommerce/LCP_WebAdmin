@@ -105,7 +105,7 @@ const AddNews = () => {
                         body: JSON.stringify({
                             title: createTitle,
                             text: createText,
-                            marketManagerId: 'MM001',
+                            residentId: 'MM001',
                             apartmentId: 'AP001'
                         })
                     });

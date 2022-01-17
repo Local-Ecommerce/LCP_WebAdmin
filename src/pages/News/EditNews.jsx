@@ -152,7 +152,7 @@ const EditNews = () => {
                         body: JSON.stringify({
                             title: updateTitle,
                             text: updateText,
-                            marketManagerId: item.MarketManagerId,
+                            residentId: item.ResidentId,
                             apartmentId: item.ApartmentId
                         })
                     });
@@ -227,7 +227,7 @@ const EditNews = () => {
 
                         <DetailTitle>Quản lý</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{item.MarketManagerId}</DetailInfoText>
+                            <DetailInfoText>{item.ResidentId}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Chung cư</DetailTitle>

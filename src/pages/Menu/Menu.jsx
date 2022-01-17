@@ -295,10 +295,10 @@ const Menu = () =>  {
     useEffect(() => {   //filter based on 'search' & 'status'
         const result = APIdata.filter((item) => {
             if (status !== '0') {
-                return [item.MenuName, item.Merchant.MerchantName].join('').toLowerCase().includes(search.toLowerCase())
+                return [item.MenuName, item.Resident.ResidentName].join('').toLowerCase().includes(search.toLowerCase())
                     && item.Status === parseInt(status)
             } else {
-                return [item.MenuName, item.Merchant.MerchantName].join('').toLowerCase().includes(search.toLowerCase())
+                return [item.MenuName, item.Resident.ResidentName].join('').toLowerCase().includes(search.toLowerCase())
             }
         })
         setFilteredData(result);

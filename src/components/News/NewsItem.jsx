@@ -63,12 +63,6 @@ const StyledDeleteIcon = styled(Delete)`
 `;
 
 const NewsItem = ({ item, handleGetDeleteItem }) =>  {
-    const [modal, setModal] = React.useState(false);
-
-    const toggleModal = () => {
-        setModal(!modal);
-    }
-
     if (item === 0) {
         return (
             <tr>
@@ -102,7 +96,7 @@ const NewsItem = ({ item, handleGetDeleteItem }) =>  {
             <TableData>{item.Title}</TableData>
             <TableData>{item.Text}</TableData>
             <TableData>{item.Apartment.Address}</TableData>
-            <TableData>{item.MarketManager.MarketManagerName}</TableData>
+            <TableData>{item.Resident.ResidentName}</TableData>
 
             <TableData center>
                 <Status active={activeCheck}>{activeLabel}</Status>

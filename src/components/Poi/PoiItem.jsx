@@ -96,7 +96,7 @@ const PoiItem = ({ item, handleGetDeleteItem }) =>  {
             <TableData>{item.Title}</TableData>
             <TableData>{item.Text}</TableData>
             <TableData>{item.Apartment.Address}</TableData>
-            <TableData>{item.MarketManager.MarketManagerName}</TableData>
+            <TableData>{item.Resident.ResidentName}</TableData>
 
             <TableData center>
                 <Status active={activeCheck}>{activeLabel}</Status>

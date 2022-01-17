@@ -104,7 +104,7 @@ const CollectionItem = ({ item, handleGetDeleteItem }) =>  {
     return (
         <TableRow>
             <TableData>{item.CollectionName}</TableData>
-            <TableData>{item.Merchant.MerchantName}</TableData>
+            <TableData>{item.Resident.ResidentName}</TableData>
 
             <TableData center>
                 <Status active={activeCheck}>{activeLabel}</Status>

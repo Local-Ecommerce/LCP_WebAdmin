@@ -116,7 +116,7 @@ const UpdateButton = styled.button`
 
 const EditCollection = () => {
     const { id } = useParams();
-    const [item, setItem] = useState({ Merchant: { MerchantName: '' } });
+    const [item, setItem] = useState({ Resident: { ResidentName: '' } });
     const [updateName, setUpdateName] = useState('');
 
     const [success, setSuccess] = useState(false);
@@ -149,7 +149,7 @@ const EditCollection = () => {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             collectionName: updateName,
-                            merchantId: item.Merchant.MerchantId
+                            residentId: item.Resident.ResidentId
                         })
                     });
                     const json = await res.json();
@@ -228,7 +228,7 @@ const EditCollection = () => {
 
                         <DetailTitle>Chủ cửa hàng</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{item.Merchant.MerchantName}</DetailInfoText>
+                            <DetailInfoText>{item.Resident.ResidentName}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Trạng thái</DetailTitle>

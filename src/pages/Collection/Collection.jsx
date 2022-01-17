@@ -295,10 +295,10 @@ const Collection = () =>  {
     useEffect(() => {   //filter based on 'search' & 'status'
         const result = APIdata.filter((item) => {
             if (status !== '0') {
-                return [item.CollectionName, item.Merchant.MerchantName].join('').toLowerCase().includes(search.toLowerCase())
+                return [item.CollectionName, item.Resident.ResidentName].join('').toLowerCase().includes(search.toLowerCase())
                     && item.Status === parseInt(status)
             } else {
-                return [item.CollectionName, item.Merchant.MerchantName].join('').toLowerCase().includes(search.toLowerCase())
+                return [item.CollectionName, item.Resident.ResidentName].join('').toLowerCase().includes(search.toLowerCase())
             }
         })
         setFilteredData(result);

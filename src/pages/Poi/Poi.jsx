@@ -326,10 +326,10 @@ const Poi = () =>  {
     useEffect(() => {   //filter based on 'search' & 'status'
         const result = APIdata.filter((item) => {
             if (status !== '0') {
-                return [item.Title, item.PoiId, item.Text, item.MarketManagerId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
+                return [item.Title, item.PoiId, item.Text, item.ResidentId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
                     && item.Status === parseInt(status)
             } else {
-                return [item.Title, item.PoiId, item.Text, item.MarketManagerId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
+                return [item.Title, item.PoiId, item.Text, item.ResidentId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
             }
         })
         setFilteredData(result);

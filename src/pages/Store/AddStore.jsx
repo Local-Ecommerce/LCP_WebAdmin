@@ -103,7 +103,7 @@ const AddStore = () => {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             storeName: createName,
-                            merchantId: 'M001',
+                            residentId: 'M001',
                             apartmentId: 'AP001'
                         })
                     });

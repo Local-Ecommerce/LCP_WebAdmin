@@ -104,7 +104,7 @@ const MenuItem = ({ item, handleGetDeleteItem }) =>  {
     return (
         <TableRow>
             <TableData>{item.MenuName}</TableData>
-            <TableData>{item.Merchant.MerchantName}</TableData>
+            <TableData>{item.Resident.ResidentName}</TableData>
 
             <TableData center>
                 <Status active={activeCheck}>{activeLabel}</Status>

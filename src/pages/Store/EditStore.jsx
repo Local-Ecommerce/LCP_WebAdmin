@@ -157,7 +157,7 @@ const EditStore = () => {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             storeName: updateName,
-                            merchantId: item.MerchantId,
+                            residentId: item.ResidentId,
                             apartmentId: item.ApartmentId
                         })
                     });
@@ -234,7 +234,7 @@ const EditStore = () => {
 
                         <DetailTitle>Chủ cửa hàng</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{item.MerchantId}</DetailInfoText>
+                            <DetailInfoText>{item.ResidentId}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Thuộc chung cư</DetailTitle>
