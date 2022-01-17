@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
+import { TextField, Autocomplete, Box } from '@mui/material';
 
 const StyledLink = styled(Link)`
     text-decoration: none;
@@ -12,8 +13,6 @@ const Title = styled.h1`
     font-size: 30px;
     color: #383838;
     margin: 15px;
-    display: flex;
-    align-items: center;
 `;
 
 const ContainerWrapper = styled.div`
@@ -25,30 +24,7 @@ const ContainerWrapper = styled.div`
 const Form = styled.form`
     padding: 20px;
     margin: 0 auto;
-    width: 50%;
-`;
-
-const Item = styled.div`
-    display: flex;
-    flex-direction: column;
-    margin-top: 10px;
-    margin-bottom: 20px;
-`;
-
-const ItemLabel = styled.label`
-    margin-bottom: 5px;
-    font-size: 14px;
-`;
-
-const ItemInput = styled.input`
-    border: none;
-    height: 30px;
-    border-bottom: 1px solid gray;
-    outline: none;
-
-    &: focus {
-    outline: none;
-    }
+    width: 40%;
 `;
 
 const AddButton = styled.button`
@@ -72,78 +48,135 @@ const AddButton = styled.button`
     }
 `;
 
-const SuccessSpan = styled.span`
-    font-size: 18px;
-    font-weight: 600;
-    display: inline-block;
-    padding: 0.25em 0.4em;
-    margin-left: 20px;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    border-radius: 0.25rem;
-    color: #fff;
-    background-color: #dc3545;
+const StyledTextField = styled(TextField)``;
+
+const StyledAutocomplete = styled(Autocomplete)`
+    && {
+    margin-top: 30px;
+    }
 `;
 
 const AddStore = () => {
-    const [success, setSuccess] = useState(false);
-    const delay = ms => new Promise(res => setTimeout(res, ms));
-    const showSuccess = async () => {
-        await setSuccess(true);
-        document.getElementById("form").reset();
-        await delay(3000);
-        setSuccess(false);
-    };
+    let history = useHistory();
+    const [residentList, setResidentList] = useState([]);   //autocomplete
+    const [apartmentList, setApartmentList] = useState([]); //autocomplete
+
+    const [createName, setCreateName] = useState(null);
+    const [createResident, setCreateResident] = useState({ResidentId: null});
+    const [createApartment, setCreateApartment] = useState({ApartmentId: null});
+
+    useEffect (() => {
+        const url = "systemCategory/autocomplete";
+
+        const fetchResidentAutocomplete = async () => {
+            try {
+                const res = await fetch(publicRequest(url), { method: 'GET' });
+                const json = await res.json();
+                setResidentList(json.Data);
+            } catch (error) { }
+        };
+        fetchResidentAutocomplete();
+    }, []);
+
+    useEffect (() => {
+        const url = "systemCategory/autocomplete";
+
+        const fetchApartmentAutocomplete = async () => {
+            try {
+                const res = await fetch(publicRequest(url), { method: 'GET' });
+                const json = await res.json();
+                setApartmentList(json.Data);
+            } catch (error) { }
+        };
+        fetchApartmentAutocomplete();
+    }, []);
 
     const handleAddStore = (event) => {
         event.preventDefault();
-        const url = "store/create";
+        if (checkValid(createName, createResident.ResidentId, createApartment.ApartmentId)) {
+            const url = "store/create";
 
-        const addStore = async () => {
-            try {
-                const res = await fetch(publicRequest(url), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        storeName: event.target.elements.storeName.value,
-                        merchantId: event.target.elements.merchantId.value,
-                        apartmentId: event.target.elements.apartmentId.value
-                    })
-                });
-                const json = await res.json();
-                if (json.ResultMessage === "SUCCESS") {
-                    showSuccess();
-                }
-            } catch (error) { }
-        };
-        addStore();
+            const addStore = async () => {
+                try {
+                    const res = await fetch(publicRequest(url), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            storeName: createName,
+                            merchantId: 'M001',
+                            apartmentId: 'AP001'
+                        })
+                    });
+                    const json = await res.json();
+                    if (json.ResultMessage === "SUCCESS") {
+                        history.push('/stores', {name: createName} );
+                    }
+                } catch (error) { }
+            };
+            addStore();
+        }
+    }
+
+    const checkValid = (name, residentId, apartmentId) => {
+        if (name === null || name === '') {
+            setCreateName('');
+            return false;
+        }
+        if (residentId === null || residentId === '') {
+            return false;
+        }
+        if (apartmentId === null || apartmentId === '') {
+            return false;
+        }
+        return true;
     }
 
     return (
         <div>
             <Title>
-                <StyledLink to={"/stores"}>Danh sách cửa hàng</StyledLink>
-                &nbsp;/ Tạo cửa hàng mới
-                {success ? <SuccessSpan>Tạo mới thành công</SuccessSpan> : null}
+                <StyledLink to={"/stores"}>Danh sách cửa hàng</StyledLink> / Tạo cửa hàng mới
             </Title>
 
             <ContainerWrapper>
                 <Form onSubmit={handleAddStore} id="form">
-                    <Item>
-                        <ItemLabel>Tên cửa hàng</ItemLabel>
-                        <ItemInput type="text" name="storeName" placeholder="" />
-                    </Item>
+                    <StyledTextField
+                        fullWidth 
+                        value={createName}
+                        onChange={event => setCreateName(event.target.value)}
+                        error={createName === ''}
+                        helperText={createName === '' ? 'Vui lòng nhập tên cửa hàng' : ''}
+                        label="Tên cửa hàng" 
+                    />
 
-                    <Item>
-                        <ItemLabel>ID chủ cửa hàng</ItemLabel>
-                        <ItemInput type="text" name="merchantId" placeholder="" />
-                    </Item>
+                    <StyledAutocomplete
+                        onChange={(event, value) => setCreateResident(value)}
+                        selectOnFocus clearOnBlurbhandleHomeEndKeys disablePortal
+                        getOptionLabel={(item) => item.SysCategoryName}
+                        options={residentList}
+                        renderOption={(props, item) => {
+                            return (
+                                <Box {...props} key={item.SystemCategoryId}>
+                                    {item.SysCategoryName}&nbsp; <small>- {item.SystemCategoryId}</small>
+                                </Box>
+                            );
+                          }}
+                        renderInput={(params) => <StyledTextField  {...params} label="Chủ cửa hàng"  />}
+                    />
 
-                    <Item>
-                        <ItemLabel>ID Chung cư</ItemLabel>
-                        <ItemInput type="text" name="apartmentId" placeholder="" />
-                    </Item>
+                    <StyledAutocomplete
+                        onChange={(event, value) => setCreateApartment(value)}
+                        selectOnFocus clearOnBlurbhandleHomeEndKeys disablePortal
+                        getOptionLabel={(item) => item.SysCategoryName}
+                        options={apartmentList}
+                        renderOption={(props, item) => {
+                            return (
+                                <Box {...props} key={item.SystemCategoryId}>
+                                    {item.SysCategoryName}&nbsp; <small>- {item.SystemCategoryId}</small>
+                                </Box>
+                            );
+                          }}
+                        renderInput={(params) => <StyledTextField  {...params} label="Chung cư" />}
+                    />
 
                     <AddButton>Tạo cửa hàng</AddButton>
                 </Form>

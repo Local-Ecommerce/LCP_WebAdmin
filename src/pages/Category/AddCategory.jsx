@@ -2,9 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Link, useHistory } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
-import Box from "@mui/material/Box";
+import { TextField, Autocomplete, Box } from '@mui/material';
 
 const StyledLink = styled(Link)`
     text-decoration: none;
@@ -58,26 +56,27 @@ const StyledAutocomplete = styled(Autocomplete)`
 
 const AddCategory = () => {
     let history = useHistory();
-    const [categoryList, setCategoryList] = useState([]);
-    const [sysCategoryName, setSysCategoryName] = useState(null);
-    const [selectedCategory, setSelectedCategory] = useState({SystemCategoryId: null});
+    const [itemList, setItemList] = useState([]);
+
+    const [createName, setCreateName] = useState(null);
+    const [createBelong, setCreateBelong] = useState({SystemCategoryId: null});
 
     useEffect (() => {
         const url = "systemCategory/autocomplete";
 
-        const fetchCategoryList = async () => {
+        const fetchAutocomplete = async () => {
             try {
                 const res = await fetch(publicRequest(url), { method: 'GET' });
                 const json = await res.json();
-                setCategoryList(json.Data);
+                setItemList(json.Data);
             } catch (error) { }
         };
-        fetchCategoryList();
+        fetchAutocomplete();
     }, []);
 
     const handleAddCategory = (event) => {
         event.preventDefault();
-        if (sysCategoryName !== null && sysCategoryName !== '') {
+        if (checkValid(createName)) {
             const url = "systemCategory/create";
 
             const addCategory = async () => {
@@ -86,20 +85,26 @@ const AddCategory = () => {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            sysCategoryName: sysCategoryName,
-                            belongTo: selectedCategory.SystemCategoryId || null
+                            sysCategoryName: createName,
+                            belongTo: createBelong.SystemCategoryId || null
                         })
                     });
                     const json = await res.json();
                     if (json.ResultMessage === "SUCCESS") {
-                        history.push("/categories");
+                        history.push('/categories', {name: createName} );
                     }
                 } catch (error) { }
             };
             addCategory();
-        } else {
-            setSysCategoryName('');
         }
+    }
+
+    const checkValid = (name) => {
+        if (name === null || name === '') {
+            setCreateName('');
+            return false;
+        }
+        return true;
     }
 
     return (
@@ -112,23 +117,18 @@ const AddCategory = () => {
                 <Form onSubmit={handleAddCategory} id="form">
                     <StyledTextField
                         fullWidth 
-                        value={sysCategoryName}
-                        onChange={event => setSysCategoryName(event.target.value)}
-                        error={sysCategoryName === ''}
-                        helperText={sysCategoryName === '' ? 'Tên danh mục không để trống' : ''}
+                        value={createName}
+                        onChange={event => setCreateName(event.target.value)}
+                        error={createName === ''}
+                        helperText={createName === '' ? 'Vui lòng nhập tên danh mục' : ''}
                         label="Tên danh mục" 
-                        variant="outlined" 
                     />
 
                     <StyledAutocomplete
-                        onChange={(event, value) => setSelectedCategory(value)}
-                        selectOnFocus
-                        clearOnBlur
-                        handleHomeEndKeys
-                        disablePortal
+                        onChange={(event, value) => setCreateBelong(value)}
+                        selectOnFocus clearOnBlurbhandleHomeEndKeys disablePortal
                         getOptionLabel={(item) => item.SysCategoryName}
-                        options={categoryList}
-                        fullWidth
+                        options={itemList}
                         renderOption={(props, item) => {
                             return (
                                 <Box {...props} key={item.SystemCategoryId}>

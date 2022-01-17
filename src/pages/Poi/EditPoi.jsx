@@ -3,6 +3,9 @@ import styled from 'styled-components';
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
+import { TextField } from '@mui/material';
+import { toast } from 'react-toastify';
+import { DateTime } from 'luxon';
 
 const StyledLink = styled(Link)`
     text-decoration: none;
@@ -83,53 +86,9 @@ const UpdateForm = styled.form`
     flex-direction: column;
 `;
 
-const UpdateItem = styled.div`
-    display: flex;
-    flex-direction: column;
-`;
-
-const UpdateItemLabel = styled.label`
-    margin-top: 20px;
-    margin-bottom: 5px;
-    font-size: 14px;
-    font-weight: 600;
-    color: rgb(175, 170, 170);
-`;
-
-const UpdateItemInput = styled.input`
-    border: none;
-    width: 75%;
-    height: 30px;
-    border-bottom: 1px solid gray;
-    outline: none;
-
-    &: focus {
-    outline: none;
-    }
-`;
-
-const UpdateItemTextField = styled.textarea`
-    border: none;
-    width: 75%;
-    height: 60px;
-    border-bottom: 1px solid gray;
-    outline: none;
-    resize: none;
-
-    &: focus {
-    outline: none;
-    }
-`;
-
-const UpdateItemSelect = styled.select`
-    border: none;
-    width: 75%;
-    height: 33px;
-    border-bottom: 1px solid gray;
-    outline: none;
-
-    &: focus {
-    outline: none;
+const StyledTextField = styled(TextField)`
+    && {    
+    margin-top: 30px;
     }
 `;
 
@@ -141,30 +100,27 @@ const UpdateButton = styled.button`
     background-color: #17a2b8;
     color: white;
     font-weight: 600;
-    width: 75%;
-    margin-top: 30px;
-`;
+    width: 100%;
+    margin-top: 50px;
 
-const SuccessSpan = styled.span`
-    display: inline-block;
-    padding: 0.25em 0.4em;
-    margin-left: 20px;
-    font-size: 50%;
-    font-weight: 700;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    border-radius: 0.25rem;
-    color: #fff;
-    background-color: #dc3545;
+    &:active {
+    box-shadow: 0 2px #666;
+    transform: translateY(2px);
+    }
+
+    &:hover {
+    opacity: 0.8;
+    }
 `;
 
 const EditPoi = () => {
     const { id } = useParams();
-    const [poi, setPoi] = useState({});
-    const [status, setStatus] = useState(13001);
+    const [item, setItem] = useState({});
+
+    const [updateTitle, setUpdateTitle] = useState('');
+    const [updateText, setUpdateText] = useState('');
+
     const [success, setSuccess] = useState(false);
-    const showSuccess = () => setSuccess(true);
     let activeCheck = '';
     let activeLabel = '';
 
@@ -175,7 +131,9 @@ const EditPoi = () => {
             try {
                 const res = await fetch(publicRequest(url));
                 const json = await res.json();
-                setPoi(json.Data);
+                setItem(json.Data);
+                setUpdateTitle(json.Data.Title);
+                setUpdateText(json.Data.Text);
             } catch (error) { }
         };
         fetchPoi();
@@ -183,34 +141,43 @@ const EditPoi = () => {
 
     const handleEditPoi = (event) => {
         event.preventDefault();
-        const url = "poi/update/" + id;
+        if (validCheck(updateTitle)) {
+            const url = "poi/update/" + id;
 
-        const updatePoi = async () => {
-            try {
-                const res = await fetch(publicRequest(url), {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        title: event.target.elements.title.value,
-                        text: event.target.elements.text.value,
-                        marketManagerId: event.target.elements.marketManagerId.value,
-                        apartmentId: event.target.elements.apartmentId.value
-                    })
-                });
-                const json = await res.json();
-                if (json.ResultMessage === "SUCCESS") {
-                    showSuccess();
-                }
-            } catch (error) { }
-        };
-        updatePoi();
+            const updatePoi = async () => {
+                try {
+                    const res = await fetch(publicRequest(url), {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            title: updateTitle,
+                            text: updateText,
+                            marketManagerId: item.MarketManagerId,
+                            apartmentId: item.ApartmentId
+                        })
+                    });
+                    const json = await res.json();
+                    if (json.ResultMessage === "SUCCESS") {
+                        const notify = () => toast.success("Cập nhật thành công " + item.Title + "!", {
+                            position: toast.POSITION.TOP_CENTER
+                        });
+                        notify();
+                        setSuccess(!success);
+                    }
+                } catch (error) { }
+            };
+            updatePoi();
+        }
     }
 
-    const handleStatusChange = (event) => {
-        setStatus(event.target.value);
+    const validCheck = (title) => {
+        if (title === null || title === '') {
+            return false;
+        }
+        return true;
     }
 
-    switch (poi.Status) {
+    switch (item.Status) {
         case 13001:
             activeCheck = 'active';
             activeLabel = 'Active';
@@ -227,45 +194,45 @@ const EditPoi = () => {
 
     return (
         <div>
-            <Title><StyledLink to={"/pois"}>POIs</StyledLink> / {poi.Title}
+            <Title><StyledLink to={"/pois"}>POIs</StyledLink> / {item.Title}
             </Title>
 
             <ContainerWrapper>
                 <PoiDetailWrapper>
                     <UpdateTitle>
-                        Chi tiết { success ? <SuccessSpan>Cập nhật thành công</SuccessSpan> : null }
+                        Chi tiết
                     </UpdateTitle>
 
                     <DetailBottom>
 
                         <DetailTitle>POI ID</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{poi.PoiId}</DetailInfoText>
+                            <DetailInfoText>{item.PoiId}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Tiêu đề</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{poi.Title}</DetailInfoText>
+                            <DetailInfoText>{item.Title}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Nội dung</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{poi.Text}</DetailInfoText>
+                            <DetailInfoText>{item.Text}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Ngày tạo</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{poi.ReleaseDate}</DetailInfoText>
+                            <DetailInfoText>{DateTime.fromISO(item.ReleaseDate).toLocaleString(DateTime.DATETIME_SHORT)}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Quản lý</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{poi.MarketManagerId}</DetailInfoText>
+                            <DetailInfoText>{item.MarketManagerId}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Chung cư</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{poi.ApartmentId}</DetailInfoText>
+                            <DetailInfoText>{item.ApartmentId}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Trạng thái</DetailTitle>
@@ -281,33 +248,21 @@ const EditPoi = () => {
                     <UpdateTitle>Chỉnh sửa</UpdateTitle>
 
                     <UpdateForm onSubmit={handleEditPoi}>
-                        <UpdateItem>
-                            <UpdateItemLabel>Tiêu đề</UpdateItemLabel>
-                            <UpdateItemInput type="text" name="title" defaultValue={poi.Title} />
-                        </UpdateItem>
+                        <StyledTextField
+                            fullWidth 
+                            value={updateTitle}
+                            onChange={event => setUpdateTitle(event.target.value)}
+                            error={updateTitle === ''}
+                            helperText={updateTitle === '' ? 'Vui lòng nhập nội dung' : ''}
+                            label="Nội dung" 
+                        />
 
-                        <UpdateItem>
-                            <UpdateItemLabel>Nội dung</UpdateItemLabel>
-                            <UpdateItemTextField type="text" name="text" defaultValue={poi.Text} />
-                        </UpdateItem>
-
-                        <UpdateItem>
-                            <UpdateItemLabel>ID Quản lý</UpdateItemLabel>
-                            <UpdateItemInput type="text" name="marketManagerId" defaultValue={poi.MarketManagerId} />
-                        </UpdateItem>
-
-                        <UpdateItem>
-                            <UpdateItemLabel>ID Chung cư</UpdateItemLabel>
-                            <UpdateItemInput type="text" name="apartmentId" defaultValue={poi.ApartmentId} />
-                        </UpdateItem>
-
-                        <UpdateItem>
-                            <UpdateItemLabel>Trạng thái</UpdateItemLabel>
-                            <UpdateItemSelect value={status} name="poiStatus" onChange={handleStatusChange}>
-                                <option value="13001">Active</option>
-                                <option value="13002">Inactive</option>
-                            </UpdateItemSelect>
-                        </UpdateItem>
+                        <StyledTextField
+                            fullWidth multiline rows={4}
+                            value={updateText}
+                            onChange={event => setUpdateText(event.target.value)}
+                            label="Tựa đề" 
+                        />
 
                         <UpdateButton>Cập nhật</UpdateButton>
                     </UpdateForm>

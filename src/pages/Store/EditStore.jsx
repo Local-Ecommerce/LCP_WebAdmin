@@ -3,6 +3,9 @@ import styled from 'styled-components';
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
+import TextField from '@mui/material/TextField';
+import { toast } from 'react-toastify';
+import { DateTime } from 'luxon';
 
 const StyledLink = styled(Link)`
     text-decoration: none;
@@ -89,41 +92,11 @@ const UpdateTitle = styled.span`
 const UpdateForm = styled.form`
     display: flex;
     flex-direction: column;
-    margin-top: 10px;
 `;
 
-const UpdateItem = styled.div`
-    display: flex;
-    flex-direction: column;
-    margin-top: 10px;
-    margin-bottom: 10px;
-`;
-
-const UpdateItemLabel = styled.label`
-    font-size: 14px;
-`;
-
-const UpdateItemInput = styled.input`
-    border: none;
-    width: 75%;
-    height: 30px;
-    border-bottom: 1px solid gray;
-    outline: none;
-
-    &: focus {
-    outline: none;
-    }
-`;
-
-const UpdateItemSelect = styled.select`
-    border: none;
-    width: 75%;
-    height: 33px;
-    border-bottom: 1px solid gray;
-    outline: none;
-
-    &: focus {
-    outline: none;
+const StyledTextField = styled(TextField)`
+    && {    
+    margin-top: 30px;
     }
 `;
 
@@ -135,33 +108,26 @@ const UpdateButton = styled.button`
     background-color: #17a2b8;
     color: white;
     font-weight: 600;
-    width: 65%;
-    margin: 40px; 
-    position: absolute;
-    left: 0;
-    bottom: 0;
+    width: 100%;
+    margin-top: 50px;
+
+    &:active {
+    box-shadow: 0 2px #666;
+    transform: translateY(2px);
+    }
+
+    &:hover {
+    opacity: 0.8;
+    }
 `;
 
-const SuccessSpan = styled.span`
-    display: inline-block;
-    padding: 0.25em 0.4em;
-    margin-left: 20px;
-    font-size: 50%;
-    font-weight: 700;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    border-radius: 0.25rem;
-    color: #fff;
-    background-color: #dc3545;
-`;
 
 const EditStore = () => {
     const { id } = useParams();
-    const [store, setStore] = useState({});
-    const [status, setStatus] = useState(6006);
+    const [item, setItem] = useState({});
+    const [updateName, setUpdateName] = useState('');
+
     const [success, setSuccess] = useState(false);
-    const showSuccess = () => setSuccess(true);
     let activeCheck = '';
     let activeLabel = '';
 
@@ -172,7 +138,8 @@ const EditStore = () => {
             try {
                 const res = await fetch(publicRequest(url));
                 const json = await res.json();
-                setStore(json.Data);
+                setItem(json.Data);
+                setUpdateName(json.Data.StoreName);
             } catch (error) { }
         };
         fetchStore();
@@ -180,33 +147,42 @@ const EditStore = () => {
 
     const handleEditStore = (event) => {
         event.preventDefault();
-        const url = "store/" + id;
+        if (validCheck(updateName)) {
+            const url = "store/" + id;
 
-        const updateCollection = async () => {
-            try {
-                const res = await fetch(publicRequest(url), {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        storeName: event.target.elements.storeName.value,
-                        merchantId: event.target.elements.merchantId.value,
-                        apartmentId: event.target.elements.apartmentId.value
-                    })
-                });
-                const json = await res.json();
-                if (json.ResultMessage === "SUCCESS") {
-                    showSuccess();
-                }
-            } catch (error) { }
-        };
-        updateCollection();
+            const updateCollection = async () => {
+                try {
+                    const res = await fetch(publicRequest(url), {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            storeName: updateName,
+                            merchantId: item.MerchantId,
+                            apartmentId: item.ApartmentId
+                        })
+                    });
+                    const json = await res.json();
+                    if (json.ResultMessage === "SUCCESS") {
+                        const notify = () => toast.success("Cập nhật thành công " + item.StoreName + "!", {
+                            position: toast.POSITION.TOP_CENTER
+                        });
+                        notify();
+                        setSuccess(!success);
+                    }
+                } catch (error) { }
+            };
+            updateCollection();
+        }
     }
 
-    const handleStatusChange = (event) => {
-        setStatus(event.target.value);
+    const validCheck = (name) => {
+        if (name === null || name === '') {
+            return false;
+        }
+        return true;
     }
 
-    switch (store.Status) {
+    switch (item.Status) {
         case 6004:
             activeCheck = 'deleted';
             activeLabel = 'Deleted';
@@ -231,39 +207,39 @@ const EditStore = () => {
 
     return (
         <div>
-            <Title><StyledLink to={"/stores"}>Danh sách cửa hàng</StyledLink> / {store.StoreName} </Title>
+            <Title><StyledLink to={"/stores"}>Danh sách cửa hàng</StyledLink> / {item.StoreName} </Title>
 
             <ContainerWrapper>
                 <StoreDetailWrapper>
                     <UpdateTitle>
-                        Chi tiết {success ? <SuccessSpan>Cập nhật thành công</SuccessSpan> : null}
+                        Chi tiết
                     </UpdateTitle>
 
                     <DetailBottom>
 
                         <DetailTitle>Tên cửa hàng</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{store.StoreName}</DetailInfoText>
+                            <DetailInfoText>{item.StoreName}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Mã cửa hàng</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{store.MerchantStoreId}</DetailInfoText>
+                            <DetailInfoText>{item.MerchantStoreId}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Ngày tạo</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{store.CreatedDate}</DetailInfoText>
+                            <DetailInfoText>{DateTime.fromISO(item.CreatedDate).toLocaleString(DateTime.DATETIME_SHORT)}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Chủ cửa hàng</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{store.MerchantId}</DetailInfoText>
+                            <DetailInfoText>{item.MerchantId}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Thuộc chung cư</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{store.ApartmentId}</DetailInfoText>
+                            <DetailInfoText>{item.ApartmentId}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Trạng thái</DetailTitle>
@@ -279,28 +255,13 @@ const EditStore = () => {
                     <UpdateTitle>Chỉnh sửa</UpdateTitle>
 
                     <UpdateForm onSubmit={handleEditStore}>
-                        <UpdateItem>
-                            <UpdateItemLabel>Tên cửa hàng</UpdateItemLabel>
-                            <UpdateItemInput type="text" name="storeName" defaultValue={store.StoreName} />
-                        </UpdateItem>
-
-                        <UpdateItem>
-                            <UpdateItemLabel>Chủ cửa hàng</UpdateItemLabel>
-                            <UpdateItemInput type="text" name="merchantId" defaultValue={store.MerchantId} />
-                        </UpdateItem>
-
-                        <UpdateItem>
-                            <UpdateItemLabel>Thuộc chung cư</UpdateItemLabel>
-                            <UpdateItemInput type="text" name="apartmentId" defaultValue={store.AparmentId} />
-                        </UpdateItem>
-
-                        <UpdateItem>
-                            <UpdateItemLabel>Trạng thái</UpdateItemLabel>
-                            <UpdateItemSelect value={status} name="storeStatus" onChange={handleStatusChange}>
-                                <option value="6006">Active</option>
-                                <option value="6007">Deactive</option>
-                            </UpdateItemSelect>
-                        </UpdateItem>
+                        <StyledTextField
+                            value={updateName}
+                            onChange={event => setUpdateName(event.target.value)}
+                            error={updateName === ''}
+                            helperText={updateName === '' ? 'Vui lòng nhập tên cửa hàng' : ''}
+                            label="Tên cửa hàng" 
+                        />
 
                         <UpdateButton>Cập nhật</UpdateButton>
                     </UpdateForm>

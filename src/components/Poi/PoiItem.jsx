@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import Modal from 'react-modal';
 import { Edit, Delete } from '@mui/icons-material';
 import { Link } from "react-router-dom";
 
@@ -51,55 +50,6 @@ const Status = styled.span`
         "#dc3545"};
 `;
 
-const ModalButton = styled.button`
-    min-width: 60px;
-    background: ${props => props.red ? "#dc3545" : "#17a2b8"};
-    color: white;
-    margin: 5px;
-    padding: 7px;
-    border: 2px solid ${props => props.red ? "#dc3545" : "#17a2b8"};
-    border-radius: 3px;
-    text-align: center;
-    float: right;
-
-    &:hover {
-    opacity: 0.8;
-    }
-
-    &:focus {
-    outline: 0;
-    }
-`;
-
-const Title = styled.h1`
-    font-size: 30px;
-    margin: 15px;
-    color: #dc3545; //red
-    border-bottom: 1px solid #dee2e6;
-`;
-
-const Row = styled.div`
-    margin: 15px;
-`;
-
-const Text = styled.p`
-    color: #000;
-    margin: 5px 0px 0px 0px;
-    font-size: 0.9em;
-    display: inline-block;
-`;
-
-const customStyles = {
-    content: {
-        top: '50%',
-        left: '50%',
-        right: '65%',
-        bottom: 'auto',
-        marginRight: '-50%',
-        transform: 'translate(-50%, -50%)',
-    },
-};
-
 const StyledEditIcon = styled(Edit)`
     &:hover {
     color: #dc3545;
@@ -112,13 +62,7 @@ const StyledDeleteIcon = styled(Delete)`
     }
 `;
 
-const PoiItem = ({ item, handleDeleteItem }) =>  {
-    const [modal, setModal] = React.useState(false);
-
-    const toggleModal = () => {
-        setModal(!modal);
-    }
-
+const PoiItem = ({ item, handleGetDeleteItem }) =>  {
     if (item === 0) {
         return (
             <tr>
@@ -166,16 +110,9 @@ const PoiItem = ({ item, handleDeleteItem }) =>  {
                     </Button>
                 </Link>
 
-                <Button disabled={disabledCheck} onClick={toggleModal}>
+                <Button disabled={disabledCheck} onClick={() => handleGetDeleteItem(item.PoiId, item.Title)}>
                     <StyledDeleteIcon disabled={disabledCheck} />
                 </Button>
-
-                <Modal isOpen={modal} onRequestClose={toggleModal} style={customStyles} ariaHideApp={false}>
-                    <Title>Xác Nhận Xóa</Title>
-                    <Row><Text>Bạn có chắc chắn muốn xóa POI【<b>{item.Title}</b>】?</Text></Row>
-                    <ModalButton onClick={toggleModal}>Quay lại</ModalButton>
-                    <ModalButton red onClick={() => { handleDeleteItem(item.PoiId); toggleModal()}}>Xóa</ModalButton>
-                </Modal>
             </TableData>
         </TableRow>
     )

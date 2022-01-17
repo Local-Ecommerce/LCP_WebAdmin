@@ -4,6 +4,8 @@ import React from 'react';
 import Home from './pages/Home';
 import Header from './pages/Header';
 import Sidebar from './pages/Sidebar';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import Collection from './pages/Collection/Collection';
 import CollectionDetail from './pages/Collection/CollectionDetail';
@@ -53,6 +55,7 @@ const App = () => {
 
                 <Content>
                     <Header />
+                    <ToastContainer />
 
                     <Route exact path="/">              <Home />                </Route>
 

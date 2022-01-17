@@ -3,6 +3,9 @@ import styled from 'styled-components';
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
+import TextField from '@mui/material/TextField';
+import { toast } from 'react-toastify';
+import { DateTime } from 'luxon';
 
 const StyledLink = styled(Link)`
     text-decoration: none;
@@ -82,42 +85,11 @@ const UpdateTitle = styled.span`
 const UpdateForm = styled.form`
     display: flex;
     flex-direction: column;
-    margin-top: 20px;
 `;
 
-const UpdateItem = styled.div`
-    display: flex;
-    flex-direction: column;
-    margin-top: 10px;
-`;
-
-const UpdateItemLabel = styled.label`
-    margin-top: 20px;
-    margin-bottom: 5px;
-    font-size: 14px;
-`;
-
-const UpdateItemInput = styled.input`
-    border: none;
-    width: 75%;
-    height: 30px;
-    border-bottom: 1px solid gray;
-    outline: none;
-
-    &: focus {
-    outline: none;
-    }
-`;
-
-const UpdateItemSelect = styled.select`
-    border: none;
-    width: 75%;
-    height: 33px;
-    border-bottom: 1px solid gray;
-    outline: none;
-
-    &: focus {
-    outline: none;
+const StyledTextField = styled(TextField)`
+    && {    
+    margin-top: 30px;
     }
 `;
 
@@ -129,33 +101,25 @@ const UpdateButton = styled.button`
     background-color: #17a2b8;
     color: white;
     font-weight: 600;
-    width: 65%;
-    margin: 40px; 
-    position: absolute;
-    left: 0;
-    bottom: 0;
-`;
+    width: 100%;
+    margin-top: 50px;
 
-const SuccessSpan = styled.span`
-    display: inline-block;
-    padding: 0.25em 0.4em;
-    margin-left: 20px;
-    font-size: 50%;
-    font-weight: 700;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    border-radius: 0.25rem;
-    color: #fff;
-    background-color: #dc3545;
+    &:active {
+    box-shadow: 0 2px #666;
+    transform: translateY(2px);
+    }
+
+    &:hover {
+    opacity: 0.8;
+    }
 `;
 
 const EditCollection = () => {
     const { id } = useParams();
-    const [collection, setCollection] = useState({ Merchant: { MerchantName: '' } });
-    const [status, setStatus] = useState(8001);
+    const [item, setItem] = useState({ Merchant: { MerchantName: '' } });
+    const [updateName, setUpdateName] = useState('');
+
     const [success, setSuccess] = useState(false);
-    const showSuccess = () => setSuccess(true);
     let activeCheck = '';
     let activeLabel = '';
 
@@ -166,7 +130,8 @@ const EditCollection = () => {
             try {
                 const res = await fetch(publicRequest(url));
                 const json = await res.json();
-                setCollection(json.Data);
+                setItem(json.Data);
+                setUpdateName(json.Data.CollectionName);
             } catch (error) { }
         };
         fetchCollection();
@@ -174,32 +139,41 @@ const EditCollection = () => {
 
     const handleEditCollection = (event) => {
         event.preventDefault();
-        const url = "collection/" + id;
+        if (validCheck(updateName)) {
+            const url = "collection/" + id;
 
-        const updateCollection = async () => {
-            try {
-                const res = await fetch(publicRequest(url), {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        collectionName: event.target.elements.collectionName.value,
-                        merchantId: "M001"
-                    })
-                });
-                const json = await res.json();
-                if (json.ResultMessage === "SUCCESS") {
-                    showSuccess();
-                }
-            } catch (error) { }
-        };
-        updateCollection();
+            const updateCollection = async () => {
+                try {
+                    const res = await fetch(publicRequest(url), {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            collectionName: updateName,
+                            merchantId: item.Merchant.MerchantId
+                        })
+                    });
+                    const json = await res.json();
+                    if (json.ResultMessage === "SUCCESS") {
+                        const notify = () => toast.success("Cập nhật thành công " + item.CollectionName + "!", {
+                            position: toast.POSITION.TOP_CENTER
+                        });
+                        notify();
+                        setSuccess(!success);
+                    }
+                } catch (error) { }
+            };
+            updateCollection();
+        }
     }
 
-    const handleStatusChange = (event) => {
-        setStatus(event.target.value);
+    const validCheck = (name) => {
+        if (name === null || name === '') {
+            return false;
+        }
+        return true;
     }
 
-    switch (collection.Status) {
+    switch (item.Status) {
         case 8001:
             activeCheck = 'active';
             activeLabel = 'Active';
@@ -221,40 +195,40 @@ const EditCollection = () => {
     return (
         <div>
             <Title><StyledLink to={"/collections"}>
-                Bộ sưu tập</StyledLink> / {collection.CollectionName}    
+                Bộ sưu tập</StyledLink> / {item.CollectionName}    
             </Title>
 
             <ContainerWrapper>
                 <CollectionDetailWrapper>
                     <UpdateTitle>
-                        Chi tiết { success ? <SuccessSpan>Cập nhật thành công</SuccessSpan> : null }
+                        Chi tiết
                     </UpdateTitle>
 
                     <DetailBottom>
 
                         <DetailTitle>Tên bộ sưu tập</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{collection.CollectionName}</DetailInfoText>
+                            <DetailInfoText>{item.CollectionName}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Mã bộ sưu tập</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{collection.CollectionId}</DetailInfoText>
+                            <DetailInfoText>{item.CollectionId}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Ngày tạo</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{collection.CreatedDate}</DetailInfoText>
+                            <DetailInfoText>{DateTime.fromISO(item.CreatedDate).toLocaleString(DateTime.DATETIME_SHORT)}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Lần cuối cập nhật</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{collection.UpdatedDate}</DetailInfoText>
+                            <DetailInfoText>{DateTime.fromISO(item.UpdatedDate).toLocaleString(DateTime.DATETIME_SHORT)}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Chủ cửa hàng</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{collection.Merchant.MerchantName}</DetailInfoText>
+                            <DetailInfoText>{item.Merchant.MerchantName}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Trạng thái</DetailTitle>
@@ -270,19 +244,13 @@ const EditCollection = () => {
                     <UpdateTitle>Chỉnh sửa</UpdateTitle>
 
                     <UpdateForm onSubmit={handleEditCollection}>
-                        <UpdateItem>
-                            <UpdateItemLabel>Tên bộ sưu tập</UpdateItemLabel>
-                            <UpdateItemInput type="text" name="collectionName" defaultValue={collection.CollectionName} />
-                        </UpdateItem>
-
-                        <UpdateItem>
-                            <UpdateItemLabel>Trạng thái</UpdateItemLabel>
-                            <UpdateItemSelect value={status} name="collectionStatus" onChange={handleStatusChange}>
-                                <option value="8001">Active</option>
-                                <option value="8004">Deactive</option>
-                            </UpdateItemSelect>
-                        </UpdateItem>
-
+                        <StyledTextField
+                            value={updateName}
+                            onChange={event => setUpdateName(event.target.value)}
+                            error={updateName === ''}
+                            helperText={updateName === '' ? 'Vui lòng nhập tên bộ sưu tập' : ''}
+                            label="Tên bộ sưu tập" 
+                        />
                         <UpdateButton>Cập nhật</UpdateButton>
                     </UpdateForm>
                 </CollectionUpdateWrapper>

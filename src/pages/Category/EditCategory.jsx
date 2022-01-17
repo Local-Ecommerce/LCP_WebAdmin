@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
+import TextField from '@mui/material/TextField';
+import { toast } from 'react-toastify';
 
 const StyledLink = styled(Link)`
     text-decoration: none;
@@ -35,7 +37,6 @@ const CategoryUpdateWrapper = styled.div`
     border-radius: 5px;
     box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
     margin-left: 20px;
-    position:relative;
 `;
 
 const DetailBottom = styled.div`
@@ -82,42 +83,11 @@ const UpdateTitle = styled.span`
 const UpdateForm = styled.form`
     display: flex;
     flex-direction: column;
-    margin-top: 20px;
 `;
 
-const UpdateItem = styled.div`
-    display: flex;
-    flex-direction: column;
-    margin-top: 10px;
-`;
-
-const UpdateItemLabel = styled.label`
-    margin-top: 20px;
-    margin-bottom: 5px;
-    font-size: 14px;
-`;
-
-const UpdateItemInput = styled.input`
-    border: none;
-    width: 75%;
-    height: 30px;
-    border-bottom: 1px solid gray;
-    outline: none;
-
-    &: focus {
-    outline: none;
-    }
-`;
-
-const UpdateItemSelect = styled.select`
-    border: none;
-    width: 75%;
-    height: 33px;
-    border-bottom: 1px solid gray;
-    outline: none;
-
-    &: focus {
-    outline: none;
+const StyledTextField = styled(TextField)`
+    && {    
+    margin-top: 30px;
     }
 `;
 
@@ -129,33 +99,25 @@ const UpdateButton = styled.button`
     background-color: #17a2b8;
     color: white;
     font-weight: 600;
-    width: 65%;
-    margin: 40px; 
-    position: absolute;
-    left: 0;
-    bottom: 0;
-`;
+    width: 100%;
+    margin-top: 50px;
 
-const SuccessSpan = styled.span`
-    display: inline-block;
-    padding: 0.25em 0.4em;
-    margin-left: 20px;
-    font-size: 50%;
-    font-weight: 700;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    border-radius: 0.25rem;
-    color: #fff;
-    background-color: #dc3545;
+    &:active {
+    box-shadow: 0 2px #666;
+    transform: translateY(2px);
+    }
+
+    &:hover {
+    opacity: 0.8;
+    }
 `;
 
 const EditCategory = () => {
     const { id } = useParams();
-    const [category, setCategory] = useState({});
-    const [status, setStatus] = useState(3001);
+    const [item, setItem] = useState({});
+    const [updateName, setUpdateName] = useState('');
+
     const [success, setSuccess] = useState(false);
-    const showSuccess = () => setSuccess(true);
     let activeCheck = '';
     let activeLabel = '';
 
@@ -166,7 +128,8 @@ const EditCategory = () => {
             try {
                 const res = await fetch(publicRequest(url));
                 const json = await res.json();
-                setCategory(json.Data);
+                setItem(json.Data);
+                setUpdateName(json.Data.SysCategoryName);
             } catch (error) { }
         };
         fetchCategory();
@@ -174,32 +137,34 @@ const EditCategory = () => {
 
     const handleEditCategory = (event) => {
         event.preventDefault();
-        const url = "systemCategory/" + id;
+        if (updateName !== null && updateName !== '') {
+            const url = "systemCategory/" + id;
 
-        const updateCategory = async () => {
-            try {
-                const res = await fetch(publicRequest(url), {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        sysCategoryName: event.target.elements.sysCategoryName.value,
-                        belongTo: category.BelongTo
-                    })
-                });
-                const json = await res.json();
-                if (json.ResultMessage === "SUCCESS") {
-                    showSuccess();
-                }
-            } catch (error) { }
-        };
-        updateCategory();
+            const updateCategory = async () => {
+                try {
+                    const res = await fetch(publicRequest(url), {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            sysCategoryName: updateName,
+                            belongTo: item.BelongTo
+                        })
+                    });
+                    const json = await res.json();
+                    if (json.ResultMessage === "SUCCESS") {
+                        const notify = () => toast.success("Cập nhật thành công " + item.SysCategoryName + "!", {
+                            position: toast.POSITION.TOP_CENTER
+                        });
+                        notify();
+                        setSuccess(!success);
+                    }
+                } catch (error) { }
+            };
+            updateCategory();
+        }
     }
 
-    const handleStatusChange = (event) => {
-        setStatus(event.target.value);
-    }
-
-    switch (category.Status) {
+    switch (item.Status) {
         case 3001:
             activeCheck = 'active';
             activeLabel = 'Active';
@@ -221,45 +186,40 @@ const EditCategory = () => {
     return (
         <div>
             <Title><StyledLink to={"/categories"}>
-                Danh mục</StyledLink> / {category.CategoryName}    
+                Danh mục</StyledLink> / {item.SysCategoryName}    
             </Title>
 
             <ContainerWrapper>
                 <CategoryDetailWrapper>
                     <UpdateTitle>
-                        Chi tiết { success ? <SuccessSpan>Cập nhật thành công</SuccessSpan> : null }
+                        Chi tiết
                     </UpdateTitle>
 
                     <DetailBottom>
 
                         <DetailTitle>Tên bộ sưu tập</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{category.SysCategoryName}</DetailInfoText>
+                            <DetailInfoText>{item.SysCategoryName}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Mã bộ sưu tập</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{category.SystemCategoryId}</DetailInfoText>
+                            <DetailInfoText>{item.SystemCategoryId}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Được duyệt bởi</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{category.ApproveBy}</DetailInfoText>
-                        </DetailInfo>
-
-                        <DetailTitle>Lần cuối cập nhật</DetailTitle>
-                        <DetailInfo>
-                            <DetailInfoText>{category.UpdatedDate}</DetailInfoText>
+                            <DetailInfoText>{item.ApproveBy}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Danh mục cha</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{category.BelongTo}</DetailInfoText>
+                            <DetailInfoText>{item.BelongTo}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Danh mục con</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{category.InverseBelongToNavigation}</DetailInfoText>
+                            <DetailInfoText>{item.InverseBelongToNavigation}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Trạng thái</DetailTitle>
@@ -275,20 +235,13 @@ const EditCategory = () => {
                     <UpdateTitle>Chỉnh sửa</UpdateTitle>
 
                     <UpdateForm onSubmit={handleEditCategory}>
-                        <UpdateItem>
-                            <UpdateItemLabel>Tên danh mục</UpdateItemLabel>
-                            <UpdateItemInput type="text" name="sysCategoryName" defaultValue={category.SysCategoryName} />
-                        </UpdateItem>
-
-                        <UpdateItem>
-                            <UpdateItemLabel>Trạng thái</UpdateItemLabel>
-                            <UpdateItemSelect value={status} name="sysCategoryStatus" onChange={handleStatusChange}>
-                                <option value="3001">Active</option>
-                                <option value="3002">Inactive</option>
-                                <option value="3004">Deleted</option>
-                            </UpdateItemSelect>
-                        </UpdateItem>
-
+                        <StyledTextField
+                            value={updateName}
+                            onChange={event => setUpdateName(event.target.value)}
+                            error={updateName === ''}
+                            helperText={updateName === '' ? 'Vui lòng nhập tên danh mục' : ''}
+                            label="Tên danh mục" 
+                        />
                         <UpdateButton>Cập nhật</UpdateButton>
                     </UpdateForm>
                 </CategoryUpdateWrapper>

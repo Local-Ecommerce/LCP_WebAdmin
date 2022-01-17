@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import Modal from 'react-modal';
 import { ArrowDropUp, ArrowDropDown, Edit, Delete, ContentPasteSearch } from '@mui/icons-material';
 import { Link } from "react-router-dom";
 
@@ -45,38 +44,11 @@ const Button = styled.button`
     cursor: pointer;
     overflow: hidden;
     outline: none;
-    color: grey;
+    color: ${props => props.disabled === true ? "#E0E0E0" : "grey"};
 
     &:focus {
     outline: none;
     }
-`;
-
-const ModalButton = styled.button`
-    min-width: 60px;
-    background: ${props => props.red ? "#dc3545" : "#17a2b8"};
-    color: white;
-    margin: 5px;
-    padding: 7px;
-    border: 2px solid ${props => props.red ? "#dc3545" : "#17a2b8"};
-    border-radius: 3px;
-    text-align: center;
-    float: right;
-
-    &:hover {
-    opacity: 0.8;
-    }
-
-    &:focus {
-    outline: 0;
-    }
-`;
-
-const Title = styled.h1`
-    font-size: 30px;
-    margin: 15px;
-    color: #dc3545;
-    border-bottom: 1px solid #dee2e6;
 `;
 
 const NameWrapper = styled.div`
@@ -98,28 +70,6 @@ const ButtonWrapper = styled.div`
     flex: 1;
 `;
 
-const ModalTextWrapper = styled.div`
-    margin: 15px;
-`;
-
-const Text = styled.p`
-    color: #000;
-    margin: 5px 0px 0px 0px;
-    font-size: 0.9em;
-    display: inline-block;
-`;
-
-const customStyles = {
-    content: {
-        top: '50%',
-        left: '50%',
-        right: '65%',
-        bottom: 'auto',
-        marginRight: '-50%',
-        transform: 'translate(-50%, -50%)',
-    },
-};
-
 const StyledSearchIcon = styled(ContentPasteSearch)`
     &:hover {
     color: #dc3545;
@@ -134,18 +84,21 @@ const StyledEditIcon = styled(Edit)`
 
 const StyledDeleteIcon = styled(Delete)`
     &:hover {
-    color: #dc3545;
+    color: ${props => props.disabled === true ? "#E0E0E0" : "#dc3545"};
     }
 `;
 
-const CategoryItem = ({ item, handleDeleteItem }) => {
+const CategoryItem = ({ item, handleGetDeleteItem, filterStatus }) => {
     const [child, setChild] = useState(false);
-    const [DeleteModal, toggleDeleteModal] = React.useState(false);
-
     const showChild = () => setChild(!child);
 
-    const toggleModal = () => {
-        toggleDeleteModal(!DeleteModal);
+    let disabledCheck = false;
+    switch (item.Status) {
+        case 3004:
+            disabledCheck = true;
+            break;
+        default:
+            break;
     }
 
     return (
@@ -173,27 +126,20 @@ const CategoryItem = ({ item, handleDeleteItem }) => {
                         </Button>
                     </Link>
 
-                    <Button onClick={toggleModal}>
-                        <StyledDeleteIcon />
+                    <Button disabled={disabledCheck} onClick={() => handleGetDeleteItem(item.SystemCategoryId, item.SysCategoryName)}>
+                        <StyledDeleteIcon disabled={disabledCheck} />
                     </Button>
-
-                    <Modal isOpen={DeleteModal} onRequestClose={toggleModal} style={customStyles}>
-                        <Title>Xác Nhận Xóa</Title>
-                        <ModalTextWrapper>
-                            <Text>Bạn có chắc chắn muốn xóa danh mục【<b>{item.SysCategoryName}</b>】?</Text>
-                        </ModalTextWrapper>
-                        <ModalButton onClick={toggleModal}>Quay lại</ModalButton>
-                        <ModalButton red onClick={() => { handleDeleteItem(item.SystemCategoryId); toggleModal() }}>Xóa</ModalButton>
-                    </Modal>
                 </ButtonWrapper>
 
             </CategoryContent>
 
             {child &&
                 item.InverseBelongToNavigation.map((item, index) => {
-                    return (
-                        <CategoryItem item={item} handleDeleteItem={handleDeleteItem} key={index} />
-                    );
+                    if (item.Status === parseInt(filterStatus)) {
+                        return (
+                            <CategoryItem item={item} handleGetDeleteItem={handleGetDeleteItem} filterStatus={filterStatus} key={index} />
+                        );
+                    } else return null;
                 })
             }
         </>

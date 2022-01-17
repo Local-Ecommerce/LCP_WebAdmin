@@ -1,7 +1,7 @@
 import React from 'react';
 import NewsItem from './NewsItem';
 
-const NewsList = ({ currentItems, handleDeleteItem }) => {
+const NewsList = ({ currentItems, handleGetDeleteItem }) => {
 
     if (currentItems.length === 0) {
         return <NewsItem item={0} />
@@ -11,7 +11,7 @@ const NewsList = ({ currentItems, handleDeleteItem }) => {
         return (
             <NewsItem
                 item={item}
-                handleDeleteItem={handleDeleteItem} key={index}
+                handleGetDeleteItem={handleGetDeleteItem} key={index}
             />
         )
     });

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
+import { TextField, Autocomplete, Box } from '@mui/material';
 
 const StyledLink = styled(Link)`
     text-decoration: none;
@@ -12,8 +13,6 @@ const Title = styled.h1`
     font-size: 30px;
     color: #383838;
     margin: 15px;
-    display: flex;
-    align-items: center;
 `;
 
 const ContainerWrapper = styled.div`
@@ -28,40 +27,6 @@ const Form = styled.form`
     width: 50%;
 `;
 
-const Item = styled.div`
-    display: flex;
-    flex-direction: column;
-    margin-top: 10px;
-    margin-bottom: 20px;
-`;
-
-const ItemLabel = styled.label`
-    margin-bottom: 5px;
-    font-size: 14px;
-`;
-
-const ItemInput = styled.input`
-    border: none;
-    height: 30px;
-    border-bottom: 1px solid gray;
-    outline: none;
-
-    &: focus {
-    outline: none;
-    }
-`;
-
-const ItemTextArea = styled.textarea`
-    border: none;
-    height: 60px;
-    border-bottom: 1px solid gray;
-    outline: none;
-
-    &: focus {
-    outline: none;
-    }
-`;
-
 const AddButton = styled.button`
     border-radius: 5px;
     border: none;
@@ -71,7 +36,7 @@ const AddButton = styled.button`
     color: white;
     font-weight: 600;
     width: 100%;
-    margin-top: 50px;
+    margin-top: 20px;
 
     &:active {
     box-shadow: 0 2px #666;
@@ -83,84 +48,144 @@ const AddButton = styled.button`
     }
 `;
 
-const SuccessSpan = styled.span`
-    font-size: 18px;
-    font-weight: 600;
-    display: inline-block;
-    padding: 0.25em 0.4em;
-    margin-left: 20px;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    border-radius: 0.25rem;
-    color: #fff;
-    background-color: #dc3545;
+const StyledTextField = styled(TextField)`
+    && {
+    margin-bottom: 30px;
+    }
 `;
 
+const StyledAutocomplete = styled(Autocomplete)``;
+
 const AddNews = () => {
-    const [success, setSuccess] = useState(false);
-    const delay = ms => new Promise(res => setTimeout(res, ms));
-    const showSuccess = async () => {
-        await setSuccess(true);
-        document.getElementById("form").reset();
-        await delay(3000);
-        setSuccess(false);
-    };
+    let history = useHistory();
+    const [residentList, setResidentList] = useState([]);   //autocomplete
+    const [apartmentList, setApartmentList] = useState([]); //autocomplete
+
+    const [createTitle, setCreateTitle] = useState(null);
+    const [createText, setCreateText] = useState(null);
+    const [createResident, setCreateResident] = useState({ResidentId: 1});
+    const [createApartment, setCreateApartment] = useState({ApartmentId: 1});
+
+    useEffect (() => {
+        const url = "systemCategory/autocomplete";
+
+        const fetchResidentAutocomplete = async () => {
+            try {
+                const res = await fetch(publicRequest(url), { method: 'GET' });
+                const json = await res.json();
+                setResidentList(json.Data);
+            } catch (error) { }
+        };
+        fetchResidentAutocomplete();
+    }, []);
+
+    useEffect (() => {
+        const url = "systemCategory/autocomplete";
+
+        const fetchApartmentAutocomplete = async () => {
+            try {
+                const res = await fetch(publicRequest(url), { method: 'GET' });
+                const json = await res.json();
+                setApartmentList(json.Data);
+            } catch (error) { }
+        };
+        fetchApartmentAutocomplete();
+    }, []);
 
     const handleAddNews = (event) => {
         event.preventDefault();
-        const url = "news/create";
+        if (checkValid(createTitle, createResident, createApartment)) {
+            const url = "news/create";
 
-        const addNews = async () => {
-            try {
-                const res = await fetch(publicRequest(url), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        title: event.target.elements.title.value,
-                        text: event.target.elements.text.value,
-                        marketManagerId: event.target.elements.marketManagerId.value,
-                        apartmentId: event.target.elements.apartmentId.value
-                    })
-                });
-                const json = await res.json();
-                if (json.ResultMessage === "SUCCESS") {
-                    showSuccess();
-                }
-            } catch (error) { }
-        };
-        addNews();
+            const addNews = async () => {
+                try {
+                    const res = await fetch(publicRequest(url), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            title: createTitle,
+                            text: createText,
+                            marketManagerId: 'MM001',
+                            apartmentId: 'AP001'
+                        })
+                    });
+                    const json = await res.json();
+                    if (json.ResultMessage === "SUCCESS") {
+                        history.push('/news', {name: createTitle} );
+                    }
+                } catch (error) { }
+            };
+            addNews();
+        }
+    }
+
+    const checkValid = (title, residentId, apartmentId) => {
+        if (title === null || title === '') {
+            setCreateTitle('');
+            return false;
+        }
+        if (residentId === null || residentId === '') {
+            return false;
+        }
+        if (apartmentId === null || apartmentId === '') {
+            return false;
+        }
+        return true;
     }
 
     return (
         <div>
             <Title>
-                <StyledLink to={"/news"}>News </StyledLink>
-                &nbsp;/ Tạo tin mới
-                { success ? <SuccessSpan>Tạo mới thành công</SuccessSpan> : null }
+                <StyledLink to={"/news"}>News </StyledLink>/ Tạo tin mới   
             </Title>
             
             <ContainerWrapper>
                 <Form onSubmit={handleAddNews} id="form">
-                    <Item>
-                        <ItemLabel>Tựa đề</ItemLabel>
-                        <ItemInput type="text" name="title" />
-                    </Item>
+                    <StyledTextField
+                        fullWidth 
+                        value={createTitle}
+                        onChange={event => setCreateTitle(event.target.value)}
+                        error={createTitle === ''}
+                        helperText={createTitle === '' ? 'Vui lòng nhập tựa đề' : ''}
+                        label="Tựa đề" 
+                    />
 
-                    <Item>
-                        <ItemLabel>Nội dung</ItemLabel>
-                        <ItemTextArea type="text" name="text" />
-                    </Item>
+                    <StyledTextField
+                        fullWidth multiline rows={4}
+                        value={createText}
+                        onChange={event => setCreateText(event.target.value)}
+                        label="Nội dung" 
+                    />
 
-                    <Item>
-                        <ItemLabel>ID Quản lý</ItemLabel>
-                        <ItemInput type="text" name="marketManagerId" />
-                    </Item>
+                    <StyledAutocomplete
+                        onChange={(event, value) => setCreateResident(value)}
+                        selectOnFocus clearOnBlurbhandleHomeEndKeys disablePortal
+                        getOptionLabel={(item) => item.SysCategoryName}
+                        options={residentList}
+                        renderOption={(props, item) => {
+                            return (
+                                <Box {...props} key={item.SystemCategoryId}>
+                                    {item.SysCategoryName}&nbsp; <small>- {item.SystemCategoryId}</small>
+                                </Box>
+                            );
+                          }}
+                        renderInput={(params) => <StyledTextField  {...params} label="Quản lý"  />}
+                    />
 
-                    <Item>
-                        <ItemLabel>ID Chung cư</ItemLabel>
-                        <ItemInput type="text" name="apartmentId" />
-                    </Item>
+                    <StyledAutocomplete
+                        onChange={(event, value) => setCreateApartment(value)}
+                        selectOnFocus clearOnBlurbhandleHomeEndKeys disablePortal
+                        getOptionLabel={(item) => item.SysCategoryName}
+                        options={apartmentList}
+                        renderOption={(props, item) => {
+                            return (
+                                <Box {...props} key={item.SystemCategoryId}>
+                                    {item.SysCategoryName}&nbsp; <small>- {item.SystemCategoryId}</small>
+                                </Box>
+                            );
+                          }}
+                        renderInput={(params) => <StyledTextField  {...params} label="Chung cư" />}
+                    />
 
                     <AddButton>Tạo cửa hàng</AddButton>
                 </Form>

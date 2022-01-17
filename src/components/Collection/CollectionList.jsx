@@ -1,7 +1,7 @@
 import React from 'react';
 import CollectionItem from './CollectionItem';
 
-const CollectionList = ({ currentItems, handleDeleteItem }) => {
+const CollectionList = ({ currentItems, handleGetDeleteItem }) => {
 
     if (currentItems.length === 0) {
         return <CollectionItem item={0} />
@@ -11,7 +11,7 @@ const CollectionList = ({ currentItems, handleDeleteItem }) => {
         return (
             <CollectionItem
                 item={item}
-                handleDeleteItem={handleDeleteItem} key={index}
+                handleGetDeleteItem={handleGetDeleteItem} key={index}
             />
         )
     });

@@ -1,11 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import Modal from 'react-modal';
 import PoiList from '../../components/Poi/PoiList';
 import ReactPaginate from "react-paginate";
 import AddCircle from '@mui/icons-material/AddCircle';
-import { Link } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
+import { Link, useLocation } from "react-router-dom";
+import { toast } from 'react-toastify';
 
 const Title = styled.h1`
     font-size: 30px;
@@ -225,17 +227,88 @@ const StyledPaginateContainer = styled.div`
     }
 `;
 
+const ModalTitle = styled.h2`
+    margin: 25px 20px;
+    color: #212529;
+`;
+
+const ModalContentWrapper = styled.div`
+    border-top: 1px solid #cfd2d4;
+    border-bottom: 1px solid #cfd2d4;
+`;
+
+const ModalContent = styled.p`
+    margin: 25px 20px;
+    color: #762a36;
+    padding: 20px;
+    background: #f8d7da;
+    border-radius: 5px;
+`;
+
+const ModalButtonWrapper = styled.div`
+    margin: 20px;
+    float: right;
+`;
+
+const ModalButton = styled.button`
+    min-width: 80px;
+    padding: 10px;
+    margin-left: 10px;
+    background: ${props => props.red ? "#dc3545" : "#fff"};
+    color: ${props => props.red ? "#fff" : "#212529"};;
+    border: 1px solid ${props => props.red ? "#dc3545" : "#fff"};
+    border-radius: 4px;
+    text-align: center;
+    font-size: 1rem;
+
+    &:hover {
+    opacity: 0.8;
+    }
+
+    &:focus {
+    outline: 0;
+    }
+`;
+
+const customStyles = {
+    content: {
+        top: '50%',
+        left: '50%',
+        right: '65%',
+        bottom: 'auto',
+        marginRight: '-50%',
+        transform: 'translate(-50%, -50%)',
+        padding: '0px',
+    },
+};
+
 const Poi = () =>  {
+    const location = useLocation(); //để fetch state name truyền từ AddPoi qua
+
+    const [DeleteModal, toggleDeleteModal] = useState(false);
+    const [deleteItem, setDeleteItem] = useState({id: '', name: ''});
+
     const [APIdata, setAPIdata] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [currentItems, setCurrentItems] = useState([]);
+
     const [pageCount, setPageCount] = useState(1);
     const [itemOffset, setItemOffset] = useState(0);
     const [currentPage, setCurrentPage] = useState(0);
     const [itemsPerPage, setItemsPerPage] = useState(5);
+
     const [change, setChange] = useState(false);
     const [search, setSearch] = useState(''); //search filter
     const [status, setStatus] = useState('0'); //status filter
+
+    useEffect(() => {
+        if (location.state && location.state.name) {
+            const notify = () => toast.success("Tạo thành công " + location.state.name + "!", {
+                position: toast.POSITION.TOP_CENTER
+              });
+            notify();
+        }
+    }, [location]);
 
     useEffect( () => {  //fetch api data
         const url = "poi/all";
@@ -295,18 +368,35 @@ const Poi = () =>  {
         setCurrentPage(0);
     }
 
+    const clearSearch = () => {
+        setSearch('');
+        document.getElementById("search").value = '';
+    }
+
     const handleChangeItemsPerPage = (value) => {
         setItemsPerPage(parseInt(value));
         setItemOffset(0);   //back to page 1
         setCurrentPage(0);
     }
 
+    const handleGetDeleteItem = (id, name) => {
+        setDeleteItem({id: id, name: name});
+        toggleDeleteModal(!DeleteModal)
+    }
+
     const handleDeleteItem = (id) => {
         const url = "poi/delete/" + id;
         const deleteData = async () => {
             try {
-                await fetch(publicRequest(url), { method: 'PUT' });
-                setChange(!change);
+                const res = await fetch(publicRequest(url), { method: 'PUT' });
+                const json = await res.json();
+                if (json.ResultMessage === "SUCCESS") {
+                    setChange(!change);
+                    const notify = () => toast.success("Xóa thành công " + deleteItem.name + "!", {
+                        position: toast.POSITION.TOP_CENTER
+                      });
+                    notify();
+                }
             } catch (error) { }
         };
         deleteData();
@@ -319,8 +409,8 @@ const Poi = () =>  {
             <TableWrapper>
                 <Row>
                     <ButtonWrapper>
-                        <Input placeholder="Search POI" onChange={(event) => handleSearch(event.target.value, status)} />
-                        <Button>Clear</Button>
+                        <Input id="search" placeholder="Search POI" onChange={(event) => handleSearch(event.target.value, status)} />
+                        <Button onClick={() => clearSearch()}>Clear</Button>
                     </ButtonWrapper>
 
                     <SelectWrapper width="16%">
@@ -365,7 +455,7 @@ const Poi = () =>  {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        <PoiList currentItems={currentItems} handleDeleteItem={handleDeleteItem} />
+                        <PoiList currentItems={currentItems} handleGetDeleteItem={handleGetDeleteItem} />
                     </TableBody>
                 </Table>
 
@@ -399,6 +489,17 @@ const Poi = () =>  {
                     </StyledPaginateContainer>
                 </Row>
             </TableWrapper>
+
+            <Modal isOpen={DeleteModal} onRequestClose={() => toggleDeleteModal(!DeleteModal)} style={customStyles} ariaHideApp={false}>
+                <ModalTitle>Xác Nhận Xóa</ModalTitle>
+                <ModalContentWrapper>
+                    <ModalContent>Bạn có chắc chắn muốn xóa danh mục【<b>{deleteItem.name}</b>】?</ModalContent>
+                </ModalContentWrapper>
+                <ModalButtonWrapper>
+                    <ModalButton onClick={() => toggleDeleteModal(!DeleteModal)}>Quay lại</ModalButton>
+                    <ModalButton red onClick={() => { handleDeleteItem(deleteItem.id); toggleDeleteModal(!DeleteModal) }}>Xóa</ModalButton>
+                </ModalButtonWrapper>
+            </Modal>
         </div>
     )
 }
