@@ -2,7 +2,7 @@ const ShopNotifications = [
     {
         id: 1,
         name: 'Cửa hàng "Bánh mì 2 trứng" chờ duyệt.',
-        shopName: 'Bánh mì 2 trứng',
+        shopName: 'Tiệm bánh mì 2 trứng',
         address: 'Đường D1, Khu Công Nghệ Cao, Long Thạnh Mỹ, TP. Hồ Chí Minh',
         manager: 'Mr. Nam',
         status: 1

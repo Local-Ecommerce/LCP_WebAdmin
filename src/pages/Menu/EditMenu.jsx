@@ -239,7 +239,7 @@ const EditMenu = () => {
 
                         <DetailTitle>Chủ cửa hàng</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{item.ResidentId}</DetailInfoText>
+                            <DetailInfoText>{item.Resident.ResidentName}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Trạng thái</DetailTitle>

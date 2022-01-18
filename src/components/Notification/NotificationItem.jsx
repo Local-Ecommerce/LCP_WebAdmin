@@ -1,31 +1,21 @@
 import React from 'react';
 import styled from "styled-components";
+import { Link } from "react-router-dom";
+import { ContentPasteSearch } from '@mui/icons-material';
 
-const NotificationWrapper = styled.a`
-    max-width: 100%;
-    position: relative;
-    width: 95%;
-    min-height: 1px;
-    padding: 0px 15px 10px 15px;
-    margin: 5px;
-    border-bottom: 1px solid #dee2e6;
+const NotificationWrapper = styled(Link)`
+    padding: 15px 30px;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #dee2e6;
     text-decoration: none;
 `;
 
-const NotificationBody = styled.div`
-    flex: 1;
-`;
-
-const TitleText = styled.h3`
-    margin-top: 8px;
-    margin-bottom: 0px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: #007bff;
-    font-weight: 600;
+const TextWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 `;
 
 const Row = styled.div`
@@ -33,35 +23,54 @@ const Row = styled.div`
     flex-wrap: wrap;
 `;
 
-const Text = styled.p`
+const TopText = styled.h3`
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    margin: 5px 0px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #007bff;
+`;
+
+const BottomTextLeft = styled.p`
+    flex: 4;
+    margin: 0px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     color: #000;
-    margin: 5px 0px 0px 0px;
 `;
 
-const NameText = styled(Text)`
-    flex: 0 0 33.333333%;
-    max-width: 33.333333%;
-    font-size: 0.9em;
+const BottomTextRight = styled(BottomTextLeft)`
+    flex: 6;
+`;
+
+const ButtonWrapper = styled.div``;
+
+const Button = styled.button`
+    padding: 3px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    outline: none;
+    color: grey;
+
+    &:focus {
+    outline: none;
+    }
 `;
 
-const AddressText = styled(Text)`
-    flex: 0 0 66.666667%;
-    max-width: 66.666667%;
-    font-size: 0.9em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-`;
+const StyledSearchIcon = styled(ContentPasteSearch)`
+    && {
+        font-size: 30px;
+    }
 
-const Image = styled.img`
-    vertical-align: middle;
-    width: 45px;
-    height: 45pxpx;
-    margin: 10px 15px 10px 0px;
-    border-radius: 50%;
+    &:hover {
+    color: #dc3545;
+    }
 `;
 
 const NewLabel = styled.span`
@@ -76,26 +85,30 @@ const NewLabel = styled.span`
     border-radius: 0.25rem;
     color: #fff;
     background-color: #dc3545;
+    margin-right: 6px;
 `;
 
 const NotificationItem = ({ item }) => {
-    let newLabel = '';
-    if (item.status === 1) {
-        newLabel = <NewLabel>Mới</NewLabel>;
-    }
-
     return (
-            <NotificationWrapper href="">
-                <Image src="./images/user.png" />
-
-                <NotificationBody>
-                    <TitleText>{newLabel} {item.name}</TitleText>
-
+            <NotificationWrapper to={"/"}>
+                <TextWrapper>
+                    <TopText>
+                        {item.status === 1 ? <NewLabel>Mới</NewLabel> : null}
+                        {item.name}
+                    </TopText>
                     <Row>
-                        <NameText class="col-md-4 text-secondary small">{item.shopName} - {item.manager}</NameText>
-                        <AddressText class="col-md-8 text-secondary small">{item.address}</AddressText>
+                        <BottomTextLeft>{item.shopName} - {item.manager}</BottomTextLeft>
+                        <BottomTextRight>{item.address}</BottomTextRight>
                     </Row>
-                </NotificationBody>
+                </TextWrapper>
+
+                <ButtonWrapper>
+                    <Link to={"/"}>
+                        <Button>
+                            <StyledSearchIcon />
+                        </Button>
+                    </Link>
+                </ButtonWrapper>
             </NotificationWrapper>
     );
 };
