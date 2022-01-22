@@ -6,8 +6,11 @@ import {
     House,
     Sell,
     LocationOn,
-    Article
+    Article,
+    Apartment,
+    Logout
 } from '@mui/icons-material';
+
 
 const SidebarData = [
     {
@@ -17,7 +20,7 @@ const SidebarData = [
     },
     {
         title: 'Sản phẩm',
-        path: '/',
+        path: null,
         icon: <ShoppingCart />,
         iconClosed: <ArrowDropDown />,
         iconOpened: <ArrowDropUp />,
@@ -37,7 +40,7 @@ const SidebarData = [
     },
     {
         title: 'Bảng giá',
-        path: '/menus',
+        path: null,
         icon: <Sell />,
         iconClosed: <ArrowDropDown />,
         iconOpened: <ArrowDropUp />,
@@ -61,6 +64,11 @@ const SidebarData = [
         icon: <House />
     },
     {
+        title: 'Chung cư',
+        path: '/apartments',
+        icon: <Apartment />
+    },
+    {
         title: 'POIs',
         path: '/pois',
         icon: <LocationOn />
@@ -69,6 +77,11 @@ const SidebarData = [
         title: 'News',
         path: '/news',
         icon: <Article />
+    },
+    {
+        title: 'Log out',
+        path: null,
+        icon: <Logout />
     },
 ];
 

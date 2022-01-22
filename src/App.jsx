@@ -24,6 +24,9 @@ import AddStore from './pages/Store/AddStore';
 import StoreDetail from './pages/Store/StoreDetail';
 import EditStore from './pages/Store/EditStore';
 
+import Apartment from './pages/Apartment/Apartment';
+import EditApartment from './pages/Apartment/EditApartment';
+
 import Poi from './pages/Poi/Poi';
 import AddPoi from "./pages/Poi/AddPoi";
 import EditPoi from './pages/Poi/EditPoi';
@@ -57,34 +60,37 @@ const App = () => {
                     <Header />
                     <ToastContainer />
 
-                    <Route exact path="/">              <Home />                </Route>
+                    <Route exact path="/">                  <Home />                </Route>
 
-                    <Route path="/collections">         <Collection />          </Route>
-                    <Route path="/collection/:id">      <CollectionDetail />    </Route>
-                    <Route path="/editCollection/:id">  <EditCollection />      </Route>
+                    <Route path="/collections">             <Collection />          </Route>
+                    <Route path="/collection/:id">          <CollectionDetail />    </Route>
+                    <Route path="/editCollection/:id">      <EditCollection />      </Route>
 
-                    <Route path="/categories">          <Category />            </Route>
-                    <Route path="/addCategory">         <AddCategory />         </Route>
-                    <Route path="/editCategory/:id">    <EditCategory />        </Route>
+                    <Route path="/categories">              <Category />            </Route>
+                    <Route path="/addCategory">             <AddCategory />         </Route>
+                    <Route path="/editCategory/:id">        <EditCategory />        </Route>
 
-                    <Route path="/menus">               <Menu />                </Route>
-                    <Route path="/menu/:id">            <MenuDetail />          </Route>
-                    <Route path="/editMenu/:id">        <EditMenu />            </Route>
+                    <Route path="/menus">                   <Menu />                </Route>
+                    <Route path="/menu/:id">                <MenuDetail />          </Route>
+                    <Route path="/editMenu/:id">            <EditMenu />            </Route>
 
-                    <Route path="/applicables">         <Home />                </Route>
+                    <Route path="/applicables">             <Home />                </Route>
 
-                    <Route path="/stores">              <Store />               </Route>
-                    <Route path="/store/:id">           <StoreDetail />         </Route>
-                    <Route path="/addStore">            <AddStore />            </Route>
-                    <Route path="/editStore/:id">       <EditStore />           </Route>
+                    <Route path="/stores">                  <Store />               </Route>
+                    <Route path="/store/:id">               <StoreDetail />         </Route>
+                    <Route path="/addStore">                <AddStore />            </Route>
+                    <Route path="/editStore/:id">           <EditStore />           </Route>
 
-                    <Route path="/pois">                <Poi />                 </Route>
-                    <Route path="/addPoi">              <AddPoi />              </Route>
-                    <Route path="/editPoi/:id">         <EditPoi />             </Route>
+                    <Route path="/apartments">              <Apartment />           </Route>
+                    <Route path="/editApartment/:id">       <EditApartment />       </Route>
 
-                    <Route path="/news">                <News />                </Route>
-                    <Route path="/addNews">             <AddNews />             </Route>
-                    <Route path="/editNews/:id">        <EditNews />            </Route>
+                    <Route path="/pois">                    <Poi />                 </Route>
+                    <Route path="/addPoi">                  <AddPoi />              </Route>
+                    <Route path="/editPoi/:id">             <EditPoi />             </Route>
+
+                    <Route path="/news">                    <News />                </Route>
+                    <Route path="/addNews">                 <AddNews />             </Route>
+                    <Route path="/editNews/:id">            <EditNews />            </Route>
                 </Content>
             </Router>
         </Main>

@@ -114,7 +114,7 @@ const UpdateButton = styled.button`
 
 const EditCategory = () => {
     const { id } = useParams();
-    const [item, setItem] = useState({});
+    const [item, setItem] = useState();
     const [updateName, setUpdateName] = useState('');
 
     const [success, setSuccess] = useState(false);

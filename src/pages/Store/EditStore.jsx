@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
-import TextField from '@mui/material/TextField';
+import { TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { toast } from 'react-toastify';
 import { DateTime } from 'luxon';
 
@@ -100,6 +99,12 @@ const StyledTextField = styled(TextField)`
     }
 `;
 
+const StyledFormControl = styled(FormControl)`
+    && {    
+    margin-top: 30px;
+    }
+`;
+
 const UpdateButton = styled.button`
     border-radius: 5px;
     border: none;
@@ -125,7 +130,9 @@ const UpdateButton = styled.button`
 const EditStore = () => {
     const { id } = useParams();
     const [item, setItem] = useState({ Resident: {ResidentName: ''}, Apartment: {Address: ''} });
+
     const [updateName, setUpdateName] = useState('');
+    const [updateStatus, setUpdateStatus] = useState(6005);
 
     const [success, setSuccess] = useState(false);
     let activeCheck = '';
@@ -140,6 +147,7 @@ const EditStore = () => {
                 const json = await res.json();
                 setItem(json.Data);
                 setUpdateName(json.Data.StoreName);
+                setUpdateStatus(json.Data.Status);
             } catch (error) { }
         };
         fetchStore();
@@ -147,7 +155,7 @@ const EditStore = () => {
 
     const handleEditStore = (event) => {
         event.preventDefault();
-        if (validCheck(updateName)) {
+        if (validCheck(updateName, updateStatus)) {
             const url = "store/" + id;
 
             const updateCollection = async () => {
@@ -157,7 +165,7 @@ const EditStore = () => {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             storeName: updateName,
-                            residentId: item.ResidentId,
+                            status: updateStatus,
                             apartmentId: item.ApartmentId
                         })
                     });
@@ -175,8 +183,11 @@ const EditStore = () => {
         }
     }
 
-    const validCheck = (name) => {
+    const validCheck = (name, status) => {
         if (name === null || name === '') {
+            return false;
+        }
+        if (!(status === 6004 || status === 6005)) {
             return false;
         }
         return true;
@@ -262,6 +273,20 @@ const EditStore = () => {
                             helperText={updateName === '' ? 'Vui lòng nhập tên cửa hàng' : ''}
                             label="Tên cửa hàng" 
                         />
+
+                        <StyledFormControl>
+                            <InputLabel id="demo-simple-select-label">Trạng thái</InputLabel>
+                            <Select 
+                                value={updateStatus}
+                                label="Trạng thái"
+                                onChange={(event) => setUpdateStatus(event.target.value)}
+                            >
+                            <MenuItem value={6005}>Active</MenuItem>
+                            <MenuItem value={6004}>Deleted</MenuItem>
+                            <MenuItem value={6006} disabled>Unverified Create</MenuItem>
+                            <MenuItem value={6007} disabled>Unverified Update</MenuItem>
+                            </Select>
+                        </StyledFormControl>
 
                         <UpdateButton>Cập nhật</UpdateButton>
                     </UpdateForm>

@@ -58,43 +58,28 @@ const StyledAutocomplete = styled(Autocomplete)``;
 
 const AddNews = () => {
     let history = useHistory();
-    const [residentList, setResidentList] = useState([]);   //autocomplete
-    const [apartmentList, setApartmentList] = useState([]); //autocomplete
+    const [autocomplete, setAutocomplete] = useState([]); //autocomplete
 
     const [createTitle, setCreateTitle] = useState(null);
     const [createText, setCreateText] = useState(null);
-    const [createResident, setCreateResident] = useState({ResidentId: 1});
-    const [createApartment, setCreateApartment] = useState({ApartmentId: 1});
+    const [createApartment, setCreateApartment] = useState({ApartmentId: null});
 
     useEffect (() => {
-        const url = "systemCategory/autocomplete";
+        const url = "apartment/autocomplete";
 
-        const fetchResidentAutocomplete = async () => {
+        const fetchAutocomplete = async () => {
             try {
                 const res = await fetch(publicRequest(url), { method: 'GET' });
                 const json = await res.json();
-                setResidentList(json.Data);
+                setAutocomplete(json.Data);
             } catch (error) { }
         };
-        fetchResidentAutocomplete();
-    }, []);
-
-    useEffect (() => {
-        const url = "systemCategory/autocomplete";
-
-        const fetchApartmentAutocomplete = async () => {
-            try {
-                const res = await fetch(publicRequest(url), { method: 'GET' });
-                const json = await res.json();
-                setApartmentList(json.Data);
-            } catch (error) { }
-        };
-        fetchApartmentAutocomplete();
+        fetchAutocomplete();
     }, []);
 
     const handleAddNews = (event) => {
         event.preventDefault();
-        if (checkValid(createTitle, createResident, createApartment)) {
+        if (checkValid(createTitle, createApartment.ApartmentId)) {
             const url = "news/create";
 
             const addNews = async () => {
@@ -105,8 +90,8 @@ const AddNews = () => {
                         body: JSON.stringify({
                             title: createTitle,
                             text: createText,
-                            residentId: 'MM001',
-                            apartmentId: 'AP001'
+                            residentId: null,
+                            apartmentId: createApartment.ApartmentId
                         })
                     });
                     const json = await res.json();
@@ -119,15 +104,13 @@ const AddNews = () => {
         }
     }
 
-    const checkValid = (title, residentId, apartmentId) => {
+    const checkValid = (title, apartmentId) => {
         if (title === null || title === '') {
             setCreateTitle('');
             return false;
         }
-        if (residentId === null || residentId === '') {
-            return false;
-        }
         if (apartmentId === null || apartmentId === '') {
+            setCreateApartment({ApartmentId: ''});
             return false;
         }
         return true;
@@ -158,33 +141,20 @@ const AddNews = () => {
                     />
 
                     <StyledAutocomplete
-                        onChange={(event, value) => setCreateResident(value)}
-                        selectOnFocus clearOnBlurbhandleHomeEndKeys disablePortal
-                        getOptionLabel={(item) => item.SysCategoryName}
-                        options={residentList}
-                        renderOption={(props, item) => {
-                            return (
-                                <Box {...props} key={item.SystemCategoryId}>
-                                    {item.SysCategoryName}&nbsp; <small>- {item.SystemCategoryId}</small>
-                                </Box>
-                            );
-                          }}
-                        renderInput={(params) => <StyledTextField  {...params} label="Quản lý"  />}
-                    />
-
-                    <StyledAutocomplete
                         onChange={(event, value) => setCreateApartment(value)}
                         selectOnFocus clearOnBlurbhandleHomeEndKeys disablePortal
-                        getOptionLabel={(item) => item.SysCategoryName}
-                        options={apartmentList}
+                        getOptionLabel={(item) => item.Address}
+                        options={autocomplete}
                         renderOption={(props, item) => {
                             return (
-                                <Box {...props} key={item.SystemCategoryId}>
-                                    {item.SysCategoryName}&nbsp; <small>- {item.SystemCategoryId}</small>
+                                <Box {...props} key={item.ApartmentId}>
+                                    {item.Address}&nbsp; <small>- {item.ApartmentId}</small>
                                 </Box>
                             );
                           }}
-                        renderInput={(params) => <StyledTextField  {...params} label="Chung cư" />}
+                        renderInput={(params) => <StyledTextField  {...params} label="Chung cư"
+                                                                    error={createApartment.ApartmentId === ''}
+                                                                    helperText={createApartment.ApartmentId === '' ? 'Vui lòng chọn chung cư' : ''} />}
                     />
 
                     <AddButton>Tạo cửa hàng</AddButton>

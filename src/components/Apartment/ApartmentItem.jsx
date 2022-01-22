@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Edit, Delete, ContentPasteSearch } from '@mui/icons-material';
+import { Badge } from '@mui/material';
+import { Edit, Delete, Notifications } from '@mui/icons-material';
 import { Link } from "react-router-dom";
 
 const Button = styled.button`
@@ -11,6 +12,7 @@ const Button = styled.button`
     overflow: hidden;
     outline: none;
     color: ${props => props.disabled === true ? "#E0E0E0" : "grey"};
+    vertical-align: middle;
 
     &:focus {
     outline: none;
@@ -29,9 +31,6 @@ const TableData = styled.td`
     border-bottom: 1px solid #dee2e6;
     vertical-align: middle;
     text-align: ${props => props.center ? "center" : "left"};
-    overflow: hidden;
-    white-space: nowrap;
-    height: 45px;
 `;
 
 const Status = styled.span`
@@ -51,9 +50,27 @@ const Status = styled.span`
         "#dc3545"};
 `;
 
-const StyledSearchIcon = styled(ContentPasteSearch)`
+const StyledNotificationIcon = styled(Notifications)`
+    && {
+        color: grey;
+        padding: 0px 0px 4px 4px;
+    }
+
     &:hover {
     color: #dc3545;
+    }
+`;
+
+const StyledBadge = styled(Badge)`
+    && {    
+        color: #fff;
+
+        & .MuiBadge-badge {
+            top: 1px;
+            right: 4px;
+            background: #dc3545;
+            font-size: 0.7em;
+        }
     }
 `;
 
@@ -69,7 +86,7 @@ const StyledDeleteIcon = styled(Delete)`
     }
 `;
 
-const CollectionItem = ({ item, handleGetDeleteItem }) =>  {
+const ApartmentItem = ({ item, handleGetDeleteItem }) =>  {
     if (item === 0) {
         return (
             <tr>
@@ -83,15 +100,16 @@ const CollectionItem = ({ item, handleGetDeleteItem }) =>  {
     let activeLabel = '';
     let disabledCheck = false;
     switch (item.Status) {
-        case 8001:
+        case 4001:
             activeCheck = 'active';
             activeLabel = 'Active';
             break;
-        case 8002:
+        case 4002:
             activeCheck = 'inactive';
             activeLabel = 'Inactive';
+            disabledCheck = true;
             break;
-        case 8004:
+        case 4004:
             activeCheck = 'deleted';
             activeLabel = 'Deleted';
             disabledCheck = true;
@@ -104,32 +122,30 @@ const CollectionItem = ({ item, handleGetDeleteItem }) =>  {
 
     return (
         <TableRow>
-            <TableData>{item.CollectionName}</TableData>
-            <TableData>{item.Resident.ResidentName}</TableData>
+            <TableData>{item.Address}</TableData>
+            <TableData center>({item.Lat},<br/>{item.Long})</TableData>
 
             <TableData center>
                 <Status active={activeCheck}>{activeLabel}</Status>
             </TableData>
-
+            
             <TableData center>
-                <Link to={"/collection/" + item.CollectionId}>
-                    <Button>
-                        <StyledSearchIcon />
-                    </Button>
-                </Link>
-
-                <Link to={"/editCollection/" + item.CollectionId}>
+                <Link to={"/editApartment/" + item.ApartmentId}>
                     <Button>
                         <StyledEditIcon/>
                     </Button>
                 </Link>
 
-                <Button disabled={disabledCheck} onClick={() => handleGetDeleteItem(item.CollectionId, item.CollectionName)}>
+                <Button disabled={disabledCheck} onClick={() => handleGetDeleteItem(item.ApartmentId, item.Address)}>
                     <StyledDeleteIcon disabled={disabledCheck} />
                 </Button>
+
+                <StyledBadge badgeContent={2} overlap="circular">
+                    <StyledNotificationIcon />
+                </StyledBadge>
             </TableData>
         </TableRow>
     )
 }
 
-export default CollectionItem;
+export default ApartmentItem;

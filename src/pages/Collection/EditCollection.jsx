@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
-import TextField from '@mui/material/TextField';
+import { TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { toast } from 'react-toastify';
 import { DateTime } from 'luxon';
 
@@ -93,6 +92,12 @@ const StyledTextField = styled(TextField)`
     }
 `;
 
+const StyledFormControl = styled(FormControl)`
+    && {    
+    margin-top: 30px;
+    }
+`;
+
 const UpdateButton = styled.button`
     border-radius: 5px;
     border: none;
@@ -118,6 +123,7 @@ const EditCollection = () => {
     const { id } = useParams();
     const [item, setItem] = useState({ Resident: { ResidentName: '' } });
     const [updateName, setUpdateName] = useState('');
+    const [updateStatus, setUpdateStatus] = useState(8001);
 
     const [success, setSuccess] = useState(false);
     let activeCheck = '';
@@ -132,6 +138,7 @@ const EditCollection = () => {
                 const json = await res.json();
                 setItem(json.Data);
                 setUpdateName(json.Data.CollectionName);
+                setUpdateStatus(json.Data.Status);
             } catch (error) { }
         };
         fetchCollection();
@@ -139,7 +146,7 @@ const EditCollection = () => {
 
     const handleEditCollection = (event) => {
         event.preventDefault();
-        if (validCheck(updateName)) {
+        if (validCheck(updateName, updateStatus)) {
             const url = "collection/" + id;
 
             const updateCollection = async () => {
@@ -149,7 +156,7 @@ const EditCollection = () => {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             collectionName: updateName,
-                            residentId: item.Resident.ResidentId
+                            status: updateStatus
                         })
                     });
                     const json = await res.json();
@@ -166,8 +173,11 @@ const EditCollection = () => {
         }
     }
 
-    const validCheck = (name) => {
+    const validCheck = (name, status) => {
         if (name === null || name === '') {
+            return false;
+        }
+        if (!(status === 8001 || status === 8002 || status === 8004)) {
             return false;
         }
         return true;
@@ -251,6 +261,20 @@ const EditCollection = () => {
                             helperText={updateName === '' ? 'Vui lòng nhập tên bộ sưu tập' : ''}
                             label="Tên bộ sưu tập" 
                         />
+
+                        <StyledFormControl>
+                            <InputLabel id="demo-simple-select-label">Trạng thái</InputLabel>
+                            <Select 
+                                value={updateStatus}
+                                label="Trạng thái"
+                                onChange={(event) => setUpdateStatus(event.target.value)}
+                            >
+                            <MenuItem value={8001}>Active</MenuItem>
+                            <MenuItem value={8002}>Inactive</MenuItem>
+                            <MenuItem value={8004}>Deleted</MenuItem>
+                            </Select>
+                        </StyledFormControl>
+
                         <UpdateButton>Cập nhật</UpdateButton>
                     </UpdateForm>
                 </CollectionUpdateWrapper>

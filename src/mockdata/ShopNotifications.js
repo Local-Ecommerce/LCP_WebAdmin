@@ -1,43 +1,83 @@
 const ShopNotifications = [
     {
         id: 1,
-        name: 'Cửa hàng "Bánh mì 2 trứng" chờ duyệt.',
-        shopName: 'Tiệm bánh mì 2 trứng',
-        address: 'Đường D1, Khu Công Nghệ Cao, Long Thạnh Mỹ, TP. Hồ Chí Minh',
-        manager: 'Mr. Nam',
-        status: 1
+        StoreName: 'Bánh mì 2 trứng',
+        Address: 'Đường D1, Khu Công Nghệ Cao, Long Thạnh Mỹ, TP. Hồ Chí Minh',
+        ResidentName: 'Mr. Nam',
+        CreatedDate: '2022-01-15T09:45',
+        Status: 6006
     },
     {
         id: 2,
-        name: 'Thông báo cửa hàng 2',
-        shopName: 'Tên cửa hàng 2',
-        address: 'Địa chỉ 2',
-        manager: 'Quản lí B',
-        status: 0
+        StoreName: 'Lorem',
+        Address: 'Đường D2, Khu Công Nghệ Thấp, TP. Hồ Chí Minh',
+        ResidentName: 'Mr. An',
+        CreatedDate: '2022-01-13T09:45',
+        Status: 6006
     },
     {
-        id: 3,
-        name: 'Thông báo cửa hàng 3',
-        shopName: 'Tên cửa hàng 3',
-        address: 'Địa chỉ 3',
-        manager: 'Quản lí C',
-        status: 0
+        id: 1,
+        StoreName: 'Ipsum',
+        Address: 'Đường D3, Khu Công Nghệ Trung Bình, TP. Hồ Chí Minh',
+        ResidentName: 'Mr. Bình',
+        CreatedDate: '2022-01-12T09:45',
+        Status: 6006
     },
     {
         id: 4,
-        name: 'Thông báo cửa hàng 4',
-        shopName: 'Tên cửa hàng 4',
-        address: 'Địa chỉ 4',
-        manager: 'Quản lí D',
-        status: 0
+        StoreName: 'Dolor',
+        Address: 'Đường D3, Khu Công Nghệ Vừa, TP. Hồ Chí Minh',
+        ResidentName: 'Mr. Cường',
+        CreatedDate: '2022-01-11T09:45',
+        Status: 6007
     },
     {
         id: 5,
-        name: 'Thông báo cửa hàng 5',
-        shopName: 'Tên cửa hàng 5',
-        address: 'Địa chỉ 5',
-        manager: 'Quản lí E',
-        status: 0
+        StoreName: 'Amet',
+        Address: 'Đường D4, Khu Công Nghệ Trên Trung Bình, TP. Hồ Chí Minh',
+        ResidentName: 'Mr. Dũng',
+        CreatedDate: '2022-01-10T09:45',
+        Status: 6007
+    },
+    {
+        id: 6,
+        StoreName: 'Consectetur',
+        Address: 'Đường D5, Khu Công Nghệ Yếu, TP. Hồ Chí Minh',
+        ResidentName: 'Mr. Bob',
+        CreatedDate: '2022-01-09T09:45',
+        Status: 6007
+    },
+    {
+        id: 7,
+        StoreName: 'Consectetur',
+        Address: 'Đường D5, Khu Công Nghệ Yếu, TP. Hồ Chí Minh',
+        ResidentName: 'Mr. Bob',
+        CreatedDate: '2022-01-08T09:45',
+        Status: 6007
+    },
+    {
+        id: 8,
+        StoreName: 'Consectetur',
+        Address: 'Đường D5, Khu Công Nghệ Yếu, TP. Hồ Chí Minh',
+        ResidentName: 'Mr. Bob',
+        CreatedDate: '2022-01-07T09:45',
+        Status: 6007
+    },
+    {
+        id: 9,
+        StoreName: 'Consectetur',
+        Address: 'Đường D5, Khu Công Nghệ Yếu, TP. Hồ Chí Minh',
+        ResidentName: 'Mr. Bob',
+        CreatedDate: '2022-01-06T09:45',
+        Status: 6007
+    },
+    {
+        id: 10,
+        StoreName: 'Consectetur',
+        Address: 'Đường D5, Khu Công Nghệ Yếu, TP. Hồ Chí Minh',
+        ResidentName: 'Mr. Bob',
+        CreatedDate: '2022-01-05T09:45',
+        Status: 6007
     },
 ];
 

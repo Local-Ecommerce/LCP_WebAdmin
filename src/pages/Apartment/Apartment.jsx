@@ -2,11 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Modal from 'react-modal';
-import StoreList from '../../components/Store/StoreList';
+import Apartments from '../../mockdata/Apartments';
+import ApartmentList from '../../components/Apartment/ApartmentList';
 import ReactPaginate from "react-paginate";
-import AddBusinessIcon from '@mui/icons-material/AddBusiness';
-import { Link, useLocation } from "react-router-dom";
+import AddCircle from '@mui/icons-material/AddCircle';
 import { publicRequest } from "../../RequestMethod";
+import { Link, useLocation } from "react-router-dom";
 import { toast } from 'react-toastify';
 
 const Title = styled.h1`
@@ -89,7 +90,7 @@ const Select = styled.select`
     }
 `;
 
-const AddStoreButton = styled(Link)`
+const AddApartmentButton = styled(Link)`
     display: flex;
     justify-content: center;
     align-items: center;
@@ -107,7 +108,7 @@ const AddStoreButton = styled(Link)`
     }
 `;
 
-const AddStoreIcon = styled(AddBusinessIcon)`
+const AddApartmentIcon = styled(AddCircle)`
     padding-right: 5px;
 `;
 
@@ -146,7 +147,7 @@ const ItemsPerPageWrapper = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 47%;
+    width: 35%;
 `;
 
 const StyledPaginateContainer = styled.div`
@@ -282,8 +283,8 @@ const customStyles = {
     },
 };
 
-const Store = () => {
-    const location = useLocation(); //để fetch state name truyền từ AddStore qua
+const Apartment = () =>  {
+    const location = useLocation(); //để fetch state name truyền từ AddApartment qua
 
     const [DeleteModal, toggleDeleteModal] = useState(false);
     const [deleteItem, setDeleteItem] = useState({id: '', name: ''});
@@ -310,14 +311,14 @@ const Store = () => {
         }
     }, [location]);
 
-    useEffect(() => {  //fetch api data
-        const url = "store/all";
+    useEffect( () => {  //fetch api data
+        //const url = "news/all";
 
         const fetchData = async () => {
             try {
-                const res = await fetch(publicRequest(url), { method: 'GET' });
-                const json = await res.json();
-                await setAPIdata(json.Data);
+                /*const res = await fetch(publicRequest(url), { method: 'GET' });
+                const json = await res.json();*/
+                setAPIdata(Apartments);
             } catch (error) { }
         };
         fetchData();
@@ -326,21 +327,21 @@ const Store = () => {
     useEffect(() => {   //filter based on 'search' & 'status'
         const result = APIdata.filter((item) => {
             if (status !== '0') {
-                return [item.StoreName, item.ResidentId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
+                return [item.Title, item.ApartmentId, item.Text, item.ResidentId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
                     && item.Status === parseInt(status)
             } else {
-                return [item.StoreName, item.ResidentId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
+                return [item.Title, item.ApartmentId, item.Text, item.ResidentId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
             }
         })
         setFilteredData(result);
     }, [search, status, APIdata, itemsPerPage]);
 
     useEffect(() => {   //paging
-        const paging = async () => {
+        const paging = () => {
             try {
-                const endOffset = await (itemOffset + itemsPerPage);
-                await setCurrentItems(filteredData.slice(itemOffset, endOffset));
-                await setPageCount(Math.ceil(filteredData.length / itemsPerPage));
+                const endOffset = (itemOffset + itemsPerPage);
+                setCurrentItems(filteredData.slice(itemOffset, endOffset));
+                setPageCount(Math.ceil(filteredData.length / itemsPerPage));
             } catch (error) { }
         };
         paging();
@@ -385,7 +386,7 @@ const Store = () => {
     }
 
     const handleDeleteItem = (id) => {
-        const url = "store/delete/" + id;
+        const url = "apartment/delete/" + id;
         const deleteData = async () => {
             try {
                 const res = await fetch(publicRequest(url), { method: 'PUT' });
@@ -404,22 +405,21 @@ const Store = () => {
 
     return (
         <div>
-            <Title>Danh sách cửa hàng</Title>
+            <Title>Chung cư</Title>
 
             <TableWrapper>
                 <Row>
                     <ButtonWrapper>
-                        <Input id="search" placeholder="Search cửa hàng" onChange={(event) => handleSearch(event.target.value, status)}/>
+                        <Input id="search" placeholder="Tìm kiếm chung cư" onChange={(event) => handleSearch(event.target.value, status)} />
                         <Button onClick={() => clearSearch()}>Clear</Button>
                     </ButtonWrapper>
 
                     <SelectWrapper width="16%">
                         <Select value={status} onChange={(event) => handleSearch(search, event.target.value)}>
                             <option value="0">--- Lọc trạng thái ---</option>
-                            <option value="6004">Deleted</option>
-                            <option value="6005">Verified</option>
-                            <option value="6006">Unverified - Create</option>
-                            <option value="6007">Unverified - Update</option>
+                            <option value="4001">Active</option>
+                            <option value="4002">Inactive</option>
+                            <option value="4004">Deleted</option>
                         </Select>
                     </SelectWrapper>
 
@@ -437,21 +437,25 @@ const Store = () => {
                                 <option value="20">20</option>
                             </Select>
                         </SelectWrapper>              
-                    </ItemsPerPageWrapper>
+                    </ItemsPerPageWrapper>  
+
+                    <AddApartmentButton to={"/addApartment/"}>
+                        <AddApartmentIcon />
+                        Tạo chung cư
+                    </AddApartmentButton>
                 </Row>
 
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableHeader width="30%">Tên cửa hàng</TableHeader>
-                            <TableHeader width="30%">Địa chỉ chung cư</TableHeader>
-                            <TableHeader width="10%">Quản lý</TableHeader>
+                            <TableHeader width="55%">Địa chỉ</TableHeader>
+                            <TableHeader width="15%" center>Tọa độ</TableHeader>
                             <TableHeader width="15%" center>Trạng thái</TableHeader>
                             <TableHeader width="15%" center>Chỉnh sửa</TableHeader>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        <StoreList currentItems={currentItems} handleGetDeleteItem={handleGetDeleteItem} />
+                        <ApartmentList currentItems={currentItems} handleGetDeleteItem={handleGetDeleteItem} />
                     </TableBody>
                 </Table>
 
@@ -489,7 +493,7 @@ const Store = () => {
             <Modal isOpen={DeleteModal} onRequestClose={() => toggleDeleteModal(!DeleteModal)} style={customStyles} ariaHideApp={false}>
                 <ModalTitle>Xác Nhận Xóa</ModalTitle>
                 <ModalContentWrapper>
-                    <ModalContent>Bạn có chắc chắn muốn xóa cửa hàng【<b>{deleteItem.name}</b>】?</ModalContent>
+                    <ModalContent>Bạn có chắc chắn muốn xóa chung cư【<b>{deleteItem.name}</b>】?</ModalContent>
                 </ModalContentWrapper>
                 <ModalButtonWrapper>
                     <ModalButton onClick={() => toggleDeleteModal(!DeleteModal)}>Quay lại</ModalButton>
@@ -500,4 +504,4 @@ const Store = () => {
     )
 }
 
-export default Store;
+export default Apartment;

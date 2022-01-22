@@ -29,6 +29,33 @@ const SidebarLink = styled(Link)`
     }
 `;
 
+const SidebarDiv = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    padding: 0px 20px 0px  ${props => props.pad ? "30px" : "20px"};
+    list-style: none;
+    height: 60px;
+    text-decoration: none;
+    color: #404040;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+    &:hover {
+        background-color: rgb(240, 240, 255);
+        cursor: pointer;
+        text-decoration: none;
+        color: #0056b3;
+    }
+
+    &:focus {
+        background-color: rgb(240, 240, 255);
+        cursor: pointer;
+        text-decoration: none;
+        color: #0056b3;
+    }
+`;
+
 const Row = styled.div`
     display: flex;
     justify-content: center;
@@ -42,13 +69,12 @@ const SidebarLabel = styled.span`
 const SidebarItem = ({ item }) => {
     const [subnav, setSubnav] = useState(false);
     const showSubnav = () => setSubnav(!subnav);
-    let pad = false;
-    if (item.icon === '')
-        pad = true;
 
     return (
         <>
-            <SidebarLink pad={pad} to={item.path} onClick={item.subNav && showSubnav}>
+            {
+            (item.path !== null) ?
+            <SidebarLink pad={item.icon === '' ? true : false} to={item.path} onClick={item.subNav && showSubnav}>
                 <Row>
                     {item.icon}
                     <SidebarLabel>{item.title}</SidebarLabel>
@@ -60,7 +86,22 @@ const SidebarItem = ({ item }) => {
                             ? item.iconClosed
                             : null}
                 </div>
-            </SidebarLink>
+            </SidebarLink> 
+            :
+            <SidebarDiv pad={item.icon === '' ? true : false} to={item.path} onClick={item.subNav && showSubnav}>
+                <Row>
+                    {item.icon}
+                    <SidebarLabel>{item.title}</SidebarLabel>
+                </Row>
+                <div>
+                    {item.subNav && subnav
+                        ? item.iconOpened
+                        : item.subNav
+                            ? item.iconClosed
+                            : null}
+                </div>
+            </SidebarDiv>
+            }
             {subnav &&
                 item.subNav.map((item, index) => {
                     return (

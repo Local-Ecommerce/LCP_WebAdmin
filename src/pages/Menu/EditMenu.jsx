@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
 import { TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { toast } from 'react-toastify';
@@ -71,8 +70,12 @@ const DetailStatus = styled.span`
     white-space: nowrap;
     vertical-align: baseline;
     border-radius: 0.25rem;
-    color: #fff;
-    background-color: ${props => props.active === "active" ? "#28a745" : "#dc3545"};
+    color: ${props => props.active === "inactive" ? "grey" : "#fff"};
+    background-color: ${props => props.active === "active" ? "#28a745"
+    :
+    props.active === "inactive" ? "#E0E0E0"
+        :
+        "#dc3545"};
 `;
 
 const UpdateTitle = styled.span`

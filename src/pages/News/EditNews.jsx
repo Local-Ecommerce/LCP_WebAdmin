@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
-import { TextField } from '@mui/material';
+import { TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { toast } from 'react-toastify';
 import { DateTime } from 'luxon';
 
@@ -70,8 +69,12 @@ const DetailStatus = styled.span`
     white-space: nowrap;
     vertical-align: baseline;
     border-radius: 0.25rem;
-    color: #fff;
-    background-color: ${props => props.active === "active" ? "#28a745" : "#dc3545"};
+    color: ${props => props.active === "inactive" ? "grey" : "#fff"};
+    background-color: ${props => props.active === "active" ? "#28a745"
+    :
+    props.active === "inactive" ? "#E0E0E0"
+        :
+        "#dc3545"};
 `;
 
 const UpdateTitle = styled.span`
@@ -87,6 +90,12 @@ const UpdateForm = styled.form`
 `;
 
 const StyledTextField = styled(TextField)`
+    && {    
+    margin-top: 30px;
+    }
+`;
+
+const StyledFormControl = styled(FormControl)`
     && {    
     margin-top: 30px;
     }
@@ -115,10 +124,11 @@ const UpdateButton = styled.button`
 
 const EditNews = () => {
     const { id } = useParams();
-    const [item, setItem] = useState({});
+    const [item, setItem] = useState({Resident: {ResidentName: ''}, Apartment: {Address: ''}});
 
     const [updateTitle, setUpdateTitle] = useState('');
     const [updateText, setUpdateText] = useState('');
+    const [updateStatus, setUpdateStatus] = useState(12001);
 
     const [success, setSuccess] = useState(false);
     let activeCheck = '';
@@ -134,6 +144,7 @@ const EditNews = () => {
                 setItem(json.Data);
                 setUpdateTitle(json.Data.Title);
                 setUpdateText(json.Data.Text);
+                setUpdateStatus(json.Data.Status);
             } catch (error) { }
         };
         fetchNews();
@@ -141,7 +152,7 @@ const EditNews = () => {
 
     const handleEditNews = (event) => {
         event.preventDefault();
-        if (validCheck(updateTitle)) {
+        if (validCheck(updateTitle, updateStatus)) {
             const url = "news/update/" + id;
 
             const updateNews = async () => {
@@ -152,6 +163,7 @@ const EditNews = () => {
                         body: JSON.stringify({
                             title: updateTitle,
                             text: updateText,
+                            status: updateStatus,
                             residentId: item.ResidentId,
                             apartmentId: item.ApartmentId
                         })
@@ -170,8 +182,11 @@ const EditNews = () => {
         }
     }
 
-    const validCheck = (title) => {
+    const validCheck = (title, status) => {
         if (title === null || title === '') {
+            return false;
+        }
+        if (!(status === 12001 || status === 12002)) {
             return false;
         }
         return true;
@@ -227,12 +242,12 @@ const EditNews = () => {
 
                         <DetailTitle>Quản lý</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{item.ResidentId}</DetailInfoText>
+                            <DetailInfoText>{item.ResidentId !== null ? item.Resident.ResidentName : "Admin"}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Chung cư</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{item.ApartmentId}</DetailInfoText>
+                            <DetailInfoText>{item.Apartment.Address}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Trạng thái</DetailTitle>
@@ -263,6 +278,18 @@ const EditNews = () => {
                             onChange={event => setUpdateText(event.target.value)}
                             label="Tựa đề" 
                         />
+
+                        <StyledFormControl>
+                            <InputLabel id="demo-simple-select-label">Trạng thái</InputLabel>
+                            <Select 
+                                value={updateStatus}
+                                label="Trạng thái"
+                                onChange={(event) => setUpdateStatus(event.target.value)}
+                            >
+                            <MenuItem value={12001}>Active</MenuItem>
+                            <MenuItem value={12002}>Inactive</MenuItem>
+                            </Select>
+                        </StyledFormControl>
 
                         <UpdateButton>Cập nhật</UpdateButton>
                     </UpdateForm>
