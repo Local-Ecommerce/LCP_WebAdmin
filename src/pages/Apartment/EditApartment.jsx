@@ -4,7 +4,6 @@ import { useParams, Link } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
 import { TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { toast } from 'react-toastify';
-import { DateTime } from 'luxon';
 
 const StyledLink = styled(Link)`
     text-decoration: none;
@@ -150,7 +149,6 @@ const EditApartment = () => {
     const [manager, setManager] = useState({});
 
     const [updateName, setUpdateName] = useState('');
-    const [updateText, setUpdateText] = useState('');
     const [updateStatus, setUpdateStatus] = useState(4001);
 
     const [success, setSuccess] = useState(false);

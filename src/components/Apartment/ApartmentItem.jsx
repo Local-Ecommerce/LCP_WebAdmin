@@ -26,7 +26,7 @@ const TableRow = styled.tr`
 `;
 
 const TableData = styled.td`
-    padding: 1rem;
+    padding: 16px;
     vertical-align: top;
     border-bottom: 1px solid #dee2e6;
     vertical-align: middle;
@@ -140,9 +140,11 @@ const ApartmentItem = ({ item, handleGetDeleteItem }) =>  {
                     <StyledDeleteIcon disabled={disabledCheck} />
                 </Button>
 
-                <StyledBadge badgeContent={2} overlap="circular">
-                    <StyledNotificationIcon />
-                </StyledBadge>
+                <Link to={"/apartment/" + item.ApartmentId}>
+                    <StyledBadge badgeContent={2} overlap="circular">
+                        <StyledNotificationIcon />
+                    </StyledBadge>
+                </Link>
             </TableData>
         </TableRow>
     )

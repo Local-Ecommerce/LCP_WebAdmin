@@ -25,6 +25,7 @@ import StoreDetail from './pages/Store/StoreDetail';
 import EditStore from './pages/Store/EditStore';
 
 import Apartment from './pages/Apartment/Apartment';
+import ApartmentDetail from './pages/Apartment/ApartmentDetail';
 import EditApartment from './pages/Apartment/EditApartment';
 
 import Poi from './pages/Poi/Poi';
@@ -82,6 +83,7 @@ const App = () => {
                     <Route path="/editStore/:id">           <EditStore />           </Route>
 
                     <Route path="/apartments">              <Apartment />           </Route>
+                    <Route path="/apartment/:id">           <ApartmentDetail />     </Route>
                     <Route path="/editApartment/:id">       <EditApartment />       </Route>
 
                     <Route path="/pois">                    <Poi />                 </Route>

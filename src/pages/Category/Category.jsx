@@ -38,6 +38,7 @@ const ButtonWrapper = styled.div`
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const Input = styled.input`
@@ -59,7 +60,8 @@ const Button = styled.button`
     background-color: #17a2b8;
     border-style: none;
     border-radius: 5px;
-    color: #fff;
+    color: #fff;    
+
     &:focus {
     opacity: 0.5;
     }
@@ -77,6 +79,7 @@ const SelectWrapper = styled.div`
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const Select = styled.select`
@@ -104,6 +107,7 @@ const AddCategoryButton = styled(Link)`
     text-decoration: none;
     font-size: 0.9em;
     margin-left: 31%;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 
     &:focus {
     opacity: 0.5;

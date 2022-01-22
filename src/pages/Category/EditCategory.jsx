@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
-import TextField from '@mui/material/TextField';
+import { TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { toast } from 'react-toastify';
 
 const StyledLink = styled(Link)`
@@ -91,6 +91,12 @@ const StyledTextField = styled(TextField)`
     }
 `;
 
+const StyledFormControl = styled(FormControl)`
+    && {    
+    margin-top: 30px;
+    }
+`;
+
 const UpdateButton = styled.button`
     border-radius: 5px;
     border: none;
@@ -114,8 +120,11 @@ const UpdateButton = styled.button`
 
 const EditCategory = () => {
     const { id } = useParams();
-    const [item, setItem] = useState();
+    const [item, setItem] = useState({SysCategoryName: '', SystemCategoryId: '', 
+                                      ApproveBy: '', BelongTo: '', InverseBelongToNavigation: [], Status: 0});
+
     const [updateName, setUpdateName] = useState('');
+    const [updateStatus, setUpdateStatus] = useState(3001);
 
     const [success, setSuccess] = useState(false);
     let activeCheck = '';
@@ -147,6 +156,8 @@ const EditCategory = () => {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             sysCategoryName: updateName,
+                            type: item.Type,
+                            status: updateStatus,
                             belongTo: item.BelongTo
                         })
                     });
@@ -214,12 +225,12 @@ const EditCategory = () => {
 
                         <DetailTitle>Danh mục cha</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{item.BelongTo}</DetailInfoText>
+                            <DetailInfoText>{item.BelongTo !== null ? item.BelongTo : "N/A"}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Danh mục con</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{item.InverseBelongToNavigation}</DetailInfoText>
+                            <DetailInfoText>{item.InverseBelongToNavigation === [] ? item.InverseBelongToNavigation : "N/A"}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Trạng thái</DetailTitle>
@@ -242,6 +253,20 @@ const EditCategory = () => {
                             helperText={updateName === '' ? 'Vui lòng nhập tên danh mục' : ''}
                             label="Tên danh mục" 
                         />
+
+                        <StyledFormControl>
+                            <InputLabel id="demo-simple-select-label">Trạng thái</InputLabel>
+                            <Select 
+                                value={updateStatus}
+                                label="Trạng thái"
+                                onChange={(event) => setUpdateStatus(event.target.value)}
+                            >
+                            <MenuItem value={3001}>Active</MenuItem>
+                            <MenuItem value={3002}>Inactive</MenuItem>
+                            <MenuItem value={3004}>Deleted</MenuItem>
+                            </Select>
+                        </StyledFormControl>
+
                         <UpdateButton>Cập nhật</UpdateButton>
                     </UpdateForm>
                 </CategoryUpdateWrapper>

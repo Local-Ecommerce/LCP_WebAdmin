@@ -5,7 +5,7 @@ import SidebarData from '../components/Sidebar/SidebarData';
 import SidebarItem from '../components/Sidebar/SidebarItem';
 
 const SidebarWrapper = styled.div`
-    background-color: #F8F8F8;
+    background-color: #2f353a;
     text-decoration: none;
     min-width: 260px;
     max-width: 260px;

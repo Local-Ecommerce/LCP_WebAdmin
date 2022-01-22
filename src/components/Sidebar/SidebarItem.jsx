@@ -11,21 +11,21 @@ const SidebarLink = styled(Link)`
     list-style: none;
     height: 60px;
     text-decoration: none;
-    color: #404040;
+    color: #bac3b7;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 
     &:hover {
-        background-color: rgb(240, 240, 255);
+        background-color: #3a4248;
         cursor: pointer;
         text-decoration: none;
-        color: #0056b3;
+        color: #bac3b7;
     }
 
     &:focus {
-        background-color: rgb(240, 240, 255);
+        background-color: #3a4248;
         cursor: pointer;
         text-decoration: none;
-        color: #0056b3;
+        color: #bac3b7;
     }
 `;
 
@@ -38,21 +38,21 @@ const SidebarDiv = styled.div`
     list-style: none;
     height: 60px;
     text-decoration: none;
-    color: #404040;
+    color: #bac3b7;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 
     &:hover {
-        background-color: rgb(240, 240, 255);
+        background-color: #3a4248;
         cursor: pointer;
         text-decoration: none;
-        color: #0056b3;
+        color: #bac3b7;
     }
 
     &:focus {
-        background-color: rgb(240, 240, 255);
+        background-color: #3a4248;
         cursor: pointer;
         text-decoration: none;
-        color: #0056b3;
+        color: #bac3b7;
     }
 `;
 

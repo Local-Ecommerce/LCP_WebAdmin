@@ -19,6 +19,8 @@ const ContainerWrapper = styled.div`
     margin: 20px;
     padding: 20px 40px;
     box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
+    border-radius: 5px;
+    background-color: #fff;
 `;
 
 const Form = styled.form`

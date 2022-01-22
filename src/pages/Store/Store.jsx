@@ -4,8 +4,7 @@ import styled from 'styled-components';
 import Modal from 'react-modal';
 import StoreList from '../../components/Store/StoreList';
 import ReactPaginate from "react-paginate";
-import AddBusinessIcon from '@mui/icons-material/AddBusiness';
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
 import { toast } from 'react-toastify';
 
@@ -35,6 +34,7 @@ const ButtonWrapper = styled.div`
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const Input = styled.input`
@@ -75,6 +75,7 @@ const SelectWrapper = styled.div`
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const Select = styled.select`
@@ -89,38 +90,20 @@ const Select = styled.select`
     }
 `;
 
-const AddStoreButton = styled(Link)`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #28a745;
-    height: 44px;
-    width: 12%;
-    border-style: none;
-    border-radius: 5px;
-    color: #fff;
-    text-decoration: none;
-    font-size: 0.9em;
-
-    &:focus {
-    opacity: 0.5;
-    }
+const TableWrapper = styled.div`
+    margin-top: 30px;
 `;
-
-const AddStoreIcon = styled(AddBusinessIcon)`
-    padding-right: 5px;
-`;
-
-const TableWrapper = styled.div``;
 
 const Table = styled.table`
     table-layout: fixed;
     border-collapse: collapse;
     width: 100%;
     max-width: 100%;
-    margin-bottom: 1rem;
+    margin-bottom: 16px;
     background-color: #fff;
     overflow: hidden;
+    border-radius: 5px;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const TableHead = styled.thead`
@@ -131,7 +114,7 @@ const TableHead = styled.thead`
 const TableHeader = styled.th`
     width: ${props => props.width};
     text-align: ${props => props.center ? "center" : "left"};
-    padding: 0.75rem;
+    padding: 16px;
     vertical-align: top;
     vertical-align: bottom;
 `;
@@ -146,11 +129,12 @@ const ItemsPerPageWrapper = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 47%;
+    width: 48%;
 `;
 
 const StyledPaginateContainer = styled.div`
-    margin-right: 20px;
+    margin-right: 10px;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 
     .pagination {
     padding: 0px;
@@ -406,7 +390,6 @@ const Store = () => {
         <div>
             <Title>Danh sách cửa hàng</Title>
 
-            <TableWrapper>
                 <Row>
                     <ButtonWrapper>
                         <Input id="search" placeholder="Search cửa hàng" onChange={(event) => handleSearch(event.target.value, status)}/>
@@ -440,6 +423,7 @@ const Store = () => {
                     </ItemsPerPageWrapper>
                 </Row>
 
+                <TableWrapper>
                 <Table>
                     <TableHead>
                         <TableRow>

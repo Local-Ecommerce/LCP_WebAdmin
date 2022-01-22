@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 const Image = styled.img`
     width: 80%;
-    padding: 10%;
+    padding: 10% 10% 5% 10%;
 `;
 
 const Logo = () => {

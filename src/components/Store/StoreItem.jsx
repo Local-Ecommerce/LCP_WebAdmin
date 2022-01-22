@@ -31,7 +31,6 @@ const TableData = styled.td`
     text-align: ${props => props.center ? "center" : "left"};
     overflow: hidden;
     white-space: nowrap;
-    height: 45px;
 `;
 
 const Status = styled.span`

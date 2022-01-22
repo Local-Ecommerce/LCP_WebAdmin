@@ -31,17 +31,17 @@ const TableData = styled.td`
     text-align: ${props => props.center ? "center" : "left"};
     overflow: hidden;
     white-space: nowrap;
-    height: 45px;
 `;
 
 const Status = styled.span`
     display: inline-block;
-    padding: 8px 10px 8px 10px;
-    font-size: 0.9;
+    padding: 4px 6px;
+    font-size: 0.8em;
+    font-weight: 700;
     text-align: center;
     white-space: nowrap;
     vertical-align: baseline;
-    border-radius: 0.25rem;
+    border-radius: 20px;
     color: ${props => props.active === "inactive" ? "grey" : "#fff"};
     background-color: ${props => props.active === "active" ? "#28a745"
     :

@@ -35,6 +35,7 @@ const ButtonWrapper = styled.div`
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const Input = styled.input`
@@ -75,6 +76,7 @@ const SelectWrapper = styled.div`
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const Select = styled.select`
@@ -101,6 +103,7 @@ const AddNewsButton = styled(Link)`
     color: #fff;
     text-decoration: none;
     font-size: 0.9em;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 
     &:focus {
     opacity: 0.5;
@@ -111,16 +114,20 @@ const AddNewsIcon = styled(AddCircle)`
     padding-right: 5px;
 `;
 
-const TableWrapper = styled.div``;
+const TableWrapper = styled.div`
+    margin-top: 30px;
+`;
 
 const Table = styled.table`
     table-layout: fixed;
     border-collapse: collapse;
     width: 100%;
     max-width: 100%;
-    margin-bottom: 1rem;
+    margin-bottom: 16px;
     background-color: #fff;
     overflow: hidden;
+    border-radius: 5px;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const TableHead = styled.thead`
@@ -131,7 +138,7 @@ const TableHead = styled.thead`
 const TableHeader = styled.th`
     width: ${props => props.width};
     text-align: ${props => props.center ? "center" : "left"};
-    padding: 0.75rem;
+    padding: 16px;
     vertical-align: top;
     vertical-align: bottom;
 `;
@@ -150,7 +157,8 @@ const ItemsPerPageWrapper = styled.div`
 `;
 
 const StyledPaginateContainer = styled.div`
-    margin-right: 20px;    
+    margin-right: 10px;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 
     .pagination {
     padding: 0px;
@@ -406,7 +414,6 @@ const News = () =>  {
         <div>
             <Title>News</Title>
 
-            <TableWrapper>
                 <Row>
                     <ButtonWrapper>
                         <Input id="search" placeholder="Search news" onChange={(event) => handleSearch(event.target.value, status)} />
@@ -443,6 +450,7 @@ const News = () =>  {
                     </AddNewsButton>
                 </Row>
 
+                <TableWrapper>
                 <Table>
                     <TableHead>
                         <TableRow>

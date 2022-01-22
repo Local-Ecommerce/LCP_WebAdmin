@@ -33,6 +33,7 @@ const ButtonWrapper = styled.div`
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const Input = styled.input`
@@ -73,6 +74,7 @@ const SelectWrapper = styled.div`
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const Select = styled.select`
@@ -88,9 +90,7 @@ const Select = styled.select`
 `;
 
 const TableWrapper = styled.div`
-    width: 100%;
-    margin-right: auto;
-    margin-left: auto;
+    margin-top: 30px;
 `;
 
 const Table = styled.table`
@@ -98,9 +98,11 @@ const Table = styled.table`
     border-collapse: collapse;
     width: 100%;
     max-width: 100%;
-    margin-bottom: 1rem;
+    margin-bottom: 16px;
     background-color: #fff;
     overflow: hidden;
+    border-radius: 5px;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const TableHead = styled.thead`
@@ -111,7 +113,7 @@ const TableHead = styled.thead`
 const TableHeader = styled.th`
     width: ${props => props.width};
     text-align: ${props => props.center ? "center" : "left"};
-    padding: 0.75rem;
+    padding: 16px;
     vertical-align: top;
     vertical-align: bottom;
 `;
@@ -126,11 +128,12 @@ const ItemsPerPageWrapper = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 47%;
+    width: 48%;
 `;
 
 const StyledPaginateContainer = styled.div`
-    margin-right: 20px;
+    margin-right: 10px;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 
     .pagination {
     padding: 0px;
@@ -375,7 +378,6 @@ const Collection = () =>  {
         <div>
             <Title>Bộ sưu tập</Title>
 
-            <TableWrapper>
                 <Row>
                     <ButtonWrapper>
                         <Input id="search" placeholder="Search theo tên bộ sưu tập" onChange={(event) => handleSearch(event.target.value, status)}/>
@@ -408,6 +410,7 @@ const Collection = () =>  {
                     </ItemsPerPageWrapper>  
                 </Row>
 
+                <TableWrapper>
                 <Table>
                     <TableHead>
                         <TableRow>

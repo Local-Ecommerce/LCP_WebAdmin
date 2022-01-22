@@ -41,8 +41,8 @@ const StyledBadge = styled(Badge)`
 const IconButton = styled.button`
     margin-right: 20px;
     padding: 5px;
-    background-color: #fff;
-    border: 1px solid #fff;
+    background-color: #f0f3f6;
+    border: 1px solid #f0f3f6;
     border-radius: 50px;
 
     &:hover {
