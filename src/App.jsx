@@ -46,7 +46,7 @@ const Main = styled.div`
 
 const Content = styled.div`
     width: 100%;
-    margin: 20px 40px 20px 300px;
+    margin: 20px 50px 20px 300px;
     transition: all 0.3s;
 `;
 

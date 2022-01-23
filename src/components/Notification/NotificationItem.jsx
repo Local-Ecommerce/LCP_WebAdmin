@@ -1,52 +1,49 @@
 import React from 'react';
 import styled from "styled-components";
-import { ContentPasteSearch, CheckBoxRounded } from '@mui/icons-material';
+import { CancelOutlined, CheckCircleOutlined } from '@mui/icons-material';
 import { DateTime } from 'luxon';
 
 const NotificationWrapper = styled.a`
-    padding: 15px 30px;
+    padding: 6px 20px 10px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid #dee2e6;
     text-decoration: none;
     cursor: pointer;
+    background-color: #fff;
+    border-radius: 5px;
 
     &:hover {
-        opacity: 0.9;
-        background-color: rgb(240, 240, 255);
-        }
-    
-        &:focus {
-        outline: 0;
-        }
-    
-        &:active {
-        transform: translateY(1px);
-        }
+    opacity: 0.9;
+    background-color: #F5F5F5;
+    }
+
+    &:focus {
+    outline: 0;
+    }
+
+    &:active {
+    transform: translateY(1px);
+    }
+`;
+
+const Image = styled.img`
+    vertical-align: middle;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
 `;
 
 const TextWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    width: 100%;
+    flex: 8;
 `;
 
-const TopRow = styled.div`
+const TopRow = styled.span`
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-`;
-
-const BottomRow = styled.div`
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-`;
-
-const TopTextLeft = styled.h3`
-    display: flex;
     font-weight: 600;
     margin: 5px 0px;
     overflow: hidden;
@@ -55,33 +52,25 @@ const TopTextLeft = styled.h3`
     color: #007bff;
 `;
 
-const TopTextRight = styled.p`
-    float: right;
-    margin: 0px 6px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+const TimeWrapper = styled.div`
+    flex: 1;
+    margin: 0px;
     color: #484848;
     font-size: 0.8em;
     font-weight: 400;
 `;
 
-const BottomTextLeft = styled.p`
-    flex: 1;
+const TimeLabel = styled.span`
+    float: right;
+`;
+
+const BottomText = styled.p`
     margin: 0px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     color: #484848;
     font-size: 0.9em;
-`;
-
-const BottomTextRightFlex2 = styled(BottomTextLeft)`
-    flex: 2;
-`;
-
-const BottomTextRightFlex4 = styled(BottomTextLeft)`
-    flex: 4;
 `;
 
 const ButtonWrapper = styled.div`
@@ -101,27 +90,47 @@ const Button = styled.button`
     }
 `;
 
-const StyledSearchIcon = styled(ContentPasteSearch)`
+const StyledCheckIcon = styled(CheckCircleOutlined)`
     && {
-        font-size: 30px;
+        font-size: 35px;
+        margin-top: 6px;
+        color: #28a745;
+        opacity: 0.5;
     }
 
     &:hover {
-    color: #484848;
+    opacity: 1;
     }
 `;
 
-const StyledCheckIcon = styled(CheckBoxRounded)`
+const StyledCancelIcon = styled(CancelOutlined)`
     && {
-        font-size: 30px;
+        font-size: 35px;
+        margin-top: 6px;
+        color: #dc3545;
+        opacity: 0.5;
     }
 
     &:hover {
-    color: #28a745;
+    opacity: 1;
     }
 `;
 
-const NotificationItem = ({ item, handleNavigate }) => {
+const StatusLabel = styled.span`
+    margin-right: 6px;
+    display: inline-block;
+    padding: 3px 5px;
+    font-size: 0.8em;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 5px;
+    color: #fff;
+    background-color: ${props => props.red ? "#dc3545" : "#FF8800"};
+`;
+
+const NotificationItem = ({ item, handleRejectItem }) => {
     const date = DateTime.fromISO(item.CreatedDate)
     const diff = date.diffNow(["years", "months", "days", "hours", "minutes"])
     let timeLabel = '';
@@ -142,41 +151,55 @@ const NotificationItem = ({ item, handleNavigate }) => {
         timeLabel = (Math.abs(diff.toObject().minutes) + ' phút trước');
     }
 
+    let statusLabel = '';
+    switch(item.Status) {
+        case 1006:
+            statusLabel = <StatusLabel red>Tạo mới</StatusLabel>
+            break;
+        case 1007:
+            statusLabel = <StatusLabel>Cập nhật</StatusLabel>
+            break;
+        case 6006:
+            statusLabel = <StatusLabel red>Tạo mới</StatusLabel>
+            break;
+        case 6007:
+            statusLabel = <StatusLabel>Cập nhật</StatusLabel>
+            break;
+        default:
+            break;
+    }
 
     return (
-            <NotificationWrapper onClick={() => handleNavigate(item.id, item.Status)}>
+            <NotificationWrapper>
+                {
+                (item.Status === 1006 || item.Status === 1007) ? <Image src={item.Image} /> : null
+                }
+
                 <TextWrapper>
                     <TopRow>
-                        <TopTextLeft>
-                            {
-                            (item.Status === 6006 || item.Status === 6007) ? ('Cửa hàng【' + item.StoreName + '】chờ duyệt') :
-                            (item.Status === 1006 || item.Status === 1007) ? ('Sản phẩm【' + item.ProductName + '】chờ duyệt') : null
-                            }
-                        </TopTextLeft>
-                        <TopTextRight>{timeLabel}</TopTextRight>
+                        {statusLabel}
+                        {
+                        (item.Status === 6006) ? ('Cửa hàng【' + item.StoreName + '】chờ duyệt') :
+                        (item.Status === 6007) ? ('Cửa hàng【' + item.StoreName + '】đổi tên thành【' + item.NewStoreName + '】') :
+                        (item.Status === 1006) ? ('Sản phẩm【' + item.ProductName + '】chờ duyệt') :
+                        (item.Status === 1007) ? ('Sản phẩm【' + item.ProductName + '】chờ cập nhật') : null
+                        }                        
                     </TopRow>
 
-                    <BottomRow>
-                        <BottomTextLeft>•&nbsp;
-                            {
-                            (item.Status === 6006 || item.Status === 6007) ? (item.ResidentName) :
-                            (item.Status === 1006 || item.Status === 1007) ? (item.StoreName) : null
-                            }
-                        </BottomTextLeft>
-                        {
-                        (item.Status === 6006 || item.Status === 6007) ? <BottomTextRightFlex4>{item.Address}</BottomTextRightFlex4> :
-                        (item.Status === 1006 || item.Status === 1007) ? <BottomTextRightFlex2>{item.ResidentName}</BottomTextRightFlex2> : null
-                        }
-                    </BottomRow>
+                    <BottomText>• {item.StoreName} - {item.ResidentName}</BottomText>
                 </TextWrapper>
 
+                <TimeWrapper>
+                    <TimeLabel>{timeLabel}</TimeLabel>
+                </TimeWrapper>
+
                 <ButtonWrapper>
-                    <Button onClick={() => handleNavigate(item.id, item.Status)}>
+                    <Button>
                         <StyledCheckIcon />
                     </Button>
 
-                    <Button onClick={() => handleNavigate(item.id, item.Status)}>
-                        <StyledSearchIcon />
+                    <Button onClick={() => handleRejectItem()}>
+                        <StyledCancelIcon />
                     </Button>
                 </ButtonWrapper>
             </NotificationWrapper>

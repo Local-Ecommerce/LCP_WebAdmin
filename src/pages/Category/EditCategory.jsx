@@ -255,7 +255,7 @@ const EditCategory = () => {
                         />
 
                         <StyledFormControl>
-                            <InputLabel id="demo-simple-select-label">Trạng thái</InputLabel>
+                            <InputLabel>Trạng thái</InputLabel>
                             <Select 
                                 value={updateStatus}
                                 label="Trạng thái"
