@@ -23,14 +23,14 @@ const CategoryContent = styled.div`
     font-size: 1em;
 
     &:hover {
-        background-color: rgb(240, 240, 255);
+        background-color: #F5F5F5;
         cursor: pointer;
         text-decoration: none;
         color: #0056b3;
     }
 
     &:focus {
-        background-color: rgb(240, 240, 255);
+        background-color: #F5F5F5;
         cursor: pointer;
         text-decoration: none;
         color: #0056b3;

@@ -74,7 +74,7 @@ const SidebarItem = ({ item }) => {
         <>
             {
             (item.path !== null) ?
-            <SidebarLink pad={item.icon === '' ? true : false} to={item.path} onClick={item.subNav && showSubnav}>
+            <SidebarLink pad={item.icon === '' ? true : false} to={item.path} onClick={item.subNav ? showSubnav : null}>
                 <Row>
                     {item.icon}
                     <SidebarLabel>{item.title}</SidebarLabel>
@@ -88,7 +88,7 @@ const SidebarItem = ({ item }) => {
                 </div>
             </SidebarLink> 
             :
-            <SidebarDiv pad={item.icon === '' ? true : false} to={item.path} onClick={item.subNav && showSubnav}>
+            <SidebarDiv pad={item.icon === '' ? true : false} to={item.path} onClick={item.subNav ? showSubnav : null}>
                 <Row>
                     {item.icon}
                     <SidebarLabel>{item.title}</SidebarLabel>

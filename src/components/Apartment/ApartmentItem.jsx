@@ -21,7 +21,7 @@ const Button = styled.button`
 
 const TableRow = styled.tr`
     &:hover {
-    background-color: rgba(0, 0, 0, 0.075);
+        background-color: #F5F5F5;
     }
 `;
 

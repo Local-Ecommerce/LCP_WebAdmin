@@ -26,7 +26,7 @@ const Button = styled.button`
 
 const TableRow = styled.tr`
     &:hover {
-    background-color: rgba(0, 0, 0, 0.075);
+        background-color: #F5F5F5;
     }
 `;
 
@@ -162,7 +162,7 @@ const ProductItem = ({ item, handleDeleteItem }) => {
     if (item === 0) {
         return (
             <TableRow>
-                <TableData colSpan={4} >
+                <TableData colSpan={6} >
                     <h4>Không tìm thấy dữ liệu.</h4>
                 </TableData>
             </TableRow>

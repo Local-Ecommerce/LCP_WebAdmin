@@ -7,8 +7,7 @@ import {
     Sell,
     LocationOn,
     Article,
-    Apartment,
-    Logout
+    Apartment
 } from '@mui/icons-material';
 
 
@@ -77,12 +76,7 @@ const SidebarData = [
         title: 'News',
         path: '/news',
         icon: <Article />
-    },
-    {
-        title: 'Log out',
-        path: null,
-        icon: <Logout />
-    },
+    }
 ];
 
 export default SidebarData;

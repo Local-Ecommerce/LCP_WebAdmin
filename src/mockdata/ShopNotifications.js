@@ -55,71 +55,7 @@ const ShopNotifications = [
         ResidentName: 'Mr. Bình',
         CreatedDate: '2022-01-12T09:45',
         Status: 6006
-    },
-    {
-        id: 1,
-        StoreName: 'Ipsum',
-        Address: 'Đường D3, Khu Công Nghệ Trung Bình, TP. Hồ Chí Minh',
-        ResidentName: 'Mr. Bình',
-        CreatedDate: '2022-01-12T09:45',
-        Status: 6006
-    },
-    {
-        id: 1,
-        StoreName: 'Ipsum',
-        Address: 'Đường D3, Khu Công Nghệ Trung Bình, TP. Hồ Chí Minh',
-        ResidentName: 'Mr. Bình',
-        CreatedDate: '2022-01-12T09:45',
-        Status: 6006
-    },
-    {
-        id: 1,
-        StoreName: 'Ipsum',
-        Address: 'Đường D3, Khu Công Nghệ Trung Bình, TP. Hồ Chí Minh',
-        ResidentName: 'Mr. Bình',
-        CreatedDate: '2022-01-12T09:45',
-        Status: 6006
-    },
-    {
-        id: 1,
-        StoreName: 'Ipsum',
-        Address: 'Đường D3, Khu Công Nghệ Trung Bình, TP. Hồ Chí Minh',
-        ResidentName: 'Mr. Bình',
-        CreatedDate: '2022-01-12T09:45',
-        Status: 6006
-    },
-    {
-        id: 1,
-        StoreName: 'Ipsum',
-        Address: 'Đường D3, Khu Công Nghệ Trung Bình, TP. Hồ Chí Minh',
-        ResidentName: 'Mr. Bình',
-        CreatedDate: '2022-01-12T09:45',
-        Status: 6006
-    },
-    {
-        id: 1,
-        StoreName: 'Ipsum',
-        Address: 'Đường D3, Khu Công Nghệ Trung Bình, TP. Hồ Chí Minh',
-        ResidentName: 'Mr. Bình',
-        CreatedDate: '2022-01-12T09:45',
-        Status: 6006
-    },
-    {
-        id: 1,
-        StoreName: 'Ipsum',
-        Address: 'Đường D3, Khu Công Nghệ Trung Bình, TP. Hồ Chí Minh',
-        ResidentName: 'Mr. Bình',
-        CreatedDate: '2022-01-12T09:45',
-        Status: 6006
-    },
-    {
-        id: 1,
-        StoreName: 'Ipsum',
-        Address: 'Đường D3, Khu Công Nghệ Trung Bình, TP. Hồ Chí Minh',
-        ResidentName: 'Mr. Bình',
-        CreatedDate: '2022-01-12T09:45',
-        Status: 6006
-    },
+    }
 ];
 
 export default ShopNotifications;

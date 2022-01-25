@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Modal from 'react-modal';
-import Apartments from '../../mockdata/Apartments';
 import ApartmentList from '../../components/Apartment/ApartmentList';
 import ReactPaginate from "react-paginate";
 import AddCircle from '@mui/icons-material/AddCircle';
@@ -320,13 +319,13 @@ const Apartment = () =>  {
     }, [location]);
 
     useEffect( () => {  //fetch api data
-        //const url = "news/all";
+        const url = "apartment/all";
 
         const fetchData = async () => {
             try {
-                /*const res = await fetch(publicRequest(url), { method: 'GET' });
-                const json = await res.json();*/
-                setAPIdata(Apartments);
+                const res = await fetch(publicRequest(url), { method: 'GET' });
+                const json = await res.json();
+                setAPIdata(json.Data);
             } catch (error) { }
         };
         fetchData();

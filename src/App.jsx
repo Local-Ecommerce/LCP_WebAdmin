@@ -2,6 +2,7 @@ import styled from "styled-components";
 import React from 'react';
 
 import Home from './pages/Home';
+import Login from './pages/Login';
 import Header from './pages/Header';
 import Sidebar from './pages/Sidebar';
 import { ToastContainer } from 'react-toastify';
@@ -36,12 +37,10 @@ import News from './pages/News/News';
 import AddNews from "./pages/News/AddNews";
 import EditNews from './pages/News/EditNews';
 
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import { BrowserRouter as Router, Route, Redirect, Switch } from "react-router-dom";
 
 const Main = styled.div`
     display: flex;
-    width: 100%;
-    align-items: stretch;
 `;
 
 const Content = styled.div`
@@ -50,50 +49,65 @@ const Content = styled.div`
     transition: all 0.3s;
 `;
 
-const App = () => {
+const PrivateRoute = ({ component: Component, ...rest }) =>  {
+    const accessToken = localStorage.getItem("accessToken");
 
+    return (
+        <Route {...rest} render={(props) => (
+            accessToken
+            ? <Component {...props} />
+            : <Redirect to='/login' />
+        )} />
+    );
+};
+
+const App = () => {
     return (
         <Main>
             <Router>
-                <Sidebar />
+                <Switch>
+                    <Route path="/login"> <Login /> </Route>
+                    <>
+                        <Sidebar />
+                        <Content>
+                            <Header />
+                            <ToastContainer />
 
-                <Content>
-                    <Header />
-                    <ToastContainer />
+                                <PrivateRoute exact path="/" component={Home} />
 
-                    <Route exact path="/">                  <Home />                </Route>
+                                <PrivateRoute path="/collections" component={Collection} />
+                                <PrivateRoute path="/collection/:id" component={CollectionDetail} />
+                                <PrivateRoute path="/editCollection/:id" component={EditCollection} />
 
-                    <Route path="/collections">             <Collection />          </Route>
-                    <Route path="/collection/:id">          <CollectionDetail />    </Route>
-                    <Route path="/editCollection/:id">      <EditCollection />      </Route>
+                                <PrivateRoute path="/categories" component={Category} />
+                                <PrivateRoute path="/addCategory" component={AddCategory} />
+                                <PrivateRoute path="/editCategory/:id" component={EditCategory} />
 
-                    <Route path="/categories">              <Category />            </Route>
-                    <Route path="/addCategory">             <AddCategory />         </Route>
-                    <Route path="/editCategory/:id">        <EditCategory />        </Route>
+                                <PrivateRoute path="/menus" component={Menu} />
+                                <PrivateRoute path="/menu/:id" component={MenuDetail} />
+                                <PrivateRoute path="/editMenu/:id" component={EditMenu} />
 
-                    <Route path="/menus">                   <Menu />                </Route>
-                    <Route path="/menu/:id">                <MenuDetail />          </Route>
-                    <Route path="/editMenu/:id">            <EditMenu />            </Route>
+                                <PrivateRoute path="/applicables" component={Home} />
 
-                    <Route path="/applicables">             <Home />                </Route>
+                                <PrivateRoute path="/stores" component={Store} />
+                                <PrivateRoute path="/store/:id" component={StoreDetail} />
+                                <PrivateRoute path="/addStore" component={AddStore} />
+                                <PrivateRoute path="/editStore/:id" component={EditStore} />
 
-                    <Route path="/stores">                  <Store />               </Route>
-                    <Route path="/store/:id">               <StoreDetail />         </Route>
-                    <Route path="/addStore">                <AddStore />            </Route>
-                    <Route path="/editStore/:id">           <EditStore />           </Route>
+                                <PrivateRoute path="/apartments" component={Apartment} />
+                                <PrivateRoute path="/apartment/:id" component={ApartmentDetail} />
+                                <PrivateRoute path="/editApartment/:id" component={EditApartment} />
 
-                    <Route path="/apartments">              <Apartment />           </Route>
-                    <Route path="/apartment/:id">           <ApartmentDetail />     </Route>
-                    <Route path="/editApartment/:id">       <EditApartment />       </Route>
+                                <PrivateRoute path="/pois" component={Poi} />
+                                <PrivateRoute path="/addPoi" component={AddPoi} />
+                                <PrivateRoute path="/editPoi/:id" component={EditPoi} />
 
-                    <Route path="/pois">                    <Poi />                 </Route>
-                    <Route path="/addPoi">                  <AddPoi />              </Route>
-                    <Route path="/editPoi/:id">             <EditPoi />             </Route>
-
-                    <Route path="/news">                    <News />                </Route>
-                    <Route path="/addNews">                 <AddNews />             </Route>
-                    <Route path="/editNews/:id">            <EditNews />            </Route>
-                </Content>
+                                <PrivateRoute path="/news" component={News} />
+                                <PrivateRoute path="/addNews" component={AddNews} />
+                                <PrivateRoute path="/editNews/:id" component={EditNews} />
+                        </Content>
+                    </>
+                </Switch>
             </Router>
         </Main>
     )

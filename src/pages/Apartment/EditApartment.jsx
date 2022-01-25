@@ -203,7 +203,7 @@ const EditApartment = () => {
                     });
                     const json = await res.json();
                     if (json.ResultMessage === "SUCCESS") {
-                        const notify = () => toast.success("Cập nhật thành công " + item.Title + "!", {
+                        const notify = () => toast.success("Cập nhật thành công " + item.Address + "!", {
                             position: toast.POSITION.TOP_CENTER
                         });
                         notify();
