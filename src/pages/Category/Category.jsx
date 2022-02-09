@@ -4,42 +4,53 @@ import Modal from 'react-modal';
 import CategoryList from '../../components/Category/CategoryList';
 import AddCircle from '@mui/icons-material/AddCircle';
 import { publicRequest } from "../../RequestMethod";
+import { Search } from '@mui/icons-material';
 import { Link, useLocation } from "react-router-dom";
 import { toast } from 'react-toastify';
 
+const PageWrapper = styled.div`
+    margin: 50px 40px;
+`;
+
 const Title = styled.h1`
-    font-size: 30px;
+    font-size: 16px;
     color: #383838;
     margin: 15px;
 `;
-
-const CategoryListWrapper = styled.div`
-    margin-top: 20px;
-    margin-bottom: 50px;
-`
 
 const Row = styled.div`
     display: flex;
     width: 100%;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 15px;
+    margin-top: ${props => props.mt ? "20px" : "0px"};
+    margin-bottom: ${props => props.mb ? "30px" : "0px"};
 `;
 
-const ButtonWrapper = styled.div`
+const StyledSearchIcon = styled(Search)`
+    && {
+        color: grey;
+    }
+`;
+
+const SearchBar = styled.div`
     display: flex;
     width: 31%;
     justify-content: center;
     align-items: center;
     border-radius: 5px;
-    border-color: #E0E0E0;
+    border-color: #D8D8D8;
     border-style: solid;
     border-width: thin;
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
-    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
+
+const CategoryListWrapper = styled.div`
+    margin-top: 20px;
+    margin-bottom: 50px;
+`
 
 const Input = styled.input`
     padding: 4px;
@@ -79,7 +90,6 @@ const SelectWrapper = styled.div`
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
-    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const Select = styled.select`
@@ -116,6 +126,13 @@ const AddCategoryButton = styled(Link)`
 
 const AddCategoryIcon = styled(AddCircle)`
     padding-right: 5px;
+`;
+
+const TableWrapper = styled.div`
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 6px;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const ModalTitle = styled.h2`
@@ -236,10 +253,10 @@ const Category = () => {
     }
 
     const handleDeleteItem = (id) => {
-        const url = "systemCategory/delete/" + id;
+        const url = "systemCategory/" + id;
         const deleteData = async () => {
             try {
-                const res = await fetch(publicRequest(url), { method: 'PUT' });
+                const res = await fetch(publicRequest(url), { method: 'DELETE' });
                 const json = await res.json();
                 if (json.ResultMessage === "SUCCESS") {
                     setChange(!change);
@@ -254,35 +271,38 @@ const Category = () => {
     };
 
     return (
-        <div>
+        <PageWrapper>
             <Title>Danh mục</Title>
-            
-            <Row>
-                <ButtonWrapper>
-                    <Input id="search" placeholder="Search tên danh mục" onChange={(event) => handleSearch(event.target.value, status)} />
-                    <Button onClick={() => clearSearch()}>Clear</Button>
-                </ButtonWrapper>
 
-                <SelectWrapper width="16%">
-                    <Select value={status} onChange={(event) => handleSearch(search, event.target.value)}>
-                        <option value="3001">Đang hoạt động</option>
-                        <option value="3002">Ngừng hoạt động</option>
-                        <option value="3004">Đã xóa</option>
-                        <option value="0">-- Hiển thị tất cả --</option>
-                    </Select>
-                </SelectWrapper>
+            <TableWrapper>
+                <Row>
+                    <SearchBar>
+                        <StyledSearchIcon />
+                        <Input id="search" placeholder="Search tên danh mục" onChange={(event) => handleSearch(event.target.value, status)} />
+                        <Button onClick={() => clearSearch()}>Clear</Button>
+                    </SearchBar>
 
-                <AddCategoryButton to={"/addCategory"}>
-                    <AddCategoryIcon />
-                    Tạo danh mục mới
-                </AddCategoryButton>
-            </Row>
-            
-            
+                    <SelectWrapper width="16%">
+                        <Select value={status} onChange={(event) => handleSearch(search, event.target.value)}>
+                            <option value="3001">Đang hoạt động</option>
+                            <option value="3002">Ngừng hoạt động</option>
+                            <option value="3004">Đã xóa</option>
+                            <option value="0">-- Hiển thị tất cả --</option>
+                        </Select>
+                    </SelectWrapper>
 
+                    <AddCategoryButton to={"/addCategory"}>
+                        <AddCategoryIcon />
+                        Tạo danh mục mới
+                    </AddCategoryButton>
+                </Row>
+            </TableWrapper>
+
+            
             <CategoryListWrapper>
                 <CategoryList currentItems={filteredData} handleGetDeleteItem={handleGetDeleteItem} filterStatus={status} />
             </CategoryListWrapper>
+
 
             
             <Modal isOpen={DeleteModal} onRequestClose={() => toggleDeleteModal(!DeleteModal)} style={customStyles} ariaHideApp={false}>
@@ -295,7 +315,7 @@ const Category = () => {
                     <ModalButton red onClick={() => { handleDeleteItem(deleteItem.id); toggleDeleteModal(!DeleteModal) }}>Xóa</ModalButton>
                 </ModalButtonWrapper>
             </Modal>
-        </div>
+        </PageWrapper>
     )
 }
 

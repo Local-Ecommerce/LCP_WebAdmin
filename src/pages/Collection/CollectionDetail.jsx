@@ -1,43 +1,68 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import Modal from 'react-modal';
 import { useParams, Link } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
+import { Search, KeyboardBackspace } from '@mui/icons-material';
 import ProductList from '../../components/Product/ProductList';
 import ReactPaginate from "react-paginate";
 
-const Title = styled.h1`
-    font-size: 30px;
-    color: #383838;
-    margin: 15px;
-`;
-
-const StyledLink = styled(Link)`
-    text-decoration: none;
-    color: #727272;
+const PageWrapper = styled.div`
+    margin: 50px 40px;
 `;
 
 const Row = styled.div`
     display: flex;
+    align-items: center;
+`;
+
+const RowFlex = styled.div`
+    display: flex;
     width: 100%;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 15px;
+    margin-top: ${props => props.mt ? "20px" : "0px"};
+    margin-bottom: ${props => props.mb ? "20px" : "0px"};
 `;
 
-const ButtonWrapper = styled.div`
+const StyledBackIcon = styled(KeyboardBackspace)`
+    && {
+        color: #727272;
+        padding: 5px;
+        border: 1px solid #727272;
+        border-radius: 4px;
+    }
+`;
+
+const TitleGrey = styled.span`
+    color: #727272;
+`;
+
+const Title = styled.h1`
+    font-size: 16px;
+    color: #383838;
+    margin: 20px;
+`;
+
+const StyledSearchIcon = styled(Search)`
+    && {
+        color: grey;
+    }
+`;
+
+const SearchBar = styled.div`
     display: flex;
     width: 31%;
     justify-content: center;
     align-items: center;
     border-radius: 5px;
-    border-color: #E0E0E0;
+    border-color: #D8D8D8;
     border-style: solid;
     border-width: thin;
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
-    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const Input = styled.input`
@@ -66,19 +91,18 @@ const Button = styled.button`
     }
 `;
 
-const SelectWrapper = styled.div`
+const DropdownWrapper = styled.div`
     display: flex;
     width: ${props => props.width};
     justify-content: center;
     align-items: center;
     border-radius: 5px;
-    border-color: #E0E0E0;
+    border-color: #D8D8D8;
     border-style: solid;
     border-width: thin;
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
-    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const Select = styled.select`
@@ -94,7 +118,10 @@ const Select = styled.select`
 `;
 
 const TableWrapper = styled.div`
-    margin-top: 30px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 6px;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const Table = styled.table`
@@ -102,11 +129,9 @@ const Table = styled.table`
     border-collapse: collapse;
     width: 100%;
     max-width: 100%;
-    margin-bottom: 16px;
     background-color: #fff;
     overflow: hidden;
     border-radius: 5px;
-    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const TableHead = styled.thead`
@@ -118,12 +143,11 @@ const TableHeader = styled.th`
     width: ${props => props.width};
     text-align: ${props => props.center ? "center" : "left"};
     padding: 16px;
-    vertical-align: top;
-    vertical-align: bottom;
+    font-size: 15px;
 `;
 
 const TableBody = styled.tbody`
-    border-top: 2px solid #dee2e6;
+    border-top: 1px solid #dee2e6;
 `;
 
 const TableRow = styled.tr``;
@@ -132,12 +156,11 @@ const ItemsPerPageWrapper = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 35%;
+    width: 48%;
 `;
 
 const StyledPaginateContainer = styled.div`
-    margin-right: 10px;
-    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
+    margin-right; 10px;
 
     .pagination {
     padding: 0px;
@@ -214,16 +237,80 @@ const StyledPaginateContainer = styled.div`
     }
 `;
 
+const ModalTitle = styled.h2`
+    margin: 25px 20px;
+    color: #212529;
+`;
+
+const ModalContentWrapper = styled.div`
+    border-top: 1px solid #cfd2d4;
+    border-bottom: 1px solid #cfd2d4;
+`;
+
+const ModalContent = styled.p`
+    margin: 25px 20px;
+    color: #762a36;
+    padding: 20px;
+    background: #f8d7da;
+    border-radius: 5px;
+`;
+
+const ModalButtonWrapper = styled.div`
+    margin: 20px;
+    float: right;
+`;
+
+const ModalButton = styled.button`
+    min-width: 80px;
+    padding: 10px;
+    margin-left: 10px;
+    background: ${props => props.red ? "#dc3545" : "#fff"};
+    color: ${props => props.red ? "#fff" : "#212529"};;
+    border: 1px solid ${props => props.red ? "#dc3545" : "#fff"};
+    border-radius: 4px;
+    text-align: center;
+    font-size: 1rem;
+
+    &:hover {
+    opacity: 0.8;
+    }
+
+    &:focus {
+    outline: 0;
+    }
+`;
+
+const customStyles = {
+    content: {
+        top: '50%',
+        left: '50%',
+        right: '65%',
+        bottom: 'auto',
+        marginRight: '-50%',
+        transform: 'translate(-50%, -50%)',
+        padding: '0px',
+    },
+};
+
+const Footer = styled.div`
+    padding-top: 50px;
+`;
+
 const CollectionDetail = () => {
+    const [DeleteModal, toggleDeleteModal] = useState(false);
+    const [deleteItem, setDeleteItem] = useState({id: '', name: ''});
+
     const { id } = useParams();
     const [collection, setCollection] = useState({});
     const [APIdata, setAPIdata] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [currentItems, setCurrentItems] = useState([]);
+
     const [pageCount, setPageCount] = useState(1);
     const [itemOffset, setItemOffset] = useState(0);
     const [currentPage, setCurrentPage] = useState(0);
     const [itemsPerPage, setItemsPerPage] = useState(5);
+
     const [change, setChange] = useState(false);
     const [search, setSearch] = useState(''); //search filter
     const [status, setStatus] = useState('0'); //status filter
@@ -305,11 +392,16 @@ const CollectionDetail = () => {
         setCurrentPage(0);
     }
 
+    const handleGetDeleteItem = (id, name) => {
+        setDeleteItem({id: id, name: name});
+        toggleDeleteModal(!DeleteModal);
+    }
+
     const handleDeleteItem = (id) => {
-        const url = "product/delete/base/" + id;
+        const url = "product/base/" + id;
         const deleteData = async () => {
             try {
-                await fetch(publicRequest(url), { method: 'PUT' });
+                await fetch(publicRequest(url), { method: 'DELETE' });
                 await setChange(!change);
             } catch (error) { }
         };
@@ -317,17 +409,21 @@ const CollectionDetail = () => {
     };
 
     return (
-        <div>
-            <Title><StyledLink to={"/collections"}>Bộ sưu tập</StyledLink> / {collection.CollectionName}</Title>
+        <PageWrapper>
+            <Row>
+                <Link to="/collections"><StyledBackIcon /></Link>
+                <Title><TitleGrey>Bộ sưu tập </TitleGrey>/ {collection.CollectionName}</Title>
+            </Row>
 
             <TableWrapper>
-                <Row>
-                    <ButtonWrapper>
+                <RowFlex mb>
+                    <SearchBar>
+                        <StyledSearchIcon />
                         <Input placeholder="Search sản phẩm" onChange={(event) => handleSearch(event.target.value, status)} />
                         <Button>Clear</Button>
-                    </ButtonWrapper>
+                    </SearchBar>
 
-                    <SelectWrapper width="16%">
+                    <DropdownWrapper width="16%">
                         <Select value={status} onChange={(event) => handleSearch(search, event.target.value)}>
                             <option value="0">--- Lọc trạng thái ---</option>
                             <option value="1004">Deleted</option>
@@ -335,11 +431,11 @@ const CollectionDetail = () => {
                             <option value="1006">Unverified - Create</option>
                             <option value="1007">Unverified - Update</option>
                         </Select>
-                    </SelectWrapper>
+                    </DropdownWrapper>
 
                     <ItemsPerPageWrapper>
                         Số hàng mỗi trang:&nbsp;
-                        <SelectWrapper width="40px">
+                        <DropdownWrapper width="40px">
                             <Select value={itemsPerPage} onChange={(event) => handleChangeItemsPerPage(event.target.value)}>
                                 <option value="5">5</option>
                                 <option value="6">6</option>
@@ -350,9 +446,9 @@ const CollectionDetail = () => {
                                 <option value="15">15</option>
                                 <option value="20">20</option>
                             </Select>
-                        </SelectWrapper>              
+                        </DropdownWrapper>              
                     </ItemsPerPageWrapper>  
-                </Row>
+                </RowFlex>
 
                 <Table>
                     <TableHead>
@@ -366,11 +462,11 @@ const CollectionDetail = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        <ProductList currentItems={currentItems} handleDeleteItem={handleDeleteItem} />
+                        <ProductList currentItems={currentItems} handleGetDeleteItem={handleGetDeleteItem} />
                     </TableBody>
                 </Table>
 
-                <Row>
+                <RowFlex mt>
                     { currentItems.length !== 0 
                     ? <small>Hiển thị {currentPage * itemsPerPage + 1} - {currentPage * itemsPerPage + currentItems.length} trong tổng số {filteredData.length} bộ sưu tập.</small>
                     : null }
@@ -398,9 +494,22 @@ const CollectionDetail = () => {
                             renderOnZeroPageCount={null}
                         />
                     </StyledPaginateContainer>
-                </Row>
+                </RowFlex>
             </TableWrapper>
-        </div>
+
+            <Footer />
+
+            <Modal isOpen={DeleteModal} onRequestClose={() => toggleDeleteModal(!DeleteModal)} style={customStyles} ariaHideApp={false}>
+                <ModalTitle>Xác Nhận Xóa</ModalTitle>
+                <ModalContentWrapper>
+                    <ModalContent>Bạn có chắc chắn muốn xóa bảng giá【<b>{deleteItem.name}</b>】?</ModalContent>
+                </ModalContentWrapper>
+                <ModalButtonWrapper>
+                    <ModalButton onClick={() => toggleDeleteModal(!DeleteModal)}>Quay lại</ModalButton>
+                    <ModalButton red onClick={() => { handleDeleteItem(deleteItem.id); toggleDeleteModal(!DeleteModal) }}>Xóa</ModalButton>
+                </ModalButtonWrapper>
+            </Modal>
+        </PageWrapper>
     )
 }
 

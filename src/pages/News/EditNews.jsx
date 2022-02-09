@@ -2,27 +2,45 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useParams, Link } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
+import { KeyboardBackspace } from '@mui/icons-material';
 import { TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { toast } from 'react-toastify';
 import { DateTime } from 'luxon';
 
-const StyledLink = styled(Link)`
-    text-decoration: none;
+const PageWrapper = styled.div`
+    width: 1080px;
+    margin: 40px auto;
+`;
+
+const Row = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const StyledBackIcon = styled(KeyboardBackspace)`
+    && {
+        color: #727272;
+        padding: 5px;
+        border: 1px solid #727272;
+        border-radius: 4px;
+    }
+`;
+
+const TitleGrey = styled.span`
     color: #727272;
 `;
 
 const Title = styled.h1`
-    font-size: 30px;
+    font-size: 16px;
     color: #383838;
-    margin: 15px;
+    margin: 20px;
 `;
 
 const ContainerWrapper = styled.div`
     display: flex;
-    margin-top: 20px;
 `;
 
-const NewsDetailWrapper = styled.div`
+const DetailWrapper = styled.div`
     flex: 2;
     padding: 20px 40px;
     background-color: #ffffff;
@@ -30,8 +48,8 @@ const NewsDetailWrapper = styled.div`
     box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
-const NewsUpdateWrapper = styled.div`
-    flex: 2;
+const UpdateWrapper = styled.div`
+    flex: 3;
     padding: 20px 40px;
     background-color: #ffffff;
     border-radius: 5px;
@@ -126,13 +144,22 @@ const EditNews = () => {
     const { id } = useParams();
     const [item, setItem] = useState({Resident: {ResidentName: ''}, Apartment: {Address: ''}});
 
-    const [updateTitle, setUpdateTitle] = useState('');
-    const [updateText, setUpdateText] = useState('');
-    const [updateStatus, setUpdateStatus] = useState(12001);
-
+    const [input, setInput] = useState({
+        title: '',
+        text: '',
+        status: 12001
+    })
+    const [error, setError] = useState({
+        titleError: ''
+    });
     const [success, setSuccess] = useState(false);
     let activeCheck = '';
     let activeLabel = '';
+
+    function handleChange(e) {
+        const { name, value } = e.target;
+        setInput(input => ({ ...input, [name]: value }));
+    }
 
     useEffect(() => {
         const url = "news/" + id;
@@ -142,9 +169,11 @@ const EditNews = () => {
                 const res = await fetch(publicRequest(url));
                 const json = await res.json();
                 setItem(json.Data);
-                setUpdateTitle(json.Data.Title);
-                setUpdateText(json.Data.Text);
-                setUpdateStatus(json.Data.Status);
+                setInput({
+                    title: json.Data.Title,
+                    text: json.Data.Text,
+                    status: json.Data.Status
+                });
             } catch (error) { }
         };
         fetchNews();
@@ -152,8 +181,8 @@ const EditNews = () => {
 
     const handleEditNews = (event) => {
         event.preventDefault();
-        if (validCheck(updateTitle, updateStatus)) {
-            const url = "news/update/" + id;
+        if (validCheck()) {
+            const url = "news/" + id;
 
             const updateNews = async () => {
                 try {
@@ -161,16 +190,16 @@ const EditNews = () => {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            title: updateTitle,
-                            text: updateText,
-                            status: updateStatus,
+                            title: input.title,
+                            text: input.text,
+                            status: input.status,
                             residentId: item.ResidentId,
                             apartmentId: item.ApartmentId
                         })
                     });
                     const json = await res.json();
                     if (json.ResultMessage === "SUCCESS") {
-                        const notify = () => toast.success("Cập nhật thành công " + item.Title + "!", {
+                        const notify = () => toast.success("Cập nhật thành công " + input.title + "!", {
                             position: toast.POSITION.TOP_CENTER
                         });
                         notify();
@@ -182,13 +211,19 @@ const EditNews = () => {
         }
     }
 
-    const validCheck = (title, status) => {
-        if (title === null || title === '') {
+    const validCheck = () => {
+        let check = false;
+        if (input.title === null || input.title === '') {
+            setError(error => ({ ...error, titleError: 'Vui lòng nhập tiêu đề' }));
+            check = true;
+        }
+        if (!(input.status === 12001 || input.status === 12002)) {
+            check = true;
+        }
+        if (check === true) {
             return false;
         }
-        if (!(status === 12001 || status === 12002)) {
-            return false;
-        }
+        setError(error => ({ ...error, titleError: '' }));
         return true;
     }
 
@@ -208,12 +243,14 @@ const EditNews = () => {
     }
 
     return (
-        <div>
-            <Title><StyledLink to={"/news"}>News</StyledLink> / {item.Title}
-            </Title>
+        <PageWrapper>
+            <Row>
+                <Link to="/news"><StyledBackIcon /></Link>
+                <Title><TitleGrey>News </TitleGrey>/ {item.Title}</Title>
+            </Row>
 
             <ContainerWrapper>
-                <NewsDetailWrapper>
+                <DetailWrapper>
                     <UpdateTitle>
                         Chi tiết
                     </UpdateTitle>
@@ -256,35 +293,35 @@ const EditNews = () => {
                         </DetailInfo>
 
                     </DetailBottom>
-                </NewsDetailWrapper>
+                </DetailWrapper>
 
 
-                <NewsUpdateWrapper>
+                <UpdateWrapper>
                     <UpdateTitle>Chỉnh sửa</UpdateTitle>
 
                     <UpdateForm onSubmit={handleEditNews}>
                         <StyledTextField
                             fullWidth 
-                            value={updateTitle}
-                            onChange={event => setUpdateTitle(event.target.value)}
-                            error={updateTitle === ''}
-                            helperText={updateTitle === '' ? 'Vui lòng nhập nội dung' : ''}
+                            value={input.title ? input.title : ''} name='title'
+                            onChange={handleChange}
+                            error={error.titleError !== ''}
+                            helperText={error.titleError}
                             label="Nội dung" 
                         />
 
                         <StyledTextField
                             fullWidth multiline rows={4}
-                            value={updateText}
-                            onChange={event => setUpdateText(event.target.value)}
+                            value={input.text ? input.text : ''} name='text'
+                            onChange={handleChange}
                             label="Tựa đề" 
                         />
 
                         <StyledFormControl>
                             <InputLabel id="demo-simple-select-label">Trạng thái</InputLabel>
                             <Select 
-                                value={updateStatus}
+                                value={input.status} name='status'
                                 label="Trạng thái"
-                                onChange={(event) => setUpdateStatus(event.target.value)}
+                                onChange={handleChange}
                             >
                             <MenuItem value={12001}>Active</MenuItem>
                             <MenuItem value={12002}>Inactive</MenuItem>
@@ -293,9 +330,9 @@ const EditNews = () => {
 
                         <UpdateButton>Cập nhật</UpdateButton>
                     </UpdateForm>
-                </NewsUpdateWrapper>
+                </UpdateWrapper>
             </ContainerWrapper>
-        </div>
+        </PageWrapper>
     )
 }
 

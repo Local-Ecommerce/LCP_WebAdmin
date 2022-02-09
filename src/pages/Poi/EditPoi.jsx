@@ -2,27 +2,45 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useParams, Link } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
+import { KeyboardBackspace } from '@mui/icons-material';
 import { TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { toast } from 'react-toastify';
 import { DateTime } from 'luxon';
 
-const StyledLink = styled(Link)`
-    text-decoration: none;
+const PageWrapper = styled.div`
+    width: 1080px;
+    margin: 40px auto;
+`;
+
+const Row = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const StyledBackIcon = styled(KeyboardBackspace)`
+    && {
+        color: #727272;
+        padding: 5px;
+        border: 1px solid #727272;
+        border-radius: 4px;
+    }
+`;
+
+const TitleGrey = styled.span`
     color: #727272;
 `;
 
 const Title = styled.h1`
-    font-size: 30px;
+    font-size: 16px;
     color: #383838;
-    margin: 15px;
+    margin: 20px;
 `;
 
 const ContainerWrapper = styled.div`
     display: flex;
-    margin-top: 20px;
 `;
 
-const PoiDetailWrapper = styled.div`
+const DetailWrapper = styled.div`
     flex: 2;
     padding: 20px 40px;
     background-color: #ffffff;
@@ -30,8 +48,8 @@ const PoiDetailWrapper = styled.div`
     box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
-const PoiUpdateWrapper = styled.div`
-    flex: 2;
+const UpdateWrapper = styled.div`
+    flex: 3;
     padding: 20px 40px;
     background-color: #ffffff;
     border-radius: 5px;
@@ -126,13 +144,22 @@ const EditPoi = () => {
     const { id } = useParams();
     const [item, setItem] = useState({Resident: {ResidentName: ''}, Apartment: {Address: ''}});
 
-    const [updateTitle, setUpdateTitle] = useState('');
-    const [updateText, setUpdateText] = useState('');
-    const [updateStatus, setUpdateStatus] = useState(13001);
-
+    const [input, setInput] = useState({
+        title: '',
+        text: '',
+        status: 13001
+    })
+    const [error, setError] = useState({
+        titleError: ''
+    });
     const [success, setSuccess] = useState(false);
     let activeCheck = '';
     let activeLabel = '';
+
+    function handleChange(e) {
+        const { name, value } = e.target;
+        setInput(input => ({ ...input, [name]: value }));
+    }
 
     useEffect(() => {
         const url = "poi/" + id;
@@ -142,9 +169,11 @@ const EditPoi = () => {
                 const res = await fetch(publicRequest(url));
                 const json = await res.json();
                 setItem(json.Data);
-                setUpdateTitle(json.Data.Title);
-                setUpdateText(json.Data.Text);
-                setUpdateStatus(json.Data.Status);
+                setInput({
+                    title: json.Data.Title,
+                    text: json.Data.Text,
+                    status: json.Data.Status
+                });
             } catch (error) { }
         };
         fetchPoi();
@@ -152,8 +181,8 @@ const EditPoi = () => {
 
     const handleEditPoi = (event) => {
         event.preventDefault();
-        if (validCheck(updateTitle, updateStatus)) {
-            const url = "poi/update/" + id;
+        if (validCheck()) {
+            const url = "poi/" + id;
 
             const updatePoi = async () => {
                 try {
@@ -161,16 +190,16 @@ const EditPoi = () => {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            title: updateTitle,
-                            text: updateText,
-                            status: updateStatus,
+                            title: input.title,
+                            text: input.text,
+                            status: input.status,
                             residentId: item.ResidentId,
                             apartmentId: item.ApartmentId
                         })
                     });
                     const json = await res.json();
                     if (json.ResultMessage === "SUCCESS") {
-                        const notify = () => toast.success("Cập nhật thành công " + item.Title + "!", {
+                        const notify = () => toast.success("Cập nhật thành công " + input.title + "!", {
                             position: toast.POSITION.TOP_CENTER
                         });
                         notify();
@@ -182,13 +211,19 @@ const EditPoi = () => {
         }
     }
 
-    const validCheck = (title, status) => {
-        if (title === null || title === '') {
+    const validCheck = () => {
+        let check = false;
+        if (input.title === null || input.title === '') {
+            setError(error => ({ ...error, titleError: 'Vui lòng nhập tiêu đề' }));
+            check = true;
+        }
+        if (!(input.status === 13001 || input.status === 13002)) {
+            check = true;
+        }
+        if (check === true) {
             return false;
         }
-        if (!(status === 13001 || status === 13002)) {
-            return false;
-        }
+        setError(error => ({ ...error, titleError: '' }));
         return true;
     }
 
@@ -208,12 +243,14 @@ const EditPoi = () => {
     }
 
     return (
-        <div>
-            <Title><StyledLink to={"/pois"}>POIs</StyledLink> / {item.Title}
-            </Title>
+        <PageWrapper>
+            <Row>
+                <Link to="/pois"><StyledBackIcon /></Link>
+                <Title><TitleGrey>POIs </TitleGrey>/ {item.Title}</Title>
+            </Row>
 
             <ContainerWrapper>
-                <PoiDetailWrapper>
+                <DetailWrapper>
                     <UpdateTitle>
                         Chi tiết
                     </UpdateTitle>
@@ -256,35 +293,35 @@ const EditPoi = () => {
                         </DetailInfo>
 
                     </DetailBottom>
-                </PoiDetailWrapper>
+                </DetailWrapper>
 
 
-                <PoiUpdateWrapper>
+                <UpdateWrapper>
                     <UpdateTitle>Chỉnh sửa</UpdateTitle>
 
                     <UpdateForm onSubmit={handleEditPoi}>
-                        <StyledTextField
+                    <StyledTextField
                             fullWidth 
-                            value={updateTitle}
-                            onChange={event => setUpdateTitle(event.target.value)}
-                            error={updateTitle === ''}
-                            helperText={updateTitle === '' ? 'Vui lòng nhập nội dung' : ''}
+                            value={input.title ? input.title : ''} name='title'
+                            onChange={handleChange}
+                            error={error.titleError !== ''}
+                            helperText={error.titleError}
                             label="Nội dung" 
                         />
 
                         <StyledTextField
                             fullWidth multiline rows={4}
-                            value={updateText}
-                            onChange={event => setUpdateText(event.target.value)}
+                            value={input.text ? input.text : ''} name='text'
+                            onChange={handleChange}
                             label="Tựa đề" 
                         />
 
                         <StyledFormControl>
                             <InputLabel id="demo-simple-select-label">Trạng thái</InputLabel>
                             <Select 
-                                value={updateStatus}
+                                value={input.status} name='status'
                                 label="Trạng thái"
-                                onChange={(event) => setUpdateStatus(event.target.value)}
+                                onChange={handleChange}
                             >
                             <MenuItem value={13001}>Active</MenuItem>
                             <MenuItem value={13002}>Inactive</MenuItem>
@@ -293,9 +330,9 @@ const EditPoi = () => {
 
                         <UpdateButton>Cập nhật</UpdateButton>
                     </UpdateForm>
-                </PoiUpdateWrapper>
+                </UpdateWrapper>
             </ContainerWrapper>
-        </div>
+        </PageWrapper>
     )
 }
 

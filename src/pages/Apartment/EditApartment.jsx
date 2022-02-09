@@ -2,18 +2,37 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useParams, Link } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
+import { KeyboardBackspace } from '@mui/icons-material';
 import { TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { toast } from 'react-toastify';
 
-const StyledLink = styled(Link)`
-    text-decoration: none;
+const PageWrapper = styled.div`
+    width: 1080px;
+    margin: 40px auto;
+`;
+
+const Row = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const StyledBackIcon = styled(KeyboardBackspace)`
+    && {
+        color: #727272;
+        padding: 5px;
+        border: 1px solid #727272;
+        border-radius: 4px;
+    }
+`;
+
+const TitleGrey = styled.span`
     color: #727272;
 `;
 
 const Title = styled.h1`
-    font-size: 30px;
+    font-size: 16px;
     color: #383838;
-    margin: 15px;
+    margin: 20px;
 `;
 
 const ContainerWrapper = styled.div`
@@ -21,22 +40,14 @@ const ContainerWrapper = styled.div`
     flex-flow: wrap;
     align-items: flex-start;
     align-content: flex-start;
-    margin-top: 20px;
 `;
 
 const DetailWrapper = styled.div`
     flex: 2;
-`;
-
-const ApartmentDetailWrapper = styled.div`
     padding: 20px 40px;
     background-color: #ffffff;
     border-radius: 5px;
     box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
-`;
-
-const ManagerDetailWrapper = styled(ApartmentDetailWrapper)`
-    margin-top: 20px;
 `;
 
 const LeftSide = styled.div`
@@ -47,8 +58,8 @@ const RightSide = styled.div`
     flex: 1;
 `;
 
-const ApartmentUpdateWrapper = styled.div`
-    flex: 2;
+const UpdateWrapper = styled.div`
+    flex: 3;
     padding: 20px 40px;
     background-color: #ffffff;
     border-radius: 5px;
@@ -56,11 +67,7 @@ const ApartmentUpdateWrapper = styled.div`
     margin-left: 20px;
 `;
 
-const ApartmentDetailBottom = styled.div`
-    margin-top: 20px;
-`;
-
-const ManagerDetailBottom = styled(ApartmentDetailBottom)`
+const FlexWrapper = styled.div`
     display: flex;
 `;
 
@@ -103,6 +110,13 @@ const UpdateTitle = styled.span`
     font-weight: 600;
     display: flex;
     align-items: center;
+    margin-top: ${props => props.mt ? "30px" : "0px"};
+    margin-bottom: ${props => props.mb ? "20px" : "0px"};
+`;
+
+const Line = styled.div`
+    margin: 30px 0px;
+    border-bottom: 1px solid #C8C8C8;
 `;
 
 const UpdateForm = styled.form`
@@ -148,14 +162,23 @@ const EditApartment = () => {
     const [item, setItem] = useState({Resident: {ResidentName: ''}, Apartment: {Address: ''}});
     const [manager, setManager] = useState({});
 
-    const [updateName, setUpdateName] = useState('');
-    const [updateStatus, setUpdateStatus] = useState(4001);
-
+    const [input, setInput] = useState({
+        address: '',
+        status: 4001
+    })
+    const [error, setError] = useState({
+        addressError: ''
+    });
     const [success, setSuccess] = useState(false);
     let apartmentActiveCheck = '';
     let apartmentActiveLabel = '';
     let managerActiveCheck = '';
     let managerActiveLabel = '';
+
+    function handleChange(e) {
+        const { name, value } = e.target;
+        setInput(input => ({ ...input, [name]: value }));
+    }
 
     useEffect(() => {
         const url = "apartment/" + id;
@@ -165,8 +188,10 @@ const EditApartment = () => {
                 const res = await fetch(publicRequest(url));
                 const json = await res.json();
                 setItem(json.Data);
-                setUpdateName(json.Data.Address);
-                setUpdateStatus(json.Data.Status);
+                setInput({
+                    address: json.Data.Address,
+                    status: json.Data.Status
+                });
             } catch (error) { }
         };
         fetchApartment();
@@ -187,7 +212,7 @@ const EditApartment = () => {
 
     const handleEditApartment = (event) => {
         event.preventDefault();
-        if (validCheck(updateName, updateStatus)) {
+        if (validCheck()) {
             const url = "apartment/" + id;
 
             const updateApartment = async () => {
@@ -196,7 +221,7 @@ const EditApartment = () => {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            address: updateName,
+                            address: input.address,
                             lat: item.Lat,
                             long: item.Long
                         })
@@ -215,13 +240,19 @@ const EditApartment = () => {
         }
     }
 
-    const validCheck = (name, status) => {
-        if (name === null || name === '') {
+    const validCheck = () => {
+        let check = false;
+        if (input.address === null || input.address === '') {
+            setError(error => ({ ...error, addressError: 'Vui lòng nhập địa chỉ' }));
+            check = true;
+        }
+        if (!(input.status === 4001 || input.status === 4002 || input.status === 4004)) {
+            check = true;
+        }
+        if (check === true) {
             return false;
         }
-        if (!(status === 4001 || status === 4002 || status === 4004)) {
-            return false;
-        }
+        setError(error => ({ ...error, addressError: '' }));
         return true;
     }
 
@@ -264,88 +295,81 @@ const EditApartment = () => {
     }
 
     return (
-        <div>
-            <Title><StyledLink to={"/apartments"}>Chung cư</StyledLink> / {item.Address}
-            </Title>
-
+        <PageWrapper>
+            <Row>
+                <Link to="/apartments"><StyledBackIcon /></Link>
+                <Title><TitleGrey>Chung cư </TitleGrey>/ {item.Address}</Title>
+            </Row>
+            
             <ContainerWrapper>
                 <DetailWrapper>
-                    <ApartmentDetailWrapper>
-                        <UpdateTitle>
-                            Chi tiết chung cư
-                        </UpdateTitle>
+                    <UpdateTitle mb>Chi tiết chung cư</UpdateTitle>
 
-                        <ApartmentDetailBottom>
-                            <DetailTitle>Địa chỉ</DetailTitle>
+                    <DetailTitle>Địa chỉ</DetailTitle>
+                    <DetailInfo>
+                        <DetailInfoText>{item.Address}</DetailInfoText>
+                    </DetailInfo>
+
+                    <DetailTitle>Tọa độ</DetailTitle>
+                    <DetailInfo>
+                        <DetailInfoText>({item.Lat}, {item.Long})</DetailInfoText>
+                    </DetailInfo>
+
+                    <DetailTitle>Trạng thái</DetailTitle>
+                    <DetailInfo>
+                        <DetailStatus active={apartmentActiveCheck}>{apartmentActiveLabel}</DetailStatus>
+                    </DetailInfo>
+
+                    <Line />
+                    <UpdateTitle mt mb>Quản lí</UpdateTitle>
+
+                    <FlexWrapper>
+                        <LeftSide>
+                            <DetailTitle>Tên</DetailTitle>
                             <DetailInfo>
-                                <DetailInfoText>{item.Address}</DetailInfoText>
+                                <DetailInfoText>{manager.ResidentName}</DetailInfoText>
                             </DetailInfo>
 
-                            <DetailTitle>Tọa độ</DetailTitle>
+                            <DetailTitle>Điện thoại</DetailTitle>
                             <DetailInfo>
-                                <DetailInfoText>({item.Lat}, {item.Long})</DetailInfoText>
+                                <DetailInfoText>(+84) {manager.PhoneNumber}</DetailInfoText>
+                            </DetailInfo>
+                        </LeftSide>
+
+                        <RightSide>
+                            <DetailTitle>Giới tính</DetailTitle>
+                            <DetailInfo>
+                                <DetailInfoText>{manager.Gender}</DetailInfoText>
                             </DetailInfo>
 
                             <DetailTitle>Trạng thái</DetailTitle>
                             <DetailInfo>
-                                <DetailStatus active={apartmentActiveCheck}>{apartmentActiveLabel}</DetailStatus>
+                                <DetailStatus active={managerActiveCheck}>{managerActiveLabel}</DetailStatus>
                             </DetailInfo>
-                        </ApartmentDetailBottom>
-                    </ApartmentDetailWrapper>
-
-                    <ManagerDetailWrapper>
-                        <UpdateTitle>
-                            Quản lí
-                        </UpdateTitle>
-
-                        <ManagerDetailBottom>
-                            <LeftSide>
-                                <DetailTitle>Tên</DetailTitle>
-                                <DetailInfo>
-                                    <DetailInfoText>{manager.ResidentName}</DetailInfoText>
-                                </DetailInfo>
-
-                                <DetailTitle>Điện thoại</DetailTitle>
-                                <DetailInfo>
-                                    <DetailInfoText>(+84) {manager.PhoneNumber}</DetailInfoText>
-                                </DetailInfo>
-                            </LeftSide>
-
-                            <RightSide>
-                                <DetailTitle>Giới tính</DetailTitle>
-                                <DetailInfo>
-                                    <DetailInfoText>{manager.Gender}</DetailInfoText>
-                                </DetailInfo>
-
-                                <DetailTitle>Trạng thái</DetailTitle>
-                                <DetailInfo>
-                                    <DetailStatus active={managerActiveCheck}>{managerActiveLabel}</DetailStatus>
-                                </DetailInfo>
-                            </RightSide>
-                        </ManagerDetailBottom>
-                    </ManagerDetailWrapper>
+                        </RightSide>
+                    </FlexWrapper>
                 </DetailWrapper>
 
 
-                <ApartmentUpdateWrapper>
+                <UpdateWrapper>
                     <UpdateTitle>Cập nhật chung cư</UpdateTitle>
 
                     <UpdateForm onSubmit={handleEditApartment}>
                         <StyledTextField
                             fullWidth 
-                            value={updateName}
-                            onChange={event => setUpdateName(event.target.value)}
-                            error={updateName === ''}
-                            helperText={updateName === '' ? 'Vui lòng nhập địa chỉ' : ''}
-                            label="Địa chỉ" 
+                            value={input.address ? input.address : ''} name='address'
+                            onChange={handleChange}
+                            error={error.addressError !== ''}
+                            helperText={error.addressError}
+                            label="Nội dung" 
                         />
 
                         <StyledFormControl>
                             <InputLabel id="demo-simple-select-label">Trạng thái</InputLabel>
                             <Select 
-                                value={updateStatus}
+                                value={input.status} name='status'
                                 label="Trạng thái"
-                                onChange={(event) => setUpdateStatus(event.target.value)}
+                                onChange={handleChange}
                             >
                             <MenuItem value={4001}>Active</MenuItem>
                             <MenuItem value={4002}>Inactive</MenuItem>
@@ -355,9 +379,9 @@ const EditApartment = () => {
 
                         <UpdateButton>Cập nhật</UpdateButton>
                     </UpdateForm>
-                </ApartmentUpdateWrapper>
+                </UpdateWrapper>
             </ContainerWrapper>
-        </div>
+        </PageWrapper>
     )
 }
 

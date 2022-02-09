@@ -4,13 +4,17 @@ import styled from 'styled-components';
 import Modal from 'react-modal';
 import ApartmentList from '../../components/Apartment/ApartmentList';
 import ReactPaginate from "react-paginate";
-import AddCircle from '@mui/icons-material/AddCircle';
+import { AddCircle, Search } from '@mui/icons-material';
 import { publicRequest } from "../../RequestMethod";
 import { Link, useLocation } from "react-router-dom";
 import { toast } from 'react-toastify';
 
+const PageWrapper = styled.div`
+    margin: 50px 40px;
+`;
+
 const Title = styled.h1`
-    font-size: 30px;
+    font-size: 16px;
     color: #383838;
     margin: 15px;
 `;
@@ -20,22 +24,28 @@ const Row = styled.div`
     width: 100%;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 15px;
+    margin-top: ${props => props.mt ? "20px" : "0px"};
+    margin-bottom: ${props => props.mb ? "20px" : "0px"};
 `;
 
-const ButtonWrapper = styled.div`
+const StyledSearchIcon = styled(Search)`
+    && {
+        color: grey;
+    }
+`;
+
+const SearchBar = styled.div`
     display: flex;
     width: 31%;
     justify-content: center;
     align-items: center;
     border-radius: 5px;
-    border-color: #E0E0E0;
+    border-color: #D8D8D8;
     border-style: solid;
     border-width: thin;
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
-    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const Input = styled.input`
@@ -64,19 +74,18 @@ const Button = styled.button`
     }
 `;
 
-const SelectWrapper = styled.div`
+const DropdownWrapper = styled.div`
     display: flex;
     width: ${props => props.width};
     justify-content: center;
     align-items: center;
     border-radius: 5px;
-    border-color: #E0E0E0;
+    border-color: #D8D8D8;
     border-style: solid;
     border-width: thin;
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
-    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const Select = styled.select`
@@ -91,7 +100,7 @@ const Select = styled.select`
     }
 `;
 
-const AddApartmentButton = styled(Link)`
+const AddButton = styled(Link)`
     display: flex;
     justify-content: center;
     align-items: center;
@@ -110,12 +119,15 @@ const AddApartmentButton = styled(Link)`
     }
 `;
 
-const AddApartmentIcon = styled(AddCircle)`
+const AddIcon = styled(AddCircle)`
     padding-right: 5px;
 `;
 
 const TableWrapper = styled.div`
-    margin-top: 30px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 6px;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const Table = styled.table`
@@ -123,11 +135,9 @@ const Table = styled.table`
     border-collapse: collapse;
     width: 100%;
     max-width: 100%;
-    margin-bottom: 16px;
     background-color: #fff;
     overflow: hidden;
     border-radius: 5px;
-    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
 const TableHead = styled.thead`
@@ -139,12 +149,11 @@ const TableHeader = styled.th`
     width: ${props => props.width};
     text-align: ${props => props.center ? "center" : "left"};
     padding: 16px;
-    vertical-align: top;
-    vertical-align: bottom;
+    font-size: 15px;
 `;
 
 const TableBody = styled.tbody`
-    border-top: 2px solid #dee2e6;
+    border-top: 1px solid #dee2e6;
 `;
 
 const TableRow = styled.tr``;
@@ -157,8 +166,7 @@ const ItemsPerPageWrapper = styled.div`
 `;
 
 const StyledPaginateContainer = styled.div`
-    margin-right: 10px;
-    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
+    margin-right; 10px;
 
     .pagination {
     padding: 0px;
@@ -290,6 +298,10 @@ const customStyles = {
     },
 };
 
+const Footer = styled.div`
+    padding-top: 50px;
+`;
+
 const Apartment = () =>  {
     const location = useLocation(); //để fetch state name truyền từ AddApartment qua
 
@@ -334,10 +346,10 @@ const Apartment = () =>  {
     useEffect(() => {   //filter based on 'search' & 'status'
         const result = APIdata.filter((item) => {
             if (status !== '0') {
-                return [item.Title, item.ApartmentId, item.Text, item.ResidentId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
+                return [item.Address, item.ApartmentId, item.Text, item.Lat, item.Long].join('').toLowerCase().includes(search.toLowerCase())
                     && item.Status === parseInt(status)
             } else {
-                return [item.Title, item.ApartmentId, item.Text, item.ResidentId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
+                return [item.Address, item.ApartmentId, item.Text, item.Lat, item.Long].join('').toLowerCase().includes(search.toLowerCase())
             }
         })
         setFilteredData(result);
@@ -393,10 +405,10 @@ const Apartment = () =>  {
     }
 
     const handleDeleteItem = (id) => {
-        const url = "apartment/delete/" + id;
+        const url = "apartment/" + id;
         const deleteData = async () => {
             try {
-                const res = await fetch(publicRequest(url), { method: 'PUT' });
+                const res = await fetch(publicRequest(url), { method: 'DELETE' });
                 const json = await res.json();
                 if (json.ResultMessage === "SUCCESS") {
                     setChange(!change);
@@ -411,27 +423,29 @@ const Apartment = () =>  {
     };
 
     return (
-        <div>
+        <PageWrapper>
             <Title>Chung cư</Title>
 
-                <Row>
-                    <ButtonWrapper>
-                        <Input id="search" placeholder="Tìm kiếm chung cư" onChange={(event) => handleSearch(event.target.value, status)} />
+            <TableWrapper>
+                <Row mb>
+                    <SearchBar>
+                        <StyledSearchIcon />
+                        <Input id="search" placeholder="Tìm kiếm tin" onChange={(event) => handleSearch(event.target.value, status)} />
                         <Button onClick={() => clearSearch()}>Clear</Button>
-                    </ButtonWrapper>
+                    </SearchBar>
 
-                    <SelectWrapper width="16%">
+                    <DropdownWrapper width="16%">
                         <Select value={status} onChange={(event) => handleSearch(search, event.target.value)}>
                             <option value="0">--- Lọc trạng thái ---</option>
                             <option value="4001">Active</option>
                             <option value="4002">Inactive</option>
                             <option value="4004">Deleted</option>
                         </Select>
-                    </SelectWrapper>
+                    </DropdownWrapper>
 
                     <ItemsPerPageWrapper>
                         Số hàng mỗi trang:&nbsp;
-                        <SelectWrapper width="40px">
+                        <DropdownWrapper width="40px">
                             <Select value={itemsPerPage} onChange={(event) => handleChangeItemsPerPage(event.target.value)}>
                                 <option value="5">5</option>
                                 <option value="6">6</option>
@@ -442,16 +456,15 @@ const Apartment = () =>  {
                                 <option value="15">15</option>
                                 <option value="20">20</option>
                             </Select>
-                        </SelectWrapper>              
+                        </DropdownWrapper>              
                     </ItemsPerPageWrapper>  
 
-                    <AddApartmentButton to={"/addApartment/"}>
-                        <AddApartmentIcon />
+                    <AddButton to={"/addApartment/"}>
+                        <AddIcon />
                         Tạo chung cư
-                    </AddApartmentButton>
+                    </AddButton>
                 </Row>
 
-            <TableWrapper>
                 <Table>
                     <TableHead>
                         <TableRow>
@@ -466,7 +479,7 @@ const Apartment = () =>  {
                     </TableBody>
                 </Table>
 
-                <Row>
+                <Row mt>
                     { currentItems.length !== 0 
                     ? <small>Hiển thị {currentPage * itemsPerPage + 1} - {currentPage * itemsPerPage + currentItems.length} trong tổng số {filteredData.length} cửa hàng.</small>
                     : null }
@@ -497,6 +510,8 @@ const Apartment = () =>  {
                 </Row>
             </TableWrapper>
 
+            <Footer />
+
             <Modal isOpen={DeleteModal} onRequestClose={() => toggleDeleteModal(!DeleteModal)} style={customStyles} ariaHideApp={false}>
                 <ModalTitle>Xác Nhận Xóa</ModalTitle>
                 <ModalContentWrapper>
@@ -507,7 +522,7 @@ const Apartment = () =>  {
                     <ModalButton red onClick={() => { handleDeleteItem(deleteItem.id); toggleDeleteModal(!DeleteModal) }}>Xóa</ModalButton>
                 </ModalButtonWrapper>
             </Modal>
-        </div>
+        </PageWrapper>
     )
 }
 

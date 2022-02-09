@@ -2,27 +2,45 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useParams, Link } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
+import { KeyboardBackspace } from '@mui/icons-material';
 import { TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { toast } from 'react-toastify';
 import { DateTime } from 'luxon';
 
-const StyledLink = styled(Link)`
-    text-decoration: none;
+const PageWrapper = styled.div`
+    width: 1080px;
+    margin: 40px auto;
+`;
+
+const Row = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const StyledBackIcon = styled(KeyboardBackspace)`
+    && {
+        color: #727272;
+        padding: 5px;
+        border: 1px solid #727272;
+        border-radius: 4px;
+    }
+`;
+
+const TitleGrey = styled.span`
     color: #727272;
 `;
 
 const Title = styled.h1`
-    font-size: 30px;
+    font-size: 16px;
     color: #383838;
-    margin: 15px;
+    margin: 20px;
 `;
 
 const ContainerWrapper = styled.div`
     display: flex;
-    margin-top: 20px;
 `;
 
-const MenuDetailWrapper = styled.div`
+const DetailWrapper = styled.div`
     flex: 2;
     padding: 20px 40px;
     background-color: #ffffff;
@@ -30,7 +48,7 @@ const MenuDetailWrapper = styled.div`
     box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
-const MenuUpdateWrapper = styled.div`
+const UpdateWrapper = styled.div`
     flex: 2;
     padding: 20px 40px;
     background-color: #ffffff;
@@ -93,7 +111,7 @@ const UpdateForm = styled.form`
 const StyledTextField = styled(TextField)`
     && {    
     margin-top: 30px;
-    }    
+    }
 `;
 
 const StyledFormControl = styled(FormControl)`
@@ -126,12 +144,22 @@ const UpdateButton = styled.button`
 const EditMenu = () => {
     const { id } = useParams();
     const [item, setItem] = useState({ Resident: { ResidentName: '' } });
-    const [updateName, setUpdateName] = useState('');
-    const [updateStatus, setUpdateStatus] = useState(14001);
-
+    
+    const [input, setInput] = useState({
+        name: '',
+        status: 14001
+    })
+    const [error, setError] = useState({
+        nameError: ''
+    });
     const [success, setSuccess] = useState(false);
     let activeCheck = '';
     let activeLabel = '';
+
+    function handleChange(e) {
+        const { name, value } = e.target;
+        setInput(input => ({ ...input, [name]: value }));
+    }
 
     useEffect(() => {
         const url = "menu/" + id;
@@ -141,8 +169,10 @@ const EditMenu = () => {
                 const res = await fetch(publicRequest(url));
                 const json = await res.json();
                 setItem(json.Data);
-                setUpdateName(json.Data.MenuName);
-                setUpdateStatus(json.Data.Status);
+                setInput({
+                    name: json.Data.MenuName,
+                    status: json.Data.Status
+                });
             } catch (error) { }
         };
         fetchMenu();
@@ -150,8 +180,8 @@ const EditMenu = () => {
 
     const handleEditMenu = (event) => {
         event.preventDefault();
-        if (validCheck(updateName, updateStatus)) {
-            const url = "menu/update/" + id;
+        if (validCheck()) {
+            const url = "menu/" + id;
 
             const updateMenu = async () => {
                 try {
@@ -159,13 +189,13 @@ const EditMenu = () => {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            menuName: updateName,
-                            status: updateStatus
+                            menuName: input.name,
+                            status: input.status
                         })
                     });
                     const json = await res.json();
                     if (json.ResultMessage === "SUCCESS") {
-                        const notify = () => toast.success("Cập nhật thành công " + item.MenuName + "!", {
+                        const notify = () => toast.success("Cập nhật thành công " + input.name + "!", {
                             position: toast.POSITION.TOP_CENTER
                         });
                         notify();
@@ -177,15 +207,21 @@ const EditMenu = () => {
         }
     }
 
-    const validCheck = (name, status) => {
-        if (name === null || name === '') {
+    const validCheck = () => {
+        let check = false;
+        if (input.name === null || input.name === '') {
+            setError(error => ({ ...error, nameError: 'Vui lòng nhập tên bảng giá' }));
+            check = true;
+        }
+        if (!(input.status === 14001 || input.status === 14002 || input.status === 14004)) {
+            check = true;
+        }
+        if (check === true) {
             return false;
         }
-        if (!(status === 14001 || status === 14002 || status === 14004)) {
-            return false;
-        }
+        setError(error => ({ ...error, nameError: '' }));
         return true;
-    };
+    }
 
     switch (item.Status) {
         case 14001:
@@ -207,13 +243,14 @@ const EditMenu = () => {
     }
 
     return (
-        <div>
-            <Title><StyledLink to={"/menus"}>
-                Danh sách bảng giá</StyledLink> / {item.MenuName}    
-            </Title>
+        <PageWrapper>
+            <Row>
+                <Link to="/menus"><StyledBackIcon /></Link>
+                <Title><TitleGrey>Bảng giá </TitleGrey>/ {item.MenuName}</Title>
+            </Row>
 
             <ContainerWrapper>
-                <MenuDetailWrapper>
+                <DetailWrapper>
                     <UpdateTitle>
                         Chi tiết
                     </UpdateTitle>
@@ -251,28 +288,28 @@ const EditMenu = () => {
                         </DetailInfo>
 
                     </DetailBottom>
-                </MenuDetailWrapper>
+                </DetailWrapper>
 
 
-                <MenuUpdateWrapper>
+                <UpdateWrapper>
                     <UpdateTitle>Chỉnh sửa</UpdateTitle>
 
                     <UpdateForm onSubmit={handleEditMenu}>
                         <StyledTextField
-                            value={updateName}
-                            defaultValue={updateName}
-                            onChange={event => setUpdateName(event.target.value)}
-                            error={updateName === ''}
-                            helperText={updateName === '' ? 'Vui lòng nhập tên bộ sưu tập' : ''}
-                            label="Tên bộ sưu tập" 
+                            fullWidth 
+                            value={input.name ? input.name : ''} name='name'
+                            onChange={handleChange}
+                            error={error.nameError !== ''}
+                            helperText={error.nameError}
+                            label="Tên cửa hàng" 
                         />
 
                         <StyledFormControl>
-                            <InputLabel id="demo-simple-select-label">Trạng thái</InputLabel>
+                            <InputLabel>Trạng thái</InputLabel>
                             <Select 
-                                value={updateStatus}
+                                value={input.status} name='status'
                                 label="Trạng thái"
-                                onChange={(event) => setUpdateStatus(event.target.value)}
+                                onChange={handleChange}
                             >
                             <MenuItem value={14001}>Active</MenuItem>
                             <MenuItem value={14002}>Inactive</MenuItem>
@@ -282,9 +319,9 @@ const EditMenu = () => {
 
                         <UpdateButton>Cập nhật</UpdateButton>
                     </UpdateForm>
-                </MenuUpdateWrapper>
+                </UpdateWrapper>
             </ContainerWrapper>
-        </div>
+        </PageWrapper>
     )
 }
 

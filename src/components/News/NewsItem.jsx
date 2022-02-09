@@ -20,16 +20,17 @@ const Button = styled.button`
 const TableRow = styled.tr`
     &:hover {
         background-color: #F5F5F5;
+        cursor: pointer;
     }
-    
 `;
 
 const TableData = styled.td`
-    padding: 1rem;
+    padding: 16px;
     vertical-align: top;
     border-bottom: 1px solid #dee2e6;
     vertical-align: middle;
     text-align: ${props => props.center ? "center" : "left"};
+    font-size: 15px;
 
     height: 80px;
 `;

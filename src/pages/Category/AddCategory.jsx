@@ -1,32 +1,53 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Link, useHistory } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
+import { KeyboardBackspace } from '@mui/icons-material';
 import { TextField, Autocomplete, Box } from '@mui/material';
 
-const StyledLink = styled(Link)`
-    text-decoration: none;
+const PageWrapper = styled.div`
+    width: 720px;
+    margin: 40px auto;
+`;
+
+const Row = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const StyledBackIcon = styled(KeyboardBackspace)`
+    && {
+        color: #727272;
+        padding: 5px;
+        border: 1px solid #727272;
+        border-radius: 4px;
+    }
+`;
+
+const TitleGrey = styled.span`
     color: #727272;
 `;
 
 const Title = styled.h1`
-    font-size: 30px;
+    font-size: 16px;
     color: #383838;
-    margin: 15px;
+    margin: 20px;
 `;
 
 const ContainerWrapper = styled.div`
-    margin: 20px;
-    padding: 20px 40px;
     box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
-    border-radius: 5px;
     background-color: #fff;
+    border-radius: 5px;
+`;
+
+const FormLabel = styled.div`
+    font-weight: 700;
+    margin-bottom: 10px;
 `;
 
 const Form = styled.form`
     padding: 20px;
     margin: 0 auto;
-    width: 40%;
 `;
 
 const AddButton = styled.button`
@@ -38,7 +59,7 @@ const AddButton = styled.button`
     color: white;
     font-weight: 600;
     width: 100%;
-    margin-top: 50px;
+    margin-top: 20px;
 
     &:active {
     box-shadow: 0 2px #666;
@@ -50,18 +71,31 @@ const AddButton = styled.button`
     }
 `;
 
-const StyledTextField = styled(TextField)``;
+const StyledTextField = styled(TextField)`
+    && {
+    margin-bottom: 30px;
+    }
+`;
 
 const StyledAutocomplete = styled(Autocomplete)`
-    margin-top: 30px;
 `;
 
 const AddCategory = () => {
-    let history = useHistory();
+    let navigate = useNavigate();
     const [itemList, setItemList] = useState([]);
 
-    const [createName, setCreateName] = useState(null);
-    const [createBelong, setCreateBelong] = useState({SystemCategoryId: null});
+    const [input, setInput] = useState({
+        name: '',
+        belongTo: '',
+    })
+    const [error, setError] = useState({
+        nameError: '',
+    });
+
+    function handleChange(e) {
+        const { name, value } = e.target;
+        setInput(input => ({ ...input, [name]: value }));
+    }
 
     useEffect (() => {
         const url = "systemCategory/autocomplete";
@@ -78,8 +112,8 @@ const AddCategory = () => {
 
     const handleAddCategory = (event) => {
         event.preventDefault();
-        if (checkValid(createName)) {
-            const url = "systemCategory/create";
+        if (validCheck()) {
+            const url = "systemCategory";
 
             const addCategory = async () => {
                 try {
@@ -87,13 +121,13 @@ const AddCategory = () => {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            sysCategoryName: createName,
-                            belongTo: createBelong.SystemCategoryId || null
+                            sysCategoryName: input.name,
+                            belongTo: input.belongTo.SystemCategoryId || null
                         })
                     });
                     const json = await res.json();
                     if (json.ResultMessage === "SUCCESS") {
-                        history.push('/categories', {name: createName} );
+                        navigate('/categories', { state: { name: input.name } } );
                     }
                 } catch (error) { }
             };
@@ -101,33 +135,40 @@ const AddCategory = () => {
         }
     }
 
-    const checkValid = (name) => {
-        if (name === null || name === '') {
-            setCreateName('');
+    const validCheck = () => {
+        let check = false;
+        if (input.name === null || input.name === '') {
+            setError(error => ({ ...error, nameError: 'Vui lòng nhập tên danh mục' }));
+            check = true;
+        }
+        if (check === true) {
             return false;
         }
+        setError(error => ({ ...error, nameError: '' }));
         return true;
     }
 
     return (
-        <div>
-            <Title>
-                <StyledLink to={"/categories"}>Danh mục </StyledLink> / Tạo danh mục mới
-            </Title>
+        <PageWrapper>
+            <Row>
+                <Link to="/categories"><StyledBackIcon /></Link>
+                <Title><TitleGrey>Danh mục </TitleGrey>/ Tạo danh mục mới</Title>
+            </Row>
             
             <ContainerWrapper>
                 <Form onSubmit={handleAddCategory} id="form">
+                    <FormLabel>Tên danh mục</FormLabel>
                     <StyledTextField
                         fullWidth 
-                        value={createName}
-                        onChange={event => setCreateName(event.target.value)}
-                        error={createName === ''}
-                        helperText={createName === '' ? 'Vui lòng nhập tên danh mục' : ''}
-                        label="Tên danh mục" 
+                        value={input.name ? input.name : ''} name='name'
+                        onChange={handleChange}
+                        error={error.nameError !== ''}
+                        helperText={error.nameError}
                     />
 
+                    <FormLabel>Danh mục cha</FormLabel>
                     <StyledAutocomplete
-                        onChange={(event, value) => setCreateBelong(value)}
+                        onChange={(event, value) => setInput(input => ({ ...input, belongTo: value }))}
                         selectOnFocus clearOnBlurbhandleHomeEndKeys disablePortal
                         getOptionLabel={(item) => item.SysCategoryName}
                         options={itemList}
@@ -138,7 +179,7 @@ const AddCategory = () => {
                                 </Box>
                             );
                           }}
-                        renderInput={(params) => <StyledTextField  {...params} label="Danh mục cha" 
+                        renderInput={(params) => <StyledTextField  {...params}
                                                     helperText="Để trống để tạo danh mục nền" />}
                     />
 
@@ -146,7 +187,7 @@ const AddCategory = () => {
                 </Form>
 
             </ContainerWrapper>
-        </div>
+        </PageWrapper>
     )
 }
 

@@ -1,32 +1,53 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Link, useHistory } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
+import { KeyboardBackspace } from '@mui/icons-material';
 import { TextField, Autocomplete, Box } from '@mui/material';
 
-const StyledLink = styled(Link)`
-    text-decoration: none;
+const PageWrapper = styled.div`
+    width: 720px;
+    margin: 40px auto;
+`;
+
+const Row = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const StyledBackIcon = styled(KeyboardBackspace)`
+    && {
+        color: #727272;
+        padding: 5px;
+        border: 1px solid #727272;
+        border-radius: 4px;
+    }
+`;
+
+const TitleGrey = styled.span`
     color: #727272;
 `;
 
 const Title = styled.h1`
-    font-size: 30px;
+    font-size: 16px;
     color: #383838;
-    margin: 15px;
+    margin: 20px;
 `;
 
 const ContainerWrapper = styled.div`
-    margin: 20px;
-    padding: 20px 40px;
     box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
     background-color: #fff;
     border-radius: 5px;
 `;
 
+const FormLabel = styled.div`
+    font-weight: 700;
+    margin-bottom: 10px;
+`;
+
 const Form = styled.form`
     padding: 20px;
     margin: 0 auto;
-    width: 40%;
 `;
 
 const AddButton = styled.button`
@@ -59,12 +80,23 @@ const StyledTextField = styled(TextField)`
 const StyledAutocomplete = styled(Autocomplete)``;
 
 const AddPoi = () => {
-    let history = useHistory();
+    let navigate = useNavigate();
     const [autocomplete, setAutocomplete] = useState([]); //autocomplete
 
-    const [createTitle, setCreateTitle] = useState(null);
-    const [createText, setCreateText] = useState(null);
-    const [createApartment, setCreateApartment] = useState({ApartmentId: null});
+    const [input, setInput] = useState({
+        title: '',
+        text: '',
+        apartment: ''
+    })
+    const [error, setError] = useState({
+        titleError: '',
+        apartmentError: ''
+    });
+
+    function handleChange(e) {
+        const { name, value } = e.target;
+        setInput(input => ({ ...input, [name]: value }));
+    }
 
     useEffect (() => {
         const url = "apartment/autocomplete";
@@ -81,8 +113,8 @@ const AddPoi = () => {
 
     const handleAddPoi = (event) => {
         event.preventDefault();
-        if (checkValid(createTitle, createApartment.ApartmentId)) {
-            const url = "poi/create";
+        if (validCheck()) {
+            const url = "poi";
 
             const addPoi = async () => {
                 try {
@@ -90,15 +122,15 @@ const AddPoi = () => {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            title: createTitle,
-                            text: createText,
+                            title: input.title,
+                            text: input.text,
                             residentId: null,
-                            apartmentId: createApartment.ApartmentId
+                            apartmentId: input.apartment.ApartmentId
                         })
                     });
                     const json = await res.json();
                     if (json.ResultMessage === "SUCCESS") {
-                        history.push('/pois', {name: createTitle} );
+                        navigate('/pois', { state: { name: input.title } } );
                     }
                 } catch (error) { }
             };
@@ -106,44 +138,51 @@ const AddPoi = () => {
         }
     }
 
-    const checkValid = (title, apartmentId) => {
-        if (title === null || title === '') {
-            setCreateTitle('');
+    const validCheck = () => {
+        let check = false;
+        if (input.title === null || input.title === '') {
+            setError(error => ({ ...error, titleError: 'Vui lòng nhập tiêu đề' }));
+            check = true;
+        }
+        if (input.apartment === null || input.apartment === '') {
+            setError(error => ({ ...error, apartmentError: 'Vui lòng chọn chung cư' }));
+            check = true;
+        }
+        if (check === true) {
             return false;
         }
-        if (apartmentId === null || apartmentId === '') {
-            setCreateApartment({ApartmentId: ''});
-            return false;
-        }
+        setError(error => ({ ...error, titleError: '', apartmentError: '' }));
         return true;
     }
 
     return (
-        <div>
-            <Title>
-                <StyledLink to={"/pois"}>POIs </StyledLink>/ Tạo POI mới
-            </Title>
+        <PageWrapper>
+            <Row>
+                <Link to="/pois"><StyledBackIcon /></Link>
+                <Title><TitleGrey>POIs </TitleGrey>/ Tạo POI mới</Title>
+            </Row>
             
             <ContainerWrapper>
                 <Form onSubmit={handleAddPoi} id="form">
+                    <FormLabel>Tiêu đề</FormLabel>
                     <StyledTextField
-                        fullWidth 
-                        value={createTitle}
-                        onChange={event => setCreateTitle(event.target.value)}
-                        error={createTitle === ''}
-                        helperText={createTitle === '' ? 'Vui lòng nhập tựa đề' : ''}
-                        label="Tựa đề" 
+                        fullWidth
+                        value={input.title ? input.title : ''} name='title'
+                        onChange={handleChange}
+                        error={error.titleError !== ''}
+                        helperText={error.titleError}
                     />
 
+                    <FormLabel>Nội dung</FormLabel>
                     <StyledTextField
                         fullWidth multiline rows={4}
-                        value={createText}
-                        onChange={event => setCreateText(event.target.value)}
-                        label="Nội dung" 
+                        value={input.text} name='text'
+                        onChange={handleChange}
                     />
 
+                    <FormLabel>Chung cư</FormLabel>
                     <StyledAutocomplete
-                        onChange={(event, value) => setCreateApartment(value)}
+                        onChange={(event, value) => setInput(input => ({ ...input, apartment: value }))}
                         selectOnFocus clearOnBlurbhandleHomeEndKeys disablePortal
                         getOptionLabel={(item) => item.Address}
                         options={autocomplete}
@@ -154,16 +193,16 @@ const AddPoi = () => {
                                 </Box>
                             );
                           }}
-                        renderInput={(params) => <StyledTextField  {...params} label="Chung cư"
-                                                                    error={createApartment.ApartmentId === ''}
-                                                                    helperText={createApartment.ApartmentId === '' ? 'Vui lòng chọn chung cư' : ''} />}
+                        renderInput={(params) => <StyledTextField  {...params}
+                                            error={error.apartmentError !== ''}
+                                            helperText={error.apartmentError} />}
                     />
 
                     <AddButton>Tạo cửa hàng</AddButton>
                 </Form>
 
             </ContainerWrapper>
-        </div>
+        </PageWrapper>
     )
 }
 

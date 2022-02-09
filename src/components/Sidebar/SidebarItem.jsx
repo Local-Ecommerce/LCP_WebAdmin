@@ -7,25 +7,26 @@ const SidebarLink = styled(Link)`
     justify-content: space-between;
     align-items: center;
     text-align: center;
-    padding: 0px 20px 0px  ${props => props.pad ? "30px" : "20px"};
+    padding: 0px 20px 0px 20px;
     list-style: none;
-    height: 60px;
+    height: 50px;
     text-decoration: none;
-    color: #bac3b7;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #44474a;
+    font-size: 0.9em;
+    font-weight: 600;
 
     &:hover {
-        background-color: #3a4248;
+        background-color: rgba(246, 246, 247, 1);
         cursor: pointer;
         text-decoration: none;
-        color: #bac3b7;
+        color: #17a2b8;
     }
 
     &:focus {
-        background-color: #3a4248;
+        background-color: rgba(246, 246, 247, 1);
         cursor: pointer;
         text-decoration: none;
-        color: #bac3b7;
+        color: #17a2b8;
     }
 `;
 
@@ -34,26 +35,33 @@ const SidebarDiv = styled.div`
     justify-content: space-between;
     align-items: center;
     text-align: center;
-    padding: 0px 20px 0px  ${props => props.pad ? "30px" : "20px"};
+    padding: 0px 20px 0px 20px;
     list-style: none;
-    height: 60px;
+    height: 50px;
     text-decoration: none;
-    color: #bac3b7;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #44474a;
+    font-size: 0.9em;
+    font-weight: 600;
 
     &:hover {
-        background-color: #3a4248;
+        background-color: rgba(246, 246, 247, 1);
         cursor: pointer;
         text-decoration: none;
-        color: #bac3b7;
+        color: #17a2b8;
     }
 
     &:focus {
-        background-color: #3a4248;
+        background-color: rgba(246, 246, 247, 1);
         cursor: pointer;
         text-decoration: none;
-        color: #bac3b7;
+        color: #17a2b8;
     }
+`;
+
+const SidebarChild = styled(SidebarLink)`
+    color: #8e9092;
+    padding: 0px 20px 0px 44px;
+    height: 45px;
 `;
 
 const Row = styled.div`
@@ -74,7 +82,7 @@ const SidebarItem = ({ item }) => {
         <>
             {
             (item.path !== null) ?
-            <SidebarLink pad={item.icon === '' ? true : false} to={item.path} onClick={item.subNav ? showSubnav : null}>
+            <SidebarLink to={item.path} onClick={item.subNav ? showSubnav : null}>
                 <Row>
                     {item.icon}
                     <SidebarLabel>{item.title}</SidebarLabel>
@@ -88,7 +96,7 @@ const SidebarItem = ({ item }) => {
                 </div>
             </SidebarLink> 
             :
-            <SidebarDiv pad={item.icon === '' ? true : false} to={item.path} onClick={item.subNav ? showSubnav : null}>
+            <SidebarDiv to={item.path} onClick={item.subNav ? showSubnav : null}>
                 <Row>
                     {item.icon}
                     <SidebarLabel>{item.title}</SidebarLabel>
@@ -105,7 +113,19 @@ const SidebarItem = ({ item }) => {
             {subnav &&
                 item.subNav.map((item, index) => {
                     return (
-                        <SidebarItem item={item} pad key={index}/>
+                        <SidebarChild to={item.path} onClick={item.subNav ? showSubnav : null} key={index}>
+                            <Row>
+                                {item.icon}
+                                <SidebarLabel>{item.title}</SidebarLabel>
+                            </Row>
+                            <div>
+                                {item.subNav && subnav
+                                    ? item.iconOpened
+                                    : item.subNav
+                                        ? item.iconClosed
+                                        : null}
+                            </div>
+                        </SidebarChild>
                     );
                 })}
         </>

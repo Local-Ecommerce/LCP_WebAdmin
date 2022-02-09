@@ -26,6 +26,7 @@ import StoreDetail from './pages/Store/StoreDetail';
 import EditStore from './pages/Store/EditStore';
 
 import Apartment from './pages/Apartment/Apartment';
+import AddApartment from './pages/Apartment/AddApartment';
 import ApartmentDetail from './pages/Apartment/ApartmentDetail';
 import EditApartment from './pages/Apartment/EditApartment';
 
@@ -37,79 +38,92 @@ import News from './pages/News/News';
 import AddNews from "./pages/News/AddNews";
 import EditNews from './pages/News/EditNews';
 
-import { BrowserRouter as Router, Route, Redirect, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Route, Navigate, Routes, Outlet } from "react-router-dom";
 
-const Main = styled.div`
-    display: flex;
+const HeaderWrapper = styled.div`
+    position:absolute; position: fixed; 
+    left:0; right:0;
+    height: 62px;
 `;
 
-const Content = styled.div`
-    width: 100%;
-    margin: 20px 50px 20px 300px;
-    transition: all 0.3s;
+const SidebarWrapper = styled.div`
+    position:absolute; position: fixed; 
+    left:0; top:0px; bottom: 0;
+    width: 245px;
 `;
 
-const PrivateRoute = ({ component: Component, ...rest }) =>  {
+const ContentWrapper = styled.div`
+  position: absolute;
+  left:245px; top:62px; right:0; bottom:0;
+`;
+
+const SidebarLayout = () => (
+	<>
+        <ToastContainer />
+
+		<ContentWrapper>
+			<Outlet />
+		</ContentWrapper>
+
+		<SidebarWrapper>
+			<Sidebar />
+		</SidebarWrapper>
+
+		<HeaderWrapper>
+			<Header />
+		</HeaderWrapper>
+	</>
+);
+
+const PrivateRoute = ({ children }) => {
     const accessToken = localStorage.getItem("accessToken");
 
-    return (
-        <Route {...rest} render={(props) => (
-            accessToken
-            ? <Component {...props} />
-            : <Redirect to='/login' />
-        )} />
-    );
-};
+    return accessToken ? children : <Navigate to="/login" />;
+  }
 
 const App = () => {
     return (
-        <Main>
-            <Router>
-                <Switch>
-                    <Route path="/login"> <Login /> </Route>
-                    <>
-                        <Sidebar />
-                        <Content>
-                            <Header />
-                            <ToastContainer />
+        <Router>
+            <Routes>
+                <Route element={<SidebarLayout/>}>
+                    <Route exact path="/" element={<PrivateRoute> <Home /> </PrivateRoute>} />
 
-                                <PrivateRoute exact path="/" component={Home} />
+                    <Route path="/collections" element={<PrivateRoute> <Collection /> </PrivateRoute>} />
+                    <Route path="/collection/:id" element={<PrivateRoute> <CollectionDetail /> </PrivateRoute>} />
+                    <Route path="/editCollection/:id" element={<PrivateRoute> <EditCollection /> </PrivateRoute>} />
 
-                                <PrivateRoute path="/collections" component={Collection} />
-                                <PrivateRoute path="/collection/:id" component={CollectionDetail} />
-                                <PrivateRoute path="/editCollection/:id" component={EditCollection} />
+                    <Route path="/categories" element={<PrivateRoute> <Category /> </PrivateRoute>} />
+                    <Route path="/addCategory" element={<PrivateRoute> <AddCategory /> </PrivateRoute>} />
+                    <Route path="/editCategory/:id" element={<PrivateRoute> <EditCategory /> </PrivateRoute>} />
 
-                                <PrivateRoute path="/categories" component={Category} />
-                                <PrivateRoute path="/addCategory" component={AddCategory} />
-                                <PrivateRoute path="/editCategory/:id" component={EditCategory} />
+                    <Route path="/menus" element={<PrivateRoute> <Menu /> </PrivateRoute>} />
+                    <Route path="/menu/:id" element={<PrivateRoute> <MenuDetail /> </PrivateRoute>} />
+                    <Route path="/editMenu/:id" element={<PrivateRoute> <EditMenu /> </PrivateRoute>} />
 
-                                <PrivateRoute path="/menus" component={Menu} />
-                                <PrivateRoute path="/menu/:id" component={MenuDetail} />
-                                <PrivateRoute path="/editMenu/:id" component={EditMenu} />
+                    <Route path="/applicables" element={<PrivateRoute> <Home /> </PrivateRoute>} />
 
-                                <PrivateRoute path="/applicables" component={Home} />
+                    <Route path="/stores" element={<PrivateRoute> <Store /> </PrivateRoute>} />
+                    <Route path="/store/:id" element={<PrivateRoute> <StoreDetail /> </PrivateRoute>} />
+                    <Route path="/addStore" element={<PrivateRoute> <AddStore /> </PrivateRoute>} />
+                    <Route path="/editStore/:id" element={<PrivateRoute> <EditStore /> </PrivateRoute>} />
 
-                                <PrivateRoute path="/stores" component={Store} />
-                                <PrivateRoute path="/store/:id" component={StoreDetail} />
-                                <PrivateRoute path="/addStore" component={AddStore} />
-                                <PrivateRoute path="/editStore/:id" component={EditStore} />
+                    <Route path="/apartments" element={<PrivateRoute> <Apartment /> </PrivateRoute>} />
+                    <Route path="/apartment/:id" element={<PrivateRoute> <ApartmentDetail /> </PrivateRoute>} />
+                    <Route path="/addApartment" element={<PrivateRoute> <AddApartment /> </PrivateRoute>} />
+                    <Route path="/editApartment/:id" element={<PrivateRoute> <EditApartment /> </PrivateRoute>} />
 
-                                <PrivateRoute path="/apartments" component={Apartment} />
-                                <PrivateRoute path="/apartment/:id" component={ApartmentDetail} />
-                                <PrivateRoute path="/editApartment/:id" component={EditApartment} />
+                    <Route path="/pois" element={<PrivateRoute> <Poi /> </PrivateRoute>} />
+                    <Route path="/addPoi" element={<PrivateRoute> <AddPoi /> </PrivateRoute>} />
+                    <Route path="/editPoi/:id" element={<PrivateRoute> <EditPoi /> </PrivateRoute>} />
 
-                                <PrivateRoute path="/pois" component={Poi} />
-                                <PrivateRoute path="/addPoi" component={AddPoi} />
-                                <PrivateRoute path="/editPoi/:id" component={EditPoi} />
+                    <Route path="/news" element={<PrivateRoute> <News /> </PrivateRoute>} />
+                    <Route path="/addNews" element={<PrivateRoute> <AddNews /> </PrivateRoute>} />
+                    <Route path="/editNews/:id" element={<PrivateRoute> <EditNews /> </PrivateRoute>} />
+				</Route>
 
-                                <PrivateRoute path="/news" component={News} />
-                                <PrivateRoute path="/addNews" component={AddNews} />
-                                <PrivateRoute path="/editNews/:id" component={EditNews} />
-                        </Content>
-                    </>
-                </Switch>
-            </Router>
-        </Main>
+                <Route path="/login" element={<Login />} />
+            </Routes>
+        </Router>
     )
 }
 

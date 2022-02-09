@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import React, { useState, useEffect } from 'react';
 import { TextField } from '@mui/material';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const LoginFormContainer = styled.div`
     position: fixed;
@@ -71,15 +71,26 @@ const StyledButton = styled.button`
 `;
 
 const Login = () => {
-    let history = useHistory();
-    const [username, setUsername] = useState(null);
-    const [password, setPassword] = useState(null);
+    let navigate = useNavigate();
+    const [input, setInput] = useState({
+        username: '',
+        password: ''
+    })
+    const [error, setError] = useState({
+        usernameError: '',
+        passwordError: ''
+    });
+
+    function handleChange(e) {
+        const { name, value } = e.target;
+        setInput(input => ({ ...input, [name]: value }));
+    }
 
     useEffect(() => {
         const accessToken = localStorage.getItem("accessToken");
 
         if(accessToken){
-            history.push("/");
+            navigate("/");
         }
     });
 
@@ -92,10 +103,10 @@ const Login = () => {
                 <TextFieldWrapper>
                     <TextField
                         fullWidth
-                        value={username}
-                        onChange={event => setUsername(event.target.value)}
-                        error={username === ''}
-                        helperText={username === '' ? 'Vui lòng nhập tài khoản' : ''}
+                        value={input.username ? input.username : ''}
+                        onChange={handleChange}
+                        error={error.usernameError !== ''}
+                        helperText={error.usernameError}
                         label="Tài khoản"
                     />
                 </TextFieldWrapper>
@@ -103,11 +114,11 @@ const Login = () => {
                 <TextFieldWrapper>
                     <TextField
                         fullWidth
-                        value={password}
+                        value={input.password ? input.password : ''}
                         type="password"
-                        onChange={event => setPassword(event.target.value)}
-                        error={password === ''}
-                        helperText={password === '' ? 'Vui lòng nhập mật khẩu' : ''}
+                        onChange={handleChange}
+                        error={error.passwordError !== ''}
+                        helperText={error.passwordError}
                         label="Mật khẩu" 
                     />
                 </TextFieldWrapper>

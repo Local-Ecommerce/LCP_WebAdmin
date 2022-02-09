@@ -1,24 +1,52 @@
 import React from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
-import { Notifications } from '@mui/icons-material';
+import { Notifications, Search } from '@mui/icons-material';
 import { Badge } from '@mui/material';
 
+import Logo from '../components/Header/Logo';
 import Avatar from '../components/Header/Avatar';
 
-const Row = styled.div`
+const Wrapper = styled.div`
     display: flex;
+    background-color: #fff;
+    padding: 10px 30px 10px 10px;
+    box-shadow: 0 4px 3px -5px rgba(0, 0, 0, 0.75);
+    justify-content: space-between;
     align-items: center;
 `;
 
-const Wrapper = styled.div`
-    width: 100%;
-    border-bottom: 1px solid #dee2e6;
+const SearchField = styled.div`
+    display: flex;
+    width: 31%;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    border-color: #E0E0E0;
+    border-style: solid;
+    border-width: thin;
+    height: 35px;
+    padding: 0px 3px 0px 8px;
+    background-color: #f6f6f7;
 `;
 
-const FloatRight = styled.div`
-    float: right;
-    margin-bottom: 15px;
+const Input = styled.input`
+    padding: 4px;
+    flex-grow: 1;
+    background-color: transparent;
+    outline: none;
+    border: none;
+    margin-right: 8px;
+
+    &:focus {
+    outline: 0;
+    }
+`;
+
+const StyledSearchIcon = styled(Search)`
+    && {
+        color: grey;
+    }
 `;
 
 const StyledBadge = styled(Badge)`
@@ -34,8 +62,8 @@ const StyledBadge = styled(Badge)`
 const IconButton = styled.button`
     margin-right: 20px;
     padding: 5px;
-    background-color: #f0f3f6;
-    border: 1px solid #f0f3f6;
+    background-color: #fff;
+    border: 1px solid #fff;
     border-radius: 50px;
 
     &:hover {
@@ -49,7 +77,7 @@ const IconButton = styled.button`
 
 const StyledNotificationIcon = styled(Notifications)`
     && {
-        font-size: 30px;
+        font-size: 24px;
         color: grey;
     }
 `;
@@ -107,28 +135,33 @@ const Header = () => {
     const [NotificationModal, toggleNotificationModal] = React.useState(false);
 
     return (
-        <Row>
-            <Wrapper>
-                <FloatRight>
-                    <IconButton onClick={() => toggleNotificationModal(!NotificationModal)}>
-                        <StyledBadge badgeContent={1} overlap="circular">
-                            <StyledNotificationIcon />
-                        </StyledBadge>
-                    </IconButton>
-                    
-                    <Modal isOpen={NotificationModal} onRequestClose={() => toggleNotificationModal(!NotificationModal)} style={customStyles} ariaHideApp={false}>
-                        <ModalTitle>Thông báo</ModalTitle>
+        <Wrapper>
+            <Logo />
 
-                        <ModalContentWrapper>
-                        </ModalContentWrapper>
+            <SearchField>
+                <StyledSearchIcon />
+                <Input placeholder="Tìm kiếm" />
+            </SearchField>
 
-                        <ModalButton red onClick={() => toggleNotificationModal(!NotificationModal)}>Quay lại</ModalButton>
-                    </Modal>
+            <div>
+                <IconButton onClick={() => toggleNotificationModal(!NotificationModal)}>
+                    <StyledBadge badgeContent={1} overlap="circular">
+                        <StyledNotificationIcon />
+                    </StyledBadge>
+                </IconButton>
+            
+                <Avatar />
+            </div>
 
-                    <Avatar />
-                </FloatRight>
-            </Wrapper>
-        </Row>
+            <Modal isOpen={NotificationModal} onRequestClose={() => toggleNotificationModal(!NotificationModal)} style={customStyles} ariaHideApp={false}>
+                <ModalTitle>Thông báo</ModalTitle>
+
+                <ModalContentWrapper>
+                </ModalContentWrapper>
+
+                <ModalButton red onClick={() => toggleNotificationModal(!NotificationModal)}>Quay lại</ModalButton>
+            </Modal>
+        </Wrapper>
     );
 }
 

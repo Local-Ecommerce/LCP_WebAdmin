@@ -1,16 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
-import Logo from '../components/Sidebar/Logo';
 import SidebarData from '../components/Sidebar/SidebarData';
 import SidebarItem from '../components/Sidebar/SidebarItem';
 import { Logout } from '@mui/icons-material';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const SidebarWrapper = styled.div`
-    background-color: #2f353a;
+    background-color: #fff;
     text-decoration: none;
-    min-width: 260px;
-    max-width: 260px;
+    min-width: 245px;
+    max-width: 245px;
     height: 100vh;
     border-right: 1px solid #E0E0E0;
     position: fixed; 
@@ -29,25 +28,26 @@ const SidebarDiv = styled.div`
     justify-content: space-between;
     align-items: center;
     text-align: center;
-    padding: 0px 20px 0px  ${props => props.pad ? "30px" : "20px"};
+    padding: 0px 20px 0px 20px;
     list-style: none;
-    height: 60px;
+    height: 50px;
     text-decoration: none;
-    color: #bac3b7;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #44474a;
+    font-size: 0.9em;
+    font-weight: 600;
 
     &:hover {
-        background-color: #3a4248;
+        background-color: rgba(246, 246, 247, 1);
         cursor: pointer;
         text-decoration: none;
-        color: #bac3b7;
+        color: #17a2b8;
     }
 
     &:focus {
-        background-color: #3a4248;
+        background-color: rgba(246, 246, 247, 1);
         cursor: pointer;
         text-decoration: none;
-        color: #bac3b7;
+        color: #17a2b8;
     }
 `;
 
@@ -66,16 +66,16 @@ const PaddingBlock = styled.div`
 `;
 
 const Sidebar = () => {
-    let history = useHistory();
+    let navigate = useNavigate();
 
     const handleLogOut = () => {
         localStorage.removeItem("accessToken");
-        history.push("/login");
+        navigate("/login");
     }
 
     return (
         <SidebarWrapper>
-            <Logo />
+            <PaddingBlock />
 
             {SidebarData.map((item, index) => {
                 return <SidebarItem item={item} key={index} />;

@@ -2,27 +2,45 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useParams, Link } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
+import { KeyboardBackspace } from '@mui/icons-material';
 import { TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { toast } from 'react-toastify';
 import { DateTime } from 'luxon';
 
-const StyledLink = styled(Link)`
-    text-decoration: none;
+const PageWrapper = styled.div`
+    width: 1080px;
+    margin: 40px auto;
+`;
+
+const Row = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const StyledBackIcon = styled(KeyboardBackspace)`
+    && {
+        color: #727272;
+        padding: 5px;
+        border: 1px solid #727272;
+        border-radius: 4px;
+    }
+`;
+
+const TitleGrey = styled.span`
     color: #727272;
 `;
 
 const Title = styled.h1`
-    font-size: 30px;
+    font-size: 16px;
     color: #383838;
-    margin: 15px;
+    margin: 20px;
 `;
 
 const ContainerWrapper = styled.div`
     display: flex;
-    margin-top: 20px;
 `;
 
-const StoreDetailWrapper = styled.div`
+const DetailWrapper = styled.div`
     flex: 2;
     padding: 20px 40px;
     background-color: #ffffff;
@@ -30,7 +48,7 @@ const StoreDetailWrapper = styled.div`
     box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
-const StoreUpdateWrapper = styled.div`
+const UpdateWrapper = styled.div`
     flex: 2;
     padding: 20px 40px;
     background-color: #ffffff;
@@ -126,17 +144,25 @@ const UpdateButton = styled.button`
     }
 `;
 
-
 const EditStore = () => {
     const { id } = useParams();
     const [item, setItem] = useState({ Resident: {ResidentName: ''}, Apartment: {Address: ''} });
 
-    const [updateName, setUpdateName] = useState('');
-    const [updateStatus, setUpdateStatus] = useState(6005);
-
+    const [input, setInput] = useState({
+        name: '',
+        status: 6004
+    })
+    const [error, setError] = useState({
+        nameError: ''
+    });
     const [success, setSuccess] = useState(false);
     let activeCheck = '';
     let activeLabel = '';
+
+    function handleChange(e) {
+        const { name, value } = e.target;
+        setInput(input => ({ ...input, [name]: value }));
+    }
 
     useEffect(() => {
         const url = "store/" + id;
@@ -146,8 +172,10 @@ const EditStore = () => {
                 const res = await fetch(publicRequest(url));
                 const json = await res.json();
                 setItem(json.Data);
-                setUpdateName(json.Data.StoreName);
-                setUpdateStatus(json.Data.Status);
+                setInput({
+                    name: json.Data.StoreName,
+                    status: json.Data.Status
+                });
             } catch (error) { }
         };
         fetchStore();
@@ -155,7 +183,7 @@ const EditStore = () => {
 
     const handleEditStore = (event) => {
         event.preventDefault();
-        if (validCheck(updateName, updateStatus)) {
+        if (validCheck()) {
             const url = "store/" + id;
 
             const updateCollection = async () => {
@@ -164,14 +192,14 @@ const EditStore = () => {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            storeName: updateName,
-                            status: updateStatus,
+                            storeName: input.name,
+                            status: input.status,
                             apartmentId: item.ApartmentId
                         })
                     });
                     const json = await res.json();
                     if (json.ResultMessage === "SUCCESS") {
-                        const notify = () => toast.success("Cập nhật thành công " + item.StoreName + "!", {
+                        const notify = () => toast.success("Cập nhật thành công " + input.name + "!", {
                             position: toast.POSITION.TOP_CENTER
                         });
                         notify();
@@ -183,13 +211,19 @@ const EditStore = () => {
         }
     }
 
-    const validCheck = (name, status) => {
-        if (name === null || name === '') {
+    const validCheck = () => {
+        let check = false;
+        if (input.name === null || input.name === '') {
+            setError(error => ({ ...error, nameError: 'Vui lòng nhập tên cửa hàng' }));
+            check = true;
+        }
+        if (!(input.status === 6004 || input.status === 6005 || input.status === 6006 || input.status === 6007)) {
+            check = true;
+        }
+        if (check === true) {
             return false;
         }
-        if (!(status === 6004 || status === 6005)) {
-            return false;
-        }
+        setError(error => ({ ...error, nameError: '' }));
         return true;
     }
 
@@ -217,11 +251,14 @@ const EditStore = () => {
     }
 
     return (
-        <div>
-            <Title><StyledLink to={"/stores"}>Danh sách cửa hàng</StyledLink> / {item.StoreName} </Title>
+        <PageWrapper>
+            <Row>
+                <Link to="/stores"><StyledBackIcon /></Link>
+                <Title><TitleGrey>Cửa hàng </TitleGrey>/ {item.StoreName}</Title>
+            </Row>
 
             <ContainerWrapper>
-                <StoreDetailWrapper>
+                <DetailWrapper>
                     <UpdateTitle>
                         Chi tiết
                     </UpdateTitle>
@@ -259,27 +296,28 @@ const EditStore = () => {
                         </DetailInfo>
 
                     </DetailBottom>
-                </StoreDetailWrapper>
+                </DetailWrapper>
 
 
-                <StoreUpdateWrapper>
+                <UpdateWrapper>
                     <UpdateTitle>Chỉnh sửa</UpdateTitle>
 
                     <UpdateForm onSubmit={handleEditStore}>
                         <StyledTextField
-                            value={updateName}
-                            onChange={event => setUpdateName(event.target.value)}
-                            error={updateName === ''}
-                            helperText={updateName === '' ? 'Vui lòng nhập tên cửa hàng' : ''}
+                            fullWidth 
+                            value={input.name ? input.name : ''} name='name'
+                            onChange={handleChange}
+                            error={error.nameError !== ''}
+                            helperText={error.nameError}
                             label="Tên cửa hàng" 
                         />
 
                         <StyledFormControl>
                             <InputLabel id="demo-simple-select-label">Trạng thái</InputLabel>
                             <Select 
-                                value={updateStatus}
+                                value={input.status} name='status'
                                 label="Trạng thái"
-                                onChange={(event) => setUpdateStatus(event.target.value)}
+                                onChange={handleChange}
                             >
                             <MenuItem value={6005}>Active</MenuItem>
                             <MenuItem value={6004}>Deleted</MenuItem>
@@ -290,9 +328,9 @@ const EditStore = () => {
 
                         <UpdateButton>Cập nhật</UpdateButton>
                     </UpdateForm>
-                </StoreUpdateWrapper>
+                </UpdateWrapper>
             </ContainerWrapper>
-        </div>
+        </PageWrapper>
     )
 }
 

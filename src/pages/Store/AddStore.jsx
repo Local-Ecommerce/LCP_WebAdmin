@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Link, useHistory } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
 import { TextField, Autocomplete, Box } from '@mui/material';
 
@@ -57,7 +57,7 @@ const StyledAutocomplete = styled(Autocomplete)`
 `;
 
 const AddStore = () => {
-    let history = useHistory();
+    let navigate = useNavigate();
     const [residentList, setResidentList] = useState([]);   //autocomplete
     const [apartmentList, setApartmentList] = useState([]); //autocomplete
 
@@ -109,7 +109,7 @@ const AddStore = () => {
                     });
                     const json = await res.json();
                     if (json.ResultMessage === "SUCCESS") {
-                        history.push('/stores', {name: createName} );
+                        navigate('/stores', {name: createName} );
                     }
                 } catch (error) { }
             };

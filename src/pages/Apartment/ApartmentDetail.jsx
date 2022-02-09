@@ -3,29 +3,47 @@ import styled from 'styled-components';
 import Modal from 'react-modal';
 import { useParams, Link } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
+import { KeyboardBackspace } from '@mui/icons-material';
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import ShopNotifications from '../../mockdata/ShopNotifications';
 import ProductNotifications from '../../mockdata/ProductNotifications';
 import NotificationList from '../../components/Notification/NotificationList';
 
-const StyledLink = styled(Link)`
-    text-decoration: none;
+const PageWrapper = styled.div`
+    width: 1080px;
+    margin: 40px auto;
+`;
+
+const Row = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const StyledBackIcon = styled(KeyboardBackspace)`
+    && {
+        color: #727272;
+        padding: 5px;
+        border: 1px solid #727272;
+        border-radius: 4px;
+    }
+`;
+
+const TitleGrey = styled.span`
     color: #727272;
 `;
 
 const Title = styled.h1`
-    font-size: 30px;
+    font-size: 16px;
     color: #383838;
-    margin: 15px;
+    margin: 20px;
 `;
 
 const ContainerWrapper = styled.div`
-    margin-top: 20px;
 `;
 
 const InfoText = styled.span`
     display: block;
-    margin: 50px 0px 10px 0px;
+    margin: 30px 0px 10px 0px;
     font-size: 15px;
     font-weight: 600;
     color: rgba(51,51,51,.64);
@@ -193,9 +211,12 @@ const EditApartment = () => {
     }
 
     return (
-        <div>
-            <Title><StyledLink to={"/apartments"}>Chung cư</StyledLink> / {item.Address} </Title>
-
+        <PageWrapper>
+            <Row>
+                <Link to="/apartments"><StyledBackIcon /></Link>
+                <Title><TitleGrey>Chung cư </TitleGrey>/ {item.Address}</Title>
+            </Row>
+            
             <ContainerWrapper>
                 <InfoText>Cửa hàng chờ duyệt <Status>{stores.length}</Status> </InfoText>
 
@@ -248,7 +269,7 @@ const EditApartment = () => {
                     <ModalButton red onClick={() => { toggleDeleteModal(!DeleteModal) }}>Từ chối</ModalButton>
                 </ModalButtonWrapper>
             </Modal>
-        </div>
+        </PageWrapper>
     )
 }
 
