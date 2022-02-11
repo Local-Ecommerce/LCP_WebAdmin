@@ -26,11 +26,6 @@ const SidebarData = [
 
         subNav: [
             {
-                title: 'Bộ sưu tập',
-                path: '/collections',
-                icon: ''
-            },
-            {
                 title: 'Danh mục',
                 path: '/categories',
                 icon: '',
