@@ -8,7 +8,7 @@ import { Search } from '@mui/icons-material';
 import { useLocation } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
 import { toast } from 'react-toastify';
-
+import { useAuth } from "../../contexts/AuthContext";
 
 const PageWrapper = styled.div`
     margin: 50px 40px;
@@ -281,6 +281,7 @@ const Footer = styled.div`
 `;
 
 const Store = () => {
+    const { authToken } = useAuth();
     const location = useLocation(); //để fetch state name truyền từ AddStore qua
 
     const [DeleteModal, toggleDeleteModal] = useState(false);
@@ -313,9 +314,12 @@ const Store = () => {
 
         const fetchData = async () => {
             try {
-                const res = await fetch(publicRequest(url), { method: 'GET' });
+                const res = await fetch(publicRequest(url), { 
+                    method: 'GET',
+                    headers: { 'Authorization': authToken } 
+                });
                 const json = await res.json();
-                await setAPIdata(json.Data);
+                setAPIdata(json.Data);
             } catch (error) { }
         };
         fetchData();

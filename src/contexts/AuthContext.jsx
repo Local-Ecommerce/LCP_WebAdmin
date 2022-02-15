@@ -10,7 +10,7 @@ export function useAuth() {
 
 export function AuthProvider({ children }) {
     const [currentUser, setCurrentUser] = useState();
-    const [token, setToken] = useState();
+    const [authToken, setAuthToken] = useState();
     const [loading, setLoading] = useState(true);
 
     function signup(email, password) {
@@ -40,25 +40,18 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async user => {
             setCurrentUser(user);
-            const fetchData = async () => {
-                try {
-                    if (user) {
-                        user.getIdToken(true).then(async idToken => {
-                            const res = await fetch(publicRequest("account/login"), {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    firebaseToken: idToken
-                                })
-                            });
-                            const json = await res.json();
-                            console.log(json);
-                            setToken(idToken);
-                        });
-                    };
-                } catch (error) { }
-            };
-            await fetchData();
+            if (user) {
+                const firebaseToken = await user.getIdToken(true);
+                const res = await fetch(publicRequest("account/login"), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        firebaseToken: firebaseToken
+                    })
+                });
+                const json = await res.json();
+                setAuthToken(json.Data.Token);
+            }
             setLoading(false);
         })
 
@@ -67,7 +60,7 @@ export function AuthProvider({ children }) {
 
     const value = {
         currentUser,
-        token,
+        authToken,
         login,
         signup,
         logout,

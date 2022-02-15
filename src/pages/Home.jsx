@@ -1,16 +1,12 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useAuth } from "../contexts/AuthContext";
 
 const Home = () => {
-    const { currentUser, token } = useAuth();
-
-    useEffect(() => {
-        console.log(token);
-    }, []);
+    const { currentUser } = useAuth();
 
     return (
         <>
-        Hello, {currentUser.email}. Token: {token}
+        Hello, {currentUser.email}
         </>
     )
 }

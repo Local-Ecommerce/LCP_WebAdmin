@@ -7,7 +7,6 @@ import ReactPaginate from "react-paginate";
 import { Search } from '@mui/icons-material';
 import { publicRequest } from "../../RequestMethod";
 import { toast } from 'react-toastify';
-import { useAuth } from "../../contexts/AuthContext";
 
 const PageWrapper = styled.div`
     margin: 50px 40px;
@@ -280,7 +279,6 @@ const Footer = styled.div`
 `;
 
 const Menu = () =>  {
-    const { currentUser } = useAuth();
     const [DeleteModal, toggleDeleteModal] = useState(false);
     const [deleteItem, setDeleteItem] = useState({id: '', name: ''});
 
@@ -302,10 +300,7 @@ const Menu = () =>  {
 
         const fetchData = async () => {
             try {
-                const res = await fetch(publicRequest(url), { 
-                    method: 'GET',
-                    headers: { 'Authorization': currentUser.Token }
-                });
+                const res = await fetch(publicRequest(url), { method: 'GET' });
                 const json = await res.json();
                 setAPIdata(json.Data);
             } catch (error) { }
