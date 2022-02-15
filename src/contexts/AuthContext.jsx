@@ -10,6 +10,7 @@ export function useAuth() {
 
 export function AuthProvider({ children }) {
     const [currentUser, setCurrentUser] = useState();
+    const [firebaseToken, setFirebaseToken] = useState();
     const [authToken, setAuthToken] = useState();
     const [loading, setLoading] = useState(true);
 
@@ -50,6 +51,7 @@ export function AuthProvider({ children }) {
                     })
                 });
                 const json = await res.json();
+                setFirebaseToken(firebaseToken);
                 setAuthToken(json.Data.Token);
             }
             setLoading(false);
@@ -60,6 +62,7 @@ export function AuthProvider({ children }) {
 
     const value = {
         currentUser,
+        firebaseToken,
         authToken,
         login,
         signup,
