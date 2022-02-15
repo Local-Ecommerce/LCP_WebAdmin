@@ -1,7 +1,8 @@
 import styled from "styled-components";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TextField } from '@mui/material';
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const LoginFormContainer = styled.div`
     position: fixed;
@@ -12,7 +13,6 @@ const LoginFormContainer = styled.div`
     background-color: #fff;
     padding: 50px;
     width: 350px;
-    height: 380px;
     border-radius: 5px;
     box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
@@ -31,6 +31,14 @@ const BlueSpan = styled.span`
 
 const SmallText = styled.span`
     color: rgba(23,31,35,.64);
+`;
+
+const ErrorText = styled.div`
+    margin: 10px 0px;
+    padding: 20px;
+    color: #762a36;
+    background: #f8d7da;
+    border-radius: 5px;
 `;
 
 const BottomText = styled.a`
@@ -71,14 +79,13 @@ const StyledButton = styled.button`
 `;
 
 const Login = () => {
+    const { login } = useAuth();
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     let navigate = useNavigate();
     const [input, setInput] = useState({
         username: '',
         password: ''
-    })
-    const [error, setError] = useState({
-        usernameError: '',
-        passwordError: ''
     });
 
     function handleChange(e) {
@@ -86,27 +93,35 @@ const Login = () => {
         setInput(input => ({ ...input, [name]: value }));
     }
 
-    useEffect(() => {
-        const accessToken = localStorage.getItem("accessToken");
-
-        if(accessToken){
+    async function handleSubmit(e) {
+        e.preventDefault()
+    
+        try {
+            setError('');
+            setLoading(true);
+            await login(input.username, input.password);
             navigate("/");
+        } catch {
+            setError("Đăng nhập thất bại. Vui lòng thử lại.");
         }
-    });
+    
+        setLoading(false);
+    }
+
 
     return (
         <LoginFormContainer>
             <Title>Welcome to <BlueSpan>LCP+</BlueSpan> </Title>
             <SmallText>Trang quản lí dành cho quản trị viên và quản lý chung cư của LCP</SmallText>
-            
-            <Form onSubmit={() => localStorage.setItem("accessToken", true)}>
+
+            {error !== '' ? <ErrorText>{error}</ErrorText> : null}
+
+            <Form onSubmit={handleSubmit}>
                 <TextFieldWrapper>
                     <TextField
                         fullWidth
-                        value={input.username ? input.username : ''}
+                        value={input.username ? input.username : ''} name="username"
                         onChange={handleChange}
-                        error={error.usernameError !== ''}
-                        helperText={error.usernameError}
                         label="Tài khoản"
                     />
                 </TextFieldWrapper>
@@ -114,16 +129,14 @@ const Login = () => {
                 <TextFieldWrapper>
                     <TextField
                         fullWidth
-                        value={input.password ? input.password : ''}
+                        value={input.password ? input.password : ''} name="password"
                         type="password"
                         onChange={handleChange}
-                        error={error.passwordError !== ''}
-                        helperText={error.passwordError}
                         label="Mật khẩu" 
                     />
                 </TextFieldWrapper>
 
-                <StyledButton>Đăng nhập</StyledButton>
+                <StyledButton disabled={loading}>Đăng nhập</StyledButton>
                 <BottomText>Quên mật khẩu?</BottomText>
             </Form>
         </LoginFormContainer>

@@ -4,6 +4,7 @@ import SidebarData from '../components/Sidebar/SidebarData';
 import SidebarItem from '../components/Sidebar/SidebarItem';
 import { Logout } from '@mui/icons-material';
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const SidebarWrapper = styled.div`
     background-color: #fff;
@@ -66,11 +67,14 @@ const PaddingBlock = styled.div`
 `;
 
 const Sidebar = () => {
+    const { logout } = useAuth();
     let navigate = useNavigate();
 
-    const handleLogOut = () => {
-        localStorage.removeItem("accessToken");
-        navigate("/login");
+    async function handleLogout() {
+        try {
+            await logout();
+            navigate("/login");
+        } catch {}
     }
 
     return (
@@ -81,7 +85,7 @@ const Sidebar = () => {
                 return <SidebarItem item={item} key={index} />;
             })}
 
-            <SidebarDiv pad={false} onClick={() => handleLogOut()}>
+            <SidebarDiv onClick={handleLogout}>
                 <Row>
                     <Logout />
                     <SidebarLabel>Log out</SidebarLabel>
