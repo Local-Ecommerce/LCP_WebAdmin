@@ -8,8 +8,8 @@ const Home = () => {
         <>
         Hello, {currentUser.email}, 
         <br/><br/>firebaseToken: {firebaseToken}
-        <br/><br/>authToken: {authUser.Token}
-        <br/><br/>role: {authUser.RoleId}
+        <br/><br/>authToken: {authUser ? authUser.Token : null}
+        <br/><br/>role: {authUser ? authUser.RoleId : null}
         </>
     )
 }
