@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { publicRequest } from "../RequestMethod";
 import { auth } from "../firebase";
+const axios = require('axios');
 
 const AuthContext = React.createContext();
 
@@ -11,7 +12,7 @@ export function useAuth() {
 export function AuthProvider({ children }) {
     const [currentUser, setCurrentUser] = useState();
     const [firebaseToken, setFirebaseToken] = useState();
-    const [authToken, setAuthToken] = useState();
+    const [authUser, setAuthUser] = useState();
     const [loading, setLoading] = useState(true);
 
     function signup(email, password) {
@@ -43,16 +44,16 @@ export function AuthProvider({ children }) {
             setCurrentUser(user);
             if (user) {
                 const firebaseToken = await user.getIdToken(true);
-                const res = await fetch(publicRequest("account/login"), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        firebaseToken: firebaseToken
-                    })
+                await axios.post(publicRequest('account/login'), {
+                    firebaseToken: firebaseToken,
+                })
+                .then(function (response) {
+                    setFirebaseToken(firebaseToken);
+                    setAuthUser(response.data.Data);
+                })
+                .catch(function (error) {
+                    console.log(error);
                 });
-                const json = await res.json();
-                setFirebaseToken(firebaseToken);
-                setAuthToken(json.Data.Token);
             }
             setLoading(false);
         })
@@ -63,7 +64,7 @@ export function AuthProvider({ children }) {
     const value = {
         currentUser,
         firebaseToken,
-        authToken,
+        authUser,
         login,
         signup,
         logout,

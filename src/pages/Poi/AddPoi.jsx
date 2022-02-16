@@ -198,7 +198,7 @@ const AddPoi = () => {
                                             helperText={error.apartmentError} />}
                     />
 
-                    <AddButton>Tạo cửa hàng</AddButton>
+                    <AddButton>Tạo POI mới</AddButton>
                 </Form>
 
             </ContainerWrapper>

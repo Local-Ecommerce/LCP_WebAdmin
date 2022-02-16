@@ -198,7 +198,7 @@ const AddNews = () => {
                                             helperText={error.apartmentError} />}
                     />
 
-                    <AddButton>Tạo cửa hàng</AddButton>
+                    <AddButton>Tạo tin mới</AddButton>
                 </Form>
 
             </ContainerWrapper>

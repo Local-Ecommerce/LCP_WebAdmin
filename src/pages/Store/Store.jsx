@@ -281,7 +281,7 @@ const Footer = styled.div`
 `;
 
 const Store = () => {
-    const { authToken } = useAuth();
+    const { authUser } = useAuth();
     const location = useLocation(); //để fetch state name truyền từ AddStore qua
 
     const [DeleteModal, toggleDeleteModal] = useState(false);
@@ -316,13 +316,14 @@ const Store = () => {
             try {
                 const res = await fetch(publicRequest(url), { 
                     method: 'GET',
-                    headers: { 'Authorization': authToken } 
+                    headers: { 'Authorization': 'Bearer ' + authUser.Token } 
                 });
                 const json = await res.json();
                 setAPIdata(json.Data);
             } catch (error) { }
         };
         fetchData();
+        console.log('Bearer ' + authUser.Token);
     }, [change]);
 
     useEffect(() => {   //filter based on 'search' & 'status'

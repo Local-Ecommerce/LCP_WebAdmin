@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { publicRequest } from "../../RequestMethod";
 import { KeyboardBackspace } from '@mui/icons-material';
 import { TextField, Autocomplete, Box } from '@mui/material';
+import { useAuth } from "../../contexts/AuthContext";
 
 const PageWrapper = styled.div`
     width: 720px;
@@ -81,6 +82,7 @@ const StyledAutocomplete = styled(Autocomplete)`
 `;
 
 const AddCategory = () => {
+    const { authUser } = useAuth();
     let navigate = useNavigate();
     const [itemList, setItemList] = useState([]);
 
@@ -119,7 +121,10 @@ const AddCategory = () => {
                 try {
                     const res = await fetch(publicRequest(url), {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + authUser.Token
+                        },
                         body: JSON.stringify({
                             sysCategoryName: input.name,
                             belongTo: input.belongTo.SystemCategoryId || null
