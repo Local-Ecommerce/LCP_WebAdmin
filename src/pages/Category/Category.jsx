@@ -3,10 +3,11 @@ import styled from 'styled-components';
 import Modal from 'react-modal';
 import CategoryList from '../../components/Category/CategoryList';
 import AddCircle from '@mui/icons-material/AddCircle';
-import { publicRequest } from "../../RequestMethod";
+import { publicRequest, api } from "../../RequestMethod";
 import { Search } from '@mui/icons-material';
 import { Link, useLocation } from "react-router-dom";
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 const PageWrapper = styled.div`
     margin: 50px 40px;
@@ -216,11 +217,13 @@ const Category = () => {
         const url = "systemCategory/all";
 
         const fetchData = async () => {
-            try {
-                const res = await fetch(publicRequest(url));
-                const json = await res.json();
-                setAPIdata(json.Data);
-            } catch (error) { }
+            api.get(url)
+            .then(function (res) {
+                setAPIdata(res.data.Data);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
         };
         fetchData();
     }, [change]);

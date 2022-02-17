@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
-import { publicRequest } from "../RequestMethod";
+import { api } from "../RequestMethod";
 import { auth } from "../firebase";
+import { useNavigate } from "react-router-dom";
 const axios = require('axios');
 
 const AuthContext = React.createContext();
@@ -10,6 +11,7 @@ export function useAuth() {
 };
 
 export function AuthProvider({ children }) {
+    let navigate = useNavigate();
     const [currentUser, setCurrentUser] = useState();
     const [firebaseToken, setFirebaseToken] = useState();
     const [authUser, setAuthUser] = useState();
@@ -44,16 +46,20 @@ export function AuthProvider({ children }) {
             setCurrentUser(user);
             if (user) {
                 const firebaseToken = await user.getIdToken(true);
-                await axios.post(publicRequest('account/login'), {
+                await api.post('account/login', {
                     firebaseToken: firebaseToken,
                 })
                 .then(function (response) {
                     setFirebaseToken(firebaseToken);
                     setAuthUser(response.data.Data);
+                    localStorage.setItem('TOKEN_KEY', response.data.Data.Token)
                 })
                 .catch(function (error) {
                     console.log(error);
                 });
+            } else {
+                logout();
+                navigate('/login');
             }
             setLoading(false);
         })

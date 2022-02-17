@@ -6,7 +6,7 @@ import StoreList from '../../components/Store/StoreList';
 import ReactPaginate from "react-paginate";
 import { Search } from '@mui/icons-material';
 import { useLocation } from "react-router-dom";
-import { publicRequest } from "../../RequestMethod";
+import { api } from "../../RequestMethod";
 import { toast } from 'react-toastify';
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -281,7 +281,6 @@ const Footer = styled.div`
 `;
 
 const Store = () => {
-    const { authUser } = useAuth();
     const location = useLocation(); //để fetch state name truyền từ AddStore qua
 
     const [DeleteModal, toggleDeleteModal] = useState(false);
@@ -313,17 +312,15 @@ const Store = () => {
         const url = "store/all";
 
         const fetchData = async () => {
-            try {
-                const res = await fetch(publicRequest(url), { 
-                    method: 'GET',
-                    headers: { 'Authorization': 'Bearer ' + authUser.Token } 
-                });
-                const json = await res.json();
-                setAPIdata(json.Data);
-            } catch (error) { }
+            api.get(url)
+            .then(function (res) {
+                setAPIdata(res.data.Data);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
         };
         fetchData();
-        console.log('Bearer ' + authUser.Token);
     }, [change]);
 
     useEffect(() => {   //filter based on 'search' & 'status'
@@ -390,17 +387,19 @@ const Store = () => {
     const handleDeleteItem = (id) => {
         const url = "store/" + id;
         const deleteData = async () => {
-            try {
-                const res = await fetch(publicRequest(url), { method: 'DELETE' });
-                const json = await res.json();
-                if (json.ResultMessage === "SUCCESS") {
+            api.delete(url)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
                     setChange(!change);
                     const notify = () => toast.success("Xóa thành công " + deleteItem.name + "!", {
                         position: toast.POSITION.TOP_CENTER
                       });
                     notify();
                 }
-            } catch (error) { }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
         };
         deleteData();
     };

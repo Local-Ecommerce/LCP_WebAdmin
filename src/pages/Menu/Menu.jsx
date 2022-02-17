@@ -5,7 +5,7 @@ import Modal from 'react-modal';
 import MenuList from '../../components/Menu/MenuList';
 import ReactPaginate from "react-paginate";
 import { Search } from '@mui/icons-material';
-import { publicRequest } from "../../RequestMethod";
+import { api } from "../../RequestMethod";
 import { toast } from 'react-toastify';
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -301,14 +301,13 @@ const Menu = () =>  {
         const url = "menu/all";
 
         const fetchData = async () => {
-            try {
-                const res = await fetch(publicRequest(url), { 
-                    method: 'GET',
-                    headers: { 'Authorization': 'Bearer ' + authUser.Token } 
-                });
-                const json = await res.json();
-                setAPIdata(json.Data);
-            } catch (error) { }
+            api.get(url)
+            .then(function (res) {
+                setAPIdata(res.data.Data);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
         };
         fetchData();
     }, [change]);
@@ -377,17 +376,19 @@ const Menu = () =>  {
     const handleDeleteItem = (id) => {
         const url = "menu/" + id;
         const deleteData = async () => {
-            try {
-                const res = await fetch(publicRequest(url), { method: 'DELETE' });
-                const json = await res.json();
-                if (json.ResultMessage === "SUCCESS") {
+            api.delete(url)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
                     setChange(!change);
                     const notify = () => toast.success("Xóa thành công " + deleteItem.name + "!", {
                         position: toast.POSITION.TOP_CENTER
                       });
                     notify();
                 }
-            } catch (error) { }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
         };
         deleteData();
     };

@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from "react-router-dom";
-import { publicRequest } from "../../RequestMethod";
+import { api } from "../../RequestMethod";
 import { KeyboardBackspace } from '@mui/icons-material';
 import { TextField, Autocomplete, Box } from '@mui/material';
-import { useAuth } from "../../contexts/AuthContext";
 
 const PageWrapper = styled.div`
     width: 720px;
@@ -82,7 +81,6 @@ const StyledAutocomplete = styled(Autocomplete)`
 `;
 
 const AddCategory = () => {
-    const { authUser } = useAuth();
     let navigate = useNavigate();
     const [itemList, setItemList] = useState([]);
 
@@ -103,11 +101,13 @@ const AddCategory = () => {
         const url = "systemCategory/autocomplete";
 
         const fetchAutocomplete = async () => {
-            try {
-                const res = await fetch(publicRequest(url), { method: 'GET' });
-                const json = await res.json();
-                setItemList(json.Data);
-            } catch (error) { }
+            api.get(url)
+            .then(function (res) {
+                setItemList(res.data.Data);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
         };
         fetchAutocomplete();
     }, []);
@@ -118,23 +118,18 @@ const AddCategory = () => {
             const url = "systemCategory";
 
             const addCategory = async () => {
-                try {
-                    const res = await fetch(publicRequest(url), {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + authUser.Token
-                        },
-                        body: JSON.stringify({
-                            sysCategoryName: input.name,
-                            belongTo: input.belongTo.SystemCategoryId || null
-                        })
-                    });
-                    const json = await res.json();
-                    if (json.ResultMessage === "SUCCESS") {
+                api.post(url, {
+                    sysCategoryName: input.name,
+                    belongTo: input.belongTo.SystemCategoryId || null
+                })
+                .then(function (res) {
+                    if (res.data.ResultMessage === "SUCCESS") {
                         navigate('/categories', { state: { name: input.name } } );
                     }
-                } catch (error) { }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
             };
             addCategory();
         }
@@ -174,7 +169,7 @@ const AddCategory = () => {
                     <FormLabel>Danh mục cha</FormLabel>
                     <StyledAutocomplete
                         onChange={(event, value) => setInput(input => ({ ...input, belongTo: value }))}
-                        selectOnFocus clearOnBlurbhandleHomeEndKeys disablePortal
+                        selectOnFocus disablePortal
                         getOptionLabel={(item) => item.SysCategoryName}
                         options={itemList}
                         renderOption={(props, item) => {

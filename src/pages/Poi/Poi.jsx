@@ -5,7 +5,7 @@ import Modal from 'react-modal';
 import PoiList from '../../components/Poi/PoiList';
 import ReactPaginate from "react-paginate";
 import { AddCircle, Search } from '@mui/icons-material';
-import { publicRequest } from "../../RequestMethod";
+import { api } from "../../RequestMethod";
 import { Link, useLocation } from "react-router-dom";
 import { toast } from 'react-toastify';
 
@@ -334,11 +334,13 @@ const Poi = () =>  {
         const url = "poi/all";
 
         const fetchData = async () => {
-            try {
-                const res = await fetch(publicRequest(url), { method: 'GET' });
-                const json = await res.json();
-                setAPIdata(json.Data);
-            } catch (error) { }
+            api.get(url)
+            .then(function (res) {
+                setAPIdata(res.data.Data);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
         };
         fetchData();
     }, [change]);
@@ -407,17 +409,19 @@ const Poi = () =>  {
     const handleDeleteItem = (id) => {
         const url = "poi/" + id;
         const deleteData = async () => {
-            try {
-                const res = await fetch(publicRequest(url), { method: 'DELETE' });
-                const json = await res.json();
-                if (json.ResultMessage === "SUCCESS") {
+            api.delete(url)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
                     setChange(!change);
                     const notify = () => toast.success("Xóa thành công " + deleteItem.name + "!", {
                         position: toast.POSITION.TOP_CENTER
                       });
                     notify();
                 }
-            } catch (error) { }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
         };
         deleteData();
     };
