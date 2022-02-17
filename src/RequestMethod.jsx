@@ -1,7 +1,7 @@
 import axios from 'axios';
-const BASE_URL = "https://localhost:5001/api/";
+const BASE_URL = //"https://localhost:5001/api/";
 //"https://localhost:5001/api/";
-//"https://localcommercialplatform-api.azurewebsites.net/api/";
+"https://localcommercialplatform-api.azurewebsites.net/api/";
 
 export const api = axios.create({
     baseURL: BASE_URL,
