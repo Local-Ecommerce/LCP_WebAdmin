@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Modal from 'react-modal';
 import { useParams, Link } from "react-router-dom";
-import { publicRequest } from "../../RequestMethod";
+import { api } from "../../RequestMethod";
 import { KeyboardBackspace } from '@mui/icons-material';
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import ShopNotifications from '../../mockdata/ShopNotifications';
@@ -152,14 +152,13 @@ const EditApartment = () => {
     useEffect(() => {
         const url = "apartment/" + id;
 
-        const fetchApartment = async () => {
-            try {
-                const res = await fetch(publicRequest(url));
-                const json = await res.json();
-                setItem(json.Data);
-            } catch (error) { }
-        };
-        fetchApartment();
+        api.get(url)
+        .then(function (res) {
+            setItem(res.data.Data);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
     }, [id]);
 
     useEffect(() => {

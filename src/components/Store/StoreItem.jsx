@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Edit, Delete, ContentPasteSearch } from '@mui/icons-material';
+import { CircularProgress } from '@mui/material';
 import { Link } from "react-router-dom";
 
 const Button = styled.button`
@@ -72,16 +73,24 @@ const StyledDeleteIcon = styled(Delete)`
 `;
 
 const StoreItem = ({ item, handleGetDeleteItem }) => {
+    const [loading, setLoading] = useState(true);
+    
+    useEffect(() => {
+        if (loading) {
+            setTimeout(() => {setLoading(false);}, 3000);
+        }
+    }, [loading]);
+
     if (item === 0) {
         return (
             <tr>
-                <TableData colSpan={4} >
-                    <h4>Không tìm thấy dữ liệu.</h4>
+                <TableData center colSpan={5} >
+                    {loading ? <CircularProgress /> : <h4>Không tìm thấy dữ liệu.</h4>}
                 </TableData>
             </tr>
         )
     }
-
+    
     let activeCheck = '';
     let activeLabel = '';
     let disabledCheck = false;

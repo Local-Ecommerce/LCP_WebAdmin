@@ -22,7 +22,6 @@ import MenuDetail from './pages/Menu/MenuDetail';
 import EditMenu from './pages/Menu/EditMenu';
 
 import Store from './pages/Store/Store';
-import AddStore from './pages/Store/AddStore';
 import StoreDetail from './pages/Store/StoreDetail';
 import EditStore from './pages/Store/EditStore';
 
@@ -106,7 +105,6 @@ const App = () => {
 
                         <Route path="/stores" element={<PrivateRoute> <Store /> </PrivateRoute>} />
                         <Route path="/store/:id" element={<PrivateRoute> <StoreDetail /> </PrivateRoute>} />
-                        <Route path="/addStore" element={<PrivateRoute> <AddStore /> </PrivateRoute>} />
                         <Route path="/editStore/:id" element={<PrivateRoute> <EditStore /> </PrivateRoute>} />
 
                         <Route path="/apartments" element={<PrivateRoute> <Apartment /> </PrivateRoute>} />

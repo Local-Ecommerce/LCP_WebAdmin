@@ -17,14 +17,14 @@ const SidebarWrapper = styled.div`
     z-index: 1; 
     top: 0; 
     left: 0;
-    overflow-y:scroll;
+    overflow: hidden;
 
     &::-webkit-scrollbar {
     display: none;
     }
 `;
 
-const SidebarDiv = styled.div`
+const LogoutWrapper = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -36,6 +36,10 @@ const SidebarDiv = styled.div`
     color: #44474a;
     font-size: 0.9em;
     font-weight: 600;
+    position:absolute;
+    width: 100%;
+    bottom:0;
+    left:0;
 
     &:hover {
         background-color: rgba(246, 246, 247, 1);
@@ -85,12 +89,12 @@ const Sidebar = () => {
                 return <SidebarItem item={item} key={index} />;
             })}
 
-            <SidebarDiv onClick={handleLogout}>
+            <LogoutWrapper onClick={handleLogout}>
                 <Row>
                     <Logout />
                     <SidebarLabel>Log out</SidebarLabel>
                 </Row>
-            </SidebarDiv>
+            </LogoutWrapper>
 
             <PaddingBlock />
         </SidebarWrapper>

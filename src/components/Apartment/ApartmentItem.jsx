@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Badge } from '@mui/material';
+import { Badge, CircularProgress } from '@mui/material';
 import { Edit, Delete, Notifications } from '@mui/icons-material';
 import { Link } from "react-router-dom";
 
@@ -87,15 +87,24 @@ const StyledDeleteIcon = styled(Delete)`
 `;
 
 const ApartmentItem = ({ item, handleGetDeleteItem }) =>  {
+    const [loading, setLoading] = useState(true);
+    
+    useEffect(() => {
+        if (loading) {
+            setTimeout(() => {setLoading(false);}, 3000);
+        }
+    }, [loading]);
+
     if (item === 0) {
         return (
             <tr>
-                <TableData colSpan={4} >
-                    <h4>Không tìm thấy dữ liệu.</h4>
+                <TableData center colSpan={4} >
+                    {loading ? <CircularProgress /> : <h4>Không tìm thấy dữ liệu.</h4>}
                 </TableData>
             </tr>
         )
     }
+    
     let activeCheck = '';
     let activeLabel = '';
     let disabledCheck = false;
@@ -122,8 +131,8 @@ const ApartmentItem = ({ item, handleGetDeleteItem }) =>  {
 
     return (
         <TableRow>
+            <TableData>{item.ApartmentName}</TableData>
             <TableData>{item.Address}</TableData>
-            <TableData center>({item.Lat},<br/>{item.Long})</TableData>
 
             <TableData center>
                 <Status active={activeCheck}>{activeLabel}</Status>

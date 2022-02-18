@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useParams, Link } from "react-router-dom";
-import { publicRequest } from "../../RequestMethod";
+import { api } from "../../RequestMethod";
 import { KeyboardBackspace } from '@mui/icons-material';
 import { TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { toast } from 'react-toastify';
@@ -163,10 +163,12 @@ const EditApartment = () => {
     const [manager, setManager] = useState({});
 
     const [input, setInput] = useState({
+        name: '',
         address: '',
         status: 4001
     })
     const [error, setError] = useState({
+        nameError: '',
         addressError: ''
     });
     const [success, setSuccess] = useState(false);
@@ -183,31 +185,30 @@ const EditApartment = () => {
     useEffect(() => {
         const url = "apartment/" + id;
 
-        const fetchApartment = async () => {
-            try {
-                const res = await fetch(publicRequest(url));
-                const json = await res.json();
-                setItem(json.Data);
-                setInput({
-                    address: json.Data.Address,
-                    status: json.Data.Status
-                });
-            } catch (error) { }
-        };
-        fetchApartment();
+        api.get(url)
+        .then(function (res) {
+            setItem(res.data.Data);
+            setInput({
+                name: res.data.Data.ApartmentName,
+                address: res.data.Data.Address,
+                status: res.data.Data.Status
+            });
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
     }, [id, success]);
 
     useEffect(() => {
         const url = "resident/MM001";
 
-        const fetchManager = async () => {
-            try {
-                const res = await fetch(publicRequest(url));
-                const json = await res.json();
-                setManager(json.Data);
-            } catch (error) { }
-        };
-        fetchManager();
+        api.get(url)
+        .then(function (res) {
+            setManager(res.data.Data);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
     }, [id, success]);
 
     const handleEditApartment = (event) => {
@@ -215,35 +216,35 @@ const EditApartment = () => {
         if (validCheck()) {
             const url = "apartment/" + id;
 
-            const updateApartment = async () => {
-                try {
-                    const res = await fetch(publicRequest(url), {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            address: input.address,
-                            lat: item.Lat,
-                            long: item.Long
-                        })
+            api.put(url, {
+                apartmentName: input.name,
+                address: input.address
+            })
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    const notify = () => toast.success("Cập nhật thành công " + input.name + "!", {
+                        position: toast.POSITION.TOP_CENTER
                     });
-                    const json = await res.json();
-                    if (json.ResultMessage === "SUCCESS") {
-                        const notify = () => toast.success("Cập nhật thành công " + item.Address + "!", {
-                            position: toast.POSITION.TOP_CENTER
-                        });
-                        notify();
-                        setSuccess(!success);
-                    }
-                } catch (error) { }
-            };
-            updateApartment();
+                    notify();
+                    setSuccess(!success);
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
         }
     }
 
     const validCheck = () => {
         let check = false;
+        setError(error => ({ ...error, nameError: '', addressError: '' }));
+
+        if (input.name === null || input.name === '') {
+            setError(error => ({ ...error, nameError: 'Vui lòng nhập tên chung cư' }));
+            check = true;
+        }
         if (input.address === null || input.address === '') {
-            setError(error => ({ ...error, addressError: 'Vui lòng nhập địa chỉ' }));
+            setError(error => ({ ...error, addressError: 'Vui lòng nhập địa chỉ chung cư' }));
             check = true;
         }
         if (!(input.status === 4001 || input.status === 4002 || input.status === 4004)) {
@@ -252,7 +253,6 @@ const EditApartment = () => {
         if (check === true) {
             return false;
         }
-        setError(error => ({ ...error, addressError: '' }));
         return true;
     }
 
@@ -276,15 +276,15 @@ const EditApartment = () => {
     }
 
     switch (manager.Status) {
-        case 11001:
+        case 19001:
             managerActiveCheck = 'active';
             managerActiveLabel = 'Active';
             break;
-        case 11002:
+        case 19002:
             managerActiveCheck = 'inactive';
             managerActiveLabel = 'Inactive';
             break;
-        case 11004:
+        case 19004:
             managerActiveCheck = 'deleted';
             managerActiveLabel = 'Deleted';
             break;
@@ -298,21 +298,21 @@ const EditApartment = () => {
         <PageWrapper>
             <Row>
                 <Link to="/apartments"><StyledBackIcon /></Link>
-                <Title><TitleGrey>Chung cư </TitleGrey>/ {item.Address}</Title>
+                <Title><TitleGrey>Chung cư </TitleGrey>/ {item.ApartmentName}</Title>
             </Row>
             
             <ContainerWrapper>
                 <DetailWrapper>
                     <UpdateTitle mb>Chi tiết chung cư</UpdateTitle>
 
+                    <DetailTitle>Tên chung cư</DetailTitle>
+                    <DetailInfo>
+                        <DetailInfoText>{item.ApartmentName}</DetailInfoText>
+                    </DetailInfo>
+
                     <DetailTitle>Địa chỉ</DetailTitle>
                     <DetailInfo>
                         <DetailInfoText>{item.Address}</DetailInfoText>
-                    </DetailInfo>
-
-                    <DetailTitle>Tọa độ</DetailTitle>
-                    <DetailInfo>
-                        <DetailInfoText>({item.Lat}, {item.Long})</DetailInfoText>
                     </DetailInfo>
 
                     <DetailTitle>Trạng thái</DetailTitle>
@@ -356,12 +356,21 @@ const EditApartment = () => {
 
                     <UpdateForm onSubmit={handleEditApartment}>
                         <StyledTextField
-                            fullWidth 
+                            fullWidth
+                            value={input.name ? input.name : ''} name='name'
+                            onChange={handleChange}
+                            error={error.nameError !== ''}
+                            helperText={error.nameError}
+                            label="Tên chung cư" 
+                        />
+
+                        <StyledTextField
+                            fullWidth
                             value={input.address ? input.address : ''} name='address'
                             onChange={handleChange}
                             error={error.addressError !== ''}
                             helperText={error.addressError}
-                            label="Nội dung" 
+                            label="Địa chỉ" 
                         />
 
                         <StyledFormControl>

@@ -472,8 +472,8 @@ const Apartment = () =>  {
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableHeader width="55%">Địa chỉ</TableHeader>
-                            <TableHeader width="15%" center>Tọa độ</TableHeader>
+                            <TableHeader width="25%">Tên chung cư</TableHeader>
+                            <TableHeader width="45%">Địa chỉ</TableHeader>
                             <TableHeader width="15%" center>Trạng thái</TableHeader>
                             <TableHeader width="15%" center>Chỉnh sửa</TableHeader>
                         </TableRow>

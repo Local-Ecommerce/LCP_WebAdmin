@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useParams, Link } from "react-router-dom";
-import { publicRequest } from "../../RequestMethod";
+import { api } from "../../RequestMethod";
 import { KeyboardBackspace } from '@mui/icons-material';
 import { TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { toast } from 'react-toastify';
@@ -164,19 +164,21 @@ const EditPoi = () => {
     useEffect(() => {
         const url = "poi/" + id;
 
-        const fetchPoi = async () => {
-            try {
-                const res = await fetch(publicRequest(url));
-                const json = await res.json();
-                setItem(json.Data);
+        const fetchData = async () => {
+            api.get(url)
+            .then(function (res) {
+                setItem(res.data.Data);
                 setInput({
-                    title: json.Data.Title,
-                    text: json.Data.Text,
-                    status: json.Data.Status
+                    title: res.data.Data.Title,
+                    text: res.data.Data.Text,
+                    status: res.data.Data.Status
                 });
-            } catch (error) { }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
         };
-        fetchPoi();
+        fetchData();
     }, [id, success]);
 
     const handleEditPoi = (event) => {
@@ -185,27 +187,25 @@ const EditPoi = () => {
             const url = "poi/" + id;
 
             const updatePoi = async () => {
-                try {
-                    const res = await fetch(publicRequest(url), {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            title: input.title,
-                            text: input.text,
-                            status: input.status,
-                            residentId: item.ResidentId,
-                            apartmentId: item.ApartmentId
-                        })
-                    });
-                    const json = await res.json();
-                    if (json.ResultMessage === "SUCCESS") {
+                api.put(url, {
+                    title: input.title,
+                    text: input.text,
+                    status: input.status,
+                    residentId: item.ResidentId,
+                    apartmentId: item.ApartmentId
+                })
+                .then(function (res) {
+                    if (res.data.ResultMessage === "SUCCESS") {
                         const notify = () => toast.success("Cập nhật thành công " + input.title + "!", {
                             position: toast.POSITION.TOP_CENTER
                         });
                         notify();
                         setSuccess(!success);
                     }
-                } catch (error) { }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
             };
             updatePoi();
         }

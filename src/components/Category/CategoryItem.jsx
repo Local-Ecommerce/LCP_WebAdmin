@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ArrowDropUp, ArrowDropDown, Edit, Delete, ContentPasteSearch } from '@mui/icons-material';
+import { CircularProgress } from '@mui/material';
 import { Link } from "react-router-dom";
 
 const CategoryContent = styled.div`
@@ -8,6 +9,7 @@ const CategoryContent = styled.div`
     display: flex;
     align-items: center;
     text-align: center;
+    justify-content: ${props => props.center ? "center" : ""};
     margin: ${props => props.level === 1 ? "20px" : "0px"} 0px 8px 0px;
     list-style: none;
     width: ${props => props.level === 3 ? "90%" : props.level === 2 ? "95%" : "100%"};
@@ -91,6 +93,13 @@ const StyledDeleteIcon = styled(Delete)`
 const CategoryItem = ({ item, handleGetDeleteItem, filterStatus }) => {
     const [child, setChild] = useState(false);
     const showChild = () => setChild(!child);
+    const [loading, setLoading] = useState(true);
+    
+    useEffect(() => {
+        if (loading) {
+            setTimeout(() => {setLoading(false);}, 3000);
+        }
+    }, [loading]);
 
     let disabledCheck = false;
     switch (item.Status) {
@@ -99,6 +108,14 @@ const CategoryItem = ({ item, handleGetDeleteItem, filterStatus }) => {
             break;
         default:
             break;
+    }
+
+    if (item === 0) {
+        return (
+            <CategoryContent level={1} center>
+                {loading ? <CircularProgress /> : <h4>Không tìm thấy dữ liệu.</h4>}
+            </CategoryContent>
+        )
     }
 
     return (

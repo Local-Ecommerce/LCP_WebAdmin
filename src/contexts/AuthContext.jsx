@@ -59,6 +59,7 @@ export function AuthProvider({ children }) {
                 });
             } else {
                 logout();
+                localStorage.removeItem("TOKEN_KEY");
                 navigate('/login');
             }
             setLoading(false);
