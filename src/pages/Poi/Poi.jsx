@@ -486,7 +486,7 @@ const Poi = () =>  {
 
                 <Row mt>
                     { currentItems.length !== 0 
-                    ? <small>Hiển thị {currentPage * itemsPerPage + 1} - {currentPage * itemsPerPage + currentItems.length} trong tổng số {filteredData.length} cửa hàng.</small>
+                    ? <small>Hiển thị {currentPage * itemsPerPage + 1} - {currentPage * itemsPerPage + currentItems.length} trong tổng số {filteredData.length} pois.</small>
                     : null }
 
                     <StyledPaginateContainer>

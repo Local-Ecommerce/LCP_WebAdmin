@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import React, { useState, useEffect } from 'react';
 import { TextField } from '@mui/material';
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { CircularProgress } from '@mui/material';
 
 const LoginFormContainer = styled.div`
     position: fixed;
@@ -18,6 +18,14 @@ const LoginFormContainer = styled.div`
 `;
 
 const Form = styled.form``;
+
+const CenterWrapper = styled.div`
+    margin: 30px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+`;
 
 const Title = styled.h1`
     font-size: 32px;
@@ -80,13 +88,21 @@ const StyledButton = styled.button`
 
 const Login = () => {
     const { login } = useAuth();
-    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    let navigate = useNavigate();
+    const [error, setError] = useState('');
     const [input, setInput] = useState({
         username: '',
         password: ''
     });
+
+    useEffect(() => {
+        if (loading) {
+            setTimeout(() => {
+                setLoading(false);
+                setError('Đăng nhập thất bại. Vui lòng thử lại.');
+            }, 3000);
+        }
+    }, [loading]);
 
     function handleChange(e) {
         const { name, value } = e.target;
@@ -94,20 +110,16 @@ const Login = () => {
     }
 
     async function handleSubmit(e) {
-        e.preventDefault()
+        e.preventDefault();
     
         try {
             setError('');
-            setLoading(true);
             await login(input.username, input.password);
-            navigate("/");
+            setLoading(true);
         } catch {
             setError("Đăng nhập thất bại. Vui lòng thử lại.");
         }
-    
-        setLoading(false);
     }
-
 
     return (
         <LoginFormContainer>
@@ -117,27 +129,36 @@ const Login = () => {
             {error !== '' ? <ErrorText>{error}</ErrorText> : null}
 
             <Form onSubmit={handleSubmit}>
-                <TextFieldWrapper>
-                    <TextField
-                        fullWidth
-                        value={input.username ? input.username : ''} name="username"
-                        onChange={handleChange}
-                        label="Tài khoản"
-                    />
-                </TextFieldWrapper>
+                {
+                loading ?
+                <CenterWrapper>
+                    <CircularProgress /> 
+                </CenterWrapper>
+                :
+                <>
+                    <TextFieldWrapper>
+                        <TextField
+                            fullWidth
+                            value={input.username ? input.username : ''} name="username"
+                            onChange={handleChange}
+                            label="Tài khoản"
+                        />
+                    </TextFieldWrapper>
 
-                <TextFieldWrapper>
-                    <TextField
-                        fullWidth
-                        value={input.password ? input.password : ''} name="password"
-                        type="password"
-                        onChange={handleChange}
-                        label="Mật khẩu" 
-                    />
-                </TextFieldWrapper>
+                    <TextFieldWrapper>
+                        <TextField
+                            fullWidth
+                            value={input.password ? input.password : ''} name="password"
+                            type="password"
+                            onChange={handleChange}
+                            label="Mật khẩu" 
+                        />
+                    </TextFieldWrapper>
 
-                <StyledButton disabled={loading}>Đăng nhập</StyledButton>
-                <BottomText>Quên mật khẩu?</BottomText>
+                    <StyledButton>Đăng nhập</StyledButton>
+                    <BottomText>Quên mật khẩu?</BottomText>
+                </>
+                }
             </Form>
         </LoginFormContainer>
     )

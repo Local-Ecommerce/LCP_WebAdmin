@@ -77,6 +77,8 @@ const Sidebar = () => {
     async function handleLogout() {
         try {
             await logout();
+            localStorage.removeItem("TOKEN_KEY");
+            localStorage.removeItem("EXPIRED_TIME");
             navigate("/login");
         } catch {}
     }

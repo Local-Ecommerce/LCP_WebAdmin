@@ -63,14 +63,14 @@ const SidebarData = [
         icon: <Apartment />
     },
     {
-        title: 'POIs',
-        path: '/pois',
-        icon: <LocationOn />
-    },
-    {
         title: 'News',
         path: '/news',
         icon: <Article />
+    },
+    {
+        title: 'POIs',
+        path: '/pois',
+        icon: <LocationOn />
     }
 ];
 

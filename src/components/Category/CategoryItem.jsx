@@ -10,14 +10,14 @@ const CategoryContent = styled.div`
     align-items: center;
     text-align: center;
     justify-content: ${props => props.center ? "center" : ""};
-    margin: ${props => props.level === 1 ? "20px" : "0px"} 0px 8px 0px;
+    margin: ${props => props.level === 1 ? "10px" : "0px"} 0px 8px 0px;
     list-style: none;
     width: ${props => props.level === 3 ? "90%" : props.level === 2 ? "95%" : "100%"};
     height: 60px;
     text-decoration: none;
     font-size: 18px;
     color: #404040;
-    border-radius: 10px;
+    border-radius: 5px;
     border: 1px solid #fff;
     background-color: #fff;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
@@ -59,6 +59,7 @@ const NameWrapper = styled.div`
     text-align: left;
     margin-left: 20px;
 `;
+
 
 const DropdownIcon = styled(ArrowDropDown)`
     margin-left: 10px;

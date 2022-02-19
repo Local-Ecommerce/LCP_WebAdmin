@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../RequestMethod";
 import { KeyboardBackspace } from '@mui/icons-material';
-import { TextField, Autocomplete, Box } from '@mui/material';
+import { TextField, Autocomplete, Box, FormControl, Select, MenuItem } from '@mui/material';
 
 const PageWrapper = styled.div`
     width: 720px;
@@ -46,8 +46,10 @@ const FormLabel = styled.div`
 `;
 
 const Form = styled.form`
-    padding: 20px;
+    padding: 30px;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
 `;
 
 const AddButton = styled.button`
@@ -77,6 +79,12 @@ const StyledTextField = styled(TextField)`
     }
 `;
 
+const StyledFormControl = styled(FormControl)`
+    && {    
+    margin-bottom: 30px;
+    }
+`;
+
 const StyledAutocomplete = styled(Autocomplete)`
 `;
 
@@ -86,10 +94,12 @@ const AddCategory = () => {
 
     const [input, setInput] = useState({
         name: '',
+        type: '',
         belongTo: '',
     })
     const [error, setError] = useState({
         nameError: '',
+        typeError: ''
     });
 
     function handleChange(e) {
@@ -100,16 +110,13 @@ const AddCategory = () => {
     useEffect (() => {
         const url = "systemCategory/autocomplete";
 
-        const fetchAutocomplete = async () => {
-            api.get(url)
-            .then(function (res) {
-                setItemList(res.data.Data);
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        };
-        fetchAutocomplete();
+        api.get(url)
+        .then(function (res) {
+            setItemList(res.data.Data);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
     }, []);
 
     const handleAddCategory = (event) => {
@@ -120,6 +127,7 @@ const AddCategory = () => {
             const addCategory = async () => {
                 api.post(url, {
                     sysCategoryName: input.name,
+                    type: input.type,
                     belongTo: input.belongTo.SystemCategoryId || null
                 })
                 .then(function (res) {
@@ -137,14 +145,19 @@ const AddCategory = () => {
 
     const validCheck = () => {
         let check = false;
+        setError(error => ({ ...error, nameError: '', typeError: '' }));
+
         if (input.name === null || input.name === '') {
             setError(error => ({ ...error, nameError: 'Vui lòng nhập tên danh mục' }));
+            check = true;
+        }
+        if (input.type === null || input.type === '') {
+            setError(error => ({ ...error, typeError: 'Vui lòng chọn loại danh mục' }));
             check = true;
         }
         if (check === true) {
             return false;
         }
-        setError(error => ({ ...error, nameError: '' }));
         return true;
     }
 
@@ -165,6 +178,14 @@ const AddCategory = () => {
                         error={error.nameError !== ''}
                         helperText={error.nameError}
                     />
+
+                    <FormLabel>Loại danh mục</FormLabel>
+                    <StyledFormControl fullwidth>
+                        <Select value={input.type} name='type' onChange={handleChange}>
+                            <MenuItem value={"Tươi sống"}>Tươi sống</MenuItem>
+                            <MenuItem value={"Khác"}>Khác</MenuItem>
+                        </Select>
+                    </StyledFormControl>
 
                     <FormLabel>Danh mục cha</FormLabel>
                     <StyledAutocomplete

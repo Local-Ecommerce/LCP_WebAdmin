@@ -186,28 +186,25 @@ const EditPoi = () => {
         if (validCheck()) {
             const url = "poi/" + id;
 
-            const updatePoi = async () => {
-                api.put(url, {
-                    title: input.title,
-                    text: input.text,
-                    status: input.status,
-                    residentId: item.ResidentId,
-                    apartmentId: item.ApartmentId
-                })
-                .then(function (res) {
-                    if (res.data.ResultMessage === "SUCCESS") {
-                        const notify = () => toast.success("Cập nhật thành công " + input.title + "!", {
-                            position: toast.POSITION.TOP_CENTER
-                        });
-                        notify();
-                        setSuccess(!success);
-                    }
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
-            };
-            updatePoi();
+            api.put(url, {
+                title: input.title,
+                text: input.text,
+                status: input.status,
+                residentId: item.ResidentId,
+                apartmentId: item.ApartmentId
+            })
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    const notify = () => toast.success("Cập nhật thành công " + input.title + "!", {
+                        position: toast.POSITION.TOP_CENTER
+                    });
+                    notify();
+                    setSuccess(!success);
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
         }
     }
 

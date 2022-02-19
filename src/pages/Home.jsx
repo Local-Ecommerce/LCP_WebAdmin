@@ -3,13 +3,13 @@ import { useAuth } from "../contexts/AuthContext";
 import { api } from "../RequestMethod";
 
 const Home = () => {
-    const { currentUser, firebaseToken, authUser } = useAuth();
+    const { firebaseToken, authUser } = useAuth();
     const [role, setRole] = useState();
 
     useEffect(() => {
-        const url = "resident/" + authUser.AccountId;
+        if (authUser && authUser.RoleId === "R001") {
+            const url = "resident/" + authUser.AccountId;
 
-        const fetchData = async () => {
             api.get(url)
             .then(function (res) {
                 setRole(res.data.Data.Type);
@@ -17,18 +17,17 @@ const Home = () => {
             .catch(function (error) {
                 console.log(error);
             });
-        };
-        fetchData();
+        }
     }, [])
 
     return (
         <>
-        Hello, {currentUser.email}, 
-        <br/><br/>firebaseToken: {firebaseToken}
+        Hello, {authUser ? authUser.Username : null}, 
+        <br/><br/>firebaseToken: {firebaseToken ? firebaseToken : null}
         <br/><br/>authToken: {authUser ? authUser.Token : null}
         <br/><br/>accountId: {authUser ? authUser.AccountId : null}
         <br/><br/>roleId: {authUser ? authUser.RoleId : null}
-        <br/><br/>TokenExpiredDate: {authUser ? authUser.TokenExpiredDate : null}
+        <br/><br/>TokenExpiredDate: {localStorage.getItem('EXPIRED_TIME')}
         <br/><br/>role: {role ? role : "admin"}
         <br/><br/>localStorageToken: {localStorage.getItem('TOKEN_KEY')}
         </>

@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import React from 'react';
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { AuthProvider } from "./contexts/AuthContext";
 
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -76,9 +76,21 @@ const SidebarLayout = () => (
 );
 
 const PrivateRoute = ({ children }) => {
-    const { currentUser } = useAuth();
+    // const { currentUser } = useAuth();
+    // return currentUser ? children : <Navigate to="/login" />;
 
-    return currentUser ? children : <Navigate to="/login" />;
+    const expireDuration = 1000 * 60 * 60; // 1 hours
+    const currentTime = new Date().getTime();
+    const expiredTime = localStorage.getItem("EXPIRED_TIME");
+    const token = localStorage.getItem("TOKEN_KEY");
+
+    if ((token === undefined) 
+            || (expiredTime === undefined) 
+            /*|| (expiredTime !== undefined && currentTime - expiredTime > expireDuration)*/) {
+        localStorage.removeItem("TOKEN_KEY");
+        localStorage.removeItem("EXPIRED_TIME");
+    }
+    return token ? children : <Navigate to="/login" />;
 }
 
 const App = () => {

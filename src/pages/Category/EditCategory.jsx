@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { publicRequest } from "../../RequestMethod";
+import { api } from "../../RequestMethod";
 import { KeyboardBackspace } from '@mui/icons-material';
 import { TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { toast } from 'react-toastify';
@@ -146,10 +146,12 @@ const EditCategory = () => {
                                       ApproveBy: '', BelongTo: '', InverseBelongToNavigation: [], Status: 0});
     const [input, setInput] = useState({
         name: '',
-        status: 3001
+        type: '',
+        belongTo: '',
     })
     const [error, setError] = useState({
-        nameError: ''
+        nameError: '',
+        typeError: ''
     });
     const [success, setSuccess] = useState(false);
     let activeCheck = '';
@@ -163,18 +165,17 @@ const EditCategory = () => {
     useEffect(() => {
         const url = "systemCategory/" + id;
 
-        const fetchCategory = async () => {
-            try {
-                const res = await fetch(publicRequest(url));
-                const json = await res.json();
-                setItem(json.Data);
-                setInput({
-                    name: json.Data.SysCategoryName,
-                    status: json.Data.Status
-                });
-            } catch (error) { }
-        };
-        fetchCategory();
+        api.get(url)
+        .then(function (res) {
+            setItem(res.data.Data);
+            setInput({
+                name: res.data.Data.SysCategoryName,
+                status: res.data.Data.Status
+            });
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
     }, [id, success]);
 
     const handleEditCategory = (event) => {
@@ -182,42 +183,42 @@ const EditCategory = () => {
         if (validCheck()) {
             const url = "systemCategory/" + id;
 
-            const updateCategory = async () => {
-                try {
-                    const res = await fetch(publicRequest(url), {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            sysCategoryName: input.name,
-                            type: item.Type,
-                            status: input.status,
-                            belongTo: item.BelongTo
-                        })
+            api.put(url, {
+                sysCategoryName: input.name,
+                type: input.type,
+                status: input.status,
+                belongTo: item.BelongTo
+            })
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    const notify = () => toast.success("Cập nhật thành công " + input.name + "!", {
+                        position: toast.POSITION.TOP_CENTER
                     });
-                    const json = await res.json();
-                    if (json.ResultMessage === "SUCCESS") {
-                        const notify = () => toast.success("Cập nhật thành công " + item.SysCategoryName + "!", {
-                            position: toast.POSITION.TOP_CENTER
-                        });
-                        notify();
-                        setSuccess(!success);
-                    }
-                } catch (error) { }
-            };
-            updateCategory();
+                    notify();
+                    setSuccess(!success);
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
         }
     }
 
     const validCheck = () => {
         let check = false;
+        setError(error => ({ ...error, nameError: '', typeError: '' }));
+
         if (input.name === null || input.name === '') {
             setError(error => ({ ...error, nameError: 'Vui lòng nhập tên danh mục' }));
+            check = true;
+        }
+        if (input.type === null || input.type === '') {
+            setError(error => ({ ...error, typeError: 'Vui lòng chọn loại danh mục' }));
             check = true;
         }
         if (check === true) {
             return false;
         }
-        setError(error => ({ ...error, nameError: '' }));
         return true;
     }
 
@@ -255,19 +256,14 @@ const EditCategory = () => {
 
                     <DetailBottom>
 
-                        <DetailTitle>Tên bộ sưu tập</DetailTitle>
+                        <DetailTitle>Tên danh mục</DetailTitle>
                         <DetailInfo>
                             <DetailInfoText>{item.SysCategoryName}</DetailInfoText>
                         </DetailInfo>
 
-                        <DetailTitle>Mã bộ sưu tập</DetailTitle>
+                        <DetailTitle>Loại danh mục</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{item.SystemCategoryId}</DetailInfoText>
-                        </DetailInfo>
-
-                        <DetailTitle>Được duyệt bởi</DetailTitle>
-                        <DetailInfo>
-                            <DetailInfoText>{item.ApproveBy}</DetailInfoText>
+                            <DetailInfoText>{item.Type}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Danh mục cha</DetailTitle>
@@ -300,6 +296,18 @@ const EditCategory = () => {
                             helperText={error.nameError}
                             label="Tên danh mục" 
                         />
+
+                        <StyledFormControl fullwidth>
+                            <InputLabel>Loại danh mục</InputLabel>
+                            <Select 
+                                value={input.type} name='type' 
+                                label="Loại danh mục"
+                                onChange={handleChange}
+                            >
+                                <MenuItem value={"Tươi sống"}>Tươi sống</MenuItem>
+                                <MenuItem value={"Khác"}>Khác</MenuItem>
+                            </Select>
+                        </StyledFormControl>
 
                         <StyledFormControl>
                             <InputLabel>Trạng thái</InputLabel>
