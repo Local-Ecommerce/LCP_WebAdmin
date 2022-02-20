@@ -148,6 +148,7 @@ const EditCategory = () => {
         name: '',
         type: '',
         belongTo: '',
+        status: 3001,
     })
     const [error, setError] = useState({
         nameError: '',
@@ -170,6 +171,8 @@ const EditCategory = () => {
             setItem(res.data.Data);
             setInput({
                 name: res.data.Data.SysCategoryName,
+                type: res.data.Data.Type,
+                belongTo: res.data.Data.BelongTo,
                 status: res.data.Data.Status
             });
         })

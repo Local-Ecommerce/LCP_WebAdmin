@@ -107,8 +107,8 @@ const NewsItem = ({ item, handleGetDeleteItem }) =>  {
         <TableRow>
             <TableData>{item.Title}</TableData>
             <TableData>{item.Text}</TableData>
-            <TableData>{item.Apartment.Address}</TableData>
-            <TableData>{item.ResidentId !== null ? item.Resident.ResidentName : "Admin"}</TableData>
+            <TableData>{item.Apartment ? item.Apartment.Address : "Hệ thống"}</TableData>
+            <TableData>{item.Resident ? item.Resident.ResidentName : "Admin"}</TableData>
 
             <TableData center>
                 <Status active={activeCheck}>{activeLabel}</Status>

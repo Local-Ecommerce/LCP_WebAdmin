@@ -9,6 +9,7 @@ import { useLocation } from "react-router-dom";
 import { api } from "../../RequestMethod";
 import { toast } from 'react-toastify';
 import { useAuth } from "../../contexts/AuthContext";
+import * as Constant from '../../Constant';
 
 const PageWrapper = styled.div`
     margin: 50px 40px;
@@ -282,6 +283,7 @@ const Footer = styled.div`
 
 const Store = () => {
     const location = useLocation(); //để fetch state name truyền từ AddStore qua
+    const { resident } = useAuth();
 
     const [DeleteModal, toggleDeleteModal] = useState(false);
     const [deleteItem, setDeleteItem] = useState({id: '', name: ''});
@@ -309,7 +311,10 @@ const Store = () => {
     }, [location]);
 
     useEffect(() => {  //fetch api data
-        const url = "store/all";
+        let url = "store/all";
+        if (resident.role === Constant.MARKET_MANAGER) {
+            url = "store/apartment/" + resident.apartmentId;
+        }
 
         const fetchData = async () => {
             api.get(url)
@@ -336,11 +341,11 @@ const Store = () => {
     }, [search, status, APIdata, itemsPerPage]);
 
     useEffect(() => {   //paging
-        const paging = async () => {
+        const paging = () => {
             try {
-                const endOffset = await (itemOffset + itemsPerPage);
-                await setCurrentItems(filteredData.slice(itemOffset, endOffset));
-                await setPageCount(Math.ceil(filteredData.length / itemsPerPage));
+                const endOffset = (itemOffset + itemsPerPage);
+                setCurrentItems(filteredData.slice(itemOffset, endOffset));
+                setPageCount(Math.ceil(filteredData.length / itemsPerPage));
             } catch (error) { }
         };
         paging();

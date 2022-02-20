@@ -69,10 +69,8 @@ const PoiItem = ({ item, handleGetDeleteItem }) =>  {
     const [loading, setLoading] = useState(true);
     
     useEffect(() => {
-        if (loading) {
-            setTimeout(() => {setLoading(false);}, 3000);
-        }
-    }, [loading]);
+        setTimeout(() => {setLoading(false);}, 3000);
+    }, []);
 
     if (item === 0) {
         return (
@@ -107,8 +105,8 @@ const PoiItem = ({ item, handleGetDeleteItem }) =>  {
         <TableRow>
             <TableData>{item.Title}</TableData>
             <TableData>{item.Text}</TableData>
-            <TableData>{item.Apartment.Address}</TableData>
-            <TableData>{item.ResidentId !== null ? item.Resident.ResidentName : "Admin"}</TableData>
+            <TableData>{item.Apartment ? item.Apartment.Address : "Hệ thống"}</TableData>
+            <TableData>{item.Resident ? item.Resident.ResidentName : "Admin"}</TableData>
 
             <TableData center>
                 <Status active={activeCheck}>{activeLabel}</Status>

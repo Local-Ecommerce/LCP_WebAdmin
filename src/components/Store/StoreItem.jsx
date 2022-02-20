@@ -32,6 +32,7 @@ const TableData = styled.td`
     text-align: ${props => props.center ? "center" : "left"};
     overflow: hidden;
     white-space: nowrap;
+    font-size: 15px;
 `;
 
 const Status = styled.span`
@@ -122,7 +123,7 @@ const StoreItem = ({ item, handleGetDeleteItem }) => {
         <TableRow>
             <TableData>{item.StoreName}</TableData>
             <TableData>{item.ApartmentId}</TableData>
-            <TableData>{item.Resident.ResidentName}</TableData>
+            <TableData>{item.Resident ? item.Resident.ResidentName : null}</TableData>
             <TableData center><Status active={activeCheck}>{activeLabel}</Status></TableData>
 
             <TableData center>

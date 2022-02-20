@@ -31,6 +31,7 @@ const TableData = styled.td`
     border-bottom: 1px solid #dee2e6;
     vertical-align: middle;
     text-align: ${props => props.center ? "center" : "left"};
+    font-size: 15px;
 `;
 
 const Status = styled.span`
@@ -93,7 +94,7 @@ const ApartmentItem = ({ item, handleGetDeleteItem }) =>  {
         if (loading) {
             setTimeout(() => {setLoading(false);}, 3000);
         }
-    }, [loading]);
+    }, []);
 
     if (item === 0) {
         return (

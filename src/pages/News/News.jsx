@@ -8,6 +8,8 @@ import { AddCircle, Search } from '@mui/icons-material';
 import { Link, useLocation } from "react-router-dom";
 import { api } from "../../RequestMethod";
 import { toast } from 'react-toastify';
+import { useAuth } from "../../contexts/AuthContext";
+import * as Constant from '../../Constant';
 
 const PageWrapper = styled.div`
     margin: 50px 40px;
@@ -304,6 +306,7 @@ const Footer = styled.div`
 
 const News = () =>  {
     const location = useLocation(); //để fetch state name truyền từ addNews qua
+    const { resident } = useAuth();
 
     const [DeleteModal, toggleDeleteModal] = useState(false);
     const [deleteItem, setDeleteItem] = useState({id: '', name: ''});
@@ -331,18 +334,18 @@ const News = () =>  {
     }, [location]);
 
     useEffect( () => {  //fetch api data
-        const url = "news/all";
+        let url = "news/all";
+        if (resident.role === Constant.MARKET_MANAGER) {
+            url = "news/apartment/" + resident.apartmentId;
+        }
 
-        const fetchData = async () => {
-            api.get(url)
-            .then(function (res) {
-                setAPIdata(res.data.Data);
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        };
-        fetchData();
+        api.get(url)
+        .then(function (res) {
+            setAPIdata(res.data.Data);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
     }, [change]);
 
     useEffect(() => {   //filter based on 'search' & 'status'

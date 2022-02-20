@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from "react-router-dom";
-import { publicRequest } from "../../RequestMethod";
+import { api } from "../../RequestMethod";
 import { KeyboardBackspace } from '@mui/icons-material';
 import { TextField, Autocomplete, Box } from '@mui/material';
+import { useAuth } from "../../contexts/AuthContext";
+import * as Constant from '../../Constant';
 
 const PageWrapper = styled.div`
     width: 720px;
@@ -46,7 +48,7 @@ const FormLabel = styled.div`
 `;
 
 const Form = styled.form`
-    padding: 20px;
+    padding: 30px;
     margin: 0 auto;
 `;
 
@@ -81,6 +83,8 @@ const StyledAutocomplete = styled(Autocomplete)``;
 
 const AddNews = () => {
     let navigate = useNavigate();
+    const { resident } = useAuth();
+
     const [autocomplete, setAutocomplete] = useState([]); //autocomplete
 
     const [input, setInput] = useState({
@@ -90,7 +94,6 @@ const AddNews = () => {
     })
     const [error, setError] = useState({
         titleError: '',
-        apartmentError: ''
     });
 
     function handleChange(e) {
@@ -99,16 +102,17 @@ const AddNews = () => {
     }
 
     useEffect (() => {
-        const url = "apartment/autocomplete";
+        if (resident.role === Constant.ADMIN) {
+            const url = "apartment/autocomplete";
 
-        const fetchAutocomplete = async () => {
-            try {
-                const res = await fetch(publicRequest(url), { method: 'GET' });
-                const json = await res.json();
-                setAutocomplete(json.Data);
-            } catch (error) { }
-        };
-        fetchAutocomplete();
+            api.get(url)
+            .then(function (res) {
+                setAutocomplete(res.data.Data);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        }
     }, []);
 
     const handleAddNews = (event) => {
@@ -116,42 +120,34 @@ const AddNews = () => {
         if (validCheck()) {
             const url = "news";
 
-            const addNews = async () => {
-                try {
-                    const res = await fetch(publicRequest(url), {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            title: input.title,
-                            text: input.text,
-                            residentId: null,
-                            apartmentId: input.apartment.ApartmentId
-                        })
-                    });
-                    const json = await res.json();
-                    if (json.ResultMessage === "SUCCESS") {
-                        navigate('/news', { state: { name: input.title } } );
-                    }
-                } catch (error) { }
-            };
-            addNews();
+            api.post(url, {
+                title: input.title,
+                text: input.text,
+                residentId: (resident.residentId ? resident.residentId : null),
+                apartmentId: (resident.apartmentId ? resident.apartmentId : (input.apartment.ApartmentId || null))
+            })
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    navigate('/news', { state: { name: input.title } } );
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
         }
     }
 
     const validCheck = () => {
         let check = false;
+        setError(error => ({ ...error, titleError: '', apartmentError: '' }));
+
         if (input.title === null || input.title === '') {
             setError(error => ({ ...error, titleError: 'Vui lòng nhập tiêu đề' }));
-            check = true;
-        }
-        if (input.apartment === null || input.apartment === '') {
-            setError(error => ({ ...error, apartmentError: 'Vui lòng chọn chung cư' }));
             check = true;
         }
         if (check === true) {
             return false;
         }
-        setError(error => ({ ...error, titleError: '', apartmentError: '' }));
         return true;
     }
 
@@ -180,23 +176,27 @@ const AddNews = () => {
                         onChange={handleChange}
                     />
 
-                    <FormLabel>Chung cư</FormLabel>
-                    <StyledAutocomplete
-                        onChange={(event, value) => setInput(input => ({ ...input, apartment: value }))}
-                        selectOnFocus clearOnBlurbhandleHomeEndKeys disablePortal
-                        getOptionLabel={(item) => item.Address}
-                        options={autocomplete}
-                        renderOption={(props, item) => {
-                            return (
-                                <Box {...props} key={item.ApartmentId}>
-                                    {item.Address}&nbsp; <small>- {item.ApartmentId}</small>
-                                </Box>
-                            );
-                          }}
-                        renderInput={(params) => <StyledTextField  {...params}
-                                            error={error.apartmentError !== ''}
-                                            helperText={error.apartmentError} />}
-                    />
+                    {
+                    resident.role === Constant.ADMIN ?
+                    <>
+                        <FormLabel>Chung cư</FormLabel>
+                        <StyledAutocomplete
+                            onChange={(event, value) => setInput(input => ({ ...input, apartment: value }))}
+                            selectOnFocus disablePortal
+                            getOptionLabel={(item) => item.Address}
+                            options={autocomplete}
+                            renderOption={(props, item) => {
+                                return (
+                                    <Box {...props} key={item.ApartmentId}>
+                                        {item.Address}&nbsp; <small>- {item.ApartmentId}</small>
+                                    </Box>
+                                );
+                            }}
+                            renderInput={(params) => <StyledTextField  {...params} helperText="Để trống để tạo tin toàn hệ thống" />}
+                        />
+                    </>
+                    : null
+                    }
 
                     <AddButton>Tạo tin mới</AddButton>
                 </Form>

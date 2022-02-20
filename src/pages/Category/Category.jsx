@@ -303,7 +303,7 @@ const Category = () => {
 
             
             <CategoryListWrapper>
-                <CategoryList currentItems={filteredData} handleGetDeleteItem={handleGetDeleteItem} filterStatus={status} />
+                <CategoryList currentItems={filteredData} handleGetDeleteItem={handleGetDeleteItem} />
             </CategoryListWrapper>
 
 

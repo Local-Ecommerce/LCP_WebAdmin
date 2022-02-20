@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { ArrowDropUp, ArrowDropDown, Edit, Delete, ContentPasteSearch } from '@mui/icons-material';
+import { ArrowDropUp, ArrowDropDown, Edit, Delete } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
 import { Link } from "react-router-dom";
 
 const CategoryContent = styled.div`
+    margin: ${props => props.level === 1 ? "10px" : "0px"} 0px 8px 0px;
+    padding: 20px;
     box-sizing: border-box;
     display: flex;
     align-items: center;
     text-align: center;
     justify-content: ${props => props.center ? "center" : ""};
-    margin: ${props => props.level === 1 ? "10px" : "0px"} 0px 8px 0px;
     list-style: none;
     width: ${props => props.level === 3 ? "90%" : props.level === 2 ? "95%" : "100%"};
     height: 60px;
@@ -55,11 +56,9 @@ const Button = styled.button`
 
 const NameWrapper = styled.div`
     display: flex;
+    align-items: center;
     flex: 8;
-    text-align: left;
-    margin-left: 20px;
 `;
-
 
 const DropdownIcon = styled(ArrowDropDown)`
     margin-left: 10px;
@@ -69,14 +68,30 @@ const DropupIcon = styled(ArrowDropUp)`
     margin-left: 10px;
 `;
 
+const Status = styled.span`
+    margin-right: 20px;
+    display: inline-block;
+    padding: 4px 5px;
+    font-size: 0.7em;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 20px;
+    color: ${props => props.active === "inactive" ? "grey" : "#fff"};
+    background-color: ${props => props.active === "active" ? "#28a745"
+    :
+    props.active === "inactive" ? "#E0E0E0"
+        :
+        "#dc3545"};
+`;
+
 const ButtonWrapper = styled.div`
     flex: 1;
 `;
 
-const StyledSearchIcon = styled(ContentPasteSearch)`
-    &:hover {
-    color: #dc3545;
-    }
+const FloatRight = styled.div`
+    float: right;
 `;
 
 const StyledEditIcon = styled(Edit)`
@@ -91,7 +106,7 @@ const StyledDeleteIcon = styled(Delete)`
     }
 `;
 
-const CategoryItem = ({ item, handleGetDeleteItem, filterStatus }) => {
+const CategoryItem = ({ item, handleGetDeleteItem }) => {
     const [child, setChild] = useState(false);
     const showChild = () => setChild(!child);
     const [loading, setLoading] = useState(true);
@@ -102,12 +117,26 @@ const CategoryItem = ({ item, handleGetDeleteItem, filterStatus }) => {
         }
     }, [loading]);
 
+    let activeCheck = '';
+    let activeLabel = '';
     let disabledCheck = false;
     switch (item.Status) {
+        case 3001:
+            activeCheck = 'active';
+            activeLabel = 'Active';
+            break;
+        case 3002:
+            activeCheck = 'inactive';
+            activeLabel = 'Inactive';
+            break;
         case 3004:
+            activeCheck = 'deleted';
+            activeLabel = 'Deleted';
             disabledCheck = true;
             break;
         default:
+            activeCheck = 'inactive';
+            activeLabel = 'WRONG STATUS NUMBER';
             break;
     }
 
@@ -123,6 +152,7 @@ const CategoryItem = ({ item, handleGetDeleteItem, filterStatus }) => {
         <>
             <CategoryContent level={item.CategoryLevel} onClick={item.InverseBelongToNavigation && showChild}>
                 <NameWrapper>
+                    <Status active={activeCheck}>{activeLabel}</Status>
                     {item.SysCategoryName}
                     {Array.isArray(item.InverseBelongToNavigation) && item.InverseBelongToNavigation.length && child
                     ? <DropupIcon />
@@ -132,32 +162,26 @@ const CategoryItem = ({ item, handleGetDeleteItem, filterStatus }) => {
                 </NameWrapper>
 
                 <ButtonWrapper>
-                    <Link to={"/"}>
-                        <Button>
-                            <StyledSearchIcon />
-                        </Button>
-                    </Link>
+                    <FloatRight>
+                        <Link to={"/editCategory/" + item.SystemCategoryId}>
+                            <Button>
+                                <StyledEditIcon />
+                            </Button>
+                        </Link>
 
-                    <Link to={"/editCategory/" + item.SystemCategoryId}>
-                        <Button>
-                            <StyledEditIcon />
+                        <Button disabled={disabledCheck} onClick={() => handleGetDeleteItem(item.SystemCategoryId, item.SysCategoryName)}>
+                            <StyledDeleteIcon disabled={disabledCheck} />
                         </Button>
-                    </Link>
-
-                    <Button disabled={disabledCheck} onClick={() => handleGetDeleteItem(item.SystemCategoryId, item.SysCategoryName)}>
-                        <StyledDeleteIcon disabled={disabledCheck} />
-                    </Button>
+                    </FloatRight>
                 </ButtonWrapper>
 
             </CategoryContent>
 
             {child &&
                 item.InverseBelongToNavigation.map((item, index) => {
-                    if (item.Status === parseInt(filterStatus)) {
-                        return (
-                            <CategoryItem item={item} handleGetDeleteItem={handleGetDeleteItem} filterStatus={filterStatus} key={index} />
-                        );
-                    } else return null;
+                    return (
+                        <CategoryItem item={item} handleGetDeleteItem={handleGetDeleteItem} key={index} />
+                    );
                 })
             }
         </>

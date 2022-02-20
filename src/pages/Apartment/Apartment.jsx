@@ -328,21 +328,18 @@ const Apartment = () =>  {
               });
             notify();
         }
-    }, [location]);
+    }, []);
 
     useEffect( () => {  //fetch api data
         const url = "apartment/all";
 
-        const fetchData = async () => {
-            api.get(url)
-            .then(function (res) {
-                setAPIdata(res.data.Data);
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        };
-        fetchData();
+        api.get(url)
+        .then(function (res) {
+            setAPIdata(res.data.Data);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
     }, [change]);
 
     useEffect(() => {   //filter based on 'search' & 'status'

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { useAuth } from "../../contexts/AuthContext";
 
 const SidebarLink = styled(Link)`
     display: flex;
@@ -75,60 +76,67 @@ const SidebarLabel = styled.span`
 `;
 
 const SidebarItem = ({ item }) => {
+    const { resident } = useAuth();
+
     const [subnav, setSubnav] = useState(false);
     const showSubnav = () => setSubnav(!subnav);
 
     return (
-        <>
-            {
-            (item.path !== null) ?
-            <SidebarLink to={item.path} onClick={item.subNav ? showSubnav : null}>
-                <Row>
-                    {item.icon}
-                    <SidebarLabel>{item.title}</SidebarLabel>
-                </Row>
-                <div>
-                    {item.subNav && subnav
-                        ? item.iconOpened
-                        : item.subNav
-                            ? item.iconClosed
-                            : null}
-                </div>
-            </SidebarLink> 
-            :
-            <SidebarDiv to={item.path} onClick={item.subNav ? showSubnav : null}>
-                <Row>
-                    {item.icon}
-                    <SidebarLabel>{item.title}</SidebarLabel>
-                </Row>
-                <div>
-                    {item.subNav && subnav
-                        ? item.iconOpened
-                        : item.subNav
-                            ? item.iconClosed
-                            : null}
-                </div>
-            </SidebarDiv>
-            }
-            {subnav &&
-                item.subNav.map((item, index) => {
-                    return (
-                        <SidebarChild to={item.path} onClick={item.subNav ? showSubnav : null} key={index}>
-                            <Row>
-                                {item.icon}
-                                <SidebarLabel>{item.title}</SidebarLabel>
-                            </Row>
-                            <div>
-                                {item.subNav && subnav
-                                    ? item.iconOpened
-                                    : item.subNav
-                                        ? item.iconClosed
-                                        : null}
-                            </div>
-                        </SidebarChild>
-                    );
-                })}
-        </>
+        (
+            item.role && item.role !== resident.role ?
+            null :
+            <>
+                {
+                (item.path !== null) ?
+                <SidebarLink to={item.path} onClick={item.subNav ? showSubnav : null}>
+                    <Row>
+                        {item.icon}
+                        <SidebarLabel>{item.title}</SidebarLabel>
+                    </Row>
+                    <div>
+                        {item.subNav && subnav
+                            ? item.iconOpened
+                            : item.subNav
+                                ? item.iconClosed
+                                : null}
+                    </div>
+                </SidebarLink> 
+                :
+                <SidebarDiv to={item.path} onClick={item.subNav ? showSubnav : null}>
+                    <Row>
+                        {item.icon}
+                        <SidebarLabel>{item.title}</SidebarLabel>
+                    </Row>
+                    <div>
+                        {item.subNav && subnav
+                            ? item.iconOpened
+                            : item.subNav
+                                ? item.iconClosed
+                                : null}
+                    </div>
+                </SidebarDiv>
+                }
+                {subnav &&
+                    item.subNav.map((item, index) => {
+                        return (
+                            <SidebarChild to={item.path} onClick={item.subNav ? showSubnav : null} key={index}>
+                                <Row>
+                                    {item.icon}
+                                    <SidebarLabel>{item.title}</SidebarLabel>
+                                </Row>
+                                <div>
+                                    {item.subNav && subnav
+                                        ? item.iconOpened
+                                        : item.subNav
+                                            ? item.iconClosed
+                                            : null}
+                                </div>
+                            </SidebarChild>
+                        );
+                    })
+                }
+            </>
+        )
     );
 };
 

@@ -1,7 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import { api } from "../RequestMethod";
 import { auth } from "../firebase";
-import { DateTime } from 'luxon';
 import { useNavigate } from "react-router-dom";
 
 const AuthContext = React.createContext();
@@ -13,7 +12,8 @@ export function useAuth() {
 export function AuthProvider({ children }) {
     // const [currentUser, setCurrentUser] = useState();
     const [firebaseToken, setFirebaseToken] = useState();
-    const [authUser, setAuthUser] = useState();
+    const [account, setAccount] = useState();
+    const [resident, setResident] = useState({ role: '' });
     const [loading, setLoading] = useState(true);
 
     function signup(email, password) {
@@ -52,11 +52,36 @@ export function AuthProvider({ children }) {
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
                         setFirebaseToken(firebaseToken);
-                        setAuthUser(res.data.Data);
+                        setAccount(res.data.Data);
                         localStorage.setItem('TOKEN_KEY', res.data.Data.Token);
                         localStorage.setItem('EXPIRED_TIME', res.data.Data.TokenExpiredDate);
-                        navigate("/");
-                        setLoading(false);
+
+                        if (res.data.Data.RoleId === "R002") {
+                            setResident({ role: 'Admin' });
+                            navigate("/");
+                            setLoading(false);
+                        } 
+                        else if (res.data.Data.RoleId === "R001") {
+                            const url = "resident/" + res.data.Data.AccountId;
+
+                            api.get(url)
+                            .then(function (res) {
+                                if (res.data.Data.Type === "MarketManager") {
+                                    setResident({
+                                        role: res.data.Data.Type,
+                                        apartmentId: res.data.Data.ApartmentId,
+                                        residentId: res.data.Data.ResidentId
+                                    });
+                                    navigate("/");
+                                    setLoading(false);
+                                } else {
+                                    logout();
+                                }
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
+                        }
                     } else {
                         logout();
                     }
@@ -80,7 +105,8 @@ export function AuthProvider({ children }) {
     const value = {
         // currentUser,
         firebaseToken,
-        authUser,
+        account,
+        resident,
         login,
         signup,
         logout,

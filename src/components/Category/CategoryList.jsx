@@ -1,7 +1,7 @@
 import React from 'react';
 import CategoryItem from './CategoryItem';
 
-const CategoryList = ({ currentItems, handleGetDeleteItem, filterStatus }) => {
+const CategoryList = ({ currentItems, handleGetDeleteItem }) => {
 
     if (currentItems.length === 0) {
         return <CategoryItem item={0} />
@@ -12,7 +12,6 @@ const CategoryList = ({ currentItems, handleGetDeleteItem, filterStatus }) => {
             <CategoryItem
                 item={item}
                 handleGetDeleteItem={handleGetDeleteItem}
-                filterStatus={filterStatus}
                 key={index}
             />
         )

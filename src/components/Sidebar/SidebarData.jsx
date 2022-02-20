@@ -7,8 +7,10 @@ import {
     Sell,
     LocationOn,
     Article,
-    Apartment
+    Apartment, 
+    Settings
 } from '@mui/icons-material';
+import * as Constant from '../../Constant';
 
 
 const SidebarData = [
@@ -23,14 +25,21 @@ const SidebarData = [
         icon: <ShoppingCart />,
         iconClosed: <ArrowDropDown />,
         iconOpened: <ArrowDropUp />,
+        role: Constant.ADMIN,
 
         subNav: [
             {
                 title: 'Danh mục',
                 path: '/categories',
-                icon: '',
+                icon: ''
             },
         ]
+    },
+    {
+        title: 'Sản phẩm',
+        path: '/',
+        icon: <ShoppingCart />,
+        role: Constant.MARKET_MANAGER
     },
     {
         title: 'Bảng giá',
@@ -60,7 +69,8 @@ const SidebarData = [
     {
         title: 'Chung cư',
         path: '/apartments',
-        icon: <Apartment />
+        icon: <Apartment />,
+        role: Constant.ADMIN
     },
     {
         title: 'News',
