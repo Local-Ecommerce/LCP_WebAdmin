@@ -75,10 +75,7 @@ const SidebarLayout = () => (
 	</>
 );
 
-const PrivateRoute = ({ children }) => {
-    // const { currentUser } = useAuth();
-    // return currentUser ? children : <Navigate to="/login" />;
-
+const RequireLoggedIn = ({ children }) => {
     const expireDuration = 1000 * 60 * 60; // 1 hours
     const currentTime = new Date().getTime();
     const expiredTime = localStorage.getItem("EXPIRED_TIME");
@@ -89,8 +86,9 @@ const PrivateRoute = ({ children }) => {
             /*|| (expiredTime !== undefined && currentTime - expiredTime > expireDuration)*/) {
         localStorage.removeItem("TOKEN_KEY");
         localStorage.removeItem("EXPIRED_TIME");
+        return <Navigate to="/login" />;
     }
-    return token ? children : <Navigate to="/login" />;
+    return children;
 }
 
 const App = () => {
@@ -99,38 +97,38 @@ const App = () => {
             <AuthProvider>
                 <Routes>
                     <Route element={<SidebarLayout/>}>
-                        <Route exact path="/" element={<PrivateRoute> <Home /> </PrivateRoute>} />
+                        <Route exact path="/" element={<RequireLoggedIn> <Home /> </RequireLoggedIn>} />
 
-                        <Route path="/collections" element={<PrivateRoute> <Collection /> </PrivateRoute>} />
-                        <Route path="/collection/:id" element={<PrivateRoute> <CollectionDetail /> </PrivateRoute>} />
-                        <Route path="/editCollection/:id" element={<PrivateRoute> <EditCollection /> </PrivateRoute>} />
+                        <Route path="/collections" element={<RequireLoggedIn> <Collection /> </RequireLoggedIn>} />
+                        <Route path="/collection/:id" element={<RequireLoggedIn> <CollectionDetail /> </RequireLoggedIn>} />
+                        <Route path="/editCollection/:id" element={<RequireLoggedIn> <EditCollection /> </RequireLoggedIn>} />
 
-                        <Route path="/categories" element={<PrivateRoute> <Category /> </PrivateRoute>} />
-                        <Route path="/addCategory" element={<PrivateRoute> <AddCategory /> </PrivateRoute>} />
-                        <Route path="/editCategory/:id" element={<PrivateRoute> <EditCategory /> </PrivateRoute>} />
+                        <Route path="/categories" element={<RequireLoggedIn> <Category /> </RequireLoggedIn>} />
+                        <Route path="/addCategory" element={<RequireLoggedIn> <AddCategory /> </RequireLoggedIn>} />
+                        <Route path="/editCategory/:id" element={<RequireLoggedIn> <EditCategory /> </RequireLoggedIn>} />
 
-                        <Route path="/menus" element={<PrivateRoute> <Menu /> </PrivateRoute>} />
-                        <Route path="/menu/:id" element={<PrivateRoute> <MenuDetail /> </PrivateRoute>} />
-                        <Route path="/editMenu/:id" element={<PrivateRoute> <EditMenu /> </PrivateRoute>} />
+                        <Route path="/menus" element={<RequireLoggedIn> <Menu /> </RequireLoggedIn>} />
+                        <Route path="/menu/:id" element={<RequireLoggedIn> <MenuDetail /> </RequireLoggedIn>} />
+                        <Route path="/editMenu/:id" element={<RequireLoggedIn> <EditMenu /> </RequireLoggedIn>} />
 
-                        <Route path="/applicables" element={<PrivateRoute> <Home /> </PrivateRoute>} />
+                        <Route path="/applicables" element={<RequireLoggedIn> <Home /> </RequireLoggedIn>} />
 
-                        <Route path="/stores" element={<PrivateRoute> <Store /> </PrivateRoute>} />
-                        <Route path="/store/:id" element={<PrivateRoute> <StoreDetail /> </PrivateRoute>} />
-                        <Route path="/editStore/:id" element={<PrivateRoute> <EditStore /> </PrivateRoute>} />
+                        <Route path="/stores" element={<RequireLoggedIn> <Store /> </RequireLoggedIn>} />
+                        <Route path="/store/:id" element={<RequireLoggedIn> <StoreDetail /> </RequireLoggedIn>} />
+                        <Route path="/editStore/:id" element={<RequireLoggedIn> <EditStore /> </RequireLoggedIn>} />
 
-                        <Route path="/apartments" element={<PrivateRoute> <Apartment /> </PrivateRoute>} />
-                        <Route path="/apartment/:id" element={<PrivateRoute> <ApartmentDetail /> </PrivateRoute>} />
-                        <Route path="/addApartment" element={<PrivateRoute> <AddApartment /> </PrivateRoute>} />
-                        <Route path="/editApartment/:id" element={<PrivateRoute> <EditApartment /> </PrivateRoute>} />
+                        <Route path="/apartments" element={<RequireLoggedIn> <Apartment /> </RequireLoggedIn>} />
+                        <Route path="/apartment/:id" element={<RequireLoggedIn> <ApartmentDetail /> </RequireLoggedIn>} />
+                        <Route path="/addApartment" element={<RequireLoggedIn> <AddApartment /> </RequireLoggedIn>} />
+                        <Route path="/editApartment/:id" element={<RequireLoggedIn> <EditApartment /> </RequireLoggedIn>} />
 
-                        <Route path="/pois" element={<PrivateRoute> <Poi /> </PrivateRoute>} />
-                        <Route path="/addPoi" element={<PrivateRoute> <AddPoi /> </PrivateRoute>} />
-                        <Route path="/editPoi/:id" element={<PrivateRoute> <EditPoi /> </PrivateRoute>} />
+                        <Route path="/pois" element={<RequireLoggedIn> <Poi /> </RequireLoggedIn>} />
+                        <Route path="/addPoi" element={<RequireLoggedIn> <AddPoi /> </RequireLoggedIn>} />
+                        <Route path="/editPoi/:id" element={<RequireLoggedIn> <EditPoi /> </RequireLoggedIn>} />
 
-                        <Route path="/news" element={<PrivateRoute> <News /> </PrivateRoute>} />
-                        <Route path="/addNews" element={<PrivateRoute> <AddNews /> </PrivateRoute>} />
-                        <Route path="/editNews/:id" element={<PrivateRoute> <EditNews /> </PrivateRoute>} />
+                        <Route path="/news" element={<RequireLoggedIn> <News /> </RequireLoggedIn>} />
+                        <Route path="/addNews" element={<RequireLoggedIn> <AddNews /> </RequireLoggedIn>} />
+                        <Route path="/editNews/:id" element={<RequireLoggedIn> <EditNews /> </RequireLoggedIn>} />
                     </Route>
 
                     <Route path="/login" element={<Login />} />

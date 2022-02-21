@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { api } from "../RequestMethod";
 import { auth } from "../firebase";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = React.createContext();
 
@@ -10,43 +10,18 @@ export function useAuth() {
 };
 
 export function AuthProvider({ children }) {
-    // const [currentUser, setCurrentUser] = useState();
     const [firebaseToken, setFirebaseToken] = useState();
     const [account, setAccount] = useState();
     const [resident, setResident] = useState({ role: '' });
     const [loading, setLoading] = useState(true);
-
-    function signup(email, password) {
-        return auth.createUserWithEmailAndPassword(email, password);
-    };
-
-    function login(email, password) {
-        return auth.signInWithEmailAndPassword(email, password);
-    };
-
-    function logout() {
-        return auth.signOut();
-    };
-
-    function resetPassword(email) {
-        return auth.sendPasswordResetEmail(email);
-    };
-
-    // function updateEmail(email) {
-    //     return currentUser.updateEmail(email);
-    // };
-
-    // function updatePassword(password) {
-    //     return currentUser.updatePassword(password);
-    // };
-    
     let navigate = useNavigate();
 
-    useEffect(() => {
-        const unsubscribe =  auth.onAuthStateChanged(async user => {
+    async function login(email, password) {
+        await auth.signInWithEmailAndPassword(email, password);
+        auth.onAuthStateChanged(async user => {
             if (user) {
                 const firebaseToken = await user.getIdToken(true);
-                await api.post('account/login', {
+                await api.post('accounts/login', {
                     firebaseToken: firebaseToken,
                 })
                 .then(function (res) {
@@ -58,12 +33,12 @@ export function AuthProvider({ children }) {
 
                         if (res.data.Data.RoleId === "R002") {
                             setResident({ role: 'Admin' });
-                            navigate("/");
+                            navigate('/');
                             setLoading(false);
                         } 
                         else if (res.data.Data.RoleId === "R001") {
                             const url = "resident/" + res.data.Data.AccountId;
-
+    
                             api.get(url)
                             .then(function (res) {
                                 if (res.data.Data.Type === "MarketManager") {
@@ -72,10 +47,12 @@ export function AuthProvider({ children }) {
                                         apartmentId: res.data.Data.ApartmentId,
                                         residentId: res.data.Data.ResidentId
                                     });
-                                    navigate("/");
+                                    navigate('/');
                                     setLoading(false);
                                 } else {
                                     logout();
+                                    localStorage.removeItem("TOKEN_KEY");
+                                    localStorage.removeItem("EXPIRED_TIME");
                                 }
                             })
                             .catch(function (error) {
@@ -84,6 +61,65 @@ export function AuthProvider({ children }) {
                         }
                     } else {
                         logout();
+                        localStorage.removeItem("TOKEN_KEY");
+                        localStorage.removeItem("EXPIRED_TIME");
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            }
+        });
+    };
+
+    function logout() {
+        return auth.signOut();
+    };
+    
+    useEffect(() => {
+        const unsubscribe =  auth.onAuthStateChanged(async user => {
+            if (user) {
+                const firebaseToken = await user.getIdToken(true);
+                await api.post('accounts/login', {
+                    firebaseToken: firebaseToken,
+                })
+                .then(function (res) {
+                    if (res.data.ResultMessage === "SUCCESS") {
+                        setFirebaseToken(firebaseToken);
+                        setAccount(res.data.Data);
+                        localStorage.setItem('TOKEN_KEY', res.data.Data.Token);
+                        localStorage.setItem('EXPIRED_TIME', res.data.Data.TokenExpiredDate);
+
+                        if (res.data.Data.RoleId === "R002") {
+                            setResident({ role: 'Admin' });
+                            setLoading(false);
+                        } 
+                        else if (res.data.Data.RoleId === "R001") {
+                            const url = "resident/" + res.data.Data.AccountId;
+    
+                            api.get(url)
+                            .then(function (res) {
+                                if (res.data.Data.Type === "MarketManager") {
+                                    setResident({
+                                        role: res.data.Data.Type,
+                                        apartmentId: res.data.Data.ApartmentId,
+                                        residentId: res.data.Data.ResidentId
+                                    });
+                                    setLoading(false);
+                                } else {
+                                    logout();
+                                    localStorage.removeItem("TOKEN_KEY");
+                                    localStorage.removeItem("EXPIRED_TIME");
+                                }
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
+                        }
+                    } else {
+                        logout();
+                        localStorage.removeItem("TOKEN_KEY");
+                        localStorage.removeItem("EXPIRED_TIME");
                     }
                 })
                 .catch(function (error) {
@@ -92,14 +128,11 @@ export function AuthProvider({ children }) {
             } else {
                 localStorage.removeItem("TOKEN_KEY");
                 localStorage.removeItem("EXPIRED_TIME");
+                navigate('/login');
                 setLoading(false);
             }
-        })
+        });
         return unsubscribe;
-    }, [])
-
-    useEffect(() => {
-
     }, []);
 
     const value = {
@@ -108,11 +141,7 @@ export function AuthProvider({ children }) {
         account,
         resident,
         login,
-        signup,
-        logout,
-        resetPassword,
-        // updateEmail,
-        // updatePassword
+        logout
     };
 
     return (

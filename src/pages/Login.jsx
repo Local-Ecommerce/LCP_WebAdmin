@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { TextField } from '@mui/material';
 import { useAuth } from "../contexts/AuthContext";
 import { CircularProgress } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const LoginFormContainer = styled.div`
     position: fixed;
@@ -87,6 +88,7 @@ const StyledButton = styled.button`
 `;
 
 const Login = () => {
+    let navigate = useNavigate();
     const { login } = useAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -114,8 +116,8 @@ const Login = () => {
     
         try {
             setError('');
-            await login(input.username, input.password);
             setLoading(true);
+            await login(input.username, input.password);
         } catch {
             setError("Đăng nhập thất bại. Vui lòng thử lại.");
         }
