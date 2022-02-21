@@ -331,11 +331,11 @@ const Apartment = () =>  {
     }, []);
 
     useEffect( () => {  //fetch api data
-        const url = "apartment/all";
+        const url = "apartments";
 
         api.get(url)
         .then(function (res) {
-            setAPIdata(res.data.Data);
+            setAPIdata(res.data.Data.List);
         })
         .catch(function (error) {
             console.log(error);

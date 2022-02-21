@@ -103,11 +103,11 @@ const AddNews = () => {
 
     useEffect (() => {
         if (resident.role === Constant.ADMIN) {
-            const url = "apartment/autocomplete";
+            const url = "apartments?status=4001";
 
             api.get(url)
             .then(function (res) {
-                setAutocomplete(res.data.Data);
+                setAutocomplete(res.data.Data.List);
             })
             .catch(function (error) {
                 console.log(error);

@@ -334,14 +334,14 @@ const Poi = () =>  {
     }, []);
 
     useEffect( () => {  //fetch api data
-        let url = "poi/all";
+        let url = "pois";
         if (resident.role === Constant.MARKET_MANAGER) {
-            url = "poi/apartment/" + resident.apartmentId;
+            url = "pois?apartmentid=" + resident.apartmentId;
         }
 
         api.get(url)
         .then(function (res) {
-            setAPIdata(res.data.Data);
+            setAPIdata(res.data.Data.List);
         })
         .catch(function (error) {
             console.log(error);
@@ -410,23 +410,20 @@ const Poi = () =>  {
     }
 
     const handleDeleteItem = (id) => {
-        const url = "poi/" + id;
-        const deleteData = async () => {
-            api.delete(url)
-            .then(function (res) {
-                if (res.data.ResultMessage === "SUCCESS") {
-                    setChange(!change);
-                    const notify = () => toast.success("Xóa thành công " + deleteItem.name + "!", {
-                        position: toast.POSITION.TOP_CENTER
-                      });
-                    notify();
-                }
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        };
-        deleteData();
+        const url = "pois?id=" + id;
+        api.delete(url)
+        .then(function (res) {
+            if (res.data.ResultMessage === "SUCCESS") {
+                setChange(!change);
+                const notify = () => toast.success("Xóa thành công " + deleteItem.name + "!", {
+                    position: toast.POSITION.TOP_CENTER
+                    });
+                notify();
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
     };
 
     return (

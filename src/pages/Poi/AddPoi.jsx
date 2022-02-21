@@ -103,11 +103,11 @@ const AddPoi = () => {
 
     useEffect (() => {
         if (resident.role === Constant.ADMIN) {
-            const url = "apartment/autocomplete";
+            const url = "apartments?status=4001";
 
             api.get(url)
             .then(function (res) {
-                setAutocomplete(res.data.Data);
+                setAutocomplete(res.data.Data.List);
             })
             .catch(function (error) {
                 console.log(error);
@@ -118,7 +118,7 @@ const AddPoi = () => {
     const handleAddPoi = (event) => {
         event.preventDefault();
         if (validCheck()) {
-            const url = "poi";
+            const url = "pois";
 
             api.post(url, {
                 title: input.title,

@@ -334,14 +334,14 @@ const News = () =>  {
     }, [location]);
 
     useEffect( () => {  //fetch api data
-        let url = "news/all";
+        let url = "news";
         if (resident.role === Constant.MARKET_MANAGER) {
-            url = "news/apartment/" + resident.apartmentId;
+            url = "news?apartmentid=" + resident.apartmentId;
         }
 
         api.get(url)
         .then(function (res) {
-            setAPIdata(res.data.Data);
+            setAPIdata(res.data.Data.List);
         })
         .catch(function (error) {
             console.log(error);
@@ -410,23 +410,20 @@ const News = () =>  {
     }
 
     const handleDeleteItem = (id) => {
-        const url = "news/" + id;
-        const deleteData = async () => {
-            api.delete(url)
-            .then(function (res) {
-                if (res.data.ResultMessage === "SUCCESS") {
-                    setChange(!change);
-                    const notify = () => toast.success("Xóa thành công " + deleteItem.name + "!", {
-                        position: toast.POSITION.TOP_CENTER
-                      });
-                    notify();
-                }
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        };
-        deleteData();
+        const url = "news?id=" + id;
+        api.delete(url)
+        .then(function (res) {
+            if (res.data.ResultMessage === "SUCCESS") {
+                setChange(!change);
+                const notify = () => toast.success("Xóa thành công " + deleteItem.name + "!", {
+                    position: toast.POSITION.TOP_CENTER
+                    });
+                notify();
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
     };
 
     return (

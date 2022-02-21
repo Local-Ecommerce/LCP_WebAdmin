@@ -13,7 +13,7 @@ const PageWrapper = styled.div`
 
 const Row = styled.div`
     display: flex;
-    align-items: center;
+    align-apartments: center;
 `;
 
 const StyledBackIcon = styled(KeyboardBackspace)`
@@ -38,7 +38,7 @@ const Title = styled.h1`
 const ContainerWrapper = styled.div`
     display: flex;
     flex-flow: wrap;
-    align-items: flex-start;
+    align-apartments: flex-start;
     align-content: flex-start;
 `;
 
@@ -78,7 +78,7 @@ const DetailTitle = styled.span`
 `;
 
 const DetailInfo = styled.div`
-    align-items: center;
+    align-apartments: center;
     margin: 12px 10px;
     color: #444;
 `;
@@ -109,7 +109,7 @@ const UpdateTitle = styled.span`
     font-size: 24px;
     font-weight: 600;
     display: flex;
-    align-items: center;
+    align-apartments: center;
     margin-top: ${props => props.mt ? "30px" : "0px"};
     margin-bottom: ${props => props.mb ? "20px" : "0px"};
 `;
@@ -159,8 +159,8 @@ const UpdateButton = styled.button`
 
 const EditApartment = () => {
     const { id } = useParams();
-    const [item, setItem] = useState({Resident: {ResidentName: ''}, Apartment: {Address: ''}});
-    const [manager, setManager] = useState({});
+    const [apartment, setApartment] = useState({ 'Status': 4001 });
+    const [manager, setManager] = useState({ 'Status': 19001 });
 
     const [input, setInput] = useState({
         name: '',
@@ -183,28 +183,17 @@ const EditApartment = () => {
     }
 
     useEffect(() => {
-        const url = "apartment/" + id;
+        const url = "apartments?id=AP001&include=marketmanager";
 
         api.get(url)
         .then(function (res) {
-            setItem(res.data.Data);
+            setApartment(res.data.Data.List[0]);
+            setManager(res.data.Data.List[0].Residents[0]);
             setInput({
-                name: res.data.Data.ApartmentName,
-                address: res.data.Data.Address,
-                status: res.data.Data.Status
+                name: res.data.Data.List[0].ApartmentName,
+                address: res.data.Data.List[0].Address,
+                status: res.data.Data.List[0].Status
             });
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
-    }, [id, success]);
-
-    useEffect(() => {
-        const url = "resident/MM001";
-
-        api.get(url)
-        .then(function (res) {
-            setManager(res.data.Data);
         })
         .catch(function (error) {
             console.log(error);
@@ -214,7 +203,7 @@ const EditApartment = () => {
     const handleEditApartment = (event) => {
         event.preventDefault();
         if (validCheck()) {
-            const url = "apartment/" + id;
+            const url = "apartments?id=" + id;
 
             api.put(url, {
                 apartmentName: input.name,
@@ -256,7 +245,7 @@ const EditApartment = () => {
         return true;
     }
 
-    switch (item.Status) {
+    switch (apartment.Status) {
         case 4001:
             apartmentActiveCheck = 'active';
             apartmentActiveLabel = 'Active';
@@ -298,7 +287,7 @@ const EditApartment = () => {
         <PageWrapper>
             <Row>
                 <Link to="/apartments"><StyledBackIcon /></Link>
-                <Title><TitleGrey>Chung cư </TitleGrey>/ {item.ApartmentName}</Title>
+                <Title><TitleGrey>Chung cư </TitleGrey>/ {apartment ? apartment.ApartmentName : null}</Title>
             </Row>
             
             <ContainerWrapper>
@@ -307,12 +296,12 @@ const EditApartment = () => {
 
                     <DetailTitle>Tên chung cư</DetailTitle>
                     <DetailInfo>
-                        <DetailInfoText>{item.ApartmentName}</DetailInfoText>
+                        <DetailInfoText>{apartment ? apartment.ApartmentName : null}</DetailInfoText>
                     </DetailInfo>
 
                     <DetailTitle>Địa chỉ</DetailTitle>
                     <DetailInfo>
-                        <DetailInfoText>{item.Address}</DetailInfoText>
+                        <DetailInfoText>{apartment ? apartment.Address : null}</DetailInfoText>
                     </DetailInfo>
 
                     <DetailTitle>Trạng thái</DetailTitle>
@@ -327,19 +316,19 @@ const EditApartment = () => {
                         <LeftSide>
                             <DetailTitle>Tên</DetailTitle>
                             <DetailInfo>
-                                <DetailInfoText>{manager.ResidentName}</DetailInfoText>
+                                <DetailInfoText>{manager ? manager.ResidentName : null}</DetailInfoText>
                             </DetailInfo>
 
                             <DetailTitle>Điện thoại</DetailTitle>
                             <DetailInfo>
-                                <DetailInfoText>(+84) {manager.PhoneNumber}</DetailInfoText>
+                                <DetailInfoText>{manager ? '(+84) ' + manager.PhoneNumber : null}</DetailInfoText>
                             </DetailInfo>
                         </LeftSide>
 
                         <RightSide>
                             <DetailTitle>Giới tính</DetailTitle>
                             <DetailInfo>
-                                <DetailInfoText>{manager.Gender}</DetailInfoText>
+                                <DetailInfoText>{manager ? manager.Gender : null}</DetailInfoText>
                             </DetailInfo>
 
                             <DetailTitle>Trạng thái</DetailTitle>
@@ -349,7 +338,6 @@ const EditApartment = () => {
                         </RightSide>
                     </FlexWrapper>
                 </DetailWrapper>
-
 
                 <UpdateWrapper>
                     <UpdateTitle>Cập nhật chung cư</UpdateTitle>

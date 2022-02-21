@@ -97,7 +97,7 @@ const AddApartment = () => {
     const handleAddApartment = (event) => {
         event.preventDefault();
         if (validCheck()) {
-            const url = "apartment";
+            const url = "apartments";
 
             api.post(url, {
                 apartmentName: input.name,
