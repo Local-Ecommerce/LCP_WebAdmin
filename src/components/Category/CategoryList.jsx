@@ -1,7 +1,7 @@
 import React from 'react';
 import CategoryItem from './CategoryItem';
 
-const CategoryList = ({ currentItems, handleGetDeleteItem }) => {
+const CategoryList = ({ currentItems, getCreateItem, getEditItem, getDeleteItem }) => {
 
     if (currentItems.length === 0) {
         return <CategoryItem item={0} />
@@ -11,7 +11,9 @@ const CategoryList = ({ currentItems, handleGetDeleteItem }) => {
         return (
             <CategoryItem
                 item={item}
-                handleGetDeleteItem={handleGetDeleteItem}
+                getCreateItem={getCreateItem}
+                getEditItem={getEditItem}
+                getDeleteItem={getDeleteItem}
                 key={index}
             />
         )

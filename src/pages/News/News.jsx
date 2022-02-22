@@ -334,7 +334,7 @@ const News = () =>  {
     }, [location]);
 
     useEffect( () => {  //fetch api data
-        let url = "news";
+        let url = "news?sort=-releasedate";
         if (resident.role === Constant.MARKET_MANAGER) {
             url = "news?apartmentid=" + resident.apartmentId;
         }
@@ -411,19 +411,22 @@ const News = () =>  {
 
     const handleDeleteItem = (id) => {
         const url = "news?id=" + id;
-        api.delete(url)
-        .then(function (res) {
-            if (res.data.ResultMessage === "SUCCESS") {
-                setChange(!change);
-                const notify = () => toast.success("Xóa thành công " + deleteItem.name + "!", {
-                    position: toast.POSITION.TOP_CENTER
-                    });
-                notify();
-            }
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
+        const deleteData = () => {
+            api.delete(url)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    setChange(!change);
+                    const notify = () => toast.success("Xóa thành công " + deleteItem.name + "!", {
+                        position: toast.POSITION.TOP_CENTER
+                        });
+                    notify();
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        }
+        deleteData();
     };
 
     return (

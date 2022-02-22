@@ -404,7 +404,7 @@ const Apartment = () =>  {
     }
 
     const handleDeleteItem = (id) => {
-        const url = "apartment/" + id;
+        const url = "apartments?id=" + id;
         const deleteData = async () => {
             api.delete(url)
             .then(function (res) {

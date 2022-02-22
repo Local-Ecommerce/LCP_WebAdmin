@@ -162,16 +162,16 @@ const EditPoi = () => {
     }
 
     useEffect(() => {
-        const url = "poi/" + id;
+        const url = "pois?id=" + id;
 
         const fetchData = async () => {
             api.get(url)
             .then(function (res) {
-                setItem(res.data.Data);
+                setItem(res.data.Data.List[0]);
                 setInput({
-                    title: res.data.Data.Title,
-                    text: res.data.Data.Text,
-                    status: res.data.Data.Status
+                    title: res.data.Data.List[0].Title,
+                    text: res.data.Data.List[0].Text,
+                    status: res.data.Data.List[0].Status
                 });
             })
             .catch(function (error) {
@@ -184,27 +184,29 @@ const EditPoi = () => {
     const handleEditPoi = (event) => {
         event.preventDefault();
         if (validCheck()) {
-            const url = "poi/" + id;
-
-            api.put(url, {
-                title: input.title,
-                text: input.text,
-                status: input.status,
-                residentId: item.ResidentId,
-                apartmentId: item.ApartmentId
-            })
-            .then(function (res) {
-                if (res.data.ResultMessage === "SUCCESS") {
-                    const notify = () => toast.success("Cập nhật thành công " + input.title + "!", {
-                        position: toast.POSITION.TOP_CENTER
-                    });
-                    notify();
-                    setSuccess(!success);
-                }
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
+            const url = "pois?id=" + id;
+            const updateItem = async () => {
+                api.put(url, {
+                    title: input.title,
+                    text: input.text,
+                    status: input.status,
+                    residentId: item.ResidentId,
+                    apartmentId: item.ApartmentId
+                })
+                .then(function (res) {
+                    if (res.data.ResultMessage === "SUCCESS") {
+                        const notify = () => toast.success("Cập nhật thành công " + input.title + "!", {
+                            position: toast.POSITION.TOP_CENTER
+                        });
+                        notify();
+                        setSuccess(!success);
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            }
+            updateItem();
         }
     }
 
@@ -276,12 +278,12 @@ const EditPoi = () => {
 
                         <DetailTitle>Quản lý</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{item.ResidentId !== null ? item.Resident.ResidentName : "Admin"}</DetailInfoText>
+                            <DetailInfoText>{item.ResidentId ? item.ResidentId : "Admin"}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Chung cư</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{item.Apartment.Address}</DetailInfoText>
+                            <DetailInfoText>{item.ApartmentId ? item.ApartmentId : "Admin"}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Trạng thái</DetailTitle>

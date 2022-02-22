@@ -162,16 +162,16 @@ const EditNews = () => {
     }
 
     useEffect(() => {
-        const url = "news/" + id;
+        const url = "news?id=" + id;
 
         const fetchData = async () => {
             api.get(url)
             .then(function (res) {
-                setItem(res.data.Data);
+                setItem(res.data.Data.List[0]);
                 setInput({
-                    title: res.data.Data.Title,
-                    text: res.data.Data.Text,
-                    status: res.data.Data.Status
+                    title: res.data.Data.List[0].Title,
+                    text: res.data.Data.List[0].Text,
+                    status: res.data.Data.List[0].Status
                 });
             })
             .catch(function (error) {
@@ -184,9 +184,8 @@ const EditNews = () => {
     const handleEditNews = (event) => {
         event.preventDefault();
         if (validCheck()) {
-            const url = "news/" + id;
-
-            const updateNews = async () => {
+            const url = "news?id=" + id;
+            const updateItem = async () => {
                 api.put(url, {
                     title: input.title,
                     text: input.text,
@@ -206,8 +205,8 @@ const EditNews = () => {
                 .catch(function (error) {
                     console.log(error);
                 });
-            };
-            updateNews();
+            }
+            updateItem();
         }
     }
 
@@ -279,12 +278,12 @@ const EditNews = () => {
 
                         <DetailTitle>Quản lý</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{item.ResidentId !== null ? item.ResidentId : "Admin"}</DetailInfoText>
+                            <DetailInfoText>{item.ResidentId ? item.ResidentId : "Admin"}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Chung cư</DetailTitle>
                         <DetailInfo>
-                            <DetailInfoText>{item.ApartmentId}</DetailInfoText>
+                            <DetailInfoText>{item.ApartmentId ? item.ApartmentId : "Admin"}</DetailInfoText>
                         </DetailInfo>
 
                         <DetailTitle>Trạng thái</DetailTitle>

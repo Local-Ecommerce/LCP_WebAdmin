@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Edit, Delete } from '@mui/icons-material';
 import { Link } from "react-router-dom";
-import { CircularProgress } from '@mui/material';
 
 const Button = styled.button`
     padding: 3px;
@@ -32,8 +31,9 @@ const TableData = styled.td`
     vertical-align: middle;
     text-align: ${props => props.center ? "center" : "left"};
     font-size: 15px;
+    color: ${props => props.grey ? props.theme.grey : null};
 
-    height: 80px;
+    height: 50px;
 `;
 
 const Status = styled.span`
@@ -65,18 +65,13 @@ const StyledDeleteIcon = styled(Delete)`
     }
 `;
 
-const PoiItem = ({ item, handleGetDeleteItem }) =>  {
-    const [loading, setLoading] = useState(true);
-    
-    useEffect(() => {
-        setTimeout(() => {setLoading(false);}, 3000);
-    }, []);
+const PoiItem = ({ item, handleGetDeleteItem, index }) =>  {
 
     if (item === 0) {
         return (
             <tr>
-                <TableData center colSpan={6} >
-                    {loading ? <CircularProgress /> : <h4>Không tìm thấy dữ liệu.</h4>}
+                <TableData center colSpan={7} >
+                    <h4>Không tìm thấy dữ liệu.</h4>
                 </TableData>
             </tr>
         )
@@ -88,21 +83,22 @@ const PoiItem = ({ item, handleGetDeleteItem }) =>  {
     switch (item.Status) {
         case 13001:
             activeCheck = 'active';
-            activeLabel = 'Active';
+            activeLabel = 'Hoạt động';
             break;
         case 13002:
             activeCheck = 'inactive';
-            activeLabel = 'Inactive';
+            activeLabel = 'Ngừng';
             disabledCheck = true;
             break;
         default:
             activeCheck = 'inactive';
-            activeLabel = 'WRONG STATUS NUMBER';
+            activeLabel = 'WRONG STATUS';
             break;
     }
 
     return (
         <TableRow>
+            <TableData grey>{index + 1}</TableData>
             <TableData>{item.Title}</TableData>
             <TableData>{item.Text}</TableData>
             <TableData>{item.Apartment ? item.Apartment.Address : "Hệ thống"}</TableData>

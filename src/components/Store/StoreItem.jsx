@@ -98,20 +98,20 @@ const StoreItem = ({ item, handleGetDeleteItem }) => {
     switch (item.Status) {
         case 6004:
             activeCheck = 'deleted';
-            activeLabel = 'Deleted';
+            activeLabel = 'Đã xóa';
             disabledCheck = true;
             break;
         case 6005:
             activeCheck = 'verified';
-            activeLabel = 'Verified';
+            activeLabel = 'Đã xác minh';
             break;
         case 6006:
             activeCheck = 'unverified';
-            activeLabel = 'Unverified - Create';
+            activeLabel = 'Tạo mới - chưa xác minh';
             break;
         case 6007:
             activeCheck = 'unverified';
-            activeLabel = 'Unverified - Update';
+            activeLabel = 'Cập nhật - chưa xác minh';
             break;
         default:
             activeCheck = 'inactive';

@@ -112,16 +112,16 @@ const ApartmentItem = ({ item, handleGetDeleteItem }) =>  {
     switch (item.Status) {
         case 4001:
             activeCheck = 'active';
-            activeLabel = 'Active';
+            activeLabel = 'Hoạt động';
             break;
         case 4002:
             activeCheck = 'inactive';
-            activeLabel = 'Inactive';
+            activeLabel = 'Ngừng hoạt động';
             disabledCheck = true;
             break;
         case 4004:
             activeCheck = 'deleted';
-            activeLabel = 'Deleted';
+            activeLabel = 'Đã xóa';
             disabledCheck = true;
             break;
         default:

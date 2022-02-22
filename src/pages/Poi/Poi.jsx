@@ -5,6 +5,7 @@ import Modal from 'react-modal';
 import PoiList from '../../components/Poi/PoiList';
 import ReactPaginate from "react-paginate";
 import { AddCircle, Search } from '@mui/icons-material';
+import { CircularProgress } from '@mui/material';
 import { api } from "../../RequestMethod";
 import { Link, useLocation } from "react-router-dom";
 import { toast } from 'react-toastify';
@@ -152,10 +153,18 @@ const TableHeader = styled.th`
     text-align: ${props => props.center ? "center" : "left"};
     padding: 16px;
     font-size: 15px;
+    color: ${props => props.grey ? props.theme.grey : null};
 `;
 
 const TableBody = styled.tbody`
     border-top: 1px solid #dee2e6;
+`;
+
+const TableData = styled.td`
+    border-bottom: 1px solid #dee2e6;
+    vertical-align: middle;
+    text-align: ${props => props.center ? "center" : "left"};
+    height: 100px;
 `;
 
 const TableRow = styled.tr``;
@@ -306,23 +315,27 @@ const Footer = styled.div`
 
 const Poi = () =>  {
     const location = useLocation(); //để fetch state name truyền từ AddPoi qua
+    const [loading, setLoading] = useState(false);
     const { resident } = useAuth();
 
     const [DeleteModal, toggleDeleteModal] = useState(false);
     const [deleteItem, setDeleteItem] = useState({id: '', name: ''});
 
     const [APIdata, setAPIdata] = useState([]);
-    const [filteredData, setFilteredData] = useState([]);
-    const [currentItems, setCurrentItems] = useState([]);
 
     const [pageCount, setPageCount] = useState(1);
     const [itemOffset, setItemOffset] = useState(0);
-    const [currentPage, setCurrentPage] = useState(0);
     const [itemsPerPage, setItemsPerPage] = useState(5);
 
     const [change, setChange] = useState(false);
-    const [search, setSearch] = useState(''); //search filter
     const [status, setStatus] = useState('0'); //status filter
+
+    const [limit, setLimit] = useState(10);
+    const [page, setPage] = useState(1);
+    const [search, setSearch] = useState('');
+    const [sort, setSort] = useState('-releasedate');
+    const [total, setTotal] = useState(0);
+    const [lastPage, setLastPage] = useState(0);
 
     useEffect(() => {
         if (location.state && location.state.name) {
@@ -334,63 +347,37 @@ const Poi = () =>  {
     }, []);
 
     useEffect( () => {  //fetch api data
-        let url = "pois";
+        setLoading(true);
+        let url = "pois?limit=" + limit + "&page=" + (page + 1) + "&sort=" + sort;
         if (resident.role === Constant.MARKET_MANAGER) {
             url = "pois?apartmentid=" + resident.apartmentId;
         }
-
-        api.get(url)
-        .then(function (res) {
-            setAPIdata(res.data.Data.List);
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
-    }, [change]);
-
-    useEffect(() => {   //filter based on 'search' & 'status'
-        const result = APIdata.filter((item) => {
-            if (status !== '0') {
-                return [item.Title, item.PoiId, item.Text, item.ResidentId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
-                    && item.Status === parseInt(status)
-            } else {
-                return [item.Title, item.PoiId, item.Text, item.ResidentId, item.AparmentId].join('').toLowerCase().includes(search.toLowerCase())
-            }
-        })
-        setFilteredData(result);
-    }, [search, status, APIdata, itemsPerPage]);
-
-    useEffect(() => {   //paging
-        const paging = () => {
-            try {
-                const endOffset = (itemOffset + itemsPerPage);
-                setCurrentItems(filteredData.slice(itemOffset, endOffset));
-                setPageCount(Math.ceil(filteredData.length / itemsPerPage));
-            } catch (error) { }
-        };
-        paging();
-    }, [filteredData, itemOffset]);
-
-    useEffect(() => {   //set active page
-        if (currentItems.length === 0) {
-            if (itemOffset >= 5) {
-                setItemOffset(itemOffset - 5);
-                setCurrentPage(filteredData.length / itemsPerPage - 1);
-            }
+        const fetchData = () => {
+            api.get(url)
+            .then(function (res) {
+                console.log("bruh");
+                setAPIdata(res.data.Data.List);
+                setTotal(res.data.Data.Total);
+                setLastPage(res.data.Data.LastPage);
+                setLoading(false);
+            })
+            .catch(function (error) {
+                console.log(error);
+                setLoading(false);
+            });
         }
-    }, [currentItems]);
+        fetchData();
+    }, [change, limit, page, sort]);
 
     const handlePageClick = (event) => {
-        const newOffset = event.selected * itemsPerPage % filteredData.length;
-        setItemOffset(newOffset);
-        setCurrentPage(event.selected);
+        setPage(event.selected);
     };
 
     const handleSearch = (searchValue, statusValue) => {
         setSearch(searchValue);
         setStatus(statusValue);
         setItemOffset(0);   //back to page 1
-        setCurrentPage(0);
+        setPage(0);
     }
 
     const clearSearch = () => {
@@ -401,7 +388,7 @@ const Poi = () =>  {
     const handleChangeItemsPerPage = (value) => {
         setItemsPerPage(parseInt(value));
         setItemOffset(0);   //back to page 1
-        setCurrentPage(0);
+        setPage(0);
     }
 
     const handleGetDeleteItem = (id, name) => {
@@ -449,12 +436,8 @@ const Poi = () =>  {
                     <ItemsPerPageWrapper>
                         Số hàng mỗi trang:&nbsp;
                         <DropdownWrapper width="40px">
-                            <Select value={itemsPerPage} onChange={(event) => handleChangeItemsPerPage(event.target.value)}>
+                            <Select value={limit} onChange={(event) => setLimit(event.target.value)}>
                                 <option value="5">5</option>
-                                <option value="6">6</option>
-                                <option value="7">7</option>
-                                <option value="8">8</option>
-                                <option value="9">9</option>
                                 <option value="10">10</option>
                                 <option value="15">15</option>
                                 <option value="20">20</option>
@@ -471,7 +454,8 @@ const Poi = () =>  {
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableHeader width="20%">Tựa đề</TableHeader>
+                            <TableHeader width="3%" grey>#</TableHeader>
+                            <TableHeader width="17%">Tựa đề</TableHeader>
                             <TableHeader width="30%">Nội dung</TableHeader>
                             <TableHeader width="20%">Địa chỉ chung cư</TableHeader>
                             <TableHeader width="10%">Quản lý</TableHeader>
@@ -480,22 +464,26 @@ const Poi = () =>  {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        <PoiList currentItems={currentItems} handleGetDeleteItem={handleGetDeleteItem} />
+                        {
+                        loading ? 
+                        <TableData center colSpan={7}> <CircularProgress /> </TableData>
+                        : 
+                        <PoiList currentItems={APIdata} handleGetDeleteItem={handleGetDeleteItem} />
+                        }
                     </TableBody>
                 </Table>
 
                 <Row mt>
-                    { currentItems.length !== 0 
-                    ? <small>Hiển thị {currentPage * itemsPerPage + 1} - {currentPage * itemsPerPage + currentItems.length} trong tổng số {filteredData.length} pois.</small>
+                    { APIdata.length !== 0 
+                    ? <small>Hiển thị {page * limit + 1} - {page * limit + APIdata.length} trong tổng số {total} pois.</small>
                     : null }
-
                     <StyledPaginateContainer>
                         <ReactPaginate
                             nextLabel="Next >"
                             onPageChange={handlePageClick}
                             pageRangeDisplayed={3}
                             marginPagesDisplayed={2}
-                            pageCount={pageCount}
+                            pageCount={lastPage}
                             previousLabel="< Prev"
                             pageClassName="page-item"
                             pageLinkClassName="page-link"
@@ -508,7 +496,7 @@ const Poi = () =>  {
                             breakLinkClassName="page-link"
                             containerClassName="pagination"
                             activeClassName="active"
-                            forcePage={currentPage}
+                            forcePage={page}
                             renderOnZeroPageCount={null}
                         />
                     </StyledPaginateContainer>

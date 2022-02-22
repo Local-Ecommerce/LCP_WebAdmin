@@ -33,7 +33,7 @@ const TableData = styled.td`
     text-align: ${props => props.center ? "center" : "left"};
     font-size: 15px;
 
-    height: 80px;
+    height: 50px;
 `;
 
 const Status = styled.span`
@@ -90,16 +90,16 @@ const NewsItem = ({ item, handleGetDeleteItem }) =>  {
     switch (item.Status) {
         case 12001:
             activeCheck = 'active';
-            activeLabel = 'Active';
+            activeLabel = 'Hoạt động';
             break;
         case 12002:
             activeCheck = 'inactive';
-            activeLabel = 'Inactive';
+            activeLabel = 'Ngừng';
             disabledCheck = true;
             break;
         default:
             activeCheck = 'inactive';
-            activeLabel = 'WRONG STATUS NUMBER';
+            activeLabel = 'WRONG STATUS';
             break;
     }
 

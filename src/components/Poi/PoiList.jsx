@@ -11,7 +11,7 @@ const PoiList = ({ currentItems, handleGetDeleteItem }) => {
         return (
             <PoiItem
                 item={item}
-                handleGetDeleteItem={handleGetDeleteItem} key={index}
+                handleGetDeleteItem={handleGetDeleteItem} index={index}
             />
         )
     });

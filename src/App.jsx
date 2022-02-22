@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { ThemeProvider } from "styled-components";
 import React from 'react';
 import { AuthProvider } from "./contexts/AuthContext";
 
@@ -14,8 +14,6 @@ import CollectionDetail from './pages/Collection/CollectionDetail';
 import EditCollection from './pages/Collection/EditCollection';
 
 import Category from './pages/Category/Category';
-import AddCategory from './pages/Category/AddCategory';
-import EditCategory from './pages/Category/EditCategory';
 
 import Menu from './pages/Menu/Menu';
 import MenuDetail from './pages/Menu/MenuDetail';
@@ -92,49 +90,61 @@ const RequireLoggedIn = ({ children }) => {
 }
 
 const App = () => {
+    const theme = {
+        red: "#dc3545",
+        green: "#28a745",
+        blue: "#17a2b8",
+        black: "rgba(0, 0, 0, 0.87)",
+        white: "#fff",
+        grey: "#808080",
+        greyBorder: "#c4c4c4",
+        disabled: "#d8d8d8",
+        hover: "#F5F5F5"
+    };
+
     return (
-        <Router>
-            <AuthProvider>
-                <Routes>
-                    <Route element={<SidebarLayout/>}>
-                        <Route exact path="/" element={<RequireLoggedIn> <Home /> </RequireLoggedIn>} />
+        <ThemeProvider theme={theme}>
+            <Router>
+                <AuthProvider>
+                    <Routes>
+                        <Route element={<SidebarLayout/>}>
+                            <Route exact path="/" element={<RequireLoggedIn> <Home /> </RequireLoggedIn>} />
 
-                        <Route path="/collections" element={<RequireLoggedIn> <Collection /> </RequireLoggedIn>} />
-                        <Route path="/collection/:id" element={<RequireLoggedIn> <CollectionDetail /> </RequireLoggedIn>} />
-                        <Route path="/editCollection/:id" element={<RequireLoggedIn> <EditCollection /> </RequireLoggedIn>} />
+                            <Route path="/collections" element={<RequireLoggedIn> <Collection /> </RequireLoggedIn>} />
+                            <Route path="/collection/:id" element={<RequireLoggedIn> <CollectionDetail /> </RequireLoggedIn>} />
+                            <Route path="/editCollection/:id" element={<RequireLoggedIn> <EditCollection /> </RequireLoggedIn>} />
 
-                        <Route path="/categories" element={<RequireLoggedIn> <Category /> </RequireLoggedIn>} />
-                        <Route path="/addCategory" element={<RequireLoggedIn> <AddCategory /> </RequireLoggedIn>} />
-                        <Route path="/editCategory/:id" element={<RequireLoggedIn> <EditCategory /> </RequireLoggedIn>} />
+                            <Route path="/categories" element={<RequireLoggedIn> <Category /> </RequireLoggedIn>} />
 
-                        <Route path="/menus" element={<RequireLoggedIn> <Menu /> </RequireLoggedIn>} />
-                        <Route path="/menu/:id" element={<RequireLoggedIn> <MenuDetail /> </RequireLoggedIn>} />
-                        <Route path="/editMenu/:id" element={<RequireLoggedIn> <EditMenu /> </RequireLoggedIn>} />
+                            <Route path="/menus" element={<RequireLoggedIn> <Menu /> </RequireLoggedIn>} />
+                            <Route path="/menu/:id" element={<RequireLoggedIn> <MenuDetail /> </RequireLoggedIn>} />
+                            <Route path="/editMenu/:id" element={<RequireLoggedIn> <EditMenu /> </RequireLoggedIn>} />
 
-                        <Route path="/applicables" element={<RequireLoggedIn> <Home /> </RequireLoggedIn>} />
+                            <Route path="/applicables" element={<RequireLoggedIn> <Home /> </RequireLoggedIn>} />
 
-                        <Route path="/stores" element={<RequireLoggedIn> <Store /> </RequireLoggedIn>} />
-                        <Route path="/store/:id" element={<RequireLoggedIn> <StoreDetail /> </RequireLoggedIn>} />
-                        <Route path="/editStore/:id" element={<RequireLoggedIn> <EditStore /> </RequireLoggedIn>} />
+                            <Route path="/stores" element={<RequireLoggedIn> <Store /> </RequireLoggedIn>} />
+                            <Route path="/store/:id" element={<RequireLoggedIn> <StoreDetail /> </RequireLoggedIn>} />
+                            <Route path="/editStore/:id" element={<RequireLoggedIn> <EditStore /> </RequireLoggedIn>} />
 
-                        <Route path="/apartments" element={<RequireLoggedIn> <Apartment /> </RequireLoggedIn>} />
-                        <Route path="/apartment/:id" element={<RequireLoggedIn> <ApartmentDetail /> </RequireLoggedIn>} />
-                        <Route path="/addApartment" element={<RequireLoggedIn> <AddApartment /> </RequireLoggedIn>} />
-                        <Route path="/editApartment/:id" element={<RequireLoggedIn> <EditApartment /> </RequireLoggedIn>} />
+                            <Route path="/apartments" element={<RequireLoggedIn> <Apartment /> </RequireLoggedIn>} />
+                            <Route path="/apartment/:id" element={<RequireLoggedIn> <ApartmentDetail /> </RequireLoggedIn>} />
+                            <Route path="/addApartment" element={<RequireLoggedIn> <AddApartment /> </RequireLoggedIn>} />
+                            <Route path="/editApartment/:id" element={<RequireLoggedIn> <EditApartment /> </RequireLoggedIn>} />
 
-                        <Route path="/pois" element={<RequireLoggedIn> <Poi /> </RequireLoggedIn>} />
-                        <Route path="/addPoi" element={<RequireLoggedIn> <AddPoi /> </RequireLoggedIn>} />
-                        <Route path="/editPoi/:id" element={<RequireLoggedIn> <EditPoi /> </RequireLoggedIn>} />
+                            <Route path="/pois" element={<RequireLoggedIn> <Poi /> </RequireLoggedIn>} />
+                            <Route path="/addPoi" element={<RequireLoggedIn> <AddPoi /> </RequireLoggedIn>} />
+                            <Route path="/editPoi/:id" element={<RequireLoggedIn> <EditPoi /> </RequireLoggedIn>} />
 
-                        <Route path="/news" element={<RequireLoggedIn> <News /> </RequireLoggedIn>} />
-                        <Route path="/addNews" element={<RequireLoggedIn> <AddNews /> </RequireLoggedIn>} />
-                        <Route path="/editNews/:id" element={<RequireLoggedIn> <EditNews /> </RequireLoggedIn>} />
-                    </Route>
+                            <Route path="/news" element={<RequireLoggedIn> <News /> </RequireLoggedIn>} />
+                            <Route path="/addNews" element={<RequireLoggedIn> <AddNews /> </RequireLoggedIn>} />
+                            <Route path="/editNews/:id" element={<RequireLoggedIn> <EditNews /> </RequireLoggedIn>} />
+                        </Route>
 
-                    <Route path="/login" element={<Login />} />
-                </Routes>
-            </AuthProvider>
-        </Router>
+                        <Route path="/login" element={<Login />} />
+                    </Routes>
+                </AuthProvider>
+            </Router>
+        </ThemeProvider>
     )
 }
 

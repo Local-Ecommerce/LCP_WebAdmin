@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { ArrowDropUp, ArrowDropDown, Edit, Delete } from '@mui/icons-material';
-import { CircularProgress } from '@mui/material';
-import { Link } from "react-router-dom";
+import { ArrowDropUp, ArrowDropDown, Edit, Delete, AddCircle } from '@mui/icons-material';
+import { CircularProgress, TextField } from '@mui/material';
 
 const CategoryContent = styled.div`
     margin: ${props => props.level === 1 ? "10px" : "0px"} 0px 8px 0px;
@@ -26,38 +25,24 @@ const CategoryContent = styled.div`
     font-size: 1em;
 
     &:hover {
-        background-color: #F5F5F5;
+        background-color: ${props => props.edit ? null : props.theme.hover};
         cursor: pointer;
         text-decoration: none;
         color: #0056b3;
     }
 
     &:focus {
-        background-color: #F5F5F5;
+        background-color: ${props => props.edit ? null : props.theme.hover};
         cursor: pointer;
         text-decoration: none;
         color: #0056b3;
-    }
-`;
-
-const Button = styled.button`
-    padding: 3px;
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    overflow: hidden;
-    outline: none;
-    color: ${props => props.disabled === true ? "#E0E0E0" : "grey"};
-
-    &:focus {
-    outline: none;
     }
 `;
 
 const NameWrapper = styled.div`
     display: flex;
     align-items: center;
-    flex: 8;
+    flex: 3;
 `;
 
 const DropdownIcon = styled(ArrowDropDown)`
@@ -78,44 +63,206 @@ const Status = styled.span`
     white-space: nowrap;
     vertical-align: baseline;
     border-radius: 20px;
-    color: ${props => props.active === "inactive" ? "grey" : "#fff"};
-    background-color: ${props => props.active === "active" ? "#28a745"
+    color: ${props => props.active === "inactive" ? props.theme.grey : props.theme.white};
+    background-color: ${props => props.active === "active" ? props.theme.green
     :
-    props.active === "inactive" ? "#E0E0E0"
-        :
-        "#dc3545"};
+    props.active === "inactive" ? props.theme.disabled
+    :
+    props.theme.red};
 `;
 
 const ButtonWrapper = styled.div`
     flex: 1;
 `;
 
+const Button = styled.button`
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    outline: none;
+    color: ${props => props.disabled === true ? props.theme.disabled : props.theme.grey};
+
+    &:focus {
+    outline: none;
+    }
+`;
+
 const FloatRight = styled.div`
     float: right;
 `;
 
-const StyledEditIcon = styled(Edit)`
+const StyledAddIcon = styled(AddCircle)`
+    padding: 8px;
+    border-radius: 20px;
+
     &:hover {
-    color: #dc3545;
+    background-color: ${props => props.theme.disabled};
+    }
+`;
+
+const StyledEditIcon = styled(Edit)`
+    padding: 8px;
+    border-radius: 20px;
+
+    &:hover {
+    background-color: ${props => props.theme.disabled};
     }
 `;
 
 const StyledDeleteIcon = styled(Delete)`
+    padding: 8px;
+    border-radius: 20px;
+
     &:hover {
-    color: ${props => props.disabled === true ? "#E0E0E0" : "#dc3545"};
+    background-color: ${props => props.disabled === true ? "" : props.theme.disabled};
     }
 `;
 
-const CategoryItem = ({ item, handleGetDeleteItem }) => {
+const SelectWrapper = styled.div`
+    width: 220px;
+    margin-right: 10px;
+    display: inline-block;
+    background-color: ${props => props.theme.white};
+    border-radius: 3px;
+    border: 1px solid ${props => props.theme.greyBorder};
+    transition: all .5s ease;
+    position: relative;
+    font-size: 14px;
+    color: ${props => props.theme.black};
+    text-align: left;
+
+    &:hover {
+        box-shadow: 0 0 4px rgb(204, 204, 204);
+        border-radius: 2px 2px 0 0;
+    }
+
+    &:active {
+        box-shadow: 0 0 4px rgb(204, 204, 204);
+        border-radius: 2px 2px 0 0;
+    }
+`;
+
+const Select = styled.div`
+    cursor: pointer;
+    display: flex;
+    padding: 8px 10px 8px 15px;
+    justify-content: space-between;
+    align-items: center;
+`;
+
+const DropdownMenu = styled.ul`
+    position: absolute;
+    background-color: #fff;
+    width: 100%;
+    left: 0;
+    margin-top: 1px;
+    box-shadow: 0 1px 2px rgb(204, 204, 204);
+    border-radius: 0 1px 2px 2px;
+    overflow: hidden;
+    display: ${props => props.dropdown === true ? "" : "none"};
+    max-height: 144px;
+    overflow-y: auto;
+    z-index: 9;
+    padding: 0;
+    list-style: none;
+`;
+
+const DropdownList = styled.li`
+    padding: 10px;
+    transition: all .2s ease-in-out;
+    cursor: pointer;
+`;
+
+const EditButton = styled.button`
+    min-width: 60px;
+    padding: 10px;
+    margin-left: 10px;
+    background: ${props => props.green ? props.theme.green : props.theme.white};
+    color: ${props => props.green ? props.theme.white : props.theme.grey};
+    border: 1px solid ${props => props.green ? props.theme.green : props.theme.greyBorder};
+    border-radius: 4px;
+    text-align: center;
+    font-size: 1rem;
+
+    &:hover {
+    opacity: 0.8;
+    }
+
+    &:focus {
+    outline: 0;
+    }
+`;
+
+const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
     const [child, setChild] = useState(false);
-    const showChild = () => setChild(!child);
     const [loading, setLoading] = useState(true);
-    
+    const [edit, toggleEdit] = useState(false);
+    const [dropdown, toggleDropdown] = useState(false);
+    const [input, setInput] = useState({ name: '', status: '' });
+    const [error, setError] = useState({ nameError: '' });
+
     useEffect(() => {
         if (loading) {
             setTimeout(() => {setLoading(false);}, 3000);
         }
     }, [loading]);
+
+    const handleToggleChild = () => {
+        setChild(!child);
+    }
+
+    const handleGetCreateItem = (e) => {
+        e.stopPropagation();
+        getCreateItem(item.SystemCategoryId, item.SysCategoryName);
+    }
+
+    const handleGetEditItem = (e) => {
+        if (validCheck()) {
+            e.stopPropagation();
+            getEditItem(item.SystemCategoryId, input.name, 'Khác', item.BelongTo || null, input.status);
+            toggleEdit(!edit);
+        }
+    }
+
+    const validCheck = () => {
+        let check = false;
+        setError(error => ({ ...error, nameError: '' }));
+
+        if (input.name === null || input.name === '') {
+            setError(error => ({ ...error, nameError: 'Vui lòng nhập tên danh mục' }));
+            check = true;
+        }
+        if (check === true) {
+            return false;
+        }
+        return true;
+    }
+
+    const handleGetDeleteItem = (e) => {
+        e.stopPropagation();
+        getDeleteItem(item.SystemCategoryId, item.SysCategoryName);
+    }
+
+    const handleToggleEdit = (e) => {
+        e.stopPropagation();
+        setInput({ name: item.SysCategoryName, status: item.Status });
+        toggleEdit(!edit);
+    }
+
+    const handleToggleDropdown = () => {
+        toggleDropdown(!dropdown);
+    }
+
+    function handleChange(e) {
+        const { name, value } = e.target;
+        setInput(input => ({ ...input, [name]: value }));
+    }
+
+    function handleStatusChange(value) {
+        setInput(input => ({ ...input, status: value }));
+        toggleDropdown(!dropdown);
+    }
 
     let activeCheck = '';
     let activeLabel = '';
@@ -123,15 +270,15 @@ const CategoryItem = ({ item, handleGetDeleteItem }) => {
     switch (item.Status) {
         case 3001:
             activeCheck = 'active';
-            activeLabel = 'Active';
+            activeLabel = 'Hoạt động';
             break;
         case 3002:
             activeCheck = 'inactive';
-            activeLabel = 'Inactive';
+            activeLabel = 'Ngừng hoạt động';
             break;
         case 3004:
             activeCheck = 'deleted';
-            activeLabel = 'Deleted';
+            activeLabel = 'Ngừng hoạt động';
             disabledCheck = true;
             break;
         default:
@@ -150,7 +297,34 @@ const CategoryItem = ({ item, handleGetDeleteItem }) => {
 
     return (
         <>
-            <CategoryContent level={item.CategoryLevel} onClick={item.InverseBelongToNavigation && showChild}>
+            {
+            edit ?
+            <CategoryContent edit level={item.CategoryLevel}>
+                <SelectWrapper>
+                    <Select onClick={handleToggleDropdown}>
+                        {input.status === 3001 ? 'Hoạt động' : input.status === 3004 ? 'Ngừng hoạt động' : ''}
+                        <ArrowDropDown />
+                    </Select>
+                    <DropdownMenu dropdown={dropdown}>
+                        <DropdownList onClick={() => handleStatusChange(3001)}>Hoạt động</DropdownList>
+                        <DropdownList onClick={() => handleStatusChange(3004)}>Ngừng hoạt động</DropdownList>
+                    </DropdownMenu>
+                </SelectWrapper>
+
+                <TextField
+                    fullWidth size="small" 
+                    value={input.name ? input.name : ''} name='name'
+                    onChange={handleChange}
+                    error={error.nameError !== ''}
+                />
+
+                <EditButton onClick={handleToggleEdit}>Hủy</EditButton>
+                <EditButton green onClick={handleGetEditItem}>Lưu</EditButton>
+            </CategoryContent>
+
+            :
+
+            <CategoryContent level={item.CategoryLevel} onClick={item.InverseBelongToNavigation && handleToggleChild}>
                 <NameWrapper>
                     <Status active={activeCheck}>{activeLabel}</Status>
                     {item.SysCategoryName}
@@ -163,24 +337,36 @@ const CategoryItem = ({ item, handleGetDeleteItem }) => {
 
                 <ButtonWrapper>
                     <FloatRight>
-                        <Link to={"/editCategory/" + item.SystemCategoryId}>
-                            <Button>
-                                <StyledEditIcon />
-                            </Button>
-                        </Link>
+                        {
+                        item && item.CategoryLevel !== 3 ?
+                        <Button onClick={handleGetCreateItem}>
+                            <StyledAddIcon />
+                        </Button>
+                        : null
+                        }
+                        
+                        <Button onClick={handleToggleEdit}>
+                            <StyledEditIcon />
+                        </Button>
 
-                        <Button disabled={disabledCheck} onClick={() => handleGetDeleteItem(item.SystemCategoryId, item.SysCategoryName)}>
+                        <Button disabled={disabledCheck} onClick={handleGetDeleteItem}>
                             <StyledDeleteIcon disabled={disabledCheck} />
                         </Button>
                     </FloatRight>
                 </ButtonWrapper>
-
             </CategoryContent>
+            }
 
             {child &&
                 item.InverseBelongToNavigation.map((item, index) => {
                     return (
-                        <CategoryItem item={item} handleGetDeleteItem={handleGetDeleteItem} key={index} />
+                        <CategoryItem 
+                            item={item} 
+                            getCreateItem={getCreateItem} 
+                            getEditItem={getEditItem}
+                            getDeleteItem={getDeleteItem} 
+                            key={index} 
+                        />
                     );
                 })
             }
