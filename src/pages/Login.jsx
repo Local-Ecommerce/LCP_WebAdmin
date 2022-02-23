@@ -95,14 +95,14 @@ const Login = () => {
         password: ''
     });
 
-    useEffect(() => {
-        if (loading) {
-            setTimeout(() => {
-                setLoading(false);
-                setError('Đăng nhập thất bại. Vui lòng thử lại.');
-            }, 3000);
-        }
-    }, [loading]);
+    // useEffect(() => {
+    //     if (loading) {
+    //         setTimeout(() => {
+    //             setLoading(false);
+    //             setError('Đăng nhập thất bại. Vui lòng thử lại.');
+    //         }, 5000);
+    //     }
+    // }, [loading]);
 
     function handleChange(e) {
         const { name, value } = e.target;

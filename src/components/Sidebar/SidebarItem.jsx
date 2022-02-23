@@ -17,17 +17,17 @@ const SidebarLink = styled(Link)`
     font-weight: 600;
 
     &:hover {
-        background-color: rgba(246, 246, 247, 1);
+        background-color: ${props => props.theme.hover};
         cursor: pointer;
         text-decoration: none;
-        color: #17a2b8;
+        color: ${props => props.theme.blue};
     }
 
     &:focus {
-        background-color: rgba(246, 246, 247, 1);
+        background-color: ${props => props.theme.hover};
         cursor: pointer;
         text-decoration: none;
-        color: #17a2b8;
+        color: ${props => props.theme.blue};
     }
 `;
 
@@ -45,17 +45,17 @@ const SidebarDiv = styled.div`
     font-weight: 600;
 
     &:hover {
-        background-color: rgba(246, 246, 247, 1);
+        background-color: ${props => props.theme.hover};
         cursor: pointer;
         text-decoration: none;
-        color: #17a2b8;
+        color: ${props => props.theme.blue};
     }
 
     &:focus {
-        background-color: rgba(246, 246, 247, 1);
+        background-color: ${props => props.theme.hover};
         cursor: pointer;
         text-decoration: none;
-        color: #17a2b8;
+        color: ${props => props.theme.blue};
     }
 `;
 
@@ -76,14 +76,20 @@ const SidebarLabel = styled.span`
 `;
 
 const SidebarItem = ({ item }) => {
-    const { resident } = useAuth();
+    const { user } = useAuth();
+    let role = "";
+    if (user.RoleId === "R002") {
+        role = "Admin";
+    } else if (user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
+        role = "MarketManager";
+    }
 
     const [subnav, setSubnav] = useState(false);
     const showSubnav = () => setSubnav(!subnav);
 
     return (
         (
-            item.role && item.role !== resident.role ?
+            item.role && item.role !== role ?
             null :
             <>
                 {

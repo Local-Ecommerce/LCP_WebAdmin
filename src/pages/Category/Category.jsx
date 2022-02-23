@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import Modal from 'react-modal';
 import CategoryList from '../../components/Category/CategoryList';
 import { AddCircle } from '@mui/icons-material';
 import { api } from "../../RequestMethod";
 import { Search } from '@mui/icons-material';
 import { toast } from 'react-toastify';
-import { TextField, MenuItem } from '@mui/material';
+import CreateModal from './CreateModal';
+import DeleteModal from './DeleteModal';
 
 const PageWrapper = styled.div`
     margin: 50px 40px;
@@ -35,7 +35,7 @@ const StyledSearchIcon = styled(Search)`
 
 const SearchBar = styled.div`
     display: flex;
-    width: 50%;
+    width: 31%;
     justify-content: center;
     align-items: center;
     border-radius: 5px;
@@ -78,6 +78,32 @@ const Button = styled.button`
     }
 `;
 
+const DropdownWrapper = styled.div`
+    display: flex;
+    width: ${props => props.width};
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    border-color: #D8D8D8;
+    border-style: solid;
+    border-width: thin;
+    height: 44px;
+    padding: 0px 3px 0px 8px;
+    background-color: #ffffff;
+`;
+
+const Select = styled.select`
+    padding: 4px;
+    flex-grow: 1;
+    background-color: transparent;
+    outline: none;
+    border: none;
+
+    &:focus {
+    outline: 0;
+    }
+`;
+
 const AddCategoryButton = styled.button`
     display: flex;
     justify-content: center;
@@ -109,75 +135,16 @@ const TableWrapper = styled.div`
     box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 `;
 
-const ModalTitle = styled.h2`
-    margin: 25px 20px;
-    color: #212529;
-`;
-
-const ModalContentWrapper = styled.div`
-    border-top: 1px solid #cfd2d4;
-    border-bottom: 1px solid #cfd2d4;
-    padding: 25px;
-`;
-
-const FormLabel = styled.div`
-    font-weight: 700;
-    margin-bottom: 10px;
-    margin-top: ${props => props.mt ? "30px" : null};
-`;
-
-const DangerModalContent = styled.div`
-    color: #762a36;
-    padding: 20px;
-    background: #f8d7da;
-    border-radius: 5px;
-`;
-
-const ModalButtonWrapper = styled.div`
-    margin: 20px;
-    float: right;
-`;
-
-const ModalButton = styled.button`
-    min-width: 80px;
-    padding: 10px;
-    margin-left: 10px;
-    background: ${props => props.red ? props.theme.red : props.blue ? props.theme.blue : props.theme.white};
-    color: ${props => props.red || props.blue ? props.theme.white : props.theme.grey};
-    border: 1px solid ${props => props.red ? props.theme.red : props.blue ? props.theme.blue : props.theme.greyBorder};
-    border-radius: 4px;
-    text-align: center;
-    font-size: 1rem;
-
-    &:hover {
-    opacity: 0.8;
-    }
-
-    &:focus {
-    outline: 0;
-    }
-`;
-
-const customStyles = {
-    content: {
-        top: '50%',
-        left: '50%',
-        right: '65%',
-        bottom: 'auto',
-        marginRight: '-50%',
-        transform: 'translate(-50%, -50%)',
-        padding: '0px',
-    },
-};
-
 const Category = () => {
-    const [CreateModal, toggleCreateModal] = useState(false);
-    const [input, setInput] = useState({ name: '', type: '', belongTo: '', belongToName: '' })
-    const types = ['Tươi sống', 'Khác'];
-    const [error, setError] = useState({ nameError: '', typeError: '' })
-    const [DeleteModal, toggleDeleteModal] = useState(false);
+    const [displayCreateModal, setCreateModal] = useState(false);
+    function toggleCreateModal() { setCreateModal(!displayCreateModal); }
+    const [displayDeleteModal, setDeleteModal] = useState(false);
+    function toggleDeleteModal() { setDeleteModal(!displayDeleteModal); }
     const [deleteItem, setDeleteItem] = useState({ id: '', name: '' });
 
+    const [input, setInput] = useState({ name: '', type: '', belongTo: '', belongToName: '' })
+    const [error, setError] = useState({ nameError: '', typeError: '' })
+    
     const [APIdata, setAPIdata] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
 
@@ -186,7 +153,7 @@ const Category = () => {
     const [status, setStatus] = useState('3001'); //status filter
 
     useEffect(() => {
-        const url = "categories";
+        const url = "categories?limit=100&sort=-syscategoryname";
         const fetchData = () => {
             api.get(url)
             .then(function (res) {
@@ -223,17 +190,17 @@ const Category = () => {
 
     const handleToggleCreateModal = () => {
         setInput({ name: '', type: '', belongTo: '', belongToName: '' });
-        toggleCreateModal(!CreateModal);
+        setCreateModal(!displayCreateModal);
     }
 
     const handleGetCreateItem = (id, name) => {
         setInput({ name: '', type: '', belongTo: id, belongToName: name });
-        toggleCreateModal(!CreateModal);
+        setCreateModal(!displayCreateModal);
     }
 
     const handleGetDeleteItem = (id, name) => {
         setDeleteItem({ id: id, name: name });
-        toggleDeleteModal(!DeleteModal);
+        setDeleteModal(!displayDeleteModal);
     }
 
     function handleChange(e) {
@@ -257,7 +224,7 @@ const Category = () => {
                             position: toast.POSITION.TOP_CENTER
                         });
                         notify();
-                        toggleCreateModal(!CreateModal);
+                        setCreateModal(!displayCreateModal);
                         setChange(!change);
                     }
                 })
@@ -331,7 +298,7 @@ const Category = () => {
             });
         };
         deleteData();
-        toggleDeleteModal(!DeleteModal);
+        setDeleteModal(!displayDeleteModal);
     };
 
     return (
@@ -345,6 +312,15 @@ const Category = () => {
                         <Input id="search" placeholder="Search tên danh mục" onChange={(event) => handleSearch(event.target.value, status)} />
                         <Button onClick={() => clearSearch()}>Clear</Button>
                     </SearchBar>
+
+                    <DropdownWrapper width="16%">
+                        <Select value={status} onChange={(event) => handleSearch(search, event.target.value)}>
+                            <option value="0">Toàn bộ</option>
+                            <option value="3001">Hoạt động</option>
+                            <option value="3002">Ngừng hoạt động</option>
+                            <option value="3004">Ngừng hoạt động</option>
+                        </Select>
+                    </DropdownWrapper>
 
                     <AddCategoryButton onClick={handleToggleCreateModal}>
                         <AddCategoryIcon />
@@ -363,65 +339,21 @@ const Category = () => {
                 />
             </CategoryListWrapper>
 
+            <CreateModal 
+                display={displayCreateModal}
+                toggle={toggleCreateModal}
+                input={input}
+                handleChange={handleChange}
+                error={error} 
+                handleAddItem={handleAddItem}
+            />
 
-            <Modal isOpen={CreateModal} onRequestClose={() => toggleCreateModal(!CreateModal)} style={customStyles} ariaHideApp={false}>
-                <ModalTitle>Tạo danh mục mới</ModalTitle>
-                <ModalContentWrapper>
-                    <FormLabel>Tên danh mục</FormLabel>
-                    <TextField
-                        fullWidth size="small" 
-                        value={input.name ? input.name : ''} name='name'
-                        onChange={handleChange}
-                        error={error.nameError !== ''}
-                        helperText={error.nameError}
-                    />
-
-                    <FormLabel mt>Loại</FormLabel>
-                    <TextField
-                        fullWidth size="small" select
-                        value={input.type ? input.type : ''} name='type'
-                        onChange={handleChange}
-                        error={error.typeError !== ''}
-                        helperText={error.typeError}
-                    >
-                        {types.map((type) => (
-                            <MenuItem key={type} value={type}>
-                                {type}
-                            </MenuItem>
-                        ))}
-                    </TextField>
-                    
-                    {
-                    input.belongTo === '' ?
-                    null :
-                    <>
-                        <FormLabel mt>Danh mục cha</FormLabel>
-                        <TextField
-                            fullWidth size="small"
-                            InputProps={{ readOnly: true }}
-                            value={input.belongToName ? input.belongToName : ''} name='name'
-                            onChange={handleChange}
-                        />
-                    </>
-                    }
-                </ModalContentWrapper>
-                <ModalButtonWrapper>
-                    <ModalButton onClick={() => toggleCreateModal(!CreateModal)}>Quay lại</ModalButton>
-                    <ModalButton blue onClick={handleAddItem}>Tạo</ModalButton>
-                </ModalButtonWrapper>
-            </Modal>
-
-            
-            <Modal isOpen={DeleteModal} onRequestClose={() => toggleDeleteModal(!DeleteModal)} style={customStyles} ariaHideApp={false}>
-                <ModalTitle>Xác Nhận Xóa</ModalTitle>
-                <ModalContentWrapper>
-                    <DangerModalContent>Bạn có chắc chắn muốn xóa danh mục【<b>{deleteItem.name}</b>】?</DangerModalContent>
-                </ModalContentWrapper>
-                <ModalButtonWrapper>
-                    <ModalButton onClick={() => toggleDeleteModal(!DeleteModal)}>Quay lại</ModalButton>
-                    <ModalButton red onClick={handleDeleteItem}>Xóa</ModalButton>
-                </ModalButtonWrapper>
-            </Modal>
+            <DeleteModal 
+                display={displayDeleteModal}
+                toggle={toggleDeleteModal}
+                deleteItem={deleteItem}
+                handleDeleteItem={handleDeleteItem}
+            />
         </PageWrapper>
     )
 }

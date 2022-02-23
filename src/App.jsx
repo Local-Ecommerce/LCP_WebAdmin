@@ -96,10 +96,12 @@ const App = () => {
         blue: "#17a2b8",
         black: "rgba(0, 0, 0, 0.87)",
         white: "#fff",
+        dark: "#555",
         grey: "#808080",
         greyBorder: "#c4c4c4",
         disabled: "#d8d8d8",
-        hover: "#F5F5F5"
+
+        hover: "rgba(246, 246, 247, 1)",
     };
 
     return (

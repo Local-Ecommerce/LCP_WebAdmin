@@ -4,13 +4,12 @@ import styled from 'styled-components';
 import Modal from 'react-modal';
 import PoiList from '../../components/Poi/PoiList';
 import ReactPaginate from "react-paginate";
-import { AddCircle, Search } from '@mui/icons-material';
+import { Add, Search } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
 import { api } from "../../RequestMethod";
 import { Link, useLocation } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { useAuth } from "../../contexts/AuthContext";
-import * as Constant from '../../Constant';
 
 const PageWrapper = styled.div`
     margin: 50px 40px;
@@ -122,8 +121,11 @@ const AddButton = styled(Link)`
     }
 `;
 
-const AddIcon = styled(AddCircle)`
-    padding-right: 5px;
+const AddIcon = styled(Add)`
+    && {
+        margin-right: 5px;
+        font-size: 20px;
+    }
 `;
 
 const TableWrapper = styled.div`
@@ -178,6 +180,7 @@ const ItemsPerPageWrapper = styled.div`
 
 const StyledPaginateContainer = styled.div`
     margin-right; 10px;
+    margin-left: auto;
 
     .pagination {
     padding: 0px;
@@ -316,26 +319,22 @@ const Footer = styled.div`
 const Poi = () =>  {
     const location = useLocation(); //để fetch state name truyền từ AddPoi qua
     const [loading, setLoading] = useState(false);
-    const { resident } = useAuth();
+    const { user } = useAuth();
 
     const [DeleteModal, toggleDeleteModal] = useState(false);
     const [deleteItem, setDeleteItem] = useState({id: '', name: ''});
 
     const [APIdata, setAPIdata] = useState([]);
-
-    const [pageCount, setPageCount] = useState(1);
-    const [itemOffset, setItemOffset] = useState(0);
-    const [itemsPerPage, setItemsPerPage] = useState(5);
-
     const [change, setChange] = useState(false);
-    const [status, setStatus] = useState('0'); //status filter
 
     const [limit, setLimit] = useState(10);
-    const [page, setPage] = useState(1);
-    const [search, setSearch] = useState('');
-    const [sort, setSort] = useState('-releasedate');
+    const [page, setPage] = useState(0);
     const [total, setTotal] = useState(0);
     const [lastPage, setLastPage] = useState(0);
+
+    const [sort, setSort] = useState('-releasedate');
+    const [search, setSearch] = useState('');
+    const [status, setStatus] = useState('');
 
     useEffect(() => {
         if (location.state && location.state.name) {
@@ -348,14 +347,14 @@ const Poi = () =>  {
 
     useEffect( () => {  //fetch api data
         setLoading(true);
-        let url = "pois?limit=" + limit + "&page=" + (page + 1) + "&sort=" + sort;
-        if (resident.role === Constant.MARKET_MANAGER) {
-            url = "pois?apartmentid=" + resident.apartmentId;
+        let url = "pois?limit=" + limit + status + "&page=" + (page + 1) + "&sort=" + sort + "&include=apartment&include=resident";
+        if (user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
+            url = "pois?apartmentid=" + user.Residents[0].apartmentId;
         }
         const fetchData = () => {
             api.get(url)
             .then(function (res) {
-                console.log("bruh");
+                console.log(res.data.Data.Page);
                 setAPIdata(res.data.Data.List);
                 setTotal(res.data.Data.Total);
                 setLastPage(res.data.Data.LastPage);
@@ -367,27 +366,26 @@ const Poi = () =>  {
             });
         }
         fetchData();
-    }, [change, limit, page, sort]);
+    }, [change, limit, page, sort, status]);
 
     const handlePageClick = (event) => {
         setPage(event.selected);
     };
-
-    const handleSearch = (searchValue, statusValue) => {
-        setSearch(searchValue);
-        setStatus(statusValue);
-        setItemOffset(0);   //back to page 1
-        setPage(0);
-    }
 
     const clearSearch = () => {
         setSearch('');
         document.getElementById("search").value = '';
     }
 
-    const handleChangeItemsPerPage = (value) => {
-        setItemsPerPage(parseInt(value));
-        setItemOffset(0);   //back to page 1
+    function handleSetStatus(e) {
+        const { value } = e.target;
+        setStatus(value);
+        setPage(0);
+    }
+
+    function handleSetLimit(e) {
+        const { value } = e.target;
+        setLimit(value);
         setPage(0);
     }
 
@@ -421,26 +419,26 @@ const Poi = () =>  {
                 <Row mb>
                     <SearchBar>
                         <StyledSearchIcon />
-                        <Input id="search" placeholder="Tìm kiếm POI" onChange={(event) => handleSearch(event.target.value, status)} />
+                        <Input id="search" placeholder="Tìm kiếm POI" /*onChange={}*/ />
                         <Button onClick={() => clearSearch()}>Clear</Button>
                     </SearchBar>
 
                     <DropdownWrapper width="16%">
-                        <Select value={status} onChange={(event) => handleSearch(search, event.target.value)}>
-                            <option value="0">--- Lọc trạng thái ---</option>
-                            <option value="13001">Active</option>
-                            <option value="13002">Inactive</option>
+                        <Select value={status} onChange={handleSetStatus}>
+                            <option value="">--- Lọc trạng thái ---</option>
+                            <option value="&status=13001">Active</option>
+                            <option value="&status=13002">Inactive</option>
                         </Select>
                     </DropdownWrapper>
 
                     <ItemsPerPageWrapper>
                         Số hàng mỗi trang:&nbsp;
                         <DropdownWrapper width="40px">
-                            <Select value={limit} onChange={(event) => setLimit(event.target.value)}>
-                                <option value="5">5</option>
-                                <option value="10">10</option>
-                                <option value="15">15</option>
-                                <option value="20">20</option>
+                            <Select value={limit} onChange={handleSetLimit}>
+                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={15}>15</option>
+                                <option value={20}>20</option>
                             </Select>
                         </DropdownWrapper>              
                     </ItemsPerPageWrapper>  
@@ -474,9 +472,9 @@ const Poi = () =>  {
                 </Table>
 
                 <Row mt>
-                    { APIdata.length !== 0 
-                    ? <small>Hiển thị {page * limit + 1} - {page * limit + APIdata.length} trong tổng số {total} pois.</small>
-                    : null }
+                    { loading ? null
+                    : <small>Hiển thị {page * limit + 1} - {page * limit + APIdata.length} trong tổng số {total} pois.</small> 
+                    }
                     <StyledPaginateContainer>
                         <ReactPaginate
                             nextLabel="Next >"

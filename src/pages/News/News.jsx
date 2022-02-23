@@ -306,7 +306,7 @@ const Footer = styled.div`
 
 const News = () =>  {
     const location = useLocation(); //để fetch state name truyền từ addNews qua
-    const { resident } = useAuth();
+    const { user } = useAuth();
 
     const [DeleteModal, toggleDeleteModal] = useState(false);
     const [deleteItem, setDeleteItem] = useState({id: '', name: ''});
@@ -335,8 +335,8 @@ const News = () =>  {
 
     useEffect( () => {  //fetch api data
         let url = "news?sort=-releasedate";
-        if (resident.role === Constant.MARKET_MANAGER) {
-            url = "news?apartmentid=" + resident.apartmentId;
+        if (user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
+            url = "news?apartmentid=" + user.Residents[0].apartmentId;
         }
 
         api.get(url)

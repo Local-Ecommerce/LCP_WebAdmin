@@ -183,7 +183,7 @@ const EditApartment = () => {
     }
 
     useEffect(() => {
-        const url = "apartments?id=AP001&include=marketmanager";
+        const url = "apartments?id=" + id + "&include=marketmanager";
 
         api.get(url)
         .then(function (res) {

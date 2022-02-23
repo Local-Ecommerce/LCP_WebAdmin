@@ -283,7 +283,7 @@ const Footer = styled.div`
 
 const Store = () => {
     const location = useLocation(); //để fetch state name truyền từ AddStore qua
-    const { resident } = useAuth();
+    const { user } = useAuth();
 
     const [DeleteModal, toggleDeleteModal] = useState(false);
     const [deleteItem, setDeleteItem] = useState({id: '', name: ''});
@@ -312,8 +312,8 @@ const Store = () => {
 
     useEffect(() => {  //fetch api data
         let url = "stores";
-        if (resident.role === Constant.MARKET_MANAGER) {
-            url = "stores?apartmentid=" + resident.apartmentId;
+        if (user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
+            url = "stores?apartmentid=" + user.Residents[0].apartmentId;
         }
 
         const fetchData = async () => {

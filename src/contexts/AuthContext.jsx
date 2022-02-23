@@ -11,8 +11,7 @@ export function useAuth() {
 
 export function AuthProvider({ children }) {
     const [firebaseToken, setFirebaseToken] = useState();
-    const [account, setAccount] = useState();
-    const [resident, setResident] = useState({ role: '' });
+    const [user, setUser] = useState();
     const [loading, setLoading] = useState(true);
     let navigate = useNavigate();
 
@@ -27,47 +26,22 @@ export function AuthProvider({ children }) {
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
                         setFirebaseToken(firebaseToken);
-                        setAccount(res.data.Data);
+                        setUser(res.data.Data);
                         localStorage.setItem('TOKEN_KEY', res.data.Data.Token);
                         localStorage.setItem('EXPIRED_TIME', res.data.Data.TokenExpiredDate);
-
-                        if (res.data.Data.RoleId === "R002") {
-                            setResident({ role: 'Admin' });
-                            navigate('/');
-                            setLoading(false);
-                        } 
-                        else if (res.data.Data.RoleId === "R001") {
-                            const url = "resident/" + res.data.Data.AccountId;
-    
-                            api.get(url)
-                            .then(function (res) {
-                                if (res.data.Data.Type === "MarketManager") {
-                                    setResident({
-                                        role: res.data.Data.Type,
-                                        apartmentId: res.data.Data.ApartmentId,
-                                        residentId: res.data.Data.ResidentId
-                                    });
-                                    navigate('/');
-                                    setLoading(false);
-                                } else {
-                                    logout();
-                                    localStorage.removeItem("TOKEN_KEY");
-                                    localStorage.removeItem("EXPIRED_TIME");
-                                }
-                            })
-                            .catch(function (error) {
-                                console.log(error);
-                            });
-                        }
-                    } else {
-                        logout();
-                        localStorage.removeItem("TOKEN_KEY");
-                        localStorage.removeItem("EXPIRED_TIME");
+                        navigate("/");
+                        setLoading(false);
                     }
                 })
                 .catch(function (error) {
                     console.log(error);
+                    setLoading(false);
                 });
+            } else {
+                localStorage.removeItem("TOKEN_KEY");
+                localStorage.removeItem("EXPIRED_TIME");
+                navigate('/login');
+                setLoading(false);
             }
         });
     };
@@ -77,7 +51,7 @@ export function AuthProvider({ children }) {
     };
     
     useEffect(() => {
-        const unsubscribe =  auth.onAuthStateChanged(async user => {
+        const unsubscribe = auth.onAuthStateChanged(async user => {
             if (user) {
                 const firebaseToken = await user.getIdToken(true);
                 await api.post('accounts/login', {
@@ -86,44 +60,15 @@ export function AuthProvider({ children }) {
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
                         setFirebaseToken(firebaseToken);
-                        setAccount(res.data.Data);
+                        setUser(res.data.Data);
                         localStorage.setItem('TOKEN_KEY', res.data.Data.Token);
                         localStorage.setItem('EXPIRED_TIME', res.data.Data.TokenExpiredDate);
-
-                        if (res.data.Data.RoleId === "R002") {
-                            setResident({ role: 'Admin' });
-                            setLoading(false);
-                        } 
-                        else if (res.data.Data.RoleId === "R001") {
-                            const url = "resident/" + res.data.Data.AccountId;
-    
-                            api.get(url)
-                            .then(function (res) {
-                                if (res.data.Data.Type === "MarketManager") {
-                                    setResident({
-                                        role: res.data.Data.Type,
-                                        apartmentId: res.data.Data.ApartmentId,
-                                        residentId: res.data.Data.ResidentId
-                                    });
-                                    setLoading(false);
-                                } else {
-                                    logout();
-                                    localStorage.removeItem("TOKEN_KEY");
-                                    localStorage.removeItem("EXPIRED_TIME");
-                                }
-                            })
-                            .catch(function (error) {
-                                console.log(error);
-                            });
-                        }
-                    } else {
-                        logout();
-                        localStorage.removeItem("TOKEN_KEY");
-                        localStorage.removeItem("EXPIRED_TIME");
+                        setLoading(false);
                     }
                 })
                 .catch(function (error) {
                     console.log(error);
+                    setLoading(false);
                 });
             } else {
                 localStorage.removeItem("TOKEN_KEY");
@@ -136,10 +81,8 @@ export function AuthProvider({ children }) {
     }, []);
 
     const value = {
-        // currentUser,
         firebaseToken,
-        account,
-        resident,
+        user,
         login,
         logout
     };
