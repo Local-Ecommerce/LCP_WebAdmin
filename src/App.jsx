@@ -30,14 +30,12 @@ import ApartmentDetail from './pages/Apartment/ApartmentDetail';
 import EditApartment from './pages/Apartment/EditApartment';
 
 import Poi from './pages/Poi/Poi';
-import AddPoi from "./pages/Poi/AddPoi";
-import EditPoi from './pages/Poi/EditPoi';
 
 import News from './pages/News/News';
 import AddNews from "./pages/News/AddNews";
 import EditNews from './pages/News/EditNews';
 
-import { BrowserRouter as Router, Route, Navigate, Routes, Outlet } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Outlet } from "react-router-dom";
 
 const HeaderWrapper = styled.div`
     position:absolute; position: fixed; 
@@ -132,8 +130,6 @@ const App = () => {
                             <Route path="/editApartment/:id" element={<RequireLoggedIn> <EditApartment /> </RequireLoggedIn>} />
 
                             <Route path="/pois" element={<RequireLoggedIn> <Poi /> </RequireLoggedIn>} />
-                            <Route path="/addPoi" element={<RequireLoggedIn> <AddPoi /> </RequireLoggedIn>} />
-                            <Route path="/editPoi/:id" element={<RequireLoggedIn> <EditPoi /> </RequireLoggedIn>} />
 
                             <Route path="/news" element={<RequireLoggedIn> <News /> </RequireLoggedIn>} />
                             <Route path="/addNews" element={<RequireLoggedIn> <AddNews /> </RequireLoggedIn>} />

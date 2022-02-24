@@ -29,6 +29,7 @@ export function AuthProvider({ children }) {
                         localStorage.setItem('USER', JSON.stringify(res.data.Data));
                         localStorage.setItem('TOKEN_KEY', res.data.Data.RefreshTokens[0].AccessToken);
                         localStorage.setItem('EXPIRED_TIME', res.data.Data.TokenExpiredDate);
+                        console.log(localStorage.getItem('TOKEN_KEY'));
                         navigate("/");
                         setLoading(false);
                     } else {    //not admin or marketManager

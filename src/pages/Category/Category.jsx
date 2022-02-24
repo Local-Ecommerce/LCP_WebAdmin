@@ -12,6 +12,11 @@ const PageWrapper = styled.div`
     margin: 50px 40px;
 `;
 
+const CategoryListWrapper = styled.div`
+    margin-top: 20px;
+    margin-bottom: 50px;
+`;
+
 const Title = styled.h1`
     font-size: 16px;
     color: #383838;
@@ -27,6 +32,11 @@ const Row = styled.div`
     margin-bottom: ${props => props.mb ? "30px" : "0px"};
 `;
 
+const Align = styled.div`
+    display: flex;
+    width: 70%;
+`;
+
 const StyledSearchIcon = styled(Search)`
     && {
         color: grey;
@@ -35,7 +45,7 @@ const StyledSearchIcon = styled(Search)`
 
 const SearchBar = styled.div`
     display: flex;
-    width: 31%;
+    width: 50%;
     justify-content: center;
     align-items: center;
     border-radius: 5px;
@@ -45,12 +55,8 @@ const SearchBar = styled.div`
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
+    margin-right: 10px;
 `;
-
-const CategoryListWrapper = styled.div`
-    margin-top: 20px;
-    margin-bottom: 50px;
-`
 
 const Input = styled.input`
     padding: 4px;
@@ -68,19 +74,26 @@ const Input = styled.input`
 const Button = styled.button`
     height: 36px;
     width: 70px;
-    background-color: ${props => props.theme.blue};
+    background-color: #17a2b8;
     border-style: none;
     border-radius: 5px;
-    color: #fff;    
+    color: #fff;
+
+    &:hover {
+    opacity: 0.8;
+    }
 
     &:focus {
-    opacity: 0.5;
+    outline: 0;
+    }
+
+    &:active {
+    transform: translateY(1px);
     }
 `;
 
 const DropdownWrapper = styled.div`
     display: flex;
-    width: ${props => props.width};
     justify-content: center;
     align-items: center;
     border-radius: 5px;
@@ -108,18 +121,21 @@ const AddButton = styled.button`
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 10px;
     background-color: ${props => props.theme.green};
-    padding: 10px 13px 10px 10px;
     border-style: none;
     border-radius: 5px;
-    color: #fff;
+    color: ${props => props.theme.white};
     text-decoration: none;
     font-size: 0.9em;
-    margin-left: 31%;
     box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 
     &:hover {
     opacity: 0.8;
+    }
+
+    &:focus {
+    outline: 0;
     }
 
     &:active {
@@ -129,8 +145,8 @@ const AddButton = styled.button`
 
 const AddIcon = styled(AddCircle)`
     && {
-        font-size: 22px;
         margin-right: 5px;
+        font-size: 20px;
     }
 `;
 
@@ -142,14 +158,13 @@ const TableWrapper = styled.div`
 `;
 
 const Category = () => {
-    const [displayCreateModal, setCreateModal] = useState(false);
-    function toggleCreateModal() { setCreateModal(!displayCreateModal); }
-    const [displayDeleteModal, setDeleteModal] = useState(false);
-    function toggleDeleteModal() { setDeleteModal(!displayDeleteModal); }
-    const [deleteItem, setDeleteItem] = useState({ id: '', name: '' });
-
+    const [createModal, setCreateModal] = useState(false);
+    function toggleCreateModal() { setCreateModal(!createModal); }
+    const [deleteModal, setDeleteModal] = useState(false);
+    function toggleDeleteModal() { setDeleteModal(!deleteModal); }
     const [input, setInput] = useState({ name: '', type: 'Khác', belongTo: '', belongToName: '' })
     const [error, setError] = useState({ nameError: '', typeError: '' })
+    const [deleteItem, setDeleteItem] = useState({ id: '', name: '' });
     
     const [APIdata, setAPIdata] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
@@ -196,17 +211,17 @@ const Category = () => {
 
     const handleToggleCreateModal = () => {
         setInput({ name: '', type: 'Khác', belongTo: '', belongToName: '' });
-        setCreateModal(!displayCreateModal);
+        toggleCreateModal();
     }
 
     const handleGetCreateItem = (id, type, name) => {
         setInput({ name: '', type: type, belongTo: id, belongToName: name });
-        setCreateModal(!displayCreateModal);
+        toggleCreateModal();
     }
 
     const handleGetDeleteItem = (id, name) => {
         setDeleteItem({ id: id, name: name });
-        setDeleteModal(!displayDeleteModal);
+        toggleDeleteModal();
     }
 
     function handleChange(e) {
@@ -230,7 +245,7 @@ const Category = () => {
                             position: toast.POSITION.TOP_CENTER
                         });
                         notify();
-                        setCreateModal(!displayCreateModal);
+                        toggleCreateModal();
                         setChange(!change);
                     }
                 })
@@ -304,7 +319,7 @@ const Category = () => {
             });
         };
         deleteData();
-        setDeleteModal(!displayDeleteModal);
+        toggleDeleteModal();
     };
 
     return (
@@ -313,20 +328,21 @@ const Category = () => {
 
             <TableWrapper>
                 <Row>
-                    <SearchBar>
-                        <StyledSearchIcon />
-                        <Input id="search" placeholder="Search tên danh mục" onChange={(event) => handleSearch(event.target.value, status)} />
-                        <Button onClick={() => clearSearch()}>Clear</Button>
-                    </SearchBar>
+                    <Align>
+                        <SearchBar>
+                            <StyledSearchIcon />
+                            <Input id="search" placeholder="Search tên danh mục" onChange={(event) => handleSearch(event.target.value, status)} />
+                            <Button onClick={() => clearSearch()}>Clear</Button>
+                        </SearchBar>
 
-                    <DropdownWrapper width="16%">
-                        <Select value={status} onChange={(event) => handleSearch(search, event.target.value)}>
-                            <option value="0">Toàn bộ</option>
-                            <option value="3001">Hoạt động</option>
-                            <option value="3002">Ngừng hoạt động</option>
-                            <option value="3004">Ngừng hoạt động</option>
-                        </Select>
-                    </DropdownWrapper>
+                        <DropdownWrapper width="16%">
+                            <Select value={status} onChange={(event) => handleSearch(search, event.target.value)}>
+                                <option value="0">Toàn bộ</option>
+                                <option value="3001">Hoạt động</option>
+                                <option value="3004">Ngừng hoạt động</option>
+                            </Select>
+                        </DropdownWrapper>
+                    </Align>
 
                     <AddButton onClick={handleToggleCreateModal}>
                         <AddIcon />
@@ -346,16 +362,16 @@ const Category = () => {
             </CategoryListWrapper>
 
             <CreateModal 
-                display={displayCreateModal}
+                display={createModal}
                 toggle={toggleCreateModal}
                 input={input}
-                handleChange={handleChange}
                 error={error} 
+                handleChange={handleChange}
                 handleAddItem={handleAddItem}
             />
 
             <DeleteModal 
-                display={displayDeleteModal}
+                display={deleteModal}
                 toggle={toggleDeleteModal}
                 deleteItem={deleteItem}
                 handleDeleteItem={handleDeleteItem}

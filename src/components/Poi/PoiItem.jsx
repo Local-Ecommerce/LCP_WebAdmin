@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Edit, Delete } from '@mui/icons-material';
-import { Link } from "react-router-dom";
 
 const Button = styled.button`
     padding: 3px;
@@ -65,7 +64,7 @@ const StyledDeleteIcon = styled(Delete)`
     }
 `;
 
-const PoiItem = ({ item, handleGetDeleteItem, index }) =>  {
+const PoiItem = ({ item, handleGetEditItem, handleGetDeleteItem, index }) =>  {
 
     if (item === 0) {
         return (
@@ -110,11 +109,9 @@ const PoiItem = ({ item, handleGetDeleteItem, index }) =>  {
 
             <TableData center>
 
-                <Link to={"/editPoi/" + item.PoiId}>
-                    <Button>
-                        <StyledEditIcon/>
-                    </Button>
-                </Link>
+                <Button onClick={() => handleGetEditItem(item.PoiId)}>
+                    <StyledEditIcon/>
+                </Button>
 
                 <Button disabled={disabledCheck} onClick={() => handleGetDeleteItem(item.PoiId, item.Title)}>
                     <StyledDeleteIcon disabled={disabledCheck} />

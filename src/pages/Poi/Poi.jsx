@@ -1,14 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import Modal from 'react-modal';
 import PoiList from '../../components/Poi/PoiList';
 import ReactPaginate from "react-paginate";
 import { AddCircle, Search } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
 import { api } from "../../RequestMethod";
-import { Link, useLocation } from "react-router-dom";
 import { toast } from 'react-toastify';
+import CreateModal from './CreateModal';
+import DeleteModal from './DeleteModal';
+import EditModal from './EditModal';
 
 const PageWrapper = styled.div`
     margin: 40px;
@@ -75,8 +76,16 @@ const Button = styled.button`
     border-radius: 5px;
     color: #fff;
 
+    &:hover {
+    opacity: 0.8;
+    }
+
     &:focus {
-    opacity: 0.5;
+    outline: 0;
+    }
+
+    &:active {
+    transform: translateY(1px);
     }
 `;
 
@@ -105,7 +114,7 @@ const Select = styled.select`
     }
 `;
 
-const AddButton = styled(Link)`
+const AddButton = styled.button`
     display: flex;
     justify-content: center;
     align-items: center;
@@ -118,8 +127,16 @@ const AddButton = styled(Link)`
     font-size: 0.9em;
     box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
 
+    &:hover {
+    opacity: 0.8;
+    }
+
     &:focus {
-    opacity: 0.5;
+    outline: 0;
+    }
+
+    &:active {
+    transform: translateY(1px);
     }
 `;
 
@@ -257,72 +274,26 @@ const StyledPaginateContainer = styled.div`
     }
 `;
 
-const ModalTitle = styled.h2`
-    margin: 25px 20px;
-    color: #212529;
-`;
-
-const ModalContentWrapper = styled.div`
-    border-top: 1px solid #cfd2d4;
-    border-bottom: 1px solid #cfd2d4;
-`;
-
-const ModalContent = styled.p`
-    margin: 25px 20px;
-    color: #762a36;
-    padding: 20px;
-    background: #f8d7da;
-    border-radius: 5px;
-`;
-
-const ModalButtonWrapper = styled.div`
-    margin: 20px;
-    float: right;
-`;
-
-const ModalButton = styled.button`
-    min-width: 80px;
-    padding: 10px;
-    margin-left: 10px;
-    background: ${props => props.red ? "#dc3545" : "#fff"};
-    color: ${props => props.red ? "#fff" : "#212529"};;
-    border: 1px solid ${props => props.red ? "#dc3545" : "#fff"};
-    border-radius: 4px;
-    text-align: center;
-    font-size: 1rem;
-
-    &:hover {
-    opacity: 0.8;
-    }
-
-    &:focus {
-    outline: 0;
-    }
-`;
-
-const customStyles = {
-    content: {
-        top: '50%',
-        left: '50%',
-        right: '65%',
-        bottom: 'auto',
-        marginRight: '-50%',
-        transform: 'translate(-50%, -50%)',
-        padding: '0px',
-    },
-};
-
 const Footer = styled.div`
     padding-top: 50px;
 `;
 
 const Poi = () =>  {
-    const location = useLocation(); //để fetch state name truyền từ AddPoi qua
+    const [createModal, setCreateModal] = useState(false);
+    function toggleCreateModal() { setCreateModal(!createModal); }
+    const [deleteModal, setDeleteModal] = useState(false);
+    function toggleDeleteModal() { setDeleteModal(!deleteModal); }
+    const [editModal, setEditModal] = useState(false);
+    function toggleEditModal() { setEditModal(!editModal); }
+
+    const [input, setInput] = useState({ title: '', text: '', apartment: '' });
+    const [deleteItem, setDeleteItem] = useState({id: '', name: ''});
+    const [editItem, setEditItem] = useState({ id: '' });
+    const [error, setError] = useState({ titleError: '', apartmentError: '', editError: '' });
+
     const [loading, setLoading] = useState(false);
     const user = JSON.parse(localStorage.getItem('USER'));
 
-    const [DeleteModal, toggleDeleteModal] = useState(false);
-    const [deleteItem, setDeleteItem] = useState({id: '', name: ''});
 
     const [APIdata, setAPIdata] = useState([]);
     const [change, setChange] = useState(false);
@@ -334,16 +305,7 @@ const Poi = () =>  {
 
     const [sort, setSort] = useState('-releasedate');
     const [search, setSearch] = useState('');
-    const [status, setStatus] = useState('');
-
-    useEffect(() => {
-        if (location.state && location.state.name) {
-            const notify = () => toast.success("Tạo thành công " + location.state.name + "!", {
-                position: toast.POSITION.TOP_CENTER
-              });
-            notify();
-        }
-    }, []);
+    const [status, setStatus] = useState(13001);
 
     useEffect( () => {  //fetch api data
         setLoading(true);
@@ -367,10 +329,6 @@ const Poi = () =>  {
         }
         fetchData();
     }, [change, limit, page, sort, status, search]);
-
-    useEffect(() => {
-        console.log(search);
-    }, [search])
 
     const handlePageClick = (event) => {
         setPage(event.selected);
@@ -400,34 +358,146 @@ const Poi = () =>  {
         setPage(0);
     }
 
-    const handleGetDeleteItem = (id, name) => {
-        setDeleteItem({id: id, name: name});
-        toggleDeleteModal(!DeleteModal)
+    const handleToggleCreateModal = () => {
+        setInput({ title: '', text: '', apartment: '' });
+        toggleCreateModal();
     }
 
-    const handleDeleteItem = (id) => {
-        const url = "pois?id=" + id;
-        api.delete(url)
-        .then(function (res) {
-            if (res.data.ResultMessage === "SUCCESS") {
-                setChange(!change);
-                const notify = () => toast.success("Xóa thành công " + deleteItem.name + "!", {
-                    position: toast.POSITION.TOP_CENTER
-                    });
-                notify();
+    const handleAddItem = (event) => {
+        event.preventDefault();
+        if (validCheck()) {
+            const url = "pois";
+            const addData = async () => {
+                api.post(url, {
+                    title: input.title,
+                    text: input.text,
+                    residentId: (user.Residents[0] ? user.Residents[0].ResidentId : null),
+                    apartmentId: (user.Residents[0] ? user.Residents[0].ApartmentId : (input.apartment.ApartmentId || null))
+                })
+                .then(function (res) {
+                    if (res.data.ResultMessage === "SUCCESS") {
+                        const notify = () => toast.success("Tạo thành công POI mới!", {
+                            position: toast.POSITION.TOP_CENTER
+                        });
+                        notify();
+                        toggleCreateModal();
+                        setChange(!change);
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            };
+            addData();
+        }
+    }
+
+    const validCheck = () => {
+        let check = false;
+        setError(error => ({ ...error, titleError: '', apartmentError: '' }));
+
+        if (input.title === null || input.title === '') {
+            setError(error => ({ ...error, titleError: 'Vui lòng nhập tiêu đề' }));
+            check = true;
+        }
+        if (user.RoleId === "R002") {
+            if (input.apartment === null || input.apartment === '') {
+                setError(error => ({ ...error, apartmentError: 'Vui lòng chọn chung cư' }));
+                check = true;
             }
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
+        }
+        if (check === true) {
+            return false;
+        }
+        return true;
+    }
+
+    const handleGetDeleteItem = (id, name) => {
+        setDeleteItem({id: id, name: name});
+        toggleDeleteModal();
+    }
+
+    const handleDeleteItem = (event) => {
+        event.preventDefault();
+        const url = "pois?id=" + deleteItem.id;
+        const deleteData = async () => {
+            api.delete(url)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    const notify = () => toast.success("Xóa thành công danh mục " + deleteItem.name + "!", {
+                        position: toast.POSITION.TOP_CENTER
+                    });
+                    notify();
+                    setChange(!change);
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        };
+        deleteData();
+        toggleDeleteModal();
     };
+
+    const handleGetEditItem = (id) => {
+        setEditItem({ id: id });
+        toggleEditModal();
+    }
+
+    const handleEditItem = (event) => {
+        event.preventDefault();
+        if (validEditCheck()) {
+            console.log(editItem);
+            const url = "pois?id=" + editItem.id;
+            const editData = async () => {
+                api.put(url, {
+                    title: editItem.title,
+                    text: editItem.text,
+                    status: editItem.status,
+                    residentId: editItem.residentId || null,
+                    apartmentId: editItem.apartmentId || null
+                })
+                .then(function (res) {
+                    if (res.data.ResultMessage === "SUCCESS") {
+                        const notify = () => toast.success("Cập nhật thành công!", {
+                            position: toast.POSITION.TOP_CENTER
+                        });
+                        notify();
+                        setChange(!change);
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            }
+            editData();
+            toggleEditModal();
+        }
+    }
+
+    const validEditCheck = () => {
+        let check = false;
+        setError(error => ({ ...error, editError: '' }));
+
+        if (editItem.title === null || editItem.title === '') {
+            setError(error => ({ ...error, titleError: 'Vui lòng nhập tiêu đề' }));
+            check = true;
+        }
+        if (!(editItem.status === 13001 || editItem.status === 13002)) {
+            check = true;
+        }
+        if (check === true) {
+            return false;
+        }
+        return true;
+    }
 
     return (
         <PageWrapper>
             <Row mb>
                 <Title>POIs</Title>
 
-                <AddButton to={"/addPoi/"}>
+                <AddButton onClick={handleToggleCreateModal}>
                     <AddIcon /> Tạo POI mới
                 </AddButton>
             </Row>
@@ -480,7 +550,11 @@ const Poi = () =>  {
                         loading ? 
                         <TableData center colSpan={7}> <CircularProgress /> </TableData>
                         : 
-                        <PoiList currentItems={APIdata} handleGetDeleteItem={handleGetDeleteItem} />
+                        <PoiList 
+                            currentItems={APIdata} 
+                            handleGetEditItem={handleGetEditItem} 
+                            handleGetDeleteItem={handleGetDeleteItem} 
+                        />
                         }
                     </TableBody>
                 </Table>
@@ -517,16 +591,30 @@ const Poi = () =>  {
 
             <Footer />
 
-            <Modal isOpen={DeleteModal} onRequestClose={() => toggleDeleteModal(!DeleteModal)} style={customStyles} ariaHideApp={false}>
-                <ModalTitle>Xác Nhận Xóa</ModalTitle>
-                <ModalContentWrapper>
-                    <ModalContent>Bạn có chắc chắn muốn xóa danh mục【<b>{deleteItem.name}</b>】?</ModalContent>
-                </ModalContentWrapper>
-                <ModalButtonWrapper>
-                    <ModalButton onClick={() => toggleDeleteModal(!DeleteModal)}>Quay lại</ModalButton>
-                    <ModalButton red onClick={() => { handleDeleteItem(deleteItem.id); toggleDeleteModal(!DeleteModal) }}>Xóa</ModalButton>
-                </ModalButtonWrapper>
-            </Modal>
+            <CreateModal 
+                display={createModal}
+                toggle={toggleCreateModal}
+                input={input}
+                error={error} 
+                setInput={setInput}
+                handleAddItem={handleAddItem}
+            />
+
+            <DeleteModal 
+                display={deleteModal}
+                toggle={toggleDeleteModal}
+                deleteItem={deleteItem}
+                handleDeleteItem={handleDeleteItem}
+            />
+
+            <EditModal 
+                display={editModal}
+                toggle={toggleEditModal}
+                editItem={editItem}
+                error={error}
+                setEditItem={setEditItem}
+                handleEditItem={handleEditItem}
+            />
         </PageWrapper>
     )
 }

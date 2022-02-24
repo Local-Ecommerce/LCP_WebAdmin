@@ -37,6 +37,10 @@ const ModalButton = styled.button`
     &:focus {
     outline: 0;
     }
+
+    &:active {
+    transform: translateY(1px);
+    }
 `;
 
 const customStyles = {
@@ -57,7 +61,7 @@ const FormLabel = styled.div`
     margin-top: ${props => props.mt ? "30px" : null};
 `;
 
-const CreateModal = ({ display, toggle, input, handleChange, error, handleAddItem }) => {
+const CreateModal = ({ display, toggle, input, error, handleChange, handleAddItem }) => {
     const types = ['Tươi sống', 'Khác'];
 
     return (
