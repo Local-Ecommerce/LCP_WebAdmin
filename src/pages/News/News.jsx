@@ -463,10 +463,6 @@ const News = () =>  {
                         </DropdownWrapper>              
                     </ItemsPerPageWrapper> 
 
-                    <AddButton to={"/addNews/"}>
-                        <AddIcon />
-                        Tạo tin mới
-                    </AddButton>
                 </Row>
 
                 <Table>

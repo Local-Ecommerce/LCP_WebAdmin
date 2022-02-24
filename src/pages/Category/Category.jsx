@@ -104,13 +104,12 @@ const Select = styled.select`
     }
 `;
 
-const AddCategoryButton = styled.button`
+const AddButton = styled.button`
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: ${props => props.theme.blue};
-    height: 44px;
-    width: 15%;
+    background-color: ${props => props.theme.green};
+    padding: 10px 13px 10px 10px;
     border-style: none;
     border-radius: 5px;
     color: #fff;
@@ -122,10 +121,17 @@ const AddCategoryButton = styled.button`
     &:hover {
     opacity: 0.8;
     }
+
+    &:active {
+    transform: translateY(1px);
+    }
 `;
 
-const AddCategoryIcon = styled(AddCircle)`
-    padding-right: 5px;
+const AddIcon = styled(AddCircle)`
+    && {
+        font-size: 22px;
+        margin-right: 5px;
+    }
 `;
 
 const TableWrapper = styled.div`
@@ -322,10 +328,10 @@ const Category = () => {
                         </Select>
                     </DropdownWrapper>
 
-                    <AddCategoryButton onClick={handleToggleCreateModal}>
-                        <AddCategoryIcon />
+                    <AddButton onClick={handleToggleCreateModal}>
+                        <AddIcon />
                         Tạo danh mục mới
-                    </AddCategoryButton>
+                    </AddButton>
                 </Row>
             </TableWrapper>
 

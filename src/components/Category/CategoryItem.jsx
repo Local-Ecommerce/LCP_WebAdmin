@@ -87,6 +87,11 @@ const Button = styled.button`
     &:focus {
     outline: none;
     }
+
+    &:active {
+    box-shadow: 0 2px #666;
+    transform: translateY(1px);
+    }
 `;
 
 const FloatRight = styled.div`
@@ -193,6 +198,11 @@ const EditButton = styled.button`
     &:focus {
     outline: 0;
     }
+
+    &:active {
+    box-shadow: 0 2px #666;
+    transform: translateY(1px);
+    }
 `;
 
 const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
@@ -219,7 +229,7 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
 
     const handleGetCreateItem = (e) => {
         e.stopPropagation();
-        getCreateItem(item.SystemCategoryId, item.SysCategoryName);
+        getCreateItem(item.SystemCategoryId, item.Type, item.SysCategoryName);
     }
 
     const handleGetEditItem = (e) => {
@@ -246,7 +256,7 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
 
     const handleGetDeleteItem = (e) => {
         e.stopPropagation();
-        getDeleteItem(item.SystemCategoryId, item.Type, item.SysCategoryName);
+        getDeleteItem(item.SystemCategoryId, item.SysCategoryName);
     }
 
     const handleToggleEdit = (e) => {

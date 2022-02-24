@@ -36,7 +36,7 @@ const StyledSearchIcon = styled(Search)`
 
 const SearchBar = styled.div`
     display: flex;
-    width: 31%;
+    width: ${props => props.width};
     justify-content: center;
     align-items: center;
     border-radius: 5px;
@@ -139,7 +139,6 @@ const ItemsPerPageWrapper = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 48%;
 `;
 
 const StyledPaginateContainer = styled.div`
@@ -410,7 +409,7 @@ const Store = () => {
 
             <TableWrapper>
                 <Row mb>
-                    <SearchBar>
+                    <SearchBar width="50%">
                         <StyledSearchIcon />
                         <Input id="search" placeholder="Search cửa hàng" onChange={(event) => handleSearch(event.target.value, status)}/>
                         <Button onClick={() => clearSearch()}>Clear</Button>
@@ -427,7 +426,7 @@ const Store = () => {
                     </DropdownWrapper>
 
                     <ItemsPerPageWrapper>
-                        Số hàng mỗi trang:&nbsp;
+                        <small>Số hàng mỗi trang:&nbsp;</small>
                         <DropdownWrapper width="40px">
                             <Select value={itemsPerPage} onChange={(event) => handleChangeItemsPerPage(event.target.value)}>
                                 <option value="5">5</option>

@@ -19,15 +19,15 @@ export function AuthProvider({ children }) {
         auth.onAuthStateChanged(async user => {
             if (user) {
                 const firebaseToken = await user.getIdToken(true);
+                console.log("Firebase Token: " + firebaseToken);
                 await api.post('accounts/login', {
                     firebaseToken: firebaseToken,
                 })
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS" && (res.data.Data.RoleId === "R002" ||
                             (res.data.Data.RoleId === "R001" && res.data.Data.Residents[0].Type === "MarketManager"))) {
-                        console.log("Firebase Token: " + firebaseToken);
                         localStorage.setItem('USER', JSON.stringify(res.data.Data));
-                        localStorage.setItem('TOKEN_KEY', res.data.Data.Token);
+                        localStorage.setItem('TOKEN_KEY', res.data.Data.RefreshTokens[0].AccessToken);
                         localStorage.setItem('EXPIRED_TIME', res.data.Data.TokenExpiredDate);
                         navigate("/");
                         setLoading(false);

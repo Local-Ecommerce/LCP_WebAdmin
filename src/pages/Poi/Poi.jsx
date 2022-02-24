@@ -4,29 +4,33 @@ import styled from 'styled-components';
 import Modal from 'react-modal';
 import PoiList from '../../components/Poi/PoiList';
 import ReactPaginate from "react-paginate";
-import { Add, Search } from '@mui/icons-material';
+import { AddCircle, Search } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
 import { api } from "../../RequestMethod";
 import { Link, useLocation } from "react-router-dom";
 import { toast } from 'react-toastify';
 
 const PageWrapper = styled.div`
-    margin: 50px 40px;
+    margin: 40px;
 `;
 
 const Title = styled.h1`
     font-size: 16px;
     color: #383838;
-    margin: 15px;
+    margin: 15px 15px -5px 15px;
 `;
 
 const Row = styled.div`
     display: flex;
-    width: 100%;
     align-items: center;
     justify-content: space-between;
     margin-top: ${props => props.mt ? "20px" : "0px"};
     margin-bottom: ${props => props.mb ? "20px" : "0px"};
+`;
+
+const Align = styled.div`
+    display: flex;
+    width: 70%;
 `;
 
 const StyledSearchIcon = styled(Search)`
@@ -37,7 +41,7 @@ const StyledSearchIcon = styled(Search)`
 
 const SearchBar = styled.div`
     display: flex;
-    width: 31%;
+    width: 50%;
     justify-content: center;
     align-items: center;
     border-radius: 5px;
@@ -47,6 +51,7 @@ const SearchBar = styled.div`
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
+    margin-right: 10px;
 `;
 
 const Input = styled.input`
@@ -77,7 +82,6 @@ const Button = styled.button`
 
 const DropdownWrapper = styled.div`
     display: flex;
-    width: ${props => props.width};
     justify-content: center;
     align-items: center;
     border-radius: 5px;
@@ -105,12 +109,11 @@ const AddButton = styled(Link)`
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #28a745;
-    height: 44px;
-    width: 12%;
+    padding: 10px;
+    background-color: ${props => props.theme.green};
     border-style: none;
     border-radius: 5px;
-    color: #fff;
+    color: ${props => props.theme.white};
     text-decoration: none;
     font-size: 0.9em;
     box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
@@ -120,7 +123,7 @@ const AddButton = styled(Link)`
     }
 `;
 
-const AddIcon = styled(Add)`
+const AddIcon = styled(AddCircle)`
     && {
         margin-right: 5px;
         font-size: 20px;
@@ -173,8 +176,6 @@ const TableRow = styled.tr``;
 const ItemsPerPageWrapper = styled.div`
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 35%;
 `;
 
 const StyledPaginateContainer = styled.div`
@@ -346,14 +347,14 @@ const Poi = () =>  {
 
     useEffect( () => {  //fetch api data
         setLoading(true);
-        let url = "pois?limit=" + limit + status + "&page=" + (page + 1) + "&sort=" + sort + "&include=apartment&include=resident";
+        let url = "pois?limit=" + limit + "&page=" + (page + 1) + "&sort=" + sort + "&include=apartment&include=resident"
+        + (search !== '' ? ("&search=" + search) : '') + (status !== '' ? ("&status=" + status) : '');
         if (user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
             url = "pois?apartmentid=" + user.Residents[0].apartmentId;
         }
         const fetchData = () => {
             api.get(url)
             .then(function (res) {
-                console.log(res.data.Data.Page);
                 setAPIdata(res.data.Data.List);
                 setTotal(res.data.Data.Total);
                 setLastPage(res.data.Data.LastPage);
@@ -365,7 +366,11 @@ const Poi = () =>  {
             });
         }
         fetchData();
-    }, [change, limit, page, sort, status]);
+    }, [change, limit, page, sort, status, search]);
+
+    useEffect(() => {
+        console.log(search);
+    }, [search])
 
     const handlePageClick = (event) => {
         setPage(event.selected);
@@ -373,7 +378,14 @@ const Poi = () =>  {
 
     const clearSearch = () => {
         setSearch('');
+        setPage(0);
         document.getElementById("search").value = '';
+    }
+
+    function handleSetSearch(e) {
+        const { value } = e.target;
+        setSearch(value);
+        setPage(0);
     }
 
     function handleSetStatus(e) {
@@ -412,27 +424,35 @@ const Poi = () =>  {
 
     return (
         <PageWrapper>
-            <Title>POIs</Title>
+            <Row mb>
+                <Title>POIs</Title>
 
+                <AddButton to={"/addPoi/"}>
+                    <AddIcon /> Tạo POI mới
+                </AddButton>
+            </Row>
+                    
             <TableWrapper>
                 <Row mb>
-                    <SearchBar>
-                        <StyledSearchIcon />
-                        <Input id="search" placeholder="Tìm kiếm POI" /*onChange={}*/ />
-                        <Button onClick={() => clearSearch()}>Clear</Button>
-                    </SearchBar>
+                    <Align>
+                        <SearchBar>
+                            <StyledSearchIcon />
+                            <Input id="search" placeholder="Tìm kiếm POI" onChange={handleSetSearch} />
+                            <Button onClick={() => clearSearch()}>Clear</Button>
+                        </SearchBar>
 
-                    <DropdownWrapper width="16%">
-                        <Select value={status} onChange={handleSetStatus}>
-                            <option value="">--- Lọc trạng thái ---</option>
-                            <option value="&status=13001">Active</option>
-                            <option value="&status=13002">Inactive</option>
-                        </Select>
-                    </DropdownWrapper>
+                        <DropdownWrapper>
+                            <Select value={status} onChange={handleSetStatus}>
+                                <option value=''>Toàn bộ</option>
+                                <option value={13001}>Hoạt động</option>
+                                <option value={13002}>Ngừng hoạt động</option>
+                            </Select>
+                        </DropdownWrapper>
+                    </Align>
 
                     <ItemsPerPageWrapper>
-                        Số hàng mỗi trang:&nbsp;
-                        <DropdownWrapper width="40px">
+                        <small>Số hàng mỗi trang:&nbsp;</small>
+                        <DropdownWrapper>
                             <Select value={limit} onChange={handleSetLimit}>
                                 <option value={5}>5</option>
                                 <option value={10}>10</option>
@@ -441,11 +461,6 @@ const Poi = () =>  {
                             </Select>
                         </DropdownWrapper>              
                     </ItemsPerPageWrapper>  
-
-                    <AddButton to={"/addPoi/"}>
-                        <AddIcon />
-                        Tạo POI mới
-                    </AddButton>
                 </Row>
                 
                 <Table>
