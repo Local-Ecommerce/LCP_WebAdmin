@@ -1,6 +1,7 @@
 import styled, { ThemeProvider } from "styled-components";
 import React from 'react';
-import { AuthProvider } from "./contexts/AuthContext";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { DateTime } from 'luxon';
 
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -74,17 +75,14 @@ const SidebarLayout = () => (
 );
 
 const RequireLoggedIn = ({ children }) => {
-    const expireDuration = 1000 * 60 * 60; // 1 hours
-    const currentTime = new Date().getTime();
-    const expiredTime = localStorage.getItem("EXPIRED_TIME");
+    const { logout } = useAuth();
+    const user = JSON.parse(localStorage.getItem('USER'));
     const token = localStorage.getItem("TOKEN_KEY");
-
-    if ((token === undefined) 
-            || (expiredTime === undefined) 
-            /*|| (expiredTime !== undefined && currentTime - expiredTime > expireDuration)*/) {
-        localStorage.removeItem("TOKEN_KEY");
-        localStorage.removeItem("EXPIRED_TIME");
-        return <Navigate to="/login" />;
+    const expiredTime = localStorage.getItem("EXPIRED_TIME");
+    
+    if (user === null || token === null || expiredTime === null || 
+        (expiredTime && DateTime.fromFormat(expiredTime, 'D tt').diffNow().toObject().milliseconds < 0)) {
+        logout();
     }
     return children;
 }

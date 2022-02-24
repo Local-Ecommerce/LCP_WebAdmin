@@ -142,7 +142,7 @@ const Category = () => {
     function toggleDeleteModal() { setDeleteModal(!displayDeleteModal); }
     const [deleteItem, setDeleteItem] = useState({ id: '', name: '' });
 
-    const [input, setInput] = useState({ name: '', type: '', belongTo: '', belongToName: '' })
+    const [input, setInput] = useState({ name: '', type: 'Khác', belongTo: '', belongToName: '' })
     const [error, setError] = useState({ nameError: '', typeError: '' })
     
     const [APIdata, setAPIdata] = useState([]);
@@ -189,12 +189,12 @@ const Category = () => {
     }
 
     const handleToggleCreateModal = () => {
-        setInput({ name: '', type: '', belongTo: '', belongToName: '' });
+        setInput({ name: '', type: 'Khác', belongTo: '', belongToName: '' });
         setCreateModal(!displayCreateModal);
     }
 
-    const handleGetCreateItem = (id, name) => {
-        setInput({ name: '', type: '', belongTo: id, belongToName: name });
+    const handleGetCreateItem = (id, type, name) => {
+        setInput({ name: '', type: type, belongTo: id, belongToName: name });
         setCreateModal(!displayCreateModal);
     }
 

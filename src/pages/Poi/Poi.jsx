@@ -9,7 +9,6 @@ import { CircularProgress } from '@mui/material';
 import { api } from "../../RequestMethod";
 import { Link, useLocation } from "react-router-dom";
 import { toast } from 'react-toastify';
-import { useAuth } from "../../contexts/AuthContext";
 
 const PageWrapper = styled.div`
     margin: 50px 40px;
@@ -319,7 +318,7 @@ const Footer = styled.div`
 const Poi = () =>  {
     const location = useLocation(); //để fetch state name truyền từ AddPoi qua
     const [loading, setLoading] = useState(false);
-    const { user } = useAuth();
+    const user = JSON.parse(localStorage.getItem('USER'));
 
     const [DeleteModal, toggleDeleteModal] = useState(false);
     const [deleteItem, setDeleteItem] = useState({id: '', name: ''});

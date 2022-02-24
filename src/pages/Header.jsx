@@ -246,14 +246,15 @@ const StyledLogoutIcon = styled(Logout)`
 `;
 
 const Header = () => {
-    const { user, logout } = useAuth();
+    const { logout } = useAuth();
+    const user = JSON.parse(localStorage.getItem('USER'));
     let navigate = useNavigate();
     const [NotificationModal, toggleNotificationModal] = useState(false);
     const [UserDropdown, toggleUserDropdown] = useState(false);
 
-    let domNode = useClickOutside(() => {
+    let clickOutside = useClickOutside(() => {
         toggleUserDropdown(false);
-      });
+    });
 
     async function handleLogout() {
         try {
@@ -287,7 +288,7 @@ const Header = () => {
 
             {
             UserDropdown ?
-            <DropdownWrapper ref={domNode}>
+            <DropdownWrapper ref={clickOutside}>
                 <Name>
                     {user.RoleId === "R002" ? "Admin" : user.Residents[0].ResidentName} <br/> 
                     <Title>{user.RoleId === "R002" ? "Quản lý hệ thống" : "Quản lý chung cư"}</Title> 

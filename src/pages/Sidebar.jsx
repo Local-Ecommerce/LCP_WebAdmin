@@ -22,14 +22,53 @@ const SidebarWrapper = styled.div`
 `;
 
 const PaddingBlock = styled.div`
-    height: 100px;
+    height: 90px;
+`;
+
+const AvatarWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    border-bottom: 1px solid rgba(0,0,0,0.15);
+    padding-bottom: 5px;
+    margin: 0px 15px;
+`;
+
+const Avatar = styled.img`
+    vertical-align: middle;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+`;
+
+const Name = styled.h3`
+    width: 100%;
+    text-align: center;
+    font-size: 18px;
+    margin: 15px 0px;
+    font-weight: 500;
+    line-height: 1.2em;
+`;
+
+const Hello = styled.span`
+    font-size: 16px;
+    color: ${props => props.theme.dark};
+    font-weight: 400;
 `;
 
 const Sidebar = () => {
+    const user = JSON.parse(localStorage.getItem('USER'));
 
     return (
         <SidebarWrapper>
             <PaddingBlock />
+
+            <AvatarWrapper>
+                <Avatar src="./images/user.png" alt="Loich Logo" />
+                <Name>
+                    <Hello>Xin chào, </Hello>{user.RoleId === "R002" ? "Admin" : user.Residents[0].ResidentName} <br/> 
+                </Name>
+            </AvatarWrapper>
 
             {SidebarData.map((item, index) => {
                 return <SidebarItem item={item} key={index} />;

@@ -8,8 +8,6 @@ import { AddCircle, Search } from '@mui/icons-material';
 import { Link, useLocation } from "react-router-dom";
 import { api } from "../../RequestMethod";
 import { toast } from 'react-toastify';
-import { useAuth } from "../../contexts/AuthContext";
-import * as Constant from '../../Constant';
 
 const PageWrapper = styled.div`
     margin: 50px 40px;
@@ -306,7 +304,7 @@ const Footer = styled.div`
 
 const News = () =>  {
     const location = useLocation(); //để fetch state name truyền từ addNews qua
-    const { user } = useAuth();
+    const user = JSON.parse(localStorage.getItem('USER'));
 
     const [DeleteModal, toggleDeleteModal] = useState(false);
     const [deleteItem, setDeleteItem] = useState({id: '', name: ''});

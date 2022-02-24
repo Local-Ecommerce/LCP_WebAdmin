@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ArrowDropUp, ArrowDropDown, Edit, Delete, AddCircle } from '@mui/icons-material';
 import { CircularProgress, TextField } from '@mui/material';
+import useClickOutside from "../../contexts/useClickOutside";
 
 const CategoryContent = styled.div`
     margin: ${props => props.level === 1 ? "10px" : "0px"} 0px 8px 0px;
@@ -212,6 +213,10 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
         setChild(!child);
     }
 
+    let clickOutside = useClickOutside(() => {
+        toggleDropdown(false);
+    });
+
     const handleGetCreateItem = (e) => {
         e.stopPropagation();
         getCreateItem(item.SystemCategoryId, item.SysCategoryName);
@@ -241,7 +246,7 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
 
     const handleGetDeleteItem = (e) => {
         e.stopPropagation();
-        getDeleteItem(item.SystemCategoryId, item.SysCategoryName);
+        getDeleteItem(item.SystemCategoryId, item.Type, item.SysCategoryName);
     }
 
     const handleToggleEdit = (e) => {
@@ -300,7 +305,7 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
             {
             edit ?
             <CategoryContent edit level={item.CategoryLevel}>
-                <SelectWrapper>
+                <SelectWrapper ref={clickOutside}>
                     <Select onClick={handleToggleDropdown}>
                         {input.status === 3001 ? 'Hoạt động' : input.status === 3004 ? 'Ngừng hoạt động' : ''}
                         <ArrowDropDown />

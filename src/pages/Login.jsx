@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TextField } from '@mui/material';
 import { useAuth } from "../contexts/AuthContext";
 import { CircularProgress } from '@mui/material';
