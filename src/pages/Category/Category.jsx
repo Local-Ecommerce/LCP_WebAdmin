@@ -34,7 +34,8 @@ const Row = styled.div`
 
 const Align = styled.div`
     display: flex;
-    width: 70%;
+    width: 80%;
+    align-items: center;
 `;
 
 const StyledSearchIcon = styled(Search)`
@@ -55,7 +56,7 @@ const SearchBar = styled.div`
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
-    margin-right: 10px;
+    margin-right: 15px;
 `;
 
 const Input = styled.input`
@@ -103,6 +104,7 @@ const DropdownWrapper = styled.div`
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
+    margin-right: 15px;
 `;
 
 const Select = styled.select`
@@ -170,8 +172,9 @@ const Category = () => {
     const [filteredData, setFilteredData] = useState([]);
 
     const [change, setChange] = useState(false);
-    const [search, setSearch] = useState(''); //search filter
-    const [status, setStatus] = useState('3001'); //status filter
+    const [search, setSearch] = useState(""); //search filter
+    const [status, setStatus] = useState("3001"); //status filter
+    const [type, setType] = useState('Khác');
 
     useEffect(() => {
         const url = "categories?limit=100&sort=-syscategoryname";
@@ -189,20 +192,16 @@ const Category = () => {
 
     useEffect(() => {   //filter based on 'search' & 'status'
         const result = APIdata.filter((item) => {
-            if (status !== '0') {
+            if (status !== "0") {
                 return [item.SystemCategoryId, item.SysCategoryName].join('').toLowerCase().includes(search.toLowerCase())
-                        && item.Status === parseInt(status)
+                        && item.Status === parseInt(status) && item.Type === type;
             } else {
                 return [item.SystemCategoryId, item.SysCategoryName].join('').toLowerCase().includes(search.toLowerCase())
+                        && item.Type === type;
             }
         })
         setFilteredData(result);
-    }, [search, status, APIdata]);
-
-    const handleSearch = (searchValue, statusValue) => {
-        setSearch(searchValue);
-        setStatus(statusValue);
-    }
+    }, [search, status, type, APIdata]);
 
     const clearSearch = () => {
         setSearch('');
@@ -331,15 +330,24 @@ const Category = () => {
                     <Align>
                         <SearchBar>
                             <StyledSearchIcon />
-                            <Input id="search" placeholder="Search tên danh mục" onChange={(event) => handleSearch(event.target.value, status)} />
+                            <Input id="search" placeholder="Search tên danh mục" onChange={(event) => setSearch(event.target.value)} />
                             <Button onClick={() => clearSearch()}>Clear</Button>
                         </SearchBar>
 
+                        <small>Trạng thái:&nbsp;</small>
                         <DropdownWrapper width="16%">
-                            <Select value={status} onChange={(event) => handleSearch(search, event.target.value)}>
-                                <option value="0">Toàn bộ</option>
-                                <option value="3001">Hoạt động</option>
-                                <option value="3004">Ngừng hoạt động</option>
+                            <Select value={status} onChange={(event) => setStatus(event.target.value)}>
+                                <option value={"0"}>Toàn bộ</option>
+                                <option value={"3001"}>Hoạt động</option>
+                                <option value={"3004"}>Ngừng hoạt động</option>
+                            </Select>
+                        </DropdownWrapper>
+
+                        <small>Loại:&nbsp;</small>
+                        <DropdownWrapper width="16%">
+                            <Select value={type} onChange={(event) => setType(event.target.value)}>
+                                <option value="Khác">Khác</option>
+                                <option value="Tươi sống">Tươi sống</option>
                             </Select>
                         </DropdownWrapper>
                     </Align>

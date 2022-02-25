@@ -33,7 +33,6 @@ const SidebarData = [
     },
     {
         title: 'Quản lí sản phẩm',
-        role: Constant.ADMIN
     },
     {
         title: 'Danh mục',

@@ -10,7 +10,7 @@ const PoiList = ({ currentItems, handleGetEditItem, handleGetDeleteItem }) => {
     return currentItems && currentItems.map((item, index) => {
         return (
             <PoiItem
-                item={item} index={index}
+                item={item} index={index} key={index}
                 handleGetEditItem={handleGetEditItem}
                 handleGetDeleteItem={handleGetDeleteItem}
             />

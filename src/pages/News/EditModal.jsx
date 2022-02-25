@@ -135,7 +135,7 @@ const EditModal = ({ display, toggle, editItem, error, setEditItem, handleEditIt
     useEffect(() => {
         if (display) {
             setLoading(true);
-            const url = "pois?id=" + editItem.id + "&include=apartment&include=resident";
+            const url = "news?id=" + editItem.id + "&include=apartment&include=resident";
             const fetchData = async () => {
                 api.get(url)
                 .then(function (res) {
@@ -161,11 +161,11 @@ const EditModal = ({ display, toggle, editItem, error, setEditItem, handleEditIt
     let activeCheck = '';
     let activeLabel = '';
     switch (item.Status) {
-        case 13001:
+        case 12001:
             activeCheck = 'active';
             activeLabel = 'Hoạt động';
             break;
-        case 13002:
+        case 12002:
             activeCheck = 'inactive';
             activeLabel = 'Ngừng';
             break;
@@ -192,7 +192,7 @@ const EditModal = ({ display, toggle, editItem, error, setEditItem, handleEditIt
                         <DetailBottom>
                             <DetailTitle>POI ID</DetailTitle>
                             <DetailInfo>
-                                <DetailInfoText>{item.PoiId}</DetailInfoText>
+                                <DetailInfoText>{item.NewsId}</DetailInfoText>
                             </DetailInfo>
 
                             <DetailTitle>Ngày tạo</DetailTitle>
@@ -207,7 +207,7 @@ const EditModal = ({ display, toggle, editItem, error, setEditItem, handleEditIt
 
                             <DetailTitle>Chung cư</DetailTitle>
                             <DetailInfo>
-                                <DetailInfoText>{item.ApartmentId ? item.Apartment.ApartmentName : "Admin"}</DetailInfoText>
+                                <DetailInfoText>{item.ApartmentId ? item.Apartment.ApartmentName : "Hệ thống"}</DetailInfoText>
                             </DetailInfo>
                         </DetailBottom>
                     </DetailWrapper>
@@ -240,8 +240,8 @@ const EditModal = ({ display, toggle, editItem, error, setEditItem, handleEditIt
                                     label="Trạng thái"
                                     onChange={(event) => setEditItem(data => ({ ...data, status: event.target.value }))}
                                 >
-                                <MenuItem value={13001}>Hoạt động</MenuItem>
-                                <MenuItem value={13002}>Ngừng hoạt động</MenuItem>
+                                <MenuItem value={12001}>Hoạt động</MenuItem>
+                                <MenuItem value={12002}>Ngừng hoạt động</MenuItem>
                                 </Select>
                             </StyledFormControl>
                         </UpdateForm>

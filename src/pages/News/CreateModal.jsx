@@ -84,7 +84,7 @@ const CreateModal = ({ display, toggle, input, error, setInput, handleAddItem })
 
     return (
         <Modal isOpen={display} onRequestClose={toggle} style={customStyles} ariaHideApp={false}>
-            <ModalTitle>Tạo POI mới</ModalTitle>
+            <ModalTitle>Tạo tin mới</ModalTitle>
             <ModalContentWrapper>
                 <FormLabel>Tiêu đề</FormLabel>
                 <TextField
@@ -119,9 +119,7 @@ const CreateModal = ({ display, toggle, input, error, setInput, handleAddItem })
                                 </Box>
                             );
                         }}
-                        renderInput={(params) => <TextField  {...params}
-                                            error={error.apartmentError !== ''}
-                                            helperText={error.apartmentError} />}
+                        renderInput={(params) => <TextField  {...params} helperText="Để trống để tạo tin mới cho toàn bộ hệ thống." />}
                     />
                 </>
                 : null

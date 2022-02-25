@@ -80,6 +80,7 @@ const CreateModal = ({ display, toggle, input, error, handleChange, handleAddIte
                 <FormLabel mt>Loại</FormLabel>
                 <TextField
                     fullWidth size="small" select
+                    InputProps={{ readOnly: (input.belongTo === '' ? false : true) }}
                     value={input.type ? input.type : ''} name='type'
                     onChange={handleChange}
                     error={error.typeError !== ''}

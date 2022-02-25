@@ -288,7 +288,7 @@ const Poi = () =>  {
 
     const [input, setInput] = useState({ title: '', text: '', apartment: '' });
     const [deleteItem, setDeleteItem] = useState({id: '', name: ''});
-    const [editItem, setEditItem] = useState({ id: '' });
+    const [editItem, setEditItem] = useState({ id: '', title: '', text: '', residentId: '', apartmentId: '', status: '' });
     const [error, setError] = useState({ titleError: '', apartmentError: '', editError: '' });
 
     const [loading, setLoading] = useState(false);
@@ -304,6 +304,7 @@ const Poi = () =>  {
     const [lastPage, setLastPage] = useState(0);
 
     const [sort, setSort] = useState('-releasedate');
+    const [typing, setTyping] = useState('');
     const [search, setSearch] = useState('');
     const [status, setStatus] = useState(13001);
 
@@ -330,19 +331,24 @@ const Poi = () =>  {
         fetchData();
     }, [change, limit, page, sort, status, search]);
 
+    useEffect(() => {   //timer when search
+        const timeOutId = setTimeout(() => setSearch(typing), 500);
+        return () => clearTimeout(timeOutId);
+    }, [typing]);
+
     const handlePageClick = (event) => {
         setPage(event.selected);
     };
 
     const clearSearch = () => {
-        setSearch('');
+        setTyping('');
         setPage(0);
         document.getElementById("search").value = '';
     }
 
     function handleSetSearch(e) {
         const { value } = e.target;
-        setSearch(value);
+        setTyping(value);
         setPage(0);
     }
 
@@ -360,6 +366,7 @@ const Poi = () =>  {
 
     const handleToggleCreateModal = () => {
         setInput({ title: '', text: '', apartment: '' });
+        setError(error => ({ ...error, titleError: '' }));
         toggleCreateModal();
     }
 
@@ -440,14 +447,13 @@ const Poi = () =>  {
     };
 
     const handleGetEditItem = (id) => {
-        setEditItem({ id: id });
+        setEditItem(data => ({ ...data, id: id }));
         toggleEditModal();
     }
 
     const handleEditItem = (event) => {
         event.preventDefault();
         if (validEditCheck()) {
-            console.log(editItem);
             const url = "pois?id=" + editItem.id;
             const editData = async () => {
                 api.put(url, {
@@ -480,7 +486,7 @@ const Poi = () =>  {
         setError(error => ({ ...error, editError: '' }));
 
         if (editItem.title === null || editItem.title === '') {
-            setError(error => ({ ...error, titleError: 'Vui lòng nhập tiêu đề' }));
+            setError(error => ({ ...error, editError: 'Vui lòng nhập tiêu đề' }));
             check = true;
         }
         if (!(editItem.status === 13001 || editItem.status === 13002)) {
@@ -545,6 +551,7 @@ const Poi = () =>  {
                             <TableHeader width="10%" center>Chỉnh sửa</TableHeader>
                         </TableRow>
                     </TableHead>
+                    
                     <TableBody>
                         {
                         loading ? 

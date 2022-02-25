@@ -30,10 +30,7 @@ import ApartmentDetail from './pages/Apartment/ApartmentDetail';
 import EditApartment from './pages/Apartment/EditApartment';
 
 import Poi from './pages/Poi/Poi';
-
 import News from './pages/News/News';
-import AddNews from "./pages/News/AddNews";
-import EditNews from './pages/News/EditNews';
 
 import { BrowserRouter as Router, Route, Routes, Outlet } from "react-router-dom";
 
@@ -130,10 +127,7 @@ const App = () => {
                             <Route path="/editApartment/:id" element={<RequireLoggedIn> <EditApartment /> </RequireLoggedIn>} />
 
                             <Route path="/pois" element={<RequireLoggedIn> <Poi /> </RequireLoggedIn>} />
-
                             <Route path="/news" element={<RequireLoggedIn> <News /> </RequireLoggedIn>} />
-                            <Route path="/addNews" element={<RequireLoggedIn> <AddNews /> </RequireLoggedIn>} />
-                            <Route path="/editNews/:id" element={<RequireLoggedIn> <EditNews /> </RequireLoggedIn>} />
                         </Route>
 
                         <Route path="/login" element={<Login />} />
