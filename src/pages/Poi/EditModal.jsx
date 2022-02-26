@@ -57,21 +57,25 @@ const DetailBottom = styled.div`
     margin-top: 20px;
 `;
 
-const DetailTitle = styled.span`
+const DetailInfo = styled.div`
+    align-items: center;
+    margin: 20px 0px;
+    color: #444;
+`;
+
+const DetailTitle = styled.div`
     font-size: 14px;
     font-weight: 600;
     color: rgb(175, 170, 170);
 `;
 
-const DetailInfo = styled.div`
-    align-items: center;
-    margin: 12px 10px;
-    color: #444;
+const DetailText = styled.div`
+    margin: 15px;
 `;
 
-const DetailInfoText = styled.span`
-    display: block;
-    margin: 10px;
+const DetailSmallText = styled.div`
+    margin: -5px 15px;
+    font-size: 0.8em;
 `;
 
 const Status = styled.span`
@@ -190,24 +194,25 @@ const EditModal = ({ display, toggle, editItem, error, setEditItem, handleEditIt
                         </UpdateTitle>
 
                         <DetailBottom>
-                            <DetailTitle>POI ID</DetailTitle>
                             <DetailInfo>
-                                <DetailInfoText>{item.PoiId}</DetailInfoText>
+                                <DetailTitle>POI ID</DetailTitle>
+                                <DetailText>{item.PoiId}</DetailText>
                             </DetailInfo>
 
-                            <DetailTitle>Ngày tạo</DetailTitle>
                             <DetailInfo>
-                                <DetailInfoText>{DateTime.fromISO(item.ReleaseDate).toLocaleString(DateTime.DATETIME_SHORT)}</DetailInfoText>
+                                <DetailTitle>Ngày tạo</DetailTitle>
+                                <DetailText>{DateTime.fromISO(item.ReleaseDate).toLocaleString(DateTime.DATETIME_SHORT)}</DetailText>
                             </DetailInfo>
 
-                            <DetailTitle>Quản lý</DetailTitle>
                             <DetailInfo>
-                                <DetailInfoText>{item.ResidentId ? item.Resident.ResidentName : "Admin"}</DetailInfoText>
+                                <DetailTitle>Quản lý</DetailTitle>
+                                <DetailText>{item.ResidentId ? item.Resident.ResidentName : "Admin"}</DetailText>
                             </DetailInfo>
 
-                            <DetailTitle>Chung cư</DetailTitle>
                             <DetailInfo>
-                                <DetailInfoText>{item.ApartmentId ? item.Apartment.ApartmentName : "Admin"}</DetailInfoText>
+                                <DetailTitle>Chung cư</DetailTitle>
+                                <DetailText>{item.ApartmentId ? item.Apartment.ApartmentName : "Hệ thống"}</DetailText>
+                                <DetailSmallText>{item.ApartmentId ? item.Apartment.Address : ''}</DetailSmallText>
                             </DetailInfo>
                         </DetailBottom>
                     </DetailWrapper>

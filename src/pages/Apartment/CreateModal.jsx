@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
+import { TextField } from '@mui/material';
 
 const ModalTitle = styled.h2`
     margin: 25px 20px;
@@ -11,13 +12,6 @@ const ModalContentWrapper = styled.div`
     border-top: 1px solid #cfd2d4;
     border-bottom: 1px solid #cfd2d4;
     padding: 25px;
-`;
-
-const DangerModalContent = styled.div`
-    color: #762a36;
-    padding: 20px;
-    background: #f8d7da;
-    border-radius: 5px;
 `;
 
 const ModalButtonWrapper = styled.div`
@@ -43,13 +37,17 @@ const ModalButton = styled.button`
     &:focus {
     outline: 0;
     }
+
+    &:active {
+    transform: translateY(1px);
+    }
 `;
 
 const customStyles = {
     content: {
         top: '50%',
         left: '50%',
-        right: '65%',
+        right: '60%',
         bottom: 'auto',
         marginRight: '-50%',
         transform: 'translate(-50%, -50%)',
@@ -57,20 +55,45 @@ const customStyles = {
     },
 };
 
-const DeleteModal = ({ display, toggle, deleteItem, handleDeleteItem }) => {
+const FormLabel = styled.div`
+    font-weight: 700;
+    margin-bottom: 10px;
+    margin-top: ${props => props.mt ? "30px" : null};
+`;
+
+const CreateModal = ({ display, toggle, input, error, setInput, handleAddItem }) => {
 
     return (
         <Modal isOpen={display} onRequestClose={toggle} style={customStyles} ariaHideApp={false}>
-            <ModalTitle>Xác Nhận Xóa</ModalTitle>
+            <ModalTitle>Tạo chung cư mới</ModalTitle>
+
             <ModalContentWrapper>
-                <DangerModalContent>Bạn có chắc chắn muốn xóa tin với tựa đề【<b>{deleteItem.name ? deleteItem.name : null}</b>】?</DangerModalContent>
+                <FormLabel>Tên chung cư</FormLabel>
+                <TextField
+                    fullWidth size="small"
+                    value={input.name ? input.name : ''} name='name'
+                    onChange={(event) => setInput(input => ({ ...input, name: event.target.value }))}
+                    error={error.nameError !== ''}
+                    helperText={error.nameError}
+                />
+
+                <FormLabel mt>Địa chỉ</FormLabel>
+                <TextField
+                    fullWidth size="small"
+                    multiline rows={3}
+                    value={input.address ? input.address : ''} name='address'
+                    onChange={(event) => setInput(input => ({ ...input, address: event.target.value }))}
+                    error={error.addressError !== ''}
+                    helperText={error.addressError}
+                />
             </ModalContentWrapper>
+            
             <ModalButtonWrapper>
                 <ModalButton onClick={toggle}>Quay lại</ModalButton>
-                <ModalButton red onClick={handleDeleteItem}>Xóa</ModalButton>
+                <ModalButton blue onClick={handleAddItem}>Tạo</ModalButton>
             </ModalButtonWrapper>
         </Modal>
     )
 };
 
-export default DeleteModal;
+export default CreateModal;

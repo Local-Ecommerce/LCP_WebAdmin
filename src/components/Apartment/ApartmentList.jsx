@@ -1,7 +1,7 @@
 import React from 'react';
 import ApartmentItem from './ApartmentItem';
 
-const ApartmentList = ({ currentItems, handleGetDeleteItem }) => {
+const ApartmentList = ({ currentItems, handleGetEditItem, handleGetDeleteItem }) => {
 
     if (currentItems.length === 0) {
         return <ApartmentItem item={0} />
@@ -10,8 +10,9 @@ const ApartmentList = ({ currentItems, handleGetDeleteItem }) => {
     return currentItems && currentItems.map((item, index) => {
         return (
             <ApartmentItem
-                item={item}
-                handleGetDeleteItem={handleGetDeleteItem} key={index}
+                item={item} index={index} key={index}
+                handleGetEditItem={handleGetEditItem}
+                handleGetDeleteItem={handleGetDeleteItem}
             />
         )
     });

@@ -10,8 +10,8 @@ const StoreList = ({ currentItems, handleGetDeleteItem }) => {
     return currentItems && currentItems.map((item, index) => {
         return (
             <StoreItem
-                item={item}
-                handleGetDeleteItem={handleGetDeleteItem} key={index}
+                item={item} index={index} key={index}
+                handleGetDeleteItem={handleGetDeleteItem}
             />
         )
     });

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { Badge, CircularProgress } from '@mui/material';
+import { Badge } from '@mui/material';
 import { Edit, Delete, Notifications } from '@mui/icons-material';
 import { Link } from "react-router-dom";
 
@@ -22,16 +22,18 @@ const Button = styled.button`
 const TableRow = styled.tr`
     &:hover {
         background-color: #F5F5F5;
+        cursor: pointer;
     }
 `;
 
 const TableData = styled.td`
-    padding: 16px;
+    padding: 8px 16px;
     vertical-align: top;
     border-bottom: 1px solid #dee2e6;
     vertical-align: middle;
     text-align: ${props => props.center ? "center" : "left"};
     font-size: 15px;
+    color: ${props => props.grey ? props.theme.grey : null};
 `;
 
 const Status = styled.span`
@@ -52,13 +54,12 @@ const Status = styled.span`
 `;
 
 const StyledNotificationIcon = styled(Notifications)`
-    && {
-        color: grey;
-        padding: 0px 0px 4px 4px;
-    }
+    padding: 8px;
+    border-radius: 20px;
+    color: grey;
 
     &:hover {
-    color: #dc3545;
+    background-color: ${props => props.theme.disabled};
     }
 `;
 
@@ -67,8 +68,8 @@ const StyledBadge = styled(Badge)`
         color: #fff;
 
         & .MuiBadge-badge {
-            top: 1px;
-            right: 4px;
+            top: 5px;
+            right: 10px;
             background: #dc3545;
             font-size: 0.7em;
         }
@@ -76,31 +77,30 @@ const StyledBadge = styled(Badge)`
 `;
 
 const StyledEditIcon = styled(Edit)`
+    padding: 8px;
+    border-radius: 20px;
+
     &:hover {
-    color: #dc3545;
+    background-color: ${props => props.theme.disabled};
     }
 `;
 
 const StyledDeleteIcon = styled(Delete)`
+    padding: 8px;
+    border-radius: 20px;
+
     &:hover {
-    color: ${props => props.disabled === true ? "#E0E0E0" : "#dc3545"};
+    background-color: ${props => props.disabled === true ? null : props.theme.disabled};
     }
 `;
 
-const ApartmentItem = ({ item, handleGetDeleteItem }) =>  {
-    const [loading, setLoading] = useState(true);
-    
-    useEffect(() => {
-        if (loading) {
-            setTimeout(() => {setLoading(false);}, 3000);
-        }
-    }, []);
+const ApartmentItem = ({ item, handleGetEditItem, handleGetDeleteItem, index }) =>  {
 
     if (item === 0) {
         return (
             <tr>
-                <TableData center colSpan={4} >
-                    {loading ? <CircularProgress /> : <h4>Không tìm thấy dữ liệu.</h4>}
+                <TableData center colSpan={5} >
+                    <h4>Không tìm thấy dữ liệu.</h4>
                 </TableData>
             </tr>
         )
@@ -116,12 +116,12 @@ const ApartmentItem = ({ item, handleGetDeleteItem }) =>  {
             break;
         case 4002:
             activeCheck = 'inactive';
-            activeLabel = 'Ngừng hoạt động';
+            activeLabel = 'Ngừng';
             disabledCheck = true;
             break;
         case 4004:
             activeCheck = 'deleted';
-            activeLabel = 'Đã xóa';
+            activeLabel = 'Xóa';
             disabledCheck = true;
             break;
         default:
@@ -132,21 +132,17 @@ const ApartmentItem = ({ item, handleGetDeleteItem }) =>  {
 
     return (
         <TableRow>
+            <TableData grey>{index + 1}</TableData>
             <TableData>{item.ApartmentName}</TableData>
             <TableData>{item.Address}</TableData>
-
-            <TableData center>
-                <Status active={activeCheck}>{activeLabel}</Status>
-            </TableData>
+            <TableData center><Status active={activeCheck}>{activeLabel}</Status></TableData>
             
             <TableData center>
-                <Link to={"/editApartment/" + item.ApartmentId}>
-                    <Button>
-                        <StyledEditIcon/>
-                    </Button>
-                </Link>
+                <Button onClick={() => handleGetEditItem(item.ApartmentId, item.ApartmentName, item.Address, item.Status)}>
+                    <StyledEditIcon/>
+                </Button>
 
-                <Button disabled={disabledCheck} onClick={() => handleGetDeleteItem(item.ApartmentId, item.Address)}>
+                <Button disabled={disabledCheck} onClick={() => handleGetDeleteItem(item.ApartmentId, item.ApartmentName)}>
                     <StyledDeleteIcon disabled={disabledCheck} />
                 </Button>
 

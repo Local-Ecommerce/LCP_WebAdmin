@@ -48,7 +48,7 @@ const customStyles = {
     content: {
         top: '50%',
         left: '50%',
-        right: '65%',
+        right: '50%',
         bottom: 'auto',
         marginRight: '-50%',
         transform: 'translate(-50%, -50%)',
@@ -115,7 +115,7 @@ const CreateModal = ({ display, toggle, input, error, setInput, handleAddItem })
                         renderOption={(props, item) => {
                             return (
                                 <Box {...props} key={item.ApartmentId}>
-                                    {item.Address}&nbsp; <small>- {item.ApartmentId}</small>
+                                    <small>{item.ApartmentName}&nbsp; - {item.Address}</small>
                                 </Box>
                             );
                         }}

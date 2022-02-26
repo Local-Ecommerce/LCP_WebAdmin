@@ -63,7 +63,7 @@ const DeleteModal = ({ display, toggle, deleteItem, handleDeleteItem }) => {
         <Modal isOpen={display} onRequestClose={toggle} style={customStyles} ariaHideApp={false}>
             <ModalTitle>Xác Nhận Xóa</ModalTitle>
             <ModalContentWrapper>
-                <DangerModalContent>Bạn có chắc chắn muốn xóa danh mục【<b>{deleteItem.name ? deleteItem.name : null}</b>】?</DangerModalContent>
+                <DangerModalContent>Bạn có chắc chắn muốn xóa POI【<b>{deleteItem.name ? deleteItem.name : null}</b>】?</DangerModalContent>
             </ModalContentWrapper>
             <ModalButtonWrapper>
                 <ModalButton onClick={toggle}>Quay lại</ModalButton>

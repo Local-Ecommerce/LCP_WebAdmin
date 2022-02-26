@@ -25,10 +25,6 @@ import StoreDetail from './pages/Store/StoreDetail';
 import EditStore from './pages/Store/EditStore';
 
 import Apartment from './pages/Apartment/Apartment';
-import AddApartment from './pages/Apartment/AddApartment';
-import ApartmentDetail from './pages/Apartment/ApartmentDetail';
-import EditApartment from './pages/Apartment/EditApartment';
-
 import Poi from './pages/Poi/Poi';
 import News from './pages/News/News';
 
@@ -47,8 +43,8 @@ const SidebarWrapper = styled.div`
 `;
 
 const ContentWrapper = styled.div`
-  position: absolute;
-  left:245px; top:62px; right:0; bottom:0;
+    position: absolute;
+    left:245px; top:62px; right:0; bottom:0;
 `;
 
 const SidebarLayout = () => (
@@ -122,10 +118,6 @@ const App = () => {
                             <Route path="/editStore/:id" element={<RequireLoggedIn> <EditStore /> </RequireLoggedIn>} />
 
                             <Route path="/apartments" element={<RequireLoggedIn> <Apartment /> </RequireLoggedIn>} />
-                            <Route path="/apartment/:id" element={<RequireLoggedIn> <ApartmentDetail /> </RequireLoggedIn>} />
-                            <Route path="/addApartment" element={<RequireLoggedIn> <AddApartment /> </RequireLoggedIn>} />
-                            <Route path="/editApartment/:id" element={<RequireLoggedIn> <EditApartment /> </RequireLoggedIn>} />
-
                             <Route path="/pois" element={<RequireLoggedIn> <Poi /> </RequireLoggedIn>} />
                             <Route path="/news" element={<RequireLoggedIn> <News /> </RequireLoggedIn>} />
                         </Route>

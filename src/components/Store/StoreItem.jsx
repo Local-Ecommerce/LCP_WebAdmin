@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { Edit, Delete, ContentPasteSearch } from '@mui/icons-material';
-import { CircularProgress } from '@mui/material';
+import { ContentPasteSearch } from '@mui/icons-material';
 import { Link } from "react-router-dom";
 
 const Button = styled.button`
@@ -25,14 +24,13 @@ const TableRow = styled.tr`
 `;
 
 const TableData = styled.td`
-    padding: 1rem;
+    padding: 5px 16px;
     vertical-align: top;
-    border-top: 1px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6;
     vertical-align: middle;
     text-align: ${props => props.center ? "center" : "left"};
-    overflow: hidden;
-    white-space: nowrap;
     font-size: 15px;
+    color: ${props => props.grey ? props.theme.grey : null};
 `;
 
 const Status = styled.span`
@@ -55,38 +53,22 @@ const Status = styled.span`
     "#dc3545"};
 `;
 
-const StyledSearchIcon = styled(ContentPasteSearch)`
+const StyledDetailIcon = styled(ContentPasteSearch)`
+    padding: 8px;
+    border-radius: 20px;
+
     &:hover {
-    color: #dc3545;
+    background-color: ${props => props.theme.disabled};
     }
 `;
 
-const StyledEditIcon = styled(Edit)`
-    &:hover {
-    color: #dc3545;
-    }
-`;
-
-const StyledDeleteIcon = styled(Delete)`
-    &:hover {
-    color: ${props => props.disabled === true ? "#E0E0E0" : "#dc3545"};
-    }
-`;
-
-const StoreItem = ({ item, handleGetDeleteItem }) => {
-    const [loading, setLoading] = useState(true);
-    
-    useEffect(() => {
-        if (loading) {
-            setTimeout(() => {setLoading(false);}, 3000);
-        }
-    }, [loading]);
+const StoreItem = ({ item, handleGetDeleteItem, index }) => {
 
     if (item === 0) {
         return (
             <tr>
-                <TableData center colSpan={5} >
-                    {loading ? <CircularProgress /> : <h4>Không tìm thấy dữ liệu.</h4>}
+                <TableData center colSpan={5}>
+                    <h4>Không tìm thấy dữ liệu.</h4>
                 </TableData>
             </tr>
         )
@@ -94,54 +76,42 @@ const StoreItem = ({ item, handleGetDeleteItem }) => {
     
     let activeCheck = '';
     let activeLabel = '';
-    let disabledCheck = false;
     switch (item.Status) {
         case 6004:
             activeCheck = 'deleted';
-            activeLabel = 'Đã xóa';
-            disabledCheck = true;
+            activeLabel = 'Xóa';
             break;
         case 6005:
             activeCheck = 'verified';
-            activeLabel = 'Đã xác minh';
+            activeLabel = 'Xác thực';
             break;
         case 6006:
             activeCheck = 'unverified';
-            activeLabel = 'Tạo mới - chưa xác minh';
+            activeLabel = 'Tạo mới';
             break;
         case 6007:
             activeCheck = 'unverified';
-            activeLabel = 'Cập nhật - chưa xác minh';
+            activeLabel = 'Cập nhật';
             break;
         default:
             activeCheck = 'inactive';
-            activeLabel = 'WRONG STATUS NUMBER';
+            activeLabel = 'WRONG STATUS';
             break;
     }
 
     return (
         <TableRow>
+            <TableData grey>{index + 1}</TableData>
             <TableData>{item.StoreName}</TableData>
-            <TableData>{item.ApartmentId}</TableData>
-            <TableData>{item.Resident ? item.Resident.ResidentName : null}</TableData>
+            <TableData center>{item.Resident.ResidentName}</TableData>
             <TableData center><Status active={activeCheck}>{activeLabel}</Status></TableData>
 
             <TableData center>
                 <Link to={"/store/" + item.MerchantStoreId}>
                     <Button>
-                        <StyledSearchIcon />
+                        <StyledDetailIcon />
                     </Button>
                 </Link>
-
-                <Link to={"/editStore/" + item.MerchantStoreId}>
-                    <Button>
-                        <StyledEditIcon/>
-                    </Button>
-                </Link>
-
-                <Button disabled={disabledCheck} onClick={() => handleGetDeleteItem(item.MerchantStoreId, item.StoreName)}>
-                    <StyledDeleteIcon disabled={disabledCheck} />
-                </Button>
             </TableData>
         </TableRow>
     )

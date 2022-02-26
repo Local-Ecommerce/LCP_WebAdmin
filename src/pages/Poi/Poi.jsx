@@ -32,6 +32,7 @@ const Row = styled.div`
 const Align = styled.div`
     display: flex;
     width: 70%;
+    align-items: center;
 `;
 
 const StyledSearchIcon = styled(Search)`
@@ -517,6 +518,7 @@ const Poi = () =>  {
                             <Button onClick={() => clearSearch()}>Clear</Button>
                         </SearchBar>
 
+                        <small>Trạng thái:&nbsp;</small>
                         <DropdownWrapper>
                             <Select value={status} onChange={handleSetStatus}>
                                 <option value=''>Toàn bộ</option>
@@ -543,12 +545,13 @@ const Poi = () =>  {
                     <TableHead>
                         <TableRow>
                             <TableHeader width="3%" grey>#</TableHeader>
-                            <TableHeader width="17%">Tựa đề</TableHeader>
+                            <TableHeader width="15%">Tựa đề</TableHeader>
                             <TableHeader width="30%">Nội dung</TableHeader>
-                            <TableHeader width="20%">Địa chỉ chung cư</TableHeader>
-                            <TableHeader width="10%">Quản lý</TableHeader>
+                            <TableHeader width="10%" center>Chung cư</TableHeader>
+                            <TableHeader width="10%" center>Quản lý</TableHeader>
+                            <TableHeader width="10%" center>Ngày tạo</TableHeader>
                             <TableHeader width="10%" center>Trạng thái</TableHeader>
-                            <TableHeader width="10%" center>Chỉnh sửa</TableHeader>
+                            <TableHeader width="12%" center>Chỉnh sửa</TableHeader>
                         </TableRow>
                     </TableHead>
                     

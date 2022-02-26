@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Edit, Delete } from '@mui/icons-material';
+import { DateTime } from 'luxon';
 
 const Button = styled.button`
     padding: 3px;
@@ -53,14 +54,20 @@ const Status = styled.span`
 `;
 
 const StyledEditIcon = styled(Edit)`
+    padding: 8px;
+    border-radius: 20px;
+
     &:hover {
-    color: #dc3545;
+    background-color: ${props => props.theme.disabled};
     }
 `;
 
 const StyledDeleteIcon = styled(Delete)`
+    padding: 8px;
+    border-radius: 20px;
+
     &:hover {
-    color: ${props => props.disabled === true ? "#E0E0E0" : "#dc3545"};
+    background-color: ${props => props.disabled === true ? null : props.theme.disabled};
     }
 `;
 
@@ -100,12 +107,10 @@ const NewsItem = ({ item, handleGetEditItem, handleGetDeleteItem, index }) =>  {
             <TableData grey>{index + 1}</TableData>
             <TableData>{item.Title}</TableData>
             <TableData>{item.Text}</TableData>
-            <TableData>{item.Apartment ? item.Apartment.Address : "Hệ thống"}</TableData>
-            <TableData>{item.Resident ? item.Resident.ResidentName : "Admin"}</TableData>
-
-            <TableData center>
-                <Status active={activeCheck}>{activeLabel}</Status>
-            </TableData>
+            <TableData center>{item.Apartment ? item.Apartment.ApartmentName : "Hệ thống"}</TableData>
+            <TableData center>{item.Resident ? item.Resident.ResidentName : "Admin"}</TableData>
+            <TableData center><small>{DateTime.fromISO(item.ReleaseDate).toFormat('dd/MM/yyyy t')}</small></TableData>
+            <TableData center><Status active={activeCheck}>{activeLabel}</Status></TableData>
 
             <TableData center>
 
