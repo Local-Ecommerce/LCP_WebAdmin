@@ -378,7 +378,7 @@ const Store = () => {
     const listRef = useRef();
     const [displayAddress, setDisplayAddress] = useState(false);
     function toggleDisplayAddress() { setDisplayAddress(!displayAddress); listRef.current.recomputeRowHeights(); }
-    const [displayApartment, setDisplayApartment] = useState(true);
+    const [displayApartment, setDisplayApartment] = useState(false);
     function toggleDisplayApartment() { setDisplayApartment(!displayApartment); };
 
     const [loading, setLoading] = useState(false);
@@ -393,24 +393,30 @@ const Store = () => {
     const [total, setTotal] = useState(0);
     const [lastPage, setLastPage] = useState(0);
 
-    const [sort, setSort] = useState('-createddate');
+    const sort = '-createddate';
     const [apartment, setApartment] = useState({ id: '', name: '', address: ''});
-    const [typing, setTyping] = useState('');
-    const [search, setSearch] = useState('');
+    const [storeTyping, setStoreTyping] = useState('');
+    const [apartmentTyping, setApartmentTyping] = useState('');
+    const [storeSearch, setStoreSearch] = useState('');
+    const [apartmentSearch, setApartmentSearch] = useState('');
     const [status, setStatus] = useState(6005);
 
     useEffect( () => {  //fetch api data
         if (apartment.id !== '') {
             setLoading(true);
-            let url = "stores?limit=" + limit + "&page=" + (page + 1) + "&sort=" + sort + "&include=apartment&include=resident"
-            + (search !== '' ? ("&search=" + search) : '') + (status !== '' ? ("&status=" + status) : '') + "&apartmentid=" + apartment.id;
-            console.log(url);
+            let url = "stores" 
+                    + "?limit=" + limit 
+                    + "&page=" + (page + 1) 
+                    + "&sort=" + sort 
+                    + "&include=apartment&include=resident"
+                    + (storeSearch !== '' ? ("&search=" + storeSearch) : '') 
+                    + (status !== '' ? ("&status=" + status) : '') 
+                    + "&apartmentid=" + apartment.id;
 
             const fetchData = () => {
                 api.get(url)
                 .then(function (res) {
                     setAPIdata(res.data.Data.List);
-                    console.log(res.data.Data);
                     setTotal(res.data.Data.Total);
                     setLastPage(res.data.Data.LastPage);
                     setLoading(false);
@@ -422,26 +428,38 @@ const Store = () => {
             }
             fetchData();
         }
-    }, [change, limit, page, sort, status, search, apartment]);
+    }, [change, limit, page, sort, status, storeSearch, apartment]);
 
     useEffect( () => {  //fetch api data
-        let url = "apartments?status=4001&limit=1000";
-        const fetchData = () => {
-            api.get(url)
-            .then(function (res) {
-                setApartments(res.data.Data.List);
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
+        if (user.RoleId === "R002") {
+            let url = "apartments" 
+                    + "?status=4001" 
+                    + "&limit=1000" 
+                    + (apartmentSearch !== '' ? ("&search=" + apartmentSearch) : '');
+            const fetchData = () => {
+                api.get(url)
+                .then(function (res) {
+                    setApartments(res.data.Data.List);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            }
+            fetchData();
+        } else if (user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
+            setApartment({ id: user.Residents[0].ApartmentId, name: '', address: '' });
         }
-        fetchData();
-    }, [change]);
+    }, [change, apartmentSearch]);
 
-    useEffect(() => {   //timer when search
-        const timeOutId = setTimeout(() => setSearch(typing), 500);
+    useEffect(() => {   //timer when search apartment
+        const timeOutId = setTimeout(() => setApartmentSearch(apartmentTyping), 500);
         return () => clearTimeout(timeOutId);
-    }, [typing]);
+    }, [apartmentTyping]);
+
+    useEffect(() => {   //timer when search store
+        const timeOutId = setTimeout(() => setStoreSearch(storeTyping), 500);
+        return () => clearTimeout(timeOutId);
+    }, [storeTyping]);
 
     const handlePageClick = (event) => {
         setPage(event.selected);
@@ -451,15 +469,25 @@ const Store = () => {
         setApartment({id: id, name: name, address: address});
     }
 
-    const clearSearch = () => {
-        setTyping('');
-        setPage(0);
-        document.getElementById("search").value = '';
+    const clearApartmentSearch = () => {
+        setApartmentTyping('');
+        document.getElementById("apartmentSearch").value = '';
     }
 
-    function handleSetSearch(e) {
+    const clearStoreSearch = () => {
+        setStoreTyping('');
+        setPage(0);
+        document.getElementById("storeSearch").value = '';
+    }
+
+    function handleSetApartmentSearch(e) {
         const { value } = e.target;
-        setTyping(value);
+        setApartmentTyping(value);
+    }
+
+    function handleSetStoreSearch(e) {
+        const { value } = e.target;
+        setStoreTyping(value);
         setPage(0);
     }
 
@@ -477,52 +505,56 @@ const Store = () => {
 
     return (
         <>
-        <LeftWrapper toggle={displayApartment}>
-            <ButtonWrapper onClick={toggleDisplayApartment}>
-                <StyledDoubleArrowIcon />
-            </ButtonWrapper>
+        {
+            user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager"
+            ? null :
+            <LeftWrapper toggle={displayApartment}>
+                <ButtonWrapper onClick={toggleDisplayApartment}>
+                    <StyledDoubleArrowIcon />
+                </ButtonWrapper>
 
-            <Row>
-                <SearchBar width="100%">
-                    <StyledSearchIcon />
-                    <Input id="search" placeholder="Tìm chung cư" onChange={handleSetSearch} />
-                    <Button onClick={() => clearSearch()}>Clear</Button>
-                </SearchBar>
-            </Row>
+                <Row>
+                    <SearchBar width="100%">
+                        <StyledSearchIcon />
+                        <Input id="apartmentSearch" placeholder="Tìm chung cư" onChange={handleSetApartmentSearch} />
+                        <Button onClick={() => clearApartmentSearch()}>Clear</Button>
+                    </SearchBar>
+                </Row>
 
-            <CheckboxWrapper>
-                <Checkbox size="small" onChange={toggleDisplayAddress} /> 
-                <CheckboxLabel>Hiển thị địa chỉ</CheckboxLabel>
-            </CheckboxWrapper>
+                <CheckboxWrapper>
+                    <Checkbox size="small" onChange={toggleDisplayAddress} /> 
+                    <CheckboxLabel>Hiển thị địa chỉ</CheckboxLabel>
+                </CheckboxWrapper>
 
-            <ListWrapper>
-                <AutoSizer>
-                    {({width, height}) => (
-                        <List
-                            ref={listRef}
-                            data={displayAddress}
-                            height={height}
-                            rowCount={apartments ? apartments.length : 0}
-                            rowHeight={displayAddress ? 60 : 35}
-                            width={width}
-                            rowRenderer={({index, key, style}) => {
-                                const apartment = apartments[index];
-                                return (
-                                    <ApartmentContainer onClick={() => handleSelectApartment(apartment.ApartmentId, apartment.ApartmentName, apartment.Address)} 
-                                        displayAddress={displayAddress} key={key} style={style}>
-                                        <AlignColumn>
-                                            <ApartmentName>{apartment.ApartmentName}</ApartmentName>
-                                            {displayAddress ? <ApartmentAddress>{apartment.Address}</ApartmentAddress> : null}
-                                        </AlignColumn>
-                                        <StyledArrowRight />
-                                    </ApartmentContainer>
-                                )
-                            }}
-                        />
-                    )}
-                </AutoSizer>
-            </ListWrapper>
-        </LeftWrapper>
+                <ListWrapper>
+                    <AutoSizer>
+                        {({width, height}) => (
+                            <List
+                                ref={listRef}
+                                data={displayAddress}
+                                height={height}
+                                rowCount={apartments ? apartments.length : 0}
+                                rowHeight={displayAddress ? 60 : 35}
+                                width={width}
+                                rowRenderer={({index, key, style}) => {
+                                    const apartment = apartments[index];
+                                    return (
+                                        <ApartmentContainer onClick={() => handleSelectApartment(apartment.ApartmentId, apartment.ApartmentName, apartment.Address)} 
+                                            displayAddress={displayAddress} key={key} style={style}>
+                                            <AlignColumn>
+                                                <ApartmentName>{apartment.ApartmentName}</ApartmentName>
+                                                {displayAddress ? <ApartmentAddress>{apartment.Address}</ApartmentAddress> : null}
+                                            </AlignColumn>
+                                            <StyledArrowRight />
+                                        </ApartmentContainer>
+                                    )
+                                }}
+                            />
+                        )}
+                    </AutoSizer>
+                </ListWrapper>
+            </LeftWrapper>
+        }
 
         <PageWrapper toggle={displayApartment}>
             <Title>
@@ -549,8 +581,8 @@ const Store = () => {
                         <Align>
                             <SearchBar width="50%" mr>
                                 <StyledSearchIcon />
-                                <Input id="search" placeholder="Tìm cửa hàng" onChange={handleSetSearch} />
-                                <Button onClick={() => clearSearch()}>Clear</Button>
+                                <Input id="storeSearch" placeholder="Tìm cửa hàng" onChange={handleSetStoreSearch} />
+                                <Button onClick={() => clearStoreSearch()}>Clear</Button>
                             </SearchBar>
 
                             <small>Trạng thái:&nbsp;</small>
@@ -593,7 +625,9 @@ const Store = () => {
                         <TableBody>
                             {
                             loading ? 
-                            <TableData center colSpan={7}> <CircularProgress /> </TableData>
+                            <tr>
+                                <TableData center colSpan={5}> <CircularProgress /> </TableData>
+                            </tr>
                             : 
                             <StoreList 
                                 currentItems={APIdata}
@@ -603,7 +637,8 @@ const Store = () => {
                     </Table>
 
                     <Row mt>
-                        { loading ? null
+                        { 
+                        loading || APIdata.length === 0 ? null
                         : <small>Hiển thị {page * limit + 1} - {page * limit + APIdata.length} trong tổng số {total} cửa hàng.</small> 
                         }
                         <StyledPaginateContainer>

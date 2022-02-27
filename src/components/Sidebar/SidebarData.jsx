@@ -1,4 +1,4 @@
-import { Home, Category, Store, Sell, LocationOn, Article, Apartment } from '@mui/icons-material';
+import { Home, Category, Store, FormatListBulleted, LocationOn, Article, Apartment } from '@mui/icons-material';
 import * as Constant from '../../Constant';
 import styled from 'styled-components';
 
@@ -11,7 +11,7 @@ const StyledCategoryIcon = styled(Category)`
 const StyledStoreIcon = styled(Store)`
     && { font-size: 18px; margin: 0px 15px 0px 10px; }
 `;
-const StyledSellIcon = styled(Sell)`
+const StyledMenuIcon = styled(FormatListBulleted)`
     && { font-size: 18px; margin: 0px 15px 0px 10px; }
 `;
 const StyledLocationOnIcon = styled(LocationOn)`
@@ -48,7 +48,7 @@ const SidebarData = [
     {
         title: 'Bảng giá',
         path: '/menus',
-        icon: <StyledSellIcon />,
+        icon: <StyledMenuIcon />,
     },
     {
         title: 'Quản lí thông tin',

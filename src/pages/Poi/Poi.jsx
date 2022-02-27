@@ -295,7 +295,6 @@ const Poi = () =>  {
     const [loading, setLoading] = useState(false);
     const user = JSON.parse(localStorage.getItem('USER'));
 
-
     const [APIdata, setAPIdata] = useState([]);
     const [change, setChange] = useState(false);
 
@@ -304,17 +303,23 @@ const Poi = () =>  {
     const [total, setTotal] = useState(0);
     const [lastPage, setLastPage] = useState(0);
 
-    const [sort, setSort] = useState('-releasedate');
+    const sort = '-releasedate';
     const [typing, setTyping] = useState('');
     const [search, setSearch] = useState('');
     const [status, setStatus] = useState(13001);
 
     useEffect( () => {  //fetch api data
         setLoading(true);
-        let url = "pois?limit=" + limit + "&page=" + (page + 1) + "&sort=" + sort + "&include=apartment&include=resident"
-        + (search !== '' ? ("&search=" + search) : '') + (status !== '' ? ("&status=" + status) : '');
+        let url = "pois"
+                + "?limit=" + limit 
+                + "&page=" + (page + 1) 
+                + "&sort=" + sort 
+                + "&include=apartment&include=resident"
+                + (search !== '' ? ("&search=" + search) : '') 
+                + (status !== '' ? ("&status=" + status) : '');
+
         if (user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
-            url = "pois?apartmentid=" + user.Residents[0].apartmentId;
+            url = url + "&apartmentid=" + user.Residents[0].ApartmentId;
         }
         const fetchData = () => {
             api.get(url)
@@ -547,7 +552,10 @@ const Poi = () =>  {
                             <TableHeader width="3%" grey>#</TableHeader>
                             <TableHeader width="15%">Tựa đề</TableHeader>
                             <TableHeader width="30%">Nội dung</TableHeader>
-                            <TableHeader width="10%" center>Chung cư</TableHeader>
+                            { 
+                                user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager"
+                                ? null : <TableHeader width="10%" center>Chung cư</TableHeader> 
+                            }
                             <TableHeader width="10%" center>Quản lý</TableHeader>
                             <TableHeader width="10%" center>Ngày tạo</TableHeader>
                             <TableHeader width="10%" center>Trạng thái</TableHeader>
@@ -558,7 +566,9 @@ const Poi = () =>  {
                     <TableBody>
                         {
                         loading ? 
-                        <TableData center colSpan={7}> <CircularProgress /> </TableData>
+                        <tr>
+                            <TableData center colSpan={8}> <CircularProgress /> </TableData>
+                        </tr>
                         : 
                         <PoiList 
                             currentItems={APIdata} 
@@ -570,7 +580,8 @@ const Poi = () =>  {
                 </Table>
 
                 <Row mt>
-                    { loading ? null
+                    { 
+                    loading || APIdata.length === 0 ? null
                     : <small>Hiển thị {page * limit + 1} - {page * limit + APIdata.length} trong tổng số {total} pois.</small> 
                     }
                     <StyledPaginateContainer>

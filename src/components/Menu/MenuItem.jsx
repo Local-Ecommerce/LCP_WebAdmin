@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { Edit, Delete, ContentPasteSearch } from '@mui/icons-material';
-import { CircularProgress } from '@mui/material';
+import { ContentPasteSearch } from '@mui/icons-material';
 import { Link } from "react-router-dom";
 
 const Button = styled.button`
@@ -25,13 +24,13 @@ const TableRow = styled.tr`
 `;
 
 const TableData = styled.td`
-    padding: 1rem;
+    padding: 5px 16px;
     vertical-align: top;
     border-bottom: 1px solid #dee2e6;
     vertical-align: middle;
     text-align: ${props => props.center ? "center" : "left"};
-    overflow: hidden;
-    white-space: nowrap;
+    font-size: 15px;
+    color: ${props => props.grey ? props.theme.grey : null};
 `;
 
 const Status = styled.span`
@@ -43,46 +42,33 @@ const Status = styled.span`
     white-space: nowrap;
     vertical-align: baseline;
     border-radius: 20px;
-    color: ${props => props.active === "inactive" ? "grey" : "#fff"};
-    background-color: ${props => props.active === "active" ? "#28a745"
-    :
-    props.active === "inactive" ? "#E0E0E0"
+    color: #fff;
+    background-color: ${
+    props => props.active === "verified" ? "#28a745"
         :
-        "#dc3545"};
+    props.active === "unverified" ? "#FF8800"
+        :
+    props.active === "deleted" ? "#dc3545"
+        :
+    "#dc3545"};
 `;
 
-const StyledSearchIcon = styled(ContentPasteSearch)`
+const StyledDetailIcon = styled(ContentPasteSearch)`
+    padding: 8px;
+    border-radius: 20px;
+
     &:hover {
-    color: #dc3545;
+    background-color: ${props => props.theme.disabled};
     }
 `;
 
-const StyledEditIcon = styled(Edit)`
-    &:hover {
-    color: #dc3545;
-    }
-`;
-
-const StyledDeleteIcon = styled(Delete)`
-    &:hover {
-    color: ${props => props.disabled === true ? "#E0E0E0" : "#dc3545"};
-    }
-`;
-
-const MenuItem = ({ item, handleGetDeleteItem }) =>  {
-    const [loading, setLoading] = useState(true);
-    
-    useEffect(() => {
-        if (loading) {
-            setTimeout(() => {setLoading(false);}, 3000);
-        }
-    }, [loading]);
+const MenuItem = ({ item, handleGetDeleteItem, index }) =>  {
 
     if (item === 0) {
         return (
             <tr>
-                <TableData center colSpan={4} >
-                    {loading ? <CircularProgress /> : <h4>Không tìm thấy dữ liệu.</h4>}
+                <TableData center colSpan={5}>
+                    <h4>Không tìm thấy dữ liệu.</h4>
                 </TableData>
             </tr>
         )
@@ -113,29 +99,17 @@ const MenuItem = ({ item, handleGetDeleteItem }) =>  {
 
     return (
         <TableRow>
+            <TableData grey>{index + 1}</TableData>
             <TableData>{item.MenuName}</TableData>
-            <TableData>{item.Resident.ResidentName}</TableData>
+            <TableData center>{item.Resident.ResidentName}</TableData>
+            <TableData center><Status active={activeCheck}>{activeLabel}</Status></TableData>
 
             <TableData center>
-                <Status active={activeCheck}>{activeLabel}</Status>
-            </TableData>
-
-            <TableData center>
-                <Link to={"/menu/" + item.MenuId}>
+                <Link to={"/store/" + item.MerchantStoreId}>
                     <Button>
-                        <StyledSearchIcon />
+                        <StyledDetailIcon />
                     </Button>
                 </Link>
-
-                <Link to={"/editMenu/" + item.MenuId}>
-                    <Button>
-                        <StyledEditIcon/>
-                    </Button>
-                </Link>
-
-                <Button disabled={disabledCheck} onClick={() => handleGetDeleteItem(item.MenuId, item.MenuName)}>
-                    <StyledDeleteIcon disabled={disabledCheck} />
-                </Button>
             </TableData>
         </TableRow>
     )

@@ -72,11 +72,12 @@ const StyledDeleteIcon = styled(Delete)`
 `;
 
 const PoiItem = ({ item, handleGetEditItem, handleGetDeleteItem, index }) =>  {
+    const user = JSON.parse(localStorage.getItem('USER'));
 
     if (item === 0) {
         return (
             <tr>
-                <TableData center colSpan={7} >
+                <TableData center colSpan={8} >
                     <h4>Không tìm thấy dữ liệu.</h4>
                 </TableData>
             </tr>
@@ -85,7 +86,8 @@ const PoiItem = ({ item, handleGetEditItem, handleGetDeleteItem, index }) =>  {
 
     let activeCheck = '';
     let activeLabel = '';
-    let disabledCheck = false;
+    let disableEdit = false;
+    let disableDelete = false;
     switch (item.Status) {
         case 13001:
             activeCheck = 'active';
@@ -94,7 +96,7 @@ const PoiItem = ({ item, handleGetEditItem, handleGetDeleteItem, index }) =>  {
         case 13002:
             activeCheck = 'inactive';
             activeLabel = 'Ngừng';
-            disabledCheck = true;
+            disableDelete = true;
             break;
         default:
             activeCheck = 'inactive';
@@ -102,24 +104,39 @@ const PoiItem = ({ item, handleGetEditItem, handleGetDeleteItem, index }) =>  {
             break;
     }
 
+    if (user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
+        if (!item.ResidentId) {
+            disableEdit = true;
+            disableDelete = true;
+        }
+    }
+
     return (
         <TableRow>
             <TableData grey>{index + 1}</TableData>
             <TableData>{item.Title}</TableData>
             <TableData>{item.Text}</TableData>
-            <TableData center>{item.Apartment ? item.Apartment.ApartmentName : "Hệ thống"}</TableData>
+            { 
+                user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager"
+                ? null : <TableData center>{item.Apartment ? item.Apartment.ApartmentName : "Hệ thống"}</TableData>
+            }
             <TableData center>{item.Resident ? item.Resident.ResidentName : "Admin"}</TableData>
-            <TableData center><small>{DateTime.fromISO(item.ReleaseDate).toFormat('dd/MM/yyyy t')}</small></TableData>
+            <TableData center>
+                <small>
+                    {DateTime.fromISO(item.ReleaseDate).toFormat('dd/MM/yyyy')}<br/>
+                    {DateTime.fromISO(item.ReleaseDate).toFormat('t')}
+                </small>
+            </TableData>
             <TableData center><Status active={activeCheck}>{activeLabel}</Status></TableData>
 
             <TableData center>
 
-                <Button onClick={() => handleGetEditItem(item.PoiId)}>
+                <Button disabled={disableEdit} onClick={() => handleGetEditItem(item.PoiId)}>
                     <StyledEditIcon/>
                 </Button>
 
-                <Button disabled={disabledCheck} onClick={() => handleGetDeleteItem(item.PoiId, item.Title)}>
-                    <StyledDeleteIcon disabled={disabledCheck} />
+                <Button disabled={disableDelete} onClick={() => handleGetDeleteItem(item.PoiId, item.Title)}>
+                    <StyledDeleteIcon disabled={disableDelete} />
                 </Button>
             </TableData>
         </TableRow>

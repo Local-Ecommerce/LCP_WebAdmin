@@ -302,7 +302,7 @@ const Apartment = () =>  {
     const [total, setTotal] = useState(0);
     const [lastPage, setLastPage] = useState(0);
 
-    const [sort, setSort] = useState('+apartmentname');
+    const sort = '+apartmentname';
     const [typing, setTyping] = useState('');
     const [search, setSearch] = useState('');
     const [status, setStatus] = useState(4001);
@@ -560,7 +560,8 @@ const Apartment = () =>  {
                 </Table>
 
                 <Row mt>
-                    { loading ? null
+                    { 
+                    loading || APIdata.length === 0 ? null
                     : <small>Hiển thị {page * limit + 1} - {page * limit + APIdata.length} trong tổng số {total} chung cư.</small> 
                     }
                     <StyledPaginateContainer>
