@@ -1,8 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useContext, useState, useEffect } from "react";
 import { api } from "../RequestMethod";
 import { auth } from "../firebase";
 import { useNavigate } from 'react-router-dom';
 import { DateTime } from 'luxon';
+import ExtendSessionModal from './ExtendSessionModal';
 
 const AuthContext = React.createContext();
 
@@ -11,25 +13,34 @@ export function useAuth() {
 };
 
 export function AuthProvider({ children }) {
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [modal, setModal] = useState(false);
     let navigate = useNavigate();
 
+    function toggleModal() { 
+        setModal(true); 
+    }
+
+
     async function login(email, password) {
+        setLoading(true);
         await auth.signInWithEmailAndPassword(email, password);
         auth.onAuthStateChanged(async user => {
             if (user) {
                 const firebaseToken = await user.getIdToken(true);
                 console.log("Firebase Token: " + firebaseToken);
-                await api.post('accounts/login', {
+                let url = "accounts/login";
+
+                await api.post(url, {
                     firebaseToken: firebaseToken,
                 })
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS" && (res.data.Data.RoleId === "R002" ||
                             (res.data.Data.RoleId === "R001" && res.data.Data.Residents[0].Type === "MarketManager"))) {
                         localStorage.setItem('USER', JSON.stringify(res.data.Data));
-                        localStorage.setItem('TOKEN_KEY', res.data.Data.RefreshTokens[0].AccessToken);
-                        localStorage.setItem('EXPIRED_TIME', res.data.Data.TokenExpiredDate);
-                        console.log(localStorage.getItem('TOKEN_KEY'));
+                        localStorage.setItem('ACCESS_TOKEN', res.data.Data.RefreshTokens[0].AccessToken);
+                        localStorage.setItem('REFRESH_TOKEN', res.data.Data.RefreshTokens[0].Token);
+                        localStorage.setItem('EXPIRED_TIME', res.data.Data.RefreshTokens[0].AccessTokenExpiredDate);
                         navigate("/");
                         setLoading(false);
                     } else {    //not admin or marketManager
@@ -47,35 +58,68 @@ export function AuthProvider({ children }) {
     };
 
     async function logout() {
-        await auth.signOut();
-        navigate('/login');
-        localStorage.removeItem("USER");
-        localStorage.removeItem("TOKEN_KEY");
-        localStorage.removeItem("EXPIRED_TIME");
-        setLoading(false);
+        setLoading(true);
+        let url ="accounts/logout";
+
+        await api.put(url)
+        .then(function (res) {
+            setModal(false); 
+            navigate('/login');
+            localStorage.removeItem("USER");
+            localStorage.removeItem("ACCESS_TOKEN");
+            localStorage.removeItem("REFRESH_TOKEN");
+            localStorage.removeItem("EXPIRED_TIME");
+            setLoading(false);
+        })
+        .catch(function (error) {
+            console.log(error);
+            setLoading(false);
+        });
     };
     
-    useEffect(() => {
-        const user = JSON.parse(localStorage.getItem('USER'));
-        const token = localStorage.getItem("TOKEN_KEY");
-        const expiredTime = localStorage.getItem("EXPIRED_TIME");
+    async function handleExtendSession() {
+        setLoading(true);
+        let url = "accounts/refresh-token";
+        const accessToken = localStorage.getItem("ACCESS_TOKEN");
+        const refreshToken = localStorage.getItem("REFRESH_TOKEN");
 
-        if (user === null || token === null || expiredTime === null || 
-            (expiredTime && DateTime.fromFormat(expiredTime, 'D tt').diffNow().toObject().milliseconds < 0)) {
-            logout();
-        } else {
-            setLoading(false);
+        const extendSession = () => {
+            api.post(url, {
+                token: refreshToken,
+                accessToken: accessToken
+            })
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    localStorage.setItem('ACCESS_TOKEN', res.data.Data);
+                    setLoading(false);
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                setLoading(false);
+            });
         }
-    }, []);
+        extendSession();
+    }
 
     const value = {
         login,
-        logout
+        logout,
+        toggleModal
     };
 
     return (
-        <AuthContext.Provider value={value}>
-            {!loading && children}
-        </AuthContext.Provider>
+        <>
+            <ExtendSessionModal 
+                display={modal}
+                toggle={toggleModal}
+                handleExtendSession={handleExtendSession}
+                logout={logout}
+            />
+
+            <AuthContext.Provider value={value}>
+                {!loading && children}
+            </AuthContext.Provider>
+        </>
     );
 }

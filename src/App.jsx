@@ -1,34 +1,21 @@
+import React, { useState } from 'react';
 import styled, { ThemeProvider } from "styled-components";
-import React from 'react';
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { DateTime } from 'luxon';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { BrowserRouter as Router, Route, Routes, Outlet } from "react-router-dom";
 
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Header from './pages/Header';
 import Sidebar from './pages/Sidebar';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
-import Collection from './pages/Collection/Collection';
-import CollectionDetail from './pages/Collection/CollectionDetail';
-import EditCollection from './pages/Collection/EditCollection';
-
 import Category from './pages/Category/Category';
-
-import Menu from './pages/Menu/Menu';
-import MenuDetail from './pages/Menu/MenuDetail';
-import EditMenu from './pages/Menu/EditMenu';
-
 import Store from './pages/Store/Store';
-import StoreDetail from './pages/Store/StoreDetail';
-import EditStore from './pages/Store/EditStore';
-
+import Menu from './pages/Menu/Menu';
 import Apartment from './pages/Apartment/Apartment';
 import Poi from './pages/Poi/Poi';
 import News from './pages/News/News';
-
-import { BrowserRouter as Router, Route, Routes, Outlet } from "react-router-dom";
 
 const HeaderWrapper = styled.div`
     position:absolute; position: fixed; 
@@ -66,14 +53,15 @@ const SidebarLayout = () => (
 );
 
 const RequireLoggedIn = ({ children }) => {
-    const { logout } = useAuth();
+    const { logout, toggleModal } = useAuth();
     const user = JSON.parse(localStorage.getItem('USER'));
-    const token = localStorage.getItem("TOKEN_KEY");
+    const accessToken = localStorage.getItem("ACCESS_TOKEN");
+    const refreshToken = localStorage.getItem("REFRESH_TOKEN");
     const expiredTime = localStorage.getItem("EXPIRED_TIME");
     
-    if (user === null || token === null || expiredTime === null || 
-        (expiredTime && DateTime.fromFormat(expiredTime, 'D tt').diffNow().toObject().milliseconds < 0)) {
-        logout();
+    if (user === null || accessToken === null || refreshToken === null || expiredTime === null || 
+    (expiredTime && DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds < 0)) {
+        toggleModal();
     }
     return children;
 }
@@ -99,30 +87,46 @@ const App = () => {
                 <AuthProvider>
                     <Routes>
                         <Route element={<SidebarLayout/>}>
-                            <Route exact path="/" element={<RequireLoggedIn> <Home /> </RequireLoggedIn>} />
+                            <Route 
+                                exact path="/" 
+                                element={<RequireLoggedIn> <Home /> </RequireLoggedIn>}
+                            />
 
-                            <Route path="/collections" element={<RequireLoggedIn> <Collection /> </RequireLoggedIn>} />
-                            <Route path="/collection/:id" element={<RequireLoggedIn> <CollectionDetail /> </RequireLoggedIn>} />
-                            <Route path="/editCollection/:id" element={<RequireLoggedIn> <EditCollection /> </RequireLoggedIn>} />
+                            <Route 
+                                exact path="/categories" 
+                                element={<RequireLoggedIn> <Category /> </RequireLoggedIn>}
+                            />
 
-                            <Route path="/categories" element={<RequireLoggedIn> <Category /> </RequireLoggedIn>} />
+                            <Route 
+                                exact path="/stores" 
+                                element={<RequireLoggedIn> <Store /> </RequireLoggedIn>}
+                            />
 
-                            <Route path="/menus" element={<RequireLoggedIn> <Menu /> </RequireLoggedIn>} />
-                            <Route path="/menu/:id" element={<RequireLoggedIn> <MenuDetail /> </RequireLoggedIn>} />
-                            <Route path="/editMenu/:id" element={<RequireLoggedIn> <EditMenu /> </RequireLoggedIn>} />
+                            <Route 
+                                exact path="/menus" 
+                                element={<RequireLoggedIn> <Menu /> </RequireLoggedIn>}
+                            />
 
-                            <Route path="/applicables" element={<RequireLoggedIn> <Home /> </RequireLoggedIn>} />
+                            <Route 
+                                exact path="/apartments" 
+                                element={<RequireLoggedIn> <Apartment /> </RequireLoggedIn>}
+                            />
 
-                            <Route path="/stores" element={<RequireLoggedIn> <Store /> </RequireLoggedIn>} />
-                            <Route path="/store/:id" element={<RequireLoggedIn> <StoreDetail /> </RequireLoggedIn>} />
-                            <Route path="/editStore/:id" element={<RequireLoggedIn> <EditStore /> </RequireLoggedIn>} />
+                            <Route 
+                                exact path="/pois" 
+                                element={<RequireLoggedIn> <Poi /> </RequireLoggedIn>}
+                            />
 
-                            <Route path="/apartments" element={<RequireLoggedIn> <Apartment /> </RequireLoggedIn>} />
-                            <Route path="/pois" element={<RequireLoggedIn> <Poi /> </RequireLoggedIn>} />
-                            <Route path="/news" element={<RequireLoggedIn> <News /> </RequireLoggedIn>} />
+                            <Route 
+                                exact path="/news" 
+                                element={<RequireLoggedIn> <News /> </RequireLoggedIn>}
+                            />
                         </Route>
 
-                        <Route path="/login" element={<Login />} />
+                        <Route 
+                            path="/login" 
+                            element={<Login />} 
+                        />
                     </Routes>
                 </AuthProvider>
             </Router>
