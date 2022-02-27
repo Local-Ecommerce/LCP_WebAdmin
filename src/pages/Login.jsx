@@ -95,15 +95,6 @@ const Login = () => {
         password: ''
     });
 
-    // useEffect(() => {
-    //     if (loading) {
-    //         setTimeout(() => {
-    //             setLoading(false);
-    //             setError('Đăng nhập thất bại. Vui lòng thử lại.');
-    //         }, 5000);
-    //     }
-    // }, [loading]);
-
     function handleChange(e) {
         const { name, value } = e.target;
         setInput(input => ({ ...input, [name]: value }));
@@ -118,6 +109,7 @@ const Login = () => {
             await login(input.username, input.password);
         } catch {
             setError("Đăng nhập thất bại. Vui lòng thử lại.");
+            setLoading(false);
         }
     }
 

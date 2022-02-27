@@ -1,9 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import { api } from "../RequestMethod";
 import { auth } from "../firebase";
 import { useNavigate } from 'react-router-dom';
-import { DateTime } from 'luxon';
 import ExtendSessionModal from './ExtendSessionModal';
 
 const AuthContext = React.createContext();
@@ -13,7 +12,6 @@ export function useAuth() {
 };
 
 export function AuthProvider({ children }) {
-    const [loading, setLoading] = useState(false);
     const [modal, setModal] = useState(false);
     let navigate = useNavigate();
 
@@ -23,7 +21,6 @@ export function AuthProvider({ children }) {
 
 
     async function login(email, password) {
-        setLoading(true);
         await auth.signInWithEmailAndPassword(email, password);
         auth.onAuthStateChanged(async user => {
             if (user) {
@@ -42,43 +39,35 @@ export function AuthProvider({ children }) {
                         localStorage.setItem('REFRESH_TOKEN', res.data.Data.RefreshTokens[0].Token);
                         localStorage.setItem('EXPIRED_TIME', res.data.Data.RefreshTokens[0].AccessTokenExpiredDate);
                         navigate("/");
-                        setLoading(false);
-                    } else {    //not admin or marketManager
-                        setLoading(false);
                     }
                 })
                 .catch(function (error) {
                     console.log(error);
-                    setLoading(false);
                 });
-            } else {    //wrong firebase username & password
-                setLoading(false);
-            }
+            };
         });
     };
 
     async function logout() {
-        setLoading(true);
-        let url ="accounts/logout";
+        await auth.signOut();
+        const accessToken = localStorage.getItem("ACCESS_TOKEN");
+        
+        if (accessToken !== null) {
+            await api.put("accounts/logout")
+            .catch(function (error) {
+                console.log(error);
+            });
+        };
 
-        await api.put(url)
-        .then(function (res) {
-            setModal(false); 
-            navigate('/login');
-            localStorage.removeItem("USER");
-            localStorage.removeItem("ACCESS_TOKEN");
-            localStorage.removeItem("REFRESH_TOKEN");
-            localStorage.removeItem("EXPIRED_TIME");
-            setLoading(false);
-        })
-        .catch(function (error) {
-            console.log(error);
-            setLoading(false);
-        });
+        localStorage.removeItem("USER");
+        localStorage.removeItem("ACCESS_TOKEN");
+        localStorage.removeItem("REFRESH_TOKEN");
+        localStorage.removeItem("EXPIRED_TIME");
+        navigate('/login');
+        setModal(false); 
     };
     
     async function handleExtendSession() {
-        setLoading(true);
         let url = "accounts/refresh-token";
         const accessToken = localStorage.getItem("ACCESS_TOKEN");
         const refreshToken = localStorage.getItem("REFRESH_TOKEN");
@@ -90,13 +79,13 @@ export function AuthProvider({ children }) {
             })
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
-                    localStorage.setItem('ACCESS_TOKEN', res.data.Data);
-                    setLoading(false);
+                    localStorage.setItem('ACCESS_TOKEN', res.data.Data.AccessToken);
+                    localStorage.setItem('EXPIRED_TIME', res.data.Data.AccessTokenExpiredDate);
+                    setModal(false);
                 }
             })
             .catch(function (error) {
                 console.log(error);
-                setLoading(false);
             });
         }
         extendSession();
@@ -118,7 +107,7 @@ export function AuthProvider({ children }) {
             />
 
             <AuthContext.Provider value={value}>
-                {!loading && children}
+                {children}
             </AuthContext.Provider>
         </>
     );

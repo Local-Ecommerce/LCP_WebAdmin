@@ -430,7 +430,7 @@ const Store = () => {
         }
     }, [change, limit, page, sort, status, storeSearch, apartment]);
 
-    useEffect( () => {  //fetch api data
+    useEffect( () => {  //fetch apartment
         if (user.RoleId === "R002") {
             let url = "apartments" 
                     + "?status=4001" 

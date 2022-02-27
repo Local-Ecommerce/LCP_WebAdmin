@@ -548,7 +548,9 @@ const Apartment = () =>  {
                     <TableBody>
                         {
                         loading ? 
-                        <TableData center colSpan={5}> <CircularProgress /> </TableData>
+                        <tr>
+                            <TableData center colSpan={5}> <CircularProgress /> </TableData>
+                        </tr>
                         : 
                         <ApartmentList 
                             currentItems={APIdata} 

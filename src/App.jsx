@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import styled, { ThemeProvider } from "styled-components";
+import React from 'react';
 import { DateTime } from 'luxon';
+import styled, { ThemeProvider } from "styled-components";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { BrowserRouter as Router, Route, Routes, Outlet } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Outlet, Navigate } from "react-router-dom";
 
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -53,16 +53,21 @@ const SidebarLayout = () => (
 );
 
 const RequireLoggedIn = ({ children }) => {
-    const { logout, toggleModal } = useAuth();
+    const { toggleModal } = useAuth();
     const user = JSON.parse(localStorage.getItem('USER'));
     const accessToken = localStorage.getItem("ACCESS_TOKEN");
     const refreshToken = localStorage.getItem("REFRESH_TOKEN");
     const expiredTime = localStorage.getItem("EXPIRED_TIME");
-    
-    if (user === null || accessToken === null || refreshToken === null || expiredTime === null || 
-    (expiredTime && DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds < 0)) {
+
+    if (user === null || accessToken === null || refreshToken === null || expiredTime === null) {
+        localStorage.removeItem("USER");
+        localStorage.removeItem("ACCESS_TOKEN");
+        localStorage.removeItem("REFRESH_TOKEN");
+        localStorage.removeItem("EXPIRED_TIME");
+        return <Navigate to="/login" />;
+    } else if (expiredTime && DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds < 0) {
         toggleModal();
-    }
+    } 
     return children;
 }
 
@@ -86,7 +91,7 @@ const App = () => {
             <Router>
                 <AuthProvider>
                     <Routes>
-                        <Route element={<SidebarLayout/>}>
+                        <Route element={<RequireLoggedIn> <SidebarLayout/> </RequireLoggedIn>}>
                             <Route 
                                 exact path="/" 
                                 element={<RequireLoggedIn> <Home /> </RequireLoggedIn>}
