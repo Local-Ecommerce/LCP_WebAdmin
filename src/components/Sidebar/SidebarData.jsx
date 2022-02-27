@@ -1,4 +1,4 @@
-import { Home, Category, Store, FormatListBulleted, LocationOn, Article, Apartment } from '@mui/icons-material';
+import { Home, Category, Store, FormatListBulleted, LocationOn, Article, Apartment, NoteAdd } from '@mui/icons-material';
 import * as Constant from '../../Constant';
 import styled from 'styled-components';
 
@@ -14,10 +14,13 @@ const StyledStoreIcon = styled(Store)`
 const StyledMenuIcon = styled(FormatListBulleted)`
     && { font-size: 18px; margin: 0px 15px 0px 10px; }
 `;
-const StyledLocationOnIcon = styled(LocationOn)`
+const StyledPoiIcon = styled(LocationOn)`
     && { font-size: 18px; margin: 0px 15px 0px 10px; }
 `;
-const StyledArticleIcon = styled(Article)`
+const StyledCreateOrderIcon = styled(NoteAdd)`
+    && { font-size: 18px; margin: 0px 15px 0px 10px; }
+`;
+const StyledNewsIcon = styled(Article)`
     && { font-size: 18px; margin: 0px 15px 0px 10px; }
 `;
 const StyledApartmentIcon = styled(Apartment)`
@@ -60,14 +63,20 @@ const SidebarData = [
         role: Constant.ADMIN
     },
     {
+        title: 'Tạo đơn',
+        path: '/createOrder',
+        icon: <StyledCreateOrderIcon />,
+        role: Constant.MARKET_MANAGER
+    },
+    {
         title: 'News',
         path: '/news',
-        icon: <StyledArticleIcon />
+        icon: <StyledNewsIcon />
     },
     {
         title: 'POIs',
         path: '/pois',
-        icon: <StyledLocationOnIcon />
+        icon: <StyledPoiIcon />
     }
 ];
 

@@ -50,7 +50,7 @@ const ErrorText = styled.div`
 `;
 
 const BottomText = styled.a`
-    margin: 15px;
+    margin-top: 20px;
     display: flex;
     justify-content: center;
     text-decoration: none;

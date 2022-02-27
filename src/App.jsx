@@ -16,6 +16,7 @@ import Menu from './pages/Menu/Menu';
 import Apartment from './pages/Apartment/Apartment';
 import Poi from './pages/Poi/Poi';
 import News from './pages/News/News';
+import PageNotFound from './pages/PageNotFound';
 
 const HeaderWrapper = styled.div`
     position:absolute; position: fixed; 
@@ -65,7 +66,8 @@ const RequireLoggedIn = ({ children }) => {
         localStorage.removeItem("REFRESH_TOKEN");
         localStorage.removeItem("EXPIRED_TIME");
         return <Navigate to="/login" />;
-    } else if (expiredTime && DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds < 0) {
+    } 
+    else if (expiredTime && DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds < 0) {
         toggleModal();
     } 
     return children;
@@ -131,6 +133,11 @@ const App = () => {
                         <Route 
                             path="/login" 
                             element={<Login />} 
+                        />
+
+                        <Route 
+                            path="*" 
+                            element={<PageNotFound />}
                         />
                     </Routes>
                 </AuthProvider>
