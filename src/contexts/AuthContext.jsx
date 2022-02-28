@@ -108,7 +108,6 @@ export function AuthProvider({ children }) {
         <>
             <ExtendSessionModal 
                 display={modal}
-                toggle={toggleModal}
                 handleExtendSession={handleExtendSession}
                 logout={logout}
             />

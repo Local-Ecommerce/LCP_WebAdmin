@@ -81,8 +81,10 @@ const RequireLoggedIn = ({ children }) => {
             console.log("case 3");
             return <Navigate to="/login" />;
         }
-    } 
-    return children;
+    } else {
+        console.log("case 4");
+        return children;
+    }
 }
 
 const App = () => {

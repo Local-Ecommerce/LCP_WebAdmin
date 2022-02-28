@@ -188,6 +188,7 @@ const Title = styled.span`
 const DropdownList = styled.ul`
     padding: 0px;
     margin: 10px 0px;
+    cursor: pointer;
 `;
 
 const DropdownItem = styled.div`
@@ -259,9 +260,6 @@ const Header = () => {
     async function handleLogout() {
         try {
             await logout();
-            localStorage.removeItem("TOKEN_KEY");
-            localStorage.removeItem("EXPIRED_TIME");
-            navigate("/login");
         } catch {}
     }
 
