@@ -64,7 +64,8 @@ const RequireLoggedIn = ({ children }) => {
     if (typeof user === 'undefined' || user === null 
      || typeof accessToken === 'undefined' || accessToken === null 
      || typeof refreshToken === 'undefined' || refreshToken === null 
-     || typeof expiredTime === 'undefined' || expiredTime === null) {
+     || typeof expiredTime === 'undefined' || expiredTime === null
+     || typeof isToggle === 'undefined' || isToggle === null || isToggle === "1") {
         localStorage.removeItem("USER");
         localStorage.removeItem("ACCESS_TOKEN");
         localStorage.removeItem("REFRESH_TOKEN");
@@ -73,18 +74,12 @@ const RequireLoggedIn = ({ children }) => {
         console.log("case 1");
         return <Navigate to="/login" />;
     } 
-    else if (expiredTime && DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds < 0) {
-        if (isToggle === "0") {
-            console.log("case 2");
-            toggleModal();
-        } else {
-            console.log("case 3");
-            return <Navigate to="/login" />;
-        }
-    } else {
-        console.log("case 4");
-        return children;
+    else if (isToggle === "0" && expiredTime && DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds < 0) {
+        console.log("case 2");
+        toggleModal();
     }
+    console.log("case 3");
+    return children;
 }
 
 const App = () => {
@@ -107,7 +102,7 @@ const App = () => {
             <Router>
                 <AuthProvider>
                     <Routes>
-                        <Route element={<RequireLoggedIn> <SidebarLayout/> </RequireLoggedIn>}>
+                        <Route element={<SidebarLayout />}>
                             <Route 
                                 exact path="/" 
                                 element={<RequireLoggedIn> <Home /> </RequireLoggedIn>}

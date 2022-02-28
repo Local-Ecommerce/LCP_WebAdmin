@@ -46,9 +46,9 @@ const SidebarItem = ({ item }) => {
     const user = JSON.parse(localStorage.getItem('USER'));
 
     let role = "";
-    if (user.RoleId === "R002") {
+    if (user && user.RoleId === "R002") {
         role = "Admin";
-    } else if (user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
+    } else if (user && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
         role = "MarketManager";
     }
 
