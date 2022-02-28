@@ -66,8 +66,7 @@ export function AuthProvider({ children }) {
         localStorage.removeItem("REFRESH_TOKEN");
         localStorage.removeItem("EXPIRED_TIME");
         localStorage.removeItem("IS_TOGGLE");
-        navigate('/login');
-        setModal(false); 
+        setModal(false);
     };
     
     async function handleExtendSession() {
@@ -86,13 +85,13 @@ export function AuthProvider({ children }) {
                     localStorage.setItem('EXPIRED_TIME', res.data.Data.AccessTokenExpiredDate);
                     localStorage.setItem('IS_TOGGLE', "0");
                     setModal(false);
-                    navigate(0);
+                    navigate("/");
                 }
             })
             .catch(function (error) {
                 console.log(error);
                 setModal(false);
-                navigate(0);
+                navigate("/");
             });
         }
         extendSession();

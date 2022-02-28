@@ -54,7 +54,7 @@ const SidebarLayout = () => (
 );
 
 const RequireLoggedIn = ({ children }) => {
-    const { toggleModal } = useAuth();
+    const { logout, toggleModal } = useAuth();
     const user = JSON.parse(localStorage.getItem('USER'));
     const accessToken = localStorage.getItem("ACCESS_TOKEN");
     const refreshToken = localStorage.getItem("REFRESH_TOKEN");
@@ -66,11 +66,7 @@ const RequireLoggedIn = ({ children }) => {
      || typeof refreshToken === 'undefined' || refreshToken === null 
      || typeof expiredTime === 'undefined' || expiredTime === null
      || typeof isToggle === 'undefined' || isToggle === null || isToggle === "1") {
-        localStorage.removeItem("USER");
-        localStorage.removeItem("ACCESS_TOKEN");
-        localStorage.removeItem("REFRESH_TOKEN");
-        localStorage.removeItem("EXPIRED_TIME");
-        localStorage.removeItem("IS_TOGGLE");
+        logout();
         console.log("case 1");
         return <Navigate to="/login" />;
     } 

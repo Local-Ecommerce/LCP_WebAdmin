@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
+import { useNavigate } from 'react-router-dom';
 
 const ModalTitle = styled.h3`
     margin: 25px 20px;
@@ -56,6 +57,12 @@ const customStyles = {
 };
 
 const ExtendSessionModal = ({ display, handleExtendSession, logout }) => {
+    let navigate = useNavigate();
+
+    function handleLogout() {
+        logout();
+        navigate("/");
+    }
 
     return (
         <Modal isOpen={display} style={customStyles} ariaHideApp={false}>
@@ -64,7 +71,7 @@ const ExtendSessionModal = ({ display, handleExtendSession, logout }) => {
                 Hạn đăng nhập đã hết, bạn có muốn làm mới đăng nhập?
             </ModalContentWrapper>
             <ModalButtonWrapper>
-                <ModalButton onClick={logout}>Đăng xuất</ModalButton>
+                <ModalButton onClick={handleLogout}>Đăng xuất</ModalButton>
                 <ModalButton blue onClick={handleExtendSession}>Làm mới</ModalButton>
             </ModalButtonWrapper>
         </Modal>
