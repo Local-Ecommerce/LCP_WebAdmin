@@ -1,4 +1,5 @@
-import React from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect } from 'react';
 import { DateTime } from 'luxon';
 import styled, { ThemeProvider } from "styled-components";
 import 'react-toastify/dist/ReactToastify.css';
@@ -61,20 +62,23 @@ const RequireLoggedIn = ({ children }) => {
     const expiredTime = localStorage.getItem("EXPIRED_TIME");
     const isToggle = localStorage.getItem("IS_TOGGLE");
 
+    useEffect(() => {
+        if (isToggle === "0" && expiredTime && DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds < 0) {
+            console.log("case: 1");
+            toggleModal();
+        }
+    }, []);
+
     if (typeof user === 'undefined' || user === null 
      || typeof accessToken === 'undefined' || accessToken === null 
      || typeof refreshToken === 'undefined' || refreshToken === null 
      || typeof expiredTime === 'undefined' || expiredTime === null
      || typeof isToggle === 'undefined' || isToggle === null || isToggle === "1") {
         logout();
-        console.log("case 1");
+        console.log("case: 2");
         return <Navigate to="/login" />;
-    } 
-    else if (isToggle === "0" && expiredTime && DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds < 0) {
-        console.log("case 2");
-        toggleModal();
-    }
-    console.log("case 3");
+    };
+    console.log("case: 3");
     return children;
 }
 
