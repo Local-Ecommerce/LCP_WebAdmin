@@ -70,12 +70,15 @@ const RequireLoggedIn = ({ children }) => {
         localStorage.removeItem("REFRESH_TOKEN");
         localStorage.removeItem("EXPIRED_TIME");
         localStorage.removeItem("IS_TOGGLE");
+        console.log("case 1");
         return <Navigate to="/login" />;
     } 
     else if (expiredTime && DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds < 0) {
         if (isToggle === "0") {
+            console.log("case 2");
             toggleModal();
         } else {
+            console.log("case 3");
             return <Navigate to="/login" />;
         }
     } 
