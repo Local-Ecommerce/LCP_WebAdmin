@@ -15,7 +15,8 @@ export function AuthProvider({ children }) {
     const [modal, setModal] = useState(false);
     let navigate = useNavigate();
 
-    function toggleModal() { 
+    function toggleModal() {
+        localStorage.setItem('IS_TOGGLE', "1");
         setModal(true); 
     }
 
@@ -38,6 +39,7 @@ export function AuthProvider({ children }) {
                         localStorage.setItem('ACCESS_TOKEN', res.data.Data.RefreshTokens[0].AccessToken);
                         localStorage.setItem('REFRESH_TOKEN', res.data.Data.RefreshTokens[0].Token);
                         localStorage.setItem('EXPIRED_TIME', res.data.Data.RefreshTokens[0].AccessTokenExpiredDate);
+                        localStorage.setItem('IS_TOGGLE', "0");
                         navigate("/");
                     }
                 })
@@ -63,6 +65,7 @@ export function AuthProvider({ children }) {
         localStorage.removeItem("ACCESS_TOKEN");
         localStorage.removeItem("REFRESH_TOKEN");
         localStorage.removeItem("EXPIRED_TIME");
+        localStorage.removeItem("IS_TOGGLE");
         navigate('/login');
         setModal(false); 
     };
@@ -81,11 +84,15 @@ export function AuthProvider({ children }) {
                 if (res.data.ResultMessage === "SUCCESS") {
                     localStorage.setItem('ACCESS_TOKEN', res.data.Data.AccessToken);
                     localStorage.setItem('EXPIRED_TIME', res.data.Data.AccessTokenExpiredDate);
+                    localStorage.setItem('IS_TOGGLE', "0");
                     setModal(false);
+                    navigate(0);
                 }
             })
             .catch(function (error) {
                 console.log(error);
+                setModal(false);
+                navigate(0);
             });
         }
         extendSession();

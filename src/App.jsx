@@ -59,16 +59,25 @@ const RequireLoggedIn = ({ children }) => {
     const accessToken = localStorage.getItem("ACCESS_TOKEN");
     const refreshToken = localStorage.getItem("REFRESH_TOKEN");
     const expiredTime = localStorage.getItem("EXPIRED_TIME");
+    const isToggle = localStorage.getItem("IS_TOGGLE");
 
-    if (user === null || accessToken === null || refreshToken === null || expiredTime === null) {
+    if (typeof user === 'undefined' || user === null 
+     || typeof accessToken === 'undefined' || accessToken === null 
+     || typeof refreshToken === 'undefined' || refreshToken === null 
+     || typeof expiredTime === 'undefined' || expiredTime === null) {
         localStorage.removeItem("USER");
         localStorage.removeItem("ACCESS_TOKEN");
         localStorage.removeItem("REFRESH_TOKEN");
         localStorage.removeItem("EXPIRED_TIME");
+        localStorage.removeItem("IS_TOGGLE");
         return <Navigate to="/login" />;
     } 
     else if (expiredTime && DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds < 0) {
-        toggleModal();
+        if (isToggle === "0") {
+            toggleModal();
+        } else {
+            return <Navigate to="/login" />;
+        }
     } 
     return children;
 }
