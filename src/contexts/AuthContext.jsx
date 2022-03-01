@@ -12,14 +12,7 @@ export function useAuth() {
 };
 
 export function AuthProvider({ children }) {
-    const [modal, setModal] = useState(false);
     let navigate = useNavigate();
-
-    function toggleModal() {
-        localStorage.setItem('IS_TOGGLE', "1");
-        setModal(true); 
-    }
-
 
     async function login(email, password) {
         await auth.signInWithEmailAndPassword(email, password);
@@ -66,10 +59,9 @@ export function AuthProvider({ children }) {
         localStorage.removeItem("REFRESH_TOKEN");
         localStorage.removeItem("EXPIRED_TIME");
         localStorage.removeItem("IS_TOGGLE");
-        setModal(false);
     };
     
-    async function handleExtendSession() {
+    async function extendSession() {
         let url = "accounts/refresh-token";
         const accessToken = localStorage.getItem("ACCESS_TOKEN");
         const refreshToken = localStorage.getItem("REFRESH_TOKEN");
@@ -84,13 +76,11 @@ export function AuthProvider({ children }) {
                     localStorage.setItem('ACCESS_TOKEN', res.data.Data.AccessToken);
                     localStorage.setItem('EXPIRED_TIME', res.data.Data.AccessTokenExpiredDate);
                     localStorage.setItem('IS_TOGGLE', "0");
-                    setModal(false);
                     navigate("/");
                 }
             })
             .catch(function (error) {
                 console.log(error);
-                setModal(false);
                 navigate("/");
             });
         }
@@ -100,20 +90,12 @@ export function AuthProvider({ children }) {
     const value = {
         login,
         logout,
-        toggleModal
+        extendSession
     };
 
     return (
-        <>
-            <ExtendSessionModal 
-                display={modal}
-                handleExtendSession={handleExtendSession}
-                logout={logout}
-            />
-
-            <AuthContext.Provider value={value}>
-                {children}
-            </AuthContext.Provider>
-        </>
+        <AuthContext.Provider value={value}>
+            {children}
+        </AuthContext.Provider>
     );
 }

@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DateTime } from 'luxon';
-import styled, { ThemeProvider } from "styled-components";
+import styled from "styled-components";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { BrowserRouter as Router, Route, Routes, Outlet, Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "./contexts/AuthContext";
+import { Route, Routes, Outlet, Navigate, useLocation } from "react-router-dom";
 
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -18,6 +18,7 @@ import Apartment from './pages/Apartment/Apartment';
 import Poi from './pages/Poi/Poi';
 import News from './pages/News/News';
 import PageNotFound from './pages/PageNotFound';
+import ExtendSessionModal from './contexts/ExtendSessionModal';
 
 const HeaderWrapper = styled.div`
     position:absolute; position: fixed; 
@@ -68,44 +69,36 @@ const RequireLoggedIn = ({ children }) => {
      || typeof expiredTime === 'undefined' || expiredTime === null
      || typeof isToggle === 'undefined' || isToggle === null || isToggle === "1") {
         logout();
-        console.log("case: 1");
+        //console.log("case: 1");
         return <Navigate to="/login" />;
     };
-    console.log("case: 2");
+    //console.log("case: 2");
     return children;
 }
 
 const App = () => {
-    const location = useLocation();
-    const { toggleModal } = useAuth();
-    const theme = {
-        red: "#dc3545",
-        green: "#28a745",
-        blue: "#17a2b8",
-        black: "rgba(0, 0, 0, 0.87)",
-        white: "#fff",
-        dark: "#555",
-        grey: "#808080",
-        greyBorder: "#c4c4c4",
-        disabled: "#d8d8d8",
+    // const { logout, extendSession } = useAuth();
+    // const location = useLocation();
+    // const [modal, setModal] = useState(false);
+    // function toggleModal() {
+    //     localStorage.setItem('IS_TOGGLE', "1");
+    //     setModal(true); 
+    // }
 
-        hover: "rgba(246, 246, 247, 1)",
-    };
+    // useEffect(() => {
+    //     const isToggle = localStorage.getItem("IS_TOGGLE");
+    //     const expiredTime = localStorage.getItem("EXPIRED_TIME");
 
-    useEffect(() => {
-        const isToggle = localStorage.getItem("IS_TOGGLE");
-        const expiredTime = localStorage.getItem("EXPIRED_TIME");
+    //     if (isToggle === "0" && expiredTime && DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds < 0) {
+    //         console.log("case: 3");
+    //         toggleModal();
+    //     }
 
-        if (isToggle === "0" && expiredTime && DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds < 0) {
-            console.log("case: 3");
-            toggleModal();
-        }
-
-        console.log("route change");
-      }, [location]);
+    //     console.log(location.pathname);
+    // }, [location]);
 
     return (
-        <ThemeProvider theme={theme}>
+        <> 
             <Routes>
                 <Route element={<SidebarLayout />}>
                     <Route 
@@ -154,7 +147,13 @@ const App = () => {
                     element={<PageNotFound />}
                 />
             </Routes>
-        </ThemeProvider>
+
+            {/* <ExtendSessionModal 
+                display={modal}
+                extendSession={extendSession}
+                logout={logout}
+            /> */}
+        </>
     )
 }
 

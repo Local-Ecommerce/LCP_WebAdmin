@@ -56,8 +56,12 @@ const customStyles = {
     },
 };
 
-const ExtendSessionModal = ({ display, handleExtendSession, logout }) => {
+const ExtendSessionModal = ({ display, extendSession, logout }) => {
     let navigate = useNavigate();
+
+    async function handleExtendSession() {
+        await extendSession();
+    }
 
     async function handleLogout() {
         await logout();
