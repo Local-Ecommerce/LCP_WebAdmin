@@ -378,7 +378,7 @@ const Store = () => {
     const listRef = useRef();
     const [displayAddress, setDisplayAddress] = useState(false);
     function toggleDisplayAddress() { setDisplayAddress(!displayAddress); listRef.current.recomputeRowHeights(); }
-    const [displayApartment, setDisplayApartment] = useState(false);
+    const [displayApartment, setDisplayApartment] = useState(true);
     function toggleDisplayApartment() { setDisplayApartment(!displayApartment); };
 
     const [loading, setLoading] = useState(false);
