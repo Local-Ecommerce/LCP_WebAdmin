@@ -260,6 +260,7 @@ const Header = () => {
     async function handleLogout() {
         try {
             await logout();
+            navigate("/");
         } catch {}
     }
 
@@ -288,8 +289,8 @@ const Header = () => {
             UserDropdown ?
             <DropdownWrapper ref={clickOutside}>
                 <Name>
-                    {user.RoleId === "R002" ? "Admin" : user.Residents[0].ResidentName} <br/> 
-                    <Title>{user.RoleId === "R002" ? "Quản lý hệ thống" : "Quản lý chung cư"}</Title> 
+                    {!user ? null : user.RoleId === "R002" ? "Admin" : user.Residents[0].ResidentName} <br/> 
+                    <Title>{!user ? null : user.RoleId === "R002" ? "Quản lý hệ thống" : "Quản lý chung cư"}</Title> 
                 </Name>
                 
                 <DropdownList>

@@ -5,7 +5,7 @@ import styled, { ThemeProvider } from "styled-components";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { BrowserRouter as Router, Route, Routes, Outlet, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Outlet, Navigate, useLocation } from "react-router-dom";
 
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -55,19 +55,12 @@ const SidebarLayout = () => (
 );
 
 const RequireLoggedIn = ({ children }) => {
-    const { logout, toggleModal } = useAuth();
+    const { logout } = useAuth();
     const user = JSON.parse(localStorage.getItem('USER'));
     const accessToken = localStorage.getItem("ACCESS_TOKEN");
     const refreshToken = localStorage.getItem("REFRESH_TOKEN");
     const expiredTime = localStorage.getItem("EXPIRED_TIME");
     const isToggle = localStorage.getItem("IS_TOGGLE");
-
-    useEffect(() => {
-        if (isToggle === "0" && expiredTime && DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds < 0) {
-            console.log("case: 1");
-            toggleModal();
-        }
-    }, []);
 
     if (typeof user === 'undefined' || user === null 
      || typeof accessToken === 'undefined' || accessToken === null 
@@ -75,14 +68,16 @@ const RequireLoggedIn = ({ children }) => {
      || typeof expiredTime === 'undefined' || expiredTime === null
      || typeof isToggle === 'undefined' || isToggle === null || isToggle === "1") {
         logout();
-        console.log("case: 2");
+        console.log("case: 1");
         return <Navigate to="/login" />;
     };
-    console.log("case: 3");
+    console.log("case: 2");
     return children;
 }
 
 const App = () => {
+    const location = useLocation();
+    const { toggleModal } = useAuth();
     const theme = {
         red: "#dc3545",
         green: "#28a745",
@@ -97,60 +92,68 @@ const App = () => {
         hover: "rgba(246, 246, 247, 1)",
     };
 
+    useEffect(() => {
+        const isToggle = localStorage.getItem("IS_TOGGLE");
+        const expiredTime = localStorage.getItem("EXPIRED_TIME");
+
+        if (isToggle === "0" && expiredTime && DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds < 0) {
+            console.log("case: 3");
+            toggleModal();
+        }
+
+        console.log("route change");
+      }, [location]);
+
     return (
         <ThemeProvider theme={theme}>
-            <Router>
-                <AuthProvider>
-                    <Routes>
-                        <Route element={<SidebarLayout />}>
-                            <Route 
-                                exact path="/" 
-                                element={<RequireLoggedIn> <Home /> </RequireLoggedIn>}
-                            />
+            <Routes>
+                <Route element={<SidebarLayout />}>
+                    <Route 
+                        exact path="/" 
+                        element={<RequireLoggedIn> <Home /> </RequireLoggedIn>}
+                    />
 
-                            <Route 
-                                exact path="/categories" 
-                                element={<RequireLoggedIn> <Category /> </RequireLoggedIn>}
-                            />
+                    <Route 
+                        exact path="/categories" 
+                        element={<RequireLoggedIn> <Category /> </RequireLoggedIn>}
+                    />
 
-                            <Route 
-                                exact path="/stores" 
-                                element={<RequireLoggedIn> <Store /> </RequireLoggedIn>}
-                            />
+                    <Route 
+                        exact path="/stores" 
+                        element={<RequireLoggedIn> <Store /> </RequireLoggedIn>}
+                    />
 
-                            <Route 
-                                exact path="/menus" 
-                                element={<RequireLoggedIn> <Menu /> </RequireLoggedIn>}
-                            />
+                    <Route 
+                        exact path="/menus" 
+                        element={<RequireLoggedIn> <Menu /> </RequireLoggedIn>}
+                    />
 
-                            <Route 
-                                exact path="/apartments" 
-                                element={<RequireLoggedIn> <Apartment /> </RequireLoggedIn>}
-                            />
+                    <Route 
+                        exact path="/apartments" 
+                        element={<RequireLoggedIn> <Apartment /> </RequireLoggedIn>}
+                    />
 
-                            <Route 
-                                exact path="/pois" 
-                                element={<RequireLoggedIn> <Poi /> </RequireLoggedIn>}
-                            />
+                    <Route 
+                        exact path="/pois" 
+                        element={<RequireLoggedIn> <Poi /> </RequireLoggedIn>}
+                    />
 
-                            <Route 
-                                exact path="/news" 
-                                element={<RequireLoggedIn> <News /> </RequireLoggedIn>}
-                            />
-                        </Route>
+                    <Route 
+                        exact path="/news" 
+                        element={<RequireLoggedIn> <News /> </RequireLoggedIn>}
+                    />
+                </Route>
 
-                        <Route 
-                            path="/login" 
-                            element={<Login />} 
-                        />
+                <Route 
+                    path="/login" 
+                    element={<Login />} 
+                />
 
-                        <Route 
-                            path="*" 
-                            element={<PageNotFound />}
-                        />
-                    </Routes>
-                </AuthProvider>
-            </Router>
+                <Route 
+                    path="*" 
+                    element={<PageNotFound />}
+                />
+            </Routes>
         </ThemeProvider>
     )
 }
