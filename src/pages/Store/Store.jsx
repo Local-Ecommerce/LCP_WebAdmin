@@ -374,6 +374,16 @@ const Footer = styled.div`
     padding-top: 50px;
 `;
 
+const  Center = styled.div`
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align: center;
+    top: 45%;
+`;
+
 const Store = () => {
     const listRef = useRef();
     const [displayAddress, setDisplayAddress] = useState(false);
@@ -382,6 +392,7 @@ const Store = () => {
     function toggleDisplayApartment() { setDisplayApartment(!displayApartment); };
 
     const [loading, setLoading] = useState(false);
+    const [apartmentLoading, setApartmentLoading] = useState(false);
     const user = JSON.parse(localStorage.getItem('USER'));
 
     const [APIdata, setAPIdata] = useState([]);
@@ -432,6 +443,7 @@ const Store = () => {
 
     useEffect( () => {  //fetch apartment
         if (user.RoleId === "R002") {
+            setApartmentLoading(true);
             let url = "apartments" 
                     + "?status=4001" 
                     + "&limit=1000" 
@@ -440,9 +452,11 @@ const Store = () => {
                 api.get(url)
                 .then(function (res) {
                     setApartments(res.data.Data.List);
+                    setApartmentLoading(false);
                 })
                 .catch(function (error) {
                     console.log(error);
+                    setApartmentLoading(false);
                 });
             }
             fetchData();
@@ -527,6 +541,10 @@ const Store = () => {
                 </CheckboxWrapper>
 
                 <ListWrapper>
+                    {
+                        apartmentLoading ?
+                        <Center><CircularProgress /></Center>
+                        :
                     <AutoSizer>
                         {({width, height}) => (
                             <List
@@ -552,6 +570,7 @@ const Store = () => {
                             />
                         )}
                     </AutoSizer>
+                    }
                 </ListWrapper>
             </LeftWrapper>
         }
