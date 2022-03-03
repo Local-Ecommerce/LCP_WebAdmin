@@ -46,7 +46,7 @@ const Status = styled.span`
     background-color: ${
     props => props.active === "verified" ? "#28a745"
         :
-    props.active === "unverified" ? "#FF8800"
+    props.active === "inactive" ? "grey"
         :
     props.active === "deleted" ? "#dc3545"
         :
@@ -78,17 +78,18 @@ const MenuItem = ({ item, handleGetDeleteItem, index }) =>  {
     let activeLabel = '';
     let disabledCheck = false;
     switch (item.Status) {
-        case 14001:
-            activeCheck = 'active';
-            activeLabel = 'Active';
+        case 9001:
+            activeCheck = 'verified';
+            activeLabel = 'Xác thực';
             break;
-        case 14002:
+        case 9005:
             activeCheck = 'inactive';
-            activeLabel = 'Inactive';
+            activeLabel = 'Ngừng';
+            disabledCheck = true;
             break;
-        case 14004:
+        case 9002:
             activeCheck = 'deleted';
-            activeLabel = 'Deleted';
+            activeLabel = 'Xóa';
             disabledCheck = true;
             break;
         default:

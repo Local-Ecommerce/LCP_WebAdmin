@@ -410,7 +410,7 @@ const Menu = () =>  {
     const [apartmentTyping, setApartmentTyping] = useState('');
     const [menuSearch, setMenuSearch] = useState('');
     const [apartmentSearch, setApartmentSearch] = useState('');
-    const [status, setStatus] = useState(6005);
+    const [status, setStatus] = useState(9001);
 
     useEffect( () => {  //fetch api data
         if (apartment.id !== '') {
@@ -419,7 +419,7 @@ const Menu = () =>  {
                     + "?limit=" + limit 
                     + "&page=" + (page + 1) 
                     + "&sort=" + sort 
-                    + "&include=apartment&include=resident"
+                    + "&include=resident"
                     + (menuSearch !== '' ? ("&search=" + menuSearch) : '') 
                     + (status !== '' ? ("&status=" + status) : '') 
                     + "&apartmentid=" + apartment.id;
@@ -607,11 +607,9 @@ const Menu = () =>  {
                             <DropdownWrapper>
                                 <Select value={status} onChange={handleSetStatus}>
                                     <option value=''>Toàn bộ</option>
-                                    <option value={6004}>Xóa</option>
-                                    <option value={6005}>Xác thực</option>
-                                    <option value={6006}>Từ chối</option>
-                                    <option value={6007}>Tạo mới</option> 
-                                    <option value={6008}>Cập nhật</option>
+                                    <option value={9001}>Xác thực</option>
+                                    <option value={9002}>Xóa</option>
+                                    <option value={9005}>Ngừng</option>
                                 </Select>
                             </DropdownWrapper>
                         </Align>
