@@ -307,7 +307,7 @@ const News = () =>  {
     const sort = '-releasedate';
     const [typing, setTyping] = useState('');
     const [search, setSearch] = useState('');
-    const [status, setStatus] = useState(12001);
+    const [status, setStatus] = useState(7001);
 
     useEffect( () => {  //fetch api data
         setLoading(true);
@@ -490,7 +490,7 @@ const News = () =>  {
             setError(error => ({ ...error, editError: 'Vui lòng nhập tiêu đề' }));
             check = true;
         }
-        if (!(editItem.status === 12001 || editItem.status === 12002)) {
+        if (!(editItem.status === 7001 || editItem.status === 7005)) {
             check = true;
         }
         if (check === true) {
@@ -522,8 +522,8 @@ const News = () =>  {
                         <DropdownWrapper>
                             <Select value={status} onChange={handleSetStatus}>
                                 <option value=''>Toàn bộ</option>
-                                <option value={12001}>Hoạt động</option>
-                                <option value={12002}>Ngừng hoạt động</option>
+                                <option value={7001}>Hoạt động</option>
+                                <option value={7005}>Ngừng hoạt động</option>
                             </Select>
                         </DropdownWrapper>
                     </Align>

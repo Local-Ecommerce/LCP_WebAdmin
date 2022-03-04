@@ -110,7 +110,7 @@ const CreateModal = ({ display, toggle, input, error, setInput, handleAddItem })
                     <Autocomplete
                         onChange={(event, value) => setInput(input => ({ ...input, apartment: value }))}
                         selectOnFocus disablePortal
-                        getOptionLabel={(item) => item.Address}
+                        getOptionLabel={(item) => item.ApartmentName}
                         options={autocomplete}
                         renderOption={(props, item) => {
                             return (

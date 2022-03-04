@@ -165,11 +165,11 @@ const EditModal = ({ display, toggle, editItem, error, setEditItem, handleEditIt
     let activeCheck = '';
     let activeLabel = '';
     switch (item.Status) {
-        case 12001:
+        case 7001:
             activeCheck = 'active';
             activeLabel = 'Hoạt động';
             break;
-        case 12002:
+        case 7005:
             activeCheck = 'inactive';
             activeLabel = 'Ngừng';
             break;
@@ -245,8 +245,8 @@ const EditModal = ({ display, toggle, editItem, error, setEditItem, handleEditIt
                                     label="Trạng thái"
                                     onChange={(event) => setEditItem(data => ({ ...data, status: event.target.value }))}
                                 >
-                                <MenuItem value={12001}>Hoạt động</MenuItem>
-                                <MenuItem value={12002}>Ngừng hoạt động</MenuItem>
+                                <MenuItem value={7001}>Hoạt động</MenuItem>
+                                <MenuItem value={7005}>Ngừng hoạt động</MenuItem>
                                 </Select>
                             </StyledFormControl>
                         </UpdateForm>

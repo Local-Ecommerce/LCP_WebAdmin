@@ -75,6 +75,7 @@ const StyledButton = styled.button`
     font-weight: 600;
     width: 100%;
     margin-top: 30px;
+    border-radius: 35px;
 
     &:active {
     box-shadow: 0 2px #666;

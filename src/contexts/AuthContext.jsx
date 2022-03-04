@@ -24,6 +24,7 @@ export function AuthProvider({ children }) {
 
                 await api.post(url, {
                     firebaseToken: firebaseToken,
+                    role: "R002"
                 })
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS" && (res.data.Data.RoleId === "R002" ||

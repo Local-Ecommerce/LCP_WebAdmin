@@ -89,11 +89,11 @@ const PoiItem = ({ item, handleGetEditItem, handleGetDeleteItem, index }) =>  {
     let disableEdit = false;
     let disableDelete = false;
     switch (item.Status) {
-        case 13001:
+        case 8001:
             activeCheck = 'active';
             activeLabel = 'Hoạt động';
             break;
-        case 13002:
+        case 8005:
             activeCheck = 'inactive';
             activeLabel = 'Ngừng';
             disableDelete = true;

@@ -147,7 +147,7 @@ const ApartmentItem = ({ item, handleGetEditItem, handleGetDeleteItem, index }) 
                 </Button>
 
                 <Link to={"/apartment/" + item.ApartmentId}>
-                    <StyledBadge badgeContent={2} overlap="circular">
+                    <StyledBadge badgeContent={0} overlap="circular">
                         <StyledNotificationIcon />
                     </StyledBadge>
                 </Link>

@@ -89,11 +89,11 @@ const NewsItem = ({ item, handleGetEditItem, handleGetDeleteItem, index }) =>  {
     let disableEdit = false;
     let disableDelete = false;
     switch (item.Status) {
-        case 12001:
+        case 7001:
             activeCheck = 'active';
             activeLabel = 'Hoạt động';
             break;
-        case 12002:
+        case 7005:
             activeCheck = 'inactive';
             activeLabel = 'Ngừng';
             disableDelete = true;
