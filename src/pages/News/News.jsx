@@ -8,8 +8,9 @@ import { CircularProgress } from '@mui/material';
 import { api } from "../../RequestMethod";
 import { toast } from 'react-toastify';
 import CreateModal from './CreateModal';
-import DeleteModal from './DeleteModal';
 import EditModal from './EditModal';
+import ToggleStatusModal from './ToggleStatusModal';
+import * as Constant from '../../Constant';
 
 const PageWrapper = styled.div`
     margin: 40px;
@@ -286,9 +287,12 @@ const News = () =>  {
     function toggleDeleteModal() { setDeleteModal(!deleteModal); }
     const [editModal, setEditModal] = useState(false);
     function toggleEditModal() { setEditModal(!editModal); }
+    const [toggleStatusModal, setToggleStatusModal] = useState(false);
+    const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
 
     const [input, setInput] = useState({ title: '', text: '', apartment: '' });
     const [deleteItem, setDeleteItem] = useState({id: '', name: ''});
+    const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
     const [editItem, setEditItem] = useState({ id: '', title: '', text: '', residentId: '', apartmentId: '', status: '' });
     const [error, setError] = useState({ titleError: '', editError: '' });
 
@@ -307,7 +311,7 @@ const News = () =>  {
     const sort = '-releasedate';
     const [typing, setTyping] = useState('');
     const [search, setSearch] = useState('');
-    const [status, setStatus] = useState(7001);
+    const [status, setStatus] = useState(Constant.ACTIVE_NEWS);
 
     useEffect( () => {  //fetch api data
         setLoading(true);
@@ -380,6 +384,7 @@ const News = () =>  {
     const handleAddItem = (event) => {
         event.preventDefault();
         if (validCheck()) {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
             const url = "news";
             const addData = async () => {
                 api.post(url, {
@@ -390,16 +395,14 @@ const News = () =>  {
                 })
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
-                        const notify = () => toast.success("Tạo thành công tin mới!", {
-                            position: toast.POSITION.TOP_CENTER
-                        });
-                        notify();
+                        toast.update(notification, { render: "Cập nhật thành công!", type: "success", autoClose: 5000, isLoading: false });
                         toggleCreateModal();
                         setChange(!change);
                     }
                 })
                 .catch(function (error) {
                     console.log(error);
+                    toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
                 });
             };
             addData();
@@ -420,33 +423,6 @@ const News = () =>  {
         return true;
     }
 
-    const handleGetDeleteItem = (id, name) => {
-        setDeleteItem({id: id, name: name});
-        toggleDeleteModal();
-    }
-
-    const handleDeleteItem = (event) => {
-        event.preventDefault();
-        const url = "news?id=" + deleteItem.id;
-        const deleteData = async () => {
-            api.delete(url)
-            .then(function (res) {
-                if (res.data.ResultMessage === "SUCCESS") {
-                    const notify = () => toast.success("Xóa thành công danh mục " + deleteItem.name + "!", {
-                        position: toast.POSITION.TOP_CENTER
-                    });
-                    notify();
-                    setChange(!change);
-                }
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        };
-        deleteData();
-        toggleDeleteModal();
-    };
-
     const handleGetEditItem = (id) => {
         setEditItem(data => ({ ...data, id: id }));
         toggleEditModal();
@@ -455,6 +431,7 @@ const News = () =>  {
     const handleEditItem = (event) => {
         event.preventDefault();
         if (validEditCheck()) {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
             const url = "news?id=" + editItem.id;
             const editData = async () => {
                 api.put(url, {
@@ -466,15 +443,13 @@ const News = () =>  {
                 })
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
-                        const notify = () => toast.success("Cập nhật thành công!", {
-                            position: toast.POSITION.TOP_CENTER
-                        });
-                        notify();
+                        toast.update(notification, { render: "Cập nhật thành công!", type: "success", autoClose: 5000, isLoading: false });
                         setChange(!change);
                     }
                 })
                 .catch(function (error) {
                     console.log(error);
+                    toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
                 });
             }
             editData();
@@ -490,13 +465,42 @@ const News = () =>  {
             setError(error => ({ ...error, editError: 'Vui lòng nhập tiêu đề' }));
             check = true;
         }
-        if (!(editItem.status === 7001 || editItem.status === 7005)) {
+        if (!(editItem.status === Constant.ACTIVE_NEWS || editItem.status === Constant.INACTIVE_NEWS)) {
             check = true;
         }
         if (check === true) {
             return false;
         }
         return true;
+    }
+
+    const handleGetToggleStatusItem = (id, name, status) => {
+        setToggleStatusItem({ id: id, name: name, status: status });
+        toggleToggleStatusModal();
+    }
+
+    const handleToggleStatus = (event) => {
+        event.preventDefault();
+        const notification = toast.loading("Đang xử lí yêu cầu...");
+
+        const url = "news?id=" + toggleStatusItem.id;
+        const editData = async () => {
+            api.put(url, {
+                status: toggleStatusItem.status === true ? Constant.INACTIVE_NEWS : Constant.ACTIVE_NEWS
+            })
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    setChange(!change);
+                    toggleToggleStatusModal();
+                    toast.update(notification, { render: "Cập nhật thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        editData();
     }
 
     return (
@@ -522,8 +526,8 @@ const News = () =>  {
                         <DropdownWrapper>
                             <Select value={status} onChange={handleSetStatus}>
                                 <option value=''>Toàn bộ</option>
-                                <option value={7001}>Hoạt động</option>
-                                <option value={7005}>Ngừng hoạt động</option>
+                                <option value={Constant.ACTIVE_NEWS}>Hoạt động</option>
+                                <option value={Constant.INACTIVE_NEWS}>Ngừng hoạt động</option>
                             </Select>
                         </DropdownWrapper>
                     </Align>
@@ -568,7 +572,7 @@ const News = () =>  {
                         <NewsList 
                             currentItems={APIdata} 
                             handleGetEditItem={handleGetEditItem} 
-                            handleGetDeleteItem={handleGetDeleteItem} 
+                            handleGetToggleStatusItem={handleGetToggleStatusItem}
                         />
                         }
                     </TableBody>
@@ -617,11 +621,11 @@ const News = () =>  {
                 handleAddItem={handleAddItem}
             />
 
-            <DeleteModal 
-                display={deleteModal}
-                toggle={toggleDeleteModal}
-                deleteItem={deleteItem}
-                handleDeleteItem={handleDeleteItem}
+            <ToggleStatusModal
+                display={toggleStatusModal}
+                toggle={toggleToggleStatusModal}
+                toggleStatusItem={toggleStatusItem}
+                handleToggleStatus={handleToggleStatus}
             />
 
             <EditModal 

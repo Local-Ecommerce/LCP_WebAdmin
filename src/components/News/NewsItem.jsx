@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Edit, Delete } from '@mui/icons-material';
+import { Edit, ToggleOff, ToggleOn } from '@mui/icons-material';
 import { DateTime } from 'luxon';
+import * as Constant from '../../Constant';
 
 const Button = styled.button`
     padding: 3px;
@@ -36,23 +37,6 @@ const TableData = styled.td`
     height: 50px;
 `;
 
-const Status = styled.span`
-    display: inline-block;
-    padding: 4px 6px;
-    font-size: 0.8em;
-    font-weight: 700;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: baseline;
-    border-radius: 20px;
-    color: ${props => props.active === "inactive" ? "grey" : "#fff"};
-    background-color: ${props => props.active === "active" ? "#28a745"
-    :
-    props.active === "inactive" ? "#E0E0E0"
-        :
-        "#dc3545"};
-`;
-
 const StyledEditIcon = styled(Edit)`
     padding: 8px;
     border-radius: 20px;
@@ -62,16 +46,31 @@ const StyledEditIcon = styled(Edit)`
     }
 `;
 
-const StyledDeleteIcon = styled(Delete)`
-    padding: 8px;
-    border-radius: 20px;
+const StyledToggleOnIcon = styled(ToggleOn)`
+    && {
+        font-size: 40px;
+        color: ${props => props.theme.green};
 
-    &:hover {
-    background-color: ${props => props.disabled === true ? null : props.theme.disabled};
+        
+        &:hover {
+            opacity: 0.8;
+        }
     }
 `;
 
-const NewsItem = ({ item, handleGetEditItem, handleGetDeleteItem, index }) =>  {
+const StyledToggleOffIcon = styled(ToggleOff)`
+    && {
+        font-size: 40px;
+        color: ${props => props.theme.red};
+
+        
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+`;
+
+const NewsItem = ({ item, handleGetEditItem, handleGetToggleStatusItem, index }) =>  {
     const user = JSON.parse(localStorage.getItem('USER'));
 
     if (item === 0) {
@@ -84,30 +83,11 @@ const NewsItem = ({ item, handleGetEditItem, handleGetDeleteItem, index }) =>  {
         )
     }
     
-    let activeCheck = '';
-    let activeLabel = '';
     let disableEdit = false;
-    let disableDelete = false;
-    switch (item.Status) {
-        case 7001:
-            activeCheck = 'active';
-            activeLabel = 'Hoạt động';
-            break;
-        case 7005:
-            activeCheck = 'inactive';
-            activeLabel = 'Ngừng';
-            disableDelete = true;
-            break;
-        default:
-            activeCheck = 'inactive';
-            activeLabel = 'WRONG STATUS';
-            break;
-    }
 
     if (user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
         if (!item.ResidentId) {
             disableEdit = true;
-            disableDelete = true;
         }
     }
 
@@ -127,16 +107,20 @@ const NewsItem = ({ item, handleGetEditItem, handleGetDeleteItem, index }) =>  {
                     {DateTime.fromISO(item.ReleaseDate).toFormat('t')}
                 </small>
             </TableData>
-            <TableData center><Status active={activeCheck}>{activeLabel}</Status></TableData>
+            <TableData center>
+                {
+                    item.Status === Constant.ACTIVE_NEWS ?
+                    <StyledToggleOnIcon onClick={() => handleGetToggleStatusItem(item.NewsId, item.Title, true)} />
+                    : item.Status === Constant.INACTIVE_NEWS ?
+                    <StyledToggleOffIcon onClick={() => handleGetToggleStatusItem(item.NewsId, item.Title, false)} />
+                    : null
+                }
+            </TableData>
 
             <TableData center>
 
                 <Button disabled={disableEdit} onClick={() => handleGetEditItem(item.NewsId)}>
                     <StyledEditIcon/>
-                </Button>
-
-                <Button disabled={disableDelete} onClick={() => handleGetDeleteItem(item.NewsId, item.Title)}>
-                    <StyledDeleteIcon disabled={disableDelete} />
                 </Button>
             </TableData>
         </TableRow>

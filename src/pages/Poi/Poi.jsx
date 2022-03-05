@@ -383,6 +383,7 @@ const Poi = () =>  {
     const handleAddItem = (event) => {
         event.preventDefault();
         if (validCheck()) {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
             const url = "pois";
             const addData = async () => {
                 api.post(url, {
@@ -393,16 +394,14 @@ const Poi = () =>  {
                 })
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
-                        const notify = () => toast.success("Tạo thành công POI mới!", {
-                            position: toast.POSITION.TOP_CENTER
-                        });
-                        notify();
+                        toast.update(notification, { render: "Cập nhật thành công!", type: "success", autoClose: 5000, isLoading: false });
                         toggleCreateModal();
                         setChange(!change);
                     }
                 })
                 .catch(function (error) {
                     console.log(error);
+                    toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
                 });
             };
             addData();
@@ -437,6 +436,7 @@ const Poi = () =>  {
     const handleEditItem = (event) => {
         event.preventDefault();
         if (validEditCheck()) {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
             const url = "pois?id=" + editItem.id;
             const editData = async () => {
                 api.put(url, {
@@ -448,15 +448,13 @@ const Poi = () =>  {
                 })
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
-                        const notify = () => toast.success("Cập nhật thành công!", {
-                            position: toast.POSITION.TOP_CENTER
-                        });
-                        notify();
+                        toast.update(notification, { render: "Cập nhật thành công!", type: "success", autoClose: 5000, isLoading: false });
                         setChange(!change);
                     }
                 })
                 .catch(function (error) {
                     console.log(error);
+                    toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
                 });
             }
             editData();
