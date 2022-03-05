@@ -8,8 +8,9 @@ import { CircularProgress } from '@mui/material';
 import { api } from "../../RequestMethod";
 import { toast } from 'react-toastify';
 import CreateModal from './CreateModal';
-import DeleteModal from './DeleteModal';
 import EditModal from './EditModal';
+import ToggleStatusModal from './ToggleStatusModal';
+import * as Constant from '../../Constant';
 
 const PageWrapper = styled.div`
     margin: 40px;
@@ -286,10 +287,13 @@ const Poi = () =>  {
     function toggleDeleteModal() { setDeleteModal(!deleteModal); }
     const [editModal, setEditModal] = useState(false);
     function toggleEditModal() { setEditModal(!editModal); }
+    const [toggleStatusModal, setToggleStatusModal] = useState(false);
+    const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
 
     const [input, setInput] = useState({ title: '', text: '', apartment: '' });
     const [deleteItem, setDeleteItem] = useState({id: '', name: ''});
     const [editItem, setEditItem] = useState({ id: '', title: '', text: '', residentId: '', apartmentId: '', status: '' });
+    const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
     const [error, setError] = useState({ titleError: '', apartmentError: '', editError: '' });
 
     const [loading, setLoading] = useState(false);
@@ -306,7 +310,7 @@ const Poi = () =>  {
     const sort = '-releasedate';
     const [typing, setTyping] = useState('');
     const [search, setSearch] = useState('');
-    const [status, setStatus] = useState(8001);
+    const [status, setStatus] = useState(Constant.ACTIVE_POI);
 
     useEffect( () => {  //fetch api data
         setLoading(true);
@@ -425,33 +429,6 @@ const Poi = () =>  {
         return true;
     }
 
-    const handleGetDeleteItem = (id, name) => {
-        setDeleteItem({id: id, name: name});
-        toggleDeleteModal();
-    }
-
-    const handleDeleteItem = (event) => {
-        event.preventDefault();
-        const url = "pois?id=" + deleteItem.id;
-        const deleteData = async () => {
-            api.delete(url)
-            .then(function (res) {
-                if (res.data.ResultMessage === "SUCCESS") {
-                    const notify = () => toast.success("Xóa thành công danh mục " + deleteItem.name + "!", {
-                        position: toast.POSITION.TOP_CENTER
-                    });
-                    notify();
-                    setChange(!change);
-                }
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        };
-        deleteData();
-        toggleDeleteModal();
-    };
-
     const handleGetEditItem = (id) => {
         setEditItem(data => ({ ...data, id: id }));
         toggleEditModal();
@@ -495,13 +472,42 @@ const Poi = () =>  {
             setError(error => ({ ...error, editError: 'Vui lòng nhập tiêu đề' }));
             check = true;
         }
-        if (!(editItem.status === 8001 || editItem.status === 8005)) {
+        if (!(editItem.status === Constant.ACTIVE_POI || editItem.status === Constant.INACTIVE_POI)) {
             check = true;
         }
         if (check === true) {
             return false;
         }
         return true;
+    }
+
+    const handleGetToggleStatusItem = (id, name, status) => {
+        setToggleStatusItem({ id: id, name: name, status: status });
+        toggleToggleStatusModal();
+    }
+
+    const handleToggleStatus = (event) => {
+        event.preventDefault();
+        const notification = toast.loading("Đang xử lí yêu cầu...");
+
+        const url = "pois?id=" + toggleStatusItem.id;
+        const editData = async () => {
+            api.put(url, {
+                status: toggleStatusItem.status === true ? Constant.INACTIVE_POI : Constant.ACTIVE_POI
+            })
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    setChange(!change);
+                    toggleToggleStatusModal();
+                    toast.update(notification, { render: "Cập nhật thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        editData();
     }
 
     return (
@@ -527,8 +533,8 @@ const Poi = () =>  {
                         <DropdownWrapper>
                             <Select value={status} onChange={handleSetStatus}>
                                 <option value=''>Toàn bộ</option>
-                                <option value={8001}>Hoạt động</option>
-                                <option value={8005}>Ngừng hoạt động</option>
+                                <option value={Constant.ACTIVE_POI}>Hoạt động</option>
+                                <option value={Constant.INACTIVE_POI}>Ngừng hoạt động</option>
                             </Select>
                         </DropdownWrapper>
                     </Align>
@@ -571,9 +577,9 @@ const Poi = () =>  {
                         </tr>
                         : 
                         <PoiList 
-                            currentItems={APIdata} 
+                            currentItems={APIdata}
                             handleGetEditItem={handleGetEditItem} 
-                            handleGetDeleteItem={handleGetDeleteItem} 
+                            handleGetToggleStatusItem={handleGetToggleStatusItem}
                         />
                         }
                     </TableBody>
@@ -621,13 +627,6 @@ const Poi = () =>  {
                 handleAddItem={handleAddItem}
             />
 
-            <DeleteModal 
-                display={deleteModal}
-                toggle={toggleDeleteModal}
-                deleteItem={deleteItem}
-                handleDeleteItem={handleDeleteItem}
-            />
-
             <EditModal 
                 display={editModal}
                 toggle={toggleEditModal}
@@ -635,6 +634,13 @@ const Poi = () =>  {
                 error={error}
                 setEditItem={setEditItem}
                 handleEditItem={handleEditItem}
+            />
+
+            <ToggleStatusModal
+                display={toggleStatusModal}
+                toggle={toggleToggleStatusModal}
+                toggleStatusItem={toggleStatusItem}
+                handleToggleStatus={handleToggleStatus}
             />
         </PageWrapper>
     )

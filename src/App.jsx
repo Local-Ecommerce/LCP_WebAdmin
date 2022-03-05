@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { DateTime } from 'luxon';
 import styled from "styled-components";
 import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, Slide } from 'react-toastify';
 import { useAuth } from "./contexts/AuthContext";
 import { Route, Routes, Outlet, Navigate, useLocation } from "react-router-dom";
 
@@ -39,7 +39,12 @@ const ContentWrapper = styled.div`
 
 const SidebarLayout = () => (
 	<>
-        <ToastContainer />
+        <ToastContainer 
+			style={{ width: "320px" }}
+			autoClose={5000}
+			position="top-center"
+            transition={Slide}
+		/>
 
 		<ContentWrapper>
 			<Outlet />

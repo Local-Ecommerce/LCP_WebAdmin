@@ -30,15 +30,20 @@ const CenterWrapper = styled.div`
 const Title = styled.h1`
     font-size: 32px;
     color: #383838;
-    margin: 0px 0px 10px 0px;
+    margin: 0px;
+    text-align: center;
 `;
 
 const BlueSpan = styled.span`
     color: #3075BA;
+    font-size: 40px;
 `;
 
-const SmallText = styled.span`
+const SmallText = styled.h4`
     color: rgba(23,31,35,.64);
+    font-weight: 400;
+    margin: 5px 0px 20px 0px;
+    text-align: center;
 `;
 
 const ErrorText = styled.div`
@@ -62,10 +67,10 @@ const BottomText = styled.a`
 const TextFieldWrapper = styled.div`
     display: flex;
     align-items: center;
-    margin-top: 30px;
+    margin-top: ${props => props.mt ? "30px" : "20px"};
 `;
 
-const StyledButton = styled.button`
+const Button = styled.button`
     border-radius: 5px;
     border: none;
     padding: 15px;
@@ -129,7 +134,7 @@ const Login = () => {
                 </CenterWrapper>
                 :
                 <>
-                    <TextFieldWrapper>
+                    <TextFieldWrapper mt>
                         <TextField
                             fullWidth
                             value={input.username ? input.username : ''} name="username"
@@ -148,7 +153,7 @@ const Login = () => {
                         />
                     </TextFieldWrapper>
 
-                    <StyledButton>Đăng nhập</StyledButton>
+                    <Button>Đăng nhập</Button>
                     <BottomText>Quên mật khẩu?</BottomText>
                 </>
                 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import PoiItem from './PoiItem';
 
-const PoiList = ({ currentItems, handleGetEditItem, handleGetDeleteItem }) => {
+const PoiList = ({ currentItems, handleGetEditItem, handleGetToggleStatusItem }) => {
 
     if (currentItems.length === 0) {
         return <PoiItem item={0} />
@@ -12,7 +12,7 @@ const PoiList = ({ currentItems, handleGetEditItem, handleGetDeleteItem }) => {
             <PoiItem
                 item={item} index={index} key={index}
                 handleGetEditItem={handleGetEditItem}
-                handleGetDeleteItem={handleGetDeleteItem}
+                handleGetToggleStatusItem={handleGetToggleStatusItem}
             />
         )
     });

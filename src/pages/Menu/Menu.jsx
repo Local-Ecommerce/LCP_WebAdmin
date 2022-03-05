@@ -374,7 +374,7 @@ const Footer = styled.div`
     padding-top: 50px;
 `;
 
-const  Center = styled.div`
+const Center = styled.div`
     position: absolute;
     margin-left: auto;
     margin-right: auto;
