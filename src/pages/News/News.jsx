@@ -283,15 +283,12 @@ const Footer = styled.div`
 const News = () =>  {
     const [createModal, setCreateModal] = useState(false);
     function toggleCreateModal() { setCreateModal(!createModal); }
-    const [deleteModal, setDeleteModal] = useState(false);
-    function toggleDeleteModal() { setDeleteModal(!deleteModal); }
     const [editModal, setEditModal] = useState(false);
     function toggleEditModal() { setEditModal(!editModal); }
     const [toggleStatusModal, setToggleStatusModal] = useState(false);
     const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
 
     const [input, setInput] = useState({ title: '', text: '', apartment: '' });
-    const [deleteItem, setDeleteItem] = useState({id: '', name: ''});
     const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
     const [editItem, setEditItem] = useState({ id: '', title: '', text: '', residentId: '', apartmentId: '', status: '' });
     const [error, setError] = useState({ titleError: '', editError: '' });

@@ -8,8 +8,9 @@ import { CircularProgress } from '@mui/material';
 import { api } from "../../RequestMethod";
 import { toast } from 'react-toastify';
 import CreateModal from './CreateModal';
-import DeleteModal from './DeleteModal';
 import EditModal from './EditModal';
+import ToggleStatusModal from './ToggleStatusModal';
+import * as Constant from '../../Constant';
 
 const PageWrapper = styled.div`
     margin: 40px;
@@ -283,13 +284,14 @@ const Apartment = () =>  {
     const [createModal, setCreateModal] = useState(false);
     function toggleCreateModal() { setCreateModal(!createModal); }
     const [deleteModal, setDeleteModal] = useState(false);
-    function toggleDeleteModal() { setDeleteModal(!deleteModal); }
     const [editModal, setEditModal] = useState(false);
     function toggleEditModal() { setEditModal(!editModal); }
+    const [toggleStatusModal, setToggleStatusModal] = useState(false);
+    const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
 
     const [input, setInput] = useState({ name: '', address: '' });
-    const [deleteItem, setDeleteItem] = useState({id: '', name: ''});
     const [editItem, setEditItem] = useState({ id: '', name: '', address: '', status: '' });
+    const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
     const [error, setError] = useState({ nameError: '', addressError: '', editNameError: '', editAddressError: '' });
 
     const [loading, setLoading] = useState(false);
@@ -305,7 +307,7 @@ const Apartment = () =>  {
     const sort = '+apartmentname';
     const [typing, setTyping] = useState('');
     const [search, setSearch] = useState('');
-    const [status, setStatus] = useState(4001);
+    const [status, setStatus] = useState(Constant.ACTIVE_APARTMENT);
 
     useEffect( () => {  //fetch api data
         setLoading(true);
@@ -369,6 +371,7 @@ const Apartment = () =>  {
     const handleAddItem = (event) => {
         event.preventDefault();
         if (validCheck()) {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
             const url = "apartments";
             const addData = async () => {
                 api.post(url, {
@@ -377,16 +380,14 @@ const Apartment = () =>  {
                 })
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
-                        const notify = () => toast.success("Tạo thành công chung cư mới!", {
-                            position: toast.POSITION.TOP_CENTER
-                        });
-                        notify();
+                        toast.update(notification, { render: "Cập nhật thành công!", type: "success", autoClose: 5000, isLoading: false });
                         toggleCreateModal();
                         setChange(!change);
                     }
                 })
                 .catch(function (error) {
                     console.log(error);
+                    toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
                 });
             };
             addData();
@@ -411,33 +412,6 @@ const Apartment = () =>  {
         return true;
     }
 
-    const handleGetDeleteItem = (id, name) => {
-        setDeleteItem({id: id, name: name});
-        toggleDeleteModal();
-    }
-
-    const handleDeleteItem = (event) => {
-        event.preventDefault();
-        const url = "apartments?id=" + deleteItem.id;
-        const deleteData = async () => {
-            api.delete(url)
-            .then(function (res) {
-                if (res.data.ResultMessage === "SUCCESS") {
-                    const notify = () => toast.success("Xóa thành công chung cư!", {
-                        position: toast.POSITION.TOP_CENTER
-                    });
-                    notify();
-                    setChange(!change);
-                }
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        };
-        deleteData();
-        toggleDeleteModal();
-    };
-
     const handleGetEditItem = (id, name, address, status) => {
         setEditItem({ id: id, name: name, address: address, status: status });
         toggleEditModal();
@@ -446,6 +420,7 @@ const Apartment = () =>  {
     const handleEditItem = (event) => {
         event.preventDefault();
         if (validEditCheck()) {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
             const url = "apartments?id=" + editItem.id;
             const editData = async () => {
                 api.put(url, {
@@ -455,15 +430,13 @@ const Apartment = () =>  {
                 })
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
-                        const notify = () => toast.success("Cập nhật thành công!", {
-                            position: toast.POSITION.TOP_CENTER
-                        });
-                        notify();
+                        toast.update(notification, { render: "Cập nhật thành công!", type: "success", autoClose: 5000, isLoading: false });
                         setChange(!change);
                     }
                 })
                 .catch(function (error) {
                     console.log(error);
+                    toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
                 });
             }
             editData();
@@ -483,13 +456,42 @@ const Apartment = () =>  {
             setError(error => ({ ...error, editAddressError: 'Vui lòng nhập địa chỉ chung cư' }));
             check = true;
         }
-        if (!(editItem.status === 4001 || editItem.status === 4002 || editItem.status === 4004)) {
+        if (!(editItem.status === Constant.ACTIVE_APARTMENT || editItem.status === Constant.INACTIVE_APARTMENT )) {
             check = true;
         }
         if (check === true) {
             return false;
         }
         return true;
+    }
+
+    const handleGetToggleStatusItem = (id, name, status) => {
+        setToggleStatusItem({ id: id, name: name, status: status });
+        toggleToggleStatusModal();
+    }
+
+    const handleToggleStatus = (event) => {
+        event.preventDefault();
+        const notification = toast.loading("Đang xử lí yêu cầu...");
+
+        const url = "apartments?id=" + toggleStatusItem.id;
+        const editData = async () => {
+            api.put(url, {
+                status: toggleStatusItem.status === true ? Constant.INACTIVE_APARTMENT : Constant.ACTIVE_APARTMENT
+            })
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    setChange(!change);
+                    toggleToggleStatusModal();
+                    toast.update(notification, { render: "Cập nhật thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        editData();
     }
 
     return (
@@ -515,8 +517,8 @@ const Apartment = () =>  {
                         <DropdownWrapper>
                             <Select value={status} onChange={handleSetStatus}>
                                 <option value=''>Toàn bộ</option>
-                                <option value={4001}>Hoạt động</option>
-                                <option value={4002}>Ngừng hoạt động</option>
+                                <option value={Constant.ACTIVE_APARTMENT}>Hoạt động</option>
+                                <option value={Constant.INACTIVE_APARTMENT}>Ngừng hoạt động</option>
                             </Select>
                         </DropdownWrapper>
                     </Align>
@@ -555,7 +557,7 @@ const Apartment = () =>  {
                         <ApartmentList 
                             currentItems={APIdata} 
                             handleGetEditItem={handleGetEditItem} 
-                            handleGetDeleteItem={handleGetDeleteItem} 
+                            handleGetToggleStatusItem={handleGetToggleStatusItem}
                         />
                         }
                     </TableBody>
@@ -603,11 +605,11 @@ const Apartment = () =>  {
                 handleAddItem={handleAddItem}
             />
 
-            <DeleteModal 
-                display={deleteModal}
-                toggle={toggleDeleteModal}
-                deleteItem={deleteItem}
-                handleDeleteItem={handleDeleteItem}
+            <ToggleStatusModal
+                display={toggleStatusModal}
+                toggle={toggleToggleStatusModal}
+                toggleStatusItem={toggleStatusItem}
+                handleToggleStatus={handleToggleStatus}
             />
 
             <EditModal 

@@ -2,6 +2,7 @@ import React from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
 import { TextField, MenuItem, Select, FormControl } from '@mui/material';
+import * as Constant from '../../Constant';
 
 const ModalTitle = styled.h2`
     margin: 25px 20px;
@@ -96,8 +97,8 @@ const EditModal = ({ display, toggle, editItem, error, setEditItem, handleEditIt
                         value={editItem.status} name='status'
                         onChange={(event) => setEditItem(data => ({ ...data, status: event.target.value }))}
                     >
-                        <MenuItem value={4001}>Hoạt động</MenuItem>
-                        <MenuItem value={4002}>Ngừng hoạt động</MenuItem>
+                        <MenuItem value={Constant.ACTIVE_APARTMENT}>Hoạt động</MenuItem>
+                        <MenuItem value={Constant.INACTIVE_APARTMENT}>Ngừng hoạt động</MenuItem>
                     </Select>
                 </FormControl>
             </ModalContentWrapper>

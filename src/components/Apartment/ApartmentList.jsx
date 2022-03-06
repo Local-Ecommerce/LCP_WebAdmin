@@ -1,7 +1,7 @@
 import React from 'react';
 import ApartmentItem from './ApartmentItem';
 
-const ApartmentList = ({ currentItems, handleGetEditItem, handleGetDeleteItem }) => {
+const ApartmentList = ({ currentItems, handleGetEditItem, handleGetToggleStatusItem }) => {
 
     if (currentItems.length === 0) {
         return <ApartmentItem item={0} />
@@ -12,7 +12,7 @@ const ApartmentList = ({ currentItems, handleGetEditItem, handleGetDeleteItem })
             <ApartmentItem
                 item={item} index={index} key={index}
                 handleGetEditItem={handleGetEditItem}
-                handleGetDeleteItem={handleGetDeleteItem}
+                handleGetToggleStatusItem={handleGetToggleStatusItem}
             />
         )
     });
