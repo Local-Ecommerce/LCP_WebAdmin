@@ -7,6 +7,7 @@ import { Search } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import CreateModal from './CreateModal';
 import DeleteModal from './DeleteModal';
+import * as Constant from '../../Constant';
 
 const PageWrapper = styled.div`
     margin: 50px 40px;
@@ -173,7 +174,7 @@ const Category = () => {
 
     const [change, setChange] = useState(false);
     const [search, setSearch] = useState(""); //search filter
-    const [status, setStatus] = useState("3001"); //status filter
+    const [status, setStatus] = useState(Constant.ACTIVE_SYSTEM_CATEGORY); //status filter
     const [type, setType] = useState('Khác');
 
     useEffect(() => {
@@ -338,8 +339,8 @@ const Category = () => {
                         <DropdownWrapper width="16%">
                             <Select value={status} onChange={(event) => setStatus(event.target.value)}>
                                 <option value={"0"}>Toàn bộ</option>
-                                <option value={"3001"}>Hoạt động</option>
-                                <option value={"3004"}>Ngừng hoạt động</option>
+                                <option value={Constant.ACTIVE_SYSTEM_CATEGORY}>Hoạt động</option>
+                                <option value={Constant.INACTIVE_SYSTEM_CATEGORY}>Ngừng hoạt động</option>
                             </Select>
                         </DropdownWrapper>
 

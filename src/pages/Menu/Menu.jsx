@@ -7,6 +7,7 @@ import { Search, ArrowRight, FormatListBulleted, DoubleArrow } from '@mui/icons-
 import { CircularProgress, Checkbox } from '@mui/material';
 import { api } from "../../RequestMethod";
 import { List, AutoSizer } from 'react-virtualized';
+import * as Constant from '../../Constant';
 
 const PageWrapper = styled.div`
     margin: 50px 40px 50px ${props => props.toggle ? "370px" : "45px"};
@@ -410,7 +411,7 @@ const Menu = () =>  {
     const [apartmentTyping, setApartmentTyping] = useState('');
     const [menuSearch, setMenuSearch] = useState('');
     const [apartmentSearch, setApartmentSearch] = useState('');
-    const [status, setStatus] = useState(9001);
+    const [status, setStatus] = useState(Constant.ACTIVE_MENU);
 
     useEffect( () => {  //fetch api data
         if (apartment.id !== '') {
@@ -607,9 +608,9 @@ const Menu = () =>  {
                             <DropdownWrapper>
                                 <Select value={status} onChange={handleSetStatus}>
                                     <option value=''>Toàn bộ</option>
-                                    <option value={9001}>Xác thực</option>
-                                    <option value={9002}>Xóa</option>
-                                    <option value={9005}>Ngừng</option>
+                                    <option value={Constant.ACTIVE_MENU}>Xác thực</option>
+                                    <option value={Constant.DELETED_MENU}>Xóa</option>
+                                    <option value={Constant.INACTIVE_MENU}>Ngừng</option>
                                 </Select>
                             </DropdownWrapper>
                         </Align>

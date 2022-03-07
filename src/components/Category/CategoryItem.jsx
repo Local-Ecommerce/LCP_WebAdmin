@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { ArrowDropUp, ArrowDropDown, Edit, Delete, AddCircle } from '@mui/icons-material';
 import { CircularProgress, TextField } from '@mui/material';
 import useClickOutside from "../../contexts/useClickOutside";
+import * as Constant from '../../Constant';
 
 const CategoryContent = styled.div`
     margin: ${props => props.level === 1 ? "10px" : "0px"} 0px 8px 0px;
@@ -283,15 +284,15 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
     let activeLabel = '';
     let disabledCheck = false;
     switch (item.Status) {
-        case 3001:
+        case Constant.ACTIVE_SYSTEM_CATEGORY:
             activeCheck = 'active';
             activeLabel = 'Hoạt động';
             break;
-        case 3002:
+        case Constant.INACTIVE_SYSTEM_CATEGORY:
             activeCheck = 'inactive';
             activeLabel = 'Ngừng hoạt động';
             break;
-        case 3004:
+        case Constant.DELETED_SYSTEM_CATEGORY:
             activeCheck = 'deleted';
             activeLabel = 'Ngừng hoạt động';
             disabledCheck = true;
@@ -317,12 +318,12 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
             <CategoryContent edit level={item.CategoryLevel}>
                 <SelectWrapper ref={clickOutside}>
                     <Select onClick={handleToggleDropdown}>
-                        {input.status === 3001 ? 'Hoạt động' : input.status === 3004 ? 'Ngừng hoạt động' : ''}
+                        {input.status === Constant.ACTIVE_SYSTEM_CATEGORY ? 'Hoạt động' : input.status === Constant.INACTIVE_SYSTEM_CATEGORY ? 'Ngừng hoạt động' : ''}
                         <ArrowDropDown />
                     </Select>
                     <DropdownMenu dropdown={dropdown}>
-                        <DropdownList onClick={() => handleStatusChange(3001)}>Hoạt động</DropdownList>
-                        <DropdownList onClick={() => handleStatusChange(3004)}>Ngừng hoạt động</DropdownList>
+                        <DropdownList onClick={() => handleStatusChange(Constant.ACTIVE_SYSTEM_CATEGORY)}>Hoạt động</DropdownList>
+                        <DropdownList onClick={() => handleStatusChange(Constant.INACTIVE_SYSTEM_CATEGORY)}>Ngừng hoạt động</DropdownList>
                     </DropdownMenu>
                 </SelectWrapper>
 

@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { ContentPasteSearch } from '@mui/icons-material';
 import { Link } from "react-router-dom";
+import * as Constant from '../../Constant';
 
 const Button = styled.button`
     padding: 3px;
@@ -77,19 +78,19 @@ const StoreItem = ({ item, handleGetDeleteItem, index }) => {
     let activeCheck = '';
     let activeLabel = '';
     switch (item.Status) {
-        case 6004:
+        case Constant.DELETED_MERCHANT_STORE:
             activeCheck = 'deleted';
             activeLabel = 'Xóa';
             break;
-        case 6005:
+        case Constant.VERIFIED_MERCHANT_STORE:
             activeCheck = 'verified';
             activeLabel = 'Xác thực';
             break;
-        case 6006:
+        case Constant.UNVERIFIED_MERCHANT_STORE:
             activeCheck = 'unverified';
             activeLabel = 'Tạo mới';
             break;
-        case 6007:
+        case Constant.UNVERIFIED_MERCHANT_STORE:
             activeCheck = 'unverified';
             activeLabel = 'Cập nhật';
             break;

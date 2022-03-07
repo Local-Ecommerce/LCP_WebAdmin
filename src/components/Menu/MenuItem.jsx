@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { ContentPasteSearch } from '@mui/icons-material';
 import { Link } from "react-router-dom";
+import * as Constant from '../../Constant';
 
 const Button = styled.button`
     padding: 3px;
@@ -78,16 +79,16 @@ const MenuItem = ({ item, handleGetDeleteItem, index }) =>  {
     let activeLabel = '';
     let disabledCheck = false;
     switch (item.Status) {
-        case 9001:
+        case Constant.ACTIVE_MENU:
             activeCheck = 'verified';
             activeLabel = 'Xác thực';
             break;
-        case 9005:
+        case Constant.INACTIVE_MENU:
             activeCheck = 'inactive';
             activeLabel = 'Ngừng';
             disabledCheck = true;
             break;
-        case 9002:
+        case Constant.DELETED_MENU:
             activeCheck = 'deleted';
             activeLabel = 'Xóa';
             disabledCheck = true;

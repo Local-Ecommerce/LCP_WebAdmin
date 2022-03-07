@@ -12,3 +12,20 @@ export const INACTIVE_NEWS = 7005;
 //apartment status
 export const ACTIVE_APARTMENT = 4001;
 export const INACTIVE_APARTMENT = 4005;
+
+//system category status
+export const ACTIVE_SYSTEM_CATEGORY = 3001;
+export const DELETED_SYSTEM_CATEGORY = 3002;
+export const MAXED_OUT_LEVEL = 3010;
+export const INACTIVE_SYSTEM_CATEGORY = 3005;
+
+//merchant store status
+export const VERIFIED_MERCHANT_STORE = 6001;
+export const DELETED_MERCHANT_STORE = 6002;
+export const REJECTED_MERCHANT_STORE = 6003;
+export const UNVERIFIED_MERCHANT_STORE = 6004;
+
+//menu status
+export const ACTIVE_MENU = 9001;
+export const DELETED_MENU = 9002;
+export const INACTIVE_MENU = 9005;

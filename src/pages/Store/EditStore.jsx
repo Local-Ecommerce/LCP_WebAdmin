@@ -6,6 +6,7 @@ import { KeyboardBackspace } from '@mui/icons-material';
 import { TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { toast } from 'react-toastify';
 import { DateTime } from 'luxon';
+import * as Constant from '../../Constant';
 
 const PageWrapper = styled.div`
     width: 1080px;
@@ -150,7 +151,7 @@ const EditStore = () => {
 
     const [input, setInput] = useState({
         name: '',
-        status: 6004
+        status: Constant.VERIFIED_MERCHANT_STORE
     })
     const [error, setError] = useState({
         nameError: ''
@@ -217,7 +218,7 @@ const EditStore = () => {
             setError(error => ({ ...error, nameError: 'Vui lòng nhập tên cửa hàng' }));
             check = true;
         }
-        if (!(input.status === 6004 || input.status === 6005 || input.status === 6006 || input.status === 6007)) {
+        if (!(input.status === Constant.VERIFIED_MERCHANT_STORE || input.status === Constant.DELETED_MERCHANT_STORE || input.status === Constant.REJECTED_MERCHANT_STORE || input.status === Constant. UNVERIFIED_MERCHANT_STORE)) {
             check = true;
         }
         if (check === true) {
@@ -228,19 +229,19 @@ const EditStore = () => {
     }
 
     switch (item.Status) {
-        case 6004:
+        case Constant.DELETED_MERCHANT_STORE:
             activeCheck = 'deleted';
             activeLabel = 'Deleted';
             break;
-        case 6005:
+        case Constant.VERIFIED_MERCHANT_STORE:
             activeCheck = 'verified';
             activeLabel = 'Verified';
             break;
-        case 6006:
+        case Constant.UNVERIFIED_MERCHANT_STORE:
             activeCheck = 'unverified';
             activeLabel = 'Unverified';
             break;
-        case 6007:
+        case Constnat.UNVERIFIED_MERCHANT_STORE:
             activeCheck = 'unverified';
             activeLabel = 'Unverified';
             break;
@@ -319,10 +320,10 @@ const EditStore = () => {
                                 label="Trạng thái"
                                 onChange={handleChange}
                             >
-                            <MenuItem value={6005}>Active</MenuItem>
-                            <MenuItem value={6004}>Deleted</MenuItem>
-                            <MenuItem value={6006} disabled>Unverified Create</MenuItem>
-                            <MenuItem value={6007} disabled>Unverified Update</MenuItem>
+                            <MenuItem value={Constant.VERIFIED_MERCHANT_STORE}>Active</MenuItem>
+                            <MenuItem value={Constant.DELETED_MERCHANT_STORE}>Deleted</MenuItem>
+                            <MenuItem value={Constant.UNVERIFIED_MERCHANT_STORE} disabled>Unverified Create</MenuItem>
+                            <MenuItem value={Constant.UNVERIFIED_MERCHANT_STORE} disabled>Unverified Update</MenuItem>
                             </Select>
                         </StyledFormControl>
 

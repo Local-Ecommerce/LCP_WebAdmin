@@ -7,6 +7,7 @@ import { Search, ArrowRight, Store as StoreIcon, DoubleArrow } from '@mui/icons-
 import { CircularProgress, Checkbox } from '@mui/material';
 import { api } from "../../RequestMethod";
 import { List, AutoSizer } from 'react-virtualized';
+import * as Constant from '../../Constant';
 
 const PageWrapper = styled.div`
     margin: 50px 40px 50px ${props => props.toggle ? "370px" : "45px"};
@@ -410,7 +411,7 @@ const Store = () => {
     const [apartmentTyping, setApartmentTyping] = useState('');
     const [storeSearch, setStoreSearch] = useState('');
     const [apartmentSearch, setApartmentSearch] = useState('');
-    const [status, setStatus] = useState(6005);
+    const [status, setStatus] = useState(Constant.VERIFIED_MERCHANT_STORE);
 
     useEffect( () => {  //fetch api data
         if (apartment.id !== '') {
@@ -608,11 +609,11 @@ const Store = () => {
                             <DropdownWrapper>
                                 <Select value={status} onChange={handleSetStatus}>
                                     <option value=''>Toàn bộ</option>
-                                    <option value={6004}>Xóa</option>
-                                    <option value={6005}>Xác thực</option>
-                                    <option value={6006}>Từ chối</option>
-                                    <option value={6007}>Tạo mới</option> 
-                                    <option value={6008}>Cập nhật</option>
+                                    <option value={Constant.DELETED_MERCHANT_STORE}>Xóa</option>
+                                    <option value={Constant.VERIFIED_MERCHANT_STORE}>Xác thực</option>
+                                    <option value={Constant.REJECTED_MERCHANT_STORE}>Từ chối</option>
+                                    <option value={Constant.UNVERIFIED_MERCHANT_STORE}>Tạo mới</option> 
+                                    <option value={Constant.UNVERIFIED_MERCHANT_STORE}>Cập nhật</option>
                                 </Select>
                             </DropdownWrapper>
                         </Align>
