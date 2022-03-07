@@ -420,7 +420,7 @@ const Menu = () =>  {
                     + "?limit=" + limit 
                     + "&page=" + (page + 1) 
                     + "&sort=" + sort 
-                    + "&include=resident"
+                    + "&include=merchantstore"
                     + (menuSearch !== '' ? ("&search=" + menuSearch) : '') 
                     + (status !== '' ? ("&status=" + status) : '') 
                     + "&apartmentid=" + apartment.id;
@@ -633,7 +633,7 @@ const Menu = () =>  {
                             <TableRow>
                                 <TableHeader width="3%" grey>#</TableHeader>
                                 <TableHeader width="30%">Tên bảng giá</TableHeader>
-                                <TableHeader width="20%" center>Quản lý</TableHeader>
+                                <TableHeader width="20%" center>Thuộc cửa hàng</TableHeader>
                                 <TableHeader width="10%" center>Trạng thái</TableHeader>
                                 <TableHeader width="10%" center>Chi tiết</TableHeader>
                             </TableRow>

@@ -103,7 +103,7 @@ const MenuItem = ({ item, handleGetDeleteItem, index }) =>  {
         <TableRow>
             <TableData grey>{index + 1}</TableData>
             <TableData>{item.MenuName}</TableData>
-            <TableData center>{item.Resident.ResidentName}</TableData>
+            <TableData center>{item.Apartment.ApartmentName}</TableData>
             <TableData center><Status active={activeCheck}>{activeLabel}</Status></TableData>
 
             <TableData center>
