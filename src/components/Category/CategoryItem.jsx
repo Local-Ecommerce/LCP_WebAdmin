@@ -340,13 +340,13 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
 
             :
 
-            <CategoryContent level={item.CategoryLevel} onClick={item.InverseBelongToNavigation && handleToggleChild}>
+            <CategoryContent level={item.CategoryLevel} onClick={item.Children && handleToggleChild}>
                 <NameWrapper>
                     <Status active={activeCheck}>{activeLabel}</Status>
                     {item.SysCategoryName}
-                    {Array.isArray(item.InverseBelongToNavigation) && item.InverseBelongToNavigation.length && child
+                    {Array.isArray(item.Children) && item.Children.length && child
                     ? <DropupIcon />
-                        : Array.isArray(item.InverseBelongToNavigation) && item.InverseBelongToNavigation.length
+                        : Array.isArray(item.Children) && item.Children.length
                         ? <DropdownIcon />
                         : null}
                 </NameWrapper>
@@ -374,7 +374,7 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
             }
 
             {child &&
-                item.InverseBelongToNavigation.map((item, index) => {
+                item.Children.map((item, index) => {
                     return (
                         <CategoryItem 
                             item={item} 
