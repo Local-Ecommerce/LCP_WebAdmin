@@ -5,6 +5,13 @@ import Modal from 'react-modal';
 import { api } from "../../RequestMethod";
 import { TextField, Autocomplete, Box } from '@mui/material';
 
+const Row = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: ${props => props.spacebetween ? "space-between" : null};
+    margin-top: ${props => props.mt ? "20px" : null};
+`;
+
 const ModalTitle = styled.h2`
     margin: 25px 20px;
     color: #212529;
@@ -63,6 +70,15 @@ const FormLabel = styled.div`
     margin-top: ${props => props.mt ? "30px" : null};
 `;
 
+const HelperText = styled.div`
+    margin-left: ${props => props.ml0 ? "0px" : "30px"};
+    align-items: center;
+    text-decoration: none;
+    font-size: 14px;
+    margin-top: ${props => props.mt ? "30px" : "0px"};
+    color: #727272;
+`;
+
 const CreateModal = ({ display, toggle, input, error, setInput, handleAddItem }) => {
     const user = JSON.parse(localStorage.getItem('USER'));
     const [autocomplete, setAutocomplete] = useState([]);
@@ -87,18 +103,26 @@ const CreateModal = ({ display, toggle, input, error, setInput, handleAddItem })
         <Modal isOpen={display} onRequestClose={toggle} style={customStyles} ariaHideApp={false}>
             <ModalTitle>Tạo POI mới</ModalTitle>
             <ModalContentWrapper>
-                <FormLabel>Tiêu đề</FormLabel>
+                <Row spacebetween>
+                    <FormLabel>Tiêu đề</FormLabel>
+                    <HelperText ml0>{input.title.length}/250 kí tự</HelperText>
+                </Row>
                 <TextField
                     fullWidth size="small"
+                    inputProps={{ maxLength: 250 }} 
                     value={input.title} name='title'
                     onChange={(event) => setInput(input => ({ ...input, title: event.target.value }))}
                     error={error.titleError !== ''}
                     helperText={error.titleError}
                 />
 
-                <FormLabel mt>Nội dung</FormLabel>
+                <Row spacebetween>
+                    <FormLabel mt>Nội dung</FormLabel>
+                    <HelperText ml0 mt>{input.text.length}/5000 kí tự</HelperText>
+                </Row>
                 <TextField
                     fullWidth size="small"
+                    inputProps={{ maxLength: 5000 }} 
                     multiline rows={4}
                     value={input.text} name='text'
                     onChange={(event) => setInput(input => ({ ...input, text: event.target.value }))}

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { ArrowDropUp, ArrowDropDown, Edit, Delete, AddCircle } from '@mui/icons-material';
-import { CircularProgress, TextField } from '@mui/material';
+import { TextField } from '@mui/material';
 import useClickOutside from "../../contexts/useClickOutside";
 import * as Constant from '../../Constant';
 
@@ -208,17 +208,10 @@ const EditButton = styled.button`
 
 const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
     const [child, setChild] = useState(false);
-    const [loading, setLoading] = useState(true);
     const [edit, toggleEdit] = useState(false);
     const [dropdown, toggleDropdown] = useState(false);
     const [input, setInput] = useState({ name: '', status: '' });
     const [error, setError] = useState({ nameError: '' });
-
-    useEffect(() => {
-        if (loading) {
-            setTimeout(() => {setLoading(false);}, 3000);
-        }
-    }, [loading]);
 
     const handleToggleChild = () => {
         setChild(!child);
@@ -306,7 +299,7 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
     if (item === 0) {
         return (
             <CategoryContent level={1} center>
-                {loading ? <CircularProgress /> : <h4>Không tìm thấy dữ liệu.</h4>}
+                <h4>Không tìm thấy dữ liệu.</h4>
             </CategoryContent>
         )
     }
@@ -329,6 +322,7 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
 
                 <TextField
                     fullWidth size="small" 
+                    inputProps={{ maxLength: 250 }} 
                     value={input.name ? input.name : ''} name='name'
                     onChange={handleChange}
                     error={error.nameError !== ''}

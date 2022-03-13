@@ -75,6 +75,7 @@ const EditModal = ({ display, toggle, editItem, error, setEditItem, handleEditIt
                 <FormLabel>Tên chung cư</FormLabel>
                 <TextField
                     fullWidth size="small"
+                    inputProps={{ maxLength: 250 }} 
                     value={editItem.name ? editItem.name : ''} name='name'
                     onChange={(event) => setEditItem(data => ({ ...data, name: event.target.value }))}
                     error={error.editNameError !== ''}
@@ -85,6 +86,7 @@ const EditModal = ({ display, toggle, editItem, error, setEditItem, handleEditIt
                 <TextField
                     fullWidth size="small"
                     multiline rows={3}
+                    inputProps={{ maxLength: 250 }} 
                     value={editItem.address ? editItem.address : ''} name='address'
                     onChange={(event) => setEditItem(data => ({ ...data, address: event.target.value }))}
                     error={error.editAddressError !== ''}

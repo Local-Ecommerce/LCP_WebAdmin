@@ -224,6 +224,7 @@ const EditModal = ({ display, toggle, editItem, error, setEditItem, handleEditIt
                         <UpdateForm>
                             <StyledTextField
                                 fullWidth 
+                                inputProps={{ maxLength: 250 }} 
                                 value={editItem.title ? editItem.title : ''} name='title'
                                 onChange={(event) => setEditItem(data => ({ ...data, title: event.target.value }))}
                                 error={error.editError !== ''}
@@ -233,6 +234,7 @@ const EditModal = ({ display, toggle, editItem, error, setEditItem, handleEditIt
 
                             <StyledTextField
                                 fullWidth multiline rows={4}
+                                inputProps={{ maxLength: 5000 }} 
                                 value={editItem.text ? editItem.text : ''} name='text'
                                 onChange={(event) => setEditItem(data => ({ ...data, text: event.target.value }))}
                                 label="Nội dung" 

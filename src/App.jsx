@@ -68,16 +68,15 @@ const RequireLoggedIn = ({ children }) => {
     const expiredTime = localStorage.getItem("EXPIRED_TIME");
     const isToggle = localStorage.getItem("IS_TOGGLE");
 
-    if (typeof user === 'undefined' || user === null 
+    if ((user && user.RoleId === "R001" && user.Residents[0].Type !== "MarketManager")
+     || typeof user === 'undefined' || user === null 
      || typeof accessToken === 'undefined' || accessToken === null 
      || typeof refreshToken === 'undefined' || refreshToken === null 
      || typeof expiredTime === 'undefined' || expiredTime === null
      || typeof isToggle === 'undefined' || isToggle === null || isToggle === "1") {
         logout();
-        //console.log("case: 1");
         return <Navigate to="/login" />;
     };
-    //console.log("case: 2");
     return children;
 }
 
