@@ -389,7 +389,7 @@ const Menu = () =>  {
     const listRef = useRef();
     const [displayAddress, setDisplayAddress] = useState(false);
     function toggleDisplayAddress() { setDisplayAddress(!displayAddress); listRef.current.recomputeRowHeights(); }
-    const [displayApartment, setDisplayApartment] = useState(true);
+    const [displayApartment, setDisplayApartment] = useState(false);
     function toggleDisplayApartment() { setDisplayApartment(!displayApartment); };
 
     const [loading, setLoading] = useState(false);
@@ -461,6 +461,7 @@ const Menu = () =>  {
                 });
             }
             fetchData();
+            toggleDisplayApartment();
         } else if (user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
             setApartment({ id: user.Residents[0].ApartmentId, name: '', address: '' });
         }
