@@ -1,7 +1,7 @@
 import React from 'react';
 import ProductItem from './ProductItem';
 
-const ProductList = ({ currentItems, handleDeleteItem }) => {
+const ProductList = ({ currentItems, handleGetRejectItem, handleGetApproveItem, handleGetDetailItem }) => {
 
     if (currentItems.length === 0) {
         return <ProductItem item={0} />
@@ -10,8 +10,10 @@ const ProductList = ({ currentItems, handleDeleteItem }) => {
     return currentItems && currentItems.map((item, index) => {
         return (
             <ProductItem
-                item={item}
-                handleDeleteItem={handleDeleteItem} key={index}
+                item={item} index={index} key={index}
+                handleGetRejectItem={handleGetRejectItem}
+                handleGetApproveItem={handleGetApproveItem}
+                handleGetDetailItem={handleGetDetailItem}
             />
         )
     });

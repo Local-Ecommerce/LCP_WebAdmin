@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import ResidentList from '../../components/Resident/ResidentList';
+import ProductList from '../../components/Product/ProductList';
 import ReactPaginate from "react-paginate";
 import { Search } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
@@ -9,7 +9,7 @@ import { api } from "../../RequestMethod";
 import { toast } from 'react-toastify';
 import RejectModal from './RejectModal';
 import ApproveModal from './ApproveModal';
-import ToggleStatusModal from './ToggleStatusModal';
+import DetailModal from './DetailModal';
 import * as Constant from '../../Constant';
 
 const PageWrapper = styled.div`
@@ -43,14 +43,9 @@ const StyledSearchIcon = styled(Search)`
     }
 `;
 
-const Align = styled.div`
-    display: flex;
-    align-items: center;
-`;
-
 const SearchBar = styled.div`
     display: flex;
-    width: 35%;
+    width: 50%;
     justify-content: center;
     align-items: center;
     border-radius: 5px;
@@ -60,6 +55,7 @@ const SearchBar = styled.div`
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
+    margin-right: 10px;
 `;
 
 const Input = styled.input`
@@ -164,6 +160,11 @@ const TableData = styled.td`
 
 const TableRow = styled.tr``;
 
+const ItemsPerPageWrapper = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
 const StyledPaginateContainer = styled.div`
     margin-right; 10px;
     margin-left: auto;
@@ -247,38 +248,44 @@ const Footer = styled.div`
     padding-top: 50px;
 `;
 
-const Resident = () =>  {
+const Product = () =>  {
     const user = JSON.parse(localStorage.getItem('USER'));
 
-    const [toggleStatusModal, setToggleStatusModal] = useState(false);
-    const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
+    const [rejectModal, setRejectModal] = useState(false);
+    function toggleRejectModal() { setRejectModal(!rejectModal); }
+    const [approveModal, setApproveModal] = useState(false);
+    function toggleApproveModal() { setApproveModal(!approveModal); }
+    const [detailModal, setDetailModal] = useState(false);
+    function toggleDetailModal() { setDetailModal(!detailModal); }
 
-    const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
+    const [rejectItem, setRejectItem] = useState({ id: '', name: '' });
+    const [approveItem, setApproveItem] = useState({ id: '', name: '' });
+    const [detailItem, setDetailItem] = useState({});
 
-    const [loading, setLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState(1);
     const [APIdata, setAPIdata] = useState([]);
     const [change, setChange] = useState(false);
+    const [activeTab, setActiveTab] = useState(1);
+    const [loading, setLoading] = useState(false);
 
     const [limit, setLimit] = useState(10);
     const [page, setPage] = useState(0);
     const [total, setTotal] = useState(0);
     const [lastPage, setLastPage] = useState(0);
 
-    const sort = '+residentname';
+    const sort = '+updateddate';
     const [typing, setTyping] = useState('');
     const [search, setSearch] = useState('');
-    const [status, setStatus] = useState(Constant.VERIFIED_RESIDENT);
+    const [status, setStatus] = useState(Constant.VERIFIED_PRODUCT);
 
     useEffect( () => {  //fetch api data
         setLoading(true);
-        let url = "residents?limit=" + 
-        limit + "&page=" + 
-        (page + 1) + 
-        "&sort=" + sort +
-        "&apartmentid=" + user.Residents[0].ApartmentId +
-        (search !== '' ? ("&search=" + search) : '') + 
-        (status !== '' ? ("&status=" + status) : '');
+        let url = "products" 
+        + "?limit=" + limit 
+        + "&page=" + (page + 1) 
+        + "&sort=" + sort
+        + "&apartmentid=" + user.Residents[0].ApartmentId
+        + (search !== '' ? ("&search=" + search) : '') 
+        + (status !== '' ? ("&status=" + status) : '');
         const fetchData = () => {
             api.get(url)
             .then(function (res) {
@@ -310,25 +317,19 @@ const Resident = () =>  {
         document.getElementById("search").value = '';
     }
 
-    function handleSetSearch(e) {
-        const { value } = e.target;
-        setTyping(value);
-        setPage(0);
-    }
-
     function handleSwitchTab(value) {
         setActiveTab(value);
         if (value === 1) {
-            setStatus(Constant.VERIFIED_RESIDENT);
+            setStatus(Constant.VERIFIED_PRODUCT);
         } else {
-            setStatus(Constant.UNVERIFIED_RESIDENT);
+            setStatus(Constant.UNVERIFIED_PRODUCT);
         }
         setPage(0);
     }
 
-    function handleSetStatus(e) {
+    function handleSetSearch(e) {
         const { value } = e.target;
-        setStatus(value);
+        setTyping(value);
         setPage(0);
     }
 
@@ -337,25 +338,23 @@ const Resident = () =>  {
         setLimit(value);
         setPage(0);
     }
-
-
-    const handleGetToggleStatusItem = (id, name, status) => {
-        setToggleStatusItem({ id: id, name: name, status: status });
-        toggleToggleStatusModal();
+    
+    const handleGetApproveItem = (id, name) => {
+        setApproveItem({ id: id, name: name });
+        toggleApproveModal();
     }
 
-    const handleToggleStatus = (event) => {
+    const handleApproveItem = (event) => {
         event.preventDefault();
         const notification = toast.loading("Đang xử lí yêu cầu...");
-        let updateStatus = toggleStatusItem.status === true ? Constant.INACTIVE_RESIDENT : Constant.VERIFIED_RESIDENT
-        const url = "residents/" + toggleStatusItem.id + "?status=" + updateStatus;
-        const editData = async () => {
-            api.put(url, )
+
+        const handleApprove = async () => {
+            api.put("products/approval?id=" + rejectItem.id)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
                     setChange(!change);
-                    toggleToggleStatusModal();
-                    toast.update(notification, { render: "Cập nhật thành công!", type: "success", autoClose: 5000, isLoading: false });
+                    toggleApproveModal();
+                    toast.update(notification, { render: "Duyệt sản phẩm thành công!", type: "success", autoClose: 5000, isLoading: false });
                 }
             })
             .catch(function (error) {
@@ -363,52 +362,56 @@ const Resident = () =>  {
                 toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
             });
         }
-        editData();
+        handleApprove();
+    }
+
+    const handleGetRejectItem = (id, name) => {
+        setRejectItem({ id: id, name: name });
+        toggleRejectModal();
+    }
+
+    const handleRejectItem = (event) => {
+        event.preventDefault();
+        const notification = toast.loading("Đang xử lí yêu cầu...");
+
+        const handleReject = async () => {
+            api.put("products/rejection?id=" + rejectItem.id)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    setChange(!change);
+                    toggleRejectModal();
+                    toast.update(notification, { render: "Từ chối sản phẩm thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        handleReject();
+    }
+
+    const handleGetDetailItem = (item) => {
+        setDetailItem(item);
+        toggleDetailModal();
     }
 
     return (
         <PageWrapper>
-           <Row ml start>
-                <Tab active={activeTab === 1 ? true : false} onClick={() => handleSwitchTab(1)}>Cư dân</Tab>
-                <Tab active={activeTab === 2 ? true : false} onClick={() => handleSwitchTab(2)}>Cư dân chờ duyệt</Tab>
+            <Row ml start>
+                <Tab active={activeTab === 1 ? true : false} onClick={() => handleSwitchTab(1)}>Sản phẩm</Tab>
+                <Tab active={activeTab === 2 ? true : false} onClick={() => handleSwitchTab(2)}>Sản phẩm chờ duyệt</Tab>
             </Row>
 
             <TableWrapper>
                 <Row mb>
                     <SearchBar>
                         <StyledSearchIcon />
-                        <Input id="search" placeholder="Tìm kiếm cư dân" onChange={handleSetSearch} />
+                        <Input id="search" placeholder="Tìm kiếm sản phẩm" onChange={handleSetSearch} />
                         <Button onClick={() => clearSearch()}>Clear</Button>
                     </SearchBar>
 
-                    <Align>
-                        <small>Kiểu cư dân:&nbsp;</small>
-                        <DropdownWrapper>
-                            <Select value={status}>
-                                <option value=''>Toàn bộ</option>
-                                <option value={Constant.CUSTOMER}>Khách hàng</option>
-                                <option value={Constant.MERCHANT}>Thương nhân</option>
-                                <option value={Constant.MARKET_MANAGER}>Quản lí</option>
-                            </Select>
-                        </DropdownWrapper>
-                    </Align>
-
-                    {
-                        activeTab === 1 ?
-                        <Align>
-                            <small>Trạng thái:&nbsp;</small>
-                            <DropdownWrapper>
-                                <Select value={status} onChange={handleSetStatus}>
-                                    <option value=''>Toàn bộ</option>
-                                    <option value={Constant.VERIFIED_RESIDENT}>Hoạt động</option>
-                                    <option value={Constant.INACTIVE_RESIDENT}>Ngừng hoạt động</option>
-                                </Select>
-                            </DropdownWrapper>
-                        </Align>
-                        : null
-                    }
-
-                    <Align>
+                    <ItemsPerPageWrapper>
                         <small>Số hàng mỗi trang:&nbsp;</small>
                         <DropdownWrapper>
                             <Select value={limit} onChange={handleSetLimit}>
@@ -418,18 +421,22 @@ const Resident = () =>  {
                                 <option value={20}>20</option>
                             </Select>
                         </DropdownWrapper>              
-                    </Align>  
+                    </ItemsPerPageWrapper>  
                 </Row>
 
                 <Table>
                     <TableHead>
                         <TableRow>
                             <TableHeader width="3%" grey>#</TableHeader>
-                            <TableHeader width="32%">Tên cư dân</TableHeader>
-                            <TableHeader width="15%" center>Ngày sinh</TableHeader>
-                            <TableHeader width="15%" center>Số điện thoại</TableHeader>
-                            <TableHeader width="15%" center>Cư dân</TableHeader>
-                            <TableHeader width="20%" center>Hoạt động</TableHeader>
+                            <TableHeader width="7%" center>Ảnh</TableHeader>
+                            <TableHeader width="48%">Tên sản phẩm</TableHeader>
+                            <TableHeader width="15%" center>Giá</TableHeader>
+                            <TableHeader width="15%" center>Trạng thái</TableHeader>
+                            {
+                                activeTab === 1 ?
+                                null :
+                                <TableHeader width="15%" center>Hành động</TableHeader>
+                            }
                         </TableRow>
                     </TableHead>
 
@@ -437,12 +444,14 @@ const Resident = () =>  {
                         {
                         loading ? 
                         <tr>
-                            <TableData center colSpan={100}> <CircularProgress /> </TableData>
+                            <TableData center colSpan={10}> <CircularProgress /> </TableData>
                         </tr>
                         : 
-                        <ResidentList 
-                            currentItems={APIdata} 
-                            handleGetToggleStatusItem={handleGetToggleStatusItem}
+                        <ProductList 
+                            currentItems={APIdata}
+                            handleGetRejectItem={handleGetRejectItem}
+                            handleGetApproveItem={handleGetApproveItem}
+                            handleGetDetailItem={handleGetDetailItem}
                         />
                         }
                     </TableBody>
@@ -451,7 +460,7 @@ const Resident = () =>  {
                 <Row mt>
                     { 
                     loading || APIdata.length === 0 ? null
-                    : <small>Hiển thị {page * limit + 1} - {page * limit + APIdata.length} trong tổng số {total} cư dân.</small> 
+                    : <small>Hiển thị {page * limit + 1} - {page * limit + APIdata.length} trong tổng số {total} sản phẩm.</small> 
                     }
                     <StyledPaginateContainer>
                         <ReactPaginate
@@ -481,15 +490,27 @@ const Resident = () =>  {
 
             <Footer />
 
-            <ToggleStatusModal
-                display={toggleStatusModal}
-                toggle={toggleToggleStatusModal}
-                toggleStatusItem={toggleStatusItem}
-                handleToggleStatus={handleToggleStatus}
+            <ApproveModal
+                display={approveModal} 
+                toggle={toggleApproveModal} 
+                approveItem={approveItem} 
+                handleApproveItem={handleApproveItem}
             />
 
+            <RejectModal
+                display={rejectModal} 
+                toggle={toggleRejectModal} 
+                rejectItem={rejectItem} 
+                handleRejectItem={handleRejectItem}
+            />
+
+            <DetailModal 
+                display={detailModal}
+                toggle={toggleDetailModal}
+                detailItem={detailItem}
+            />
         </PageWrapper>
     )
 }
 
-export default Resident;
+export default Product;

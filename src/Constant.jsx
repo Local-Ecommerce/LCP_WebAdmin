@@ -1,4 +1,6 @@
 export const MARKET_MANAGER = "MarketManager";
+export const MERCHANT = "Merchant";
+export const CUSTOMER = "Customer";
 export const ADMIN = "Admin";
 
 //poi status
@@ -36,3 +38,9 @@ export const DELETED_RESIDENT = 14002;
 export const REJECTED_RESIDENT = 14003;
 export const UNVERIFIED_RESIDENT = 14004;
 export const INACTIVE_RESIDENT = 14005;
+
+//product status
+export const VERIFIED_PRODUCT = 1001;
+export const DELETED_PRODUCT = 1002;
+export const REJECTED_PRODUCT = 1003;
+export const UNVERIFIED_PRODUCT = 1004;

@@ -1,24 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Badge } from '@mui/material';
-import { Edit, Delete, Notifications } from '@mui/icons-material';
 import { ToggleOff, ToggleOn } from '@mui/icons-material';
 import * as Constant from '../../Constant';
-
-const Button = styled.button`
-    padding: 3px;
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    overflow: hidden;
-    outline: none;
-    color: ${props => props.disabled === true ? "#E0E0E0" : "grey"};
-    vertical-align: middle;
-
-    &:focus {
-    outline: none;
-    }
-`;
+import { DateTime } from 'luxon';
 
 const TableRow = styled.tr`
     &:hover {
@@ -40,8 +24,7 @@ const TableData = styled.td`
 const StyledToggleOnIcon = styled(ToggleOn)`
     && {
         font-size: 40px;
-        color: ${props => props.theme.green};
-
+        color: ${props => props.disabled ? props.theme.disabled : props.theme.green};
         
         &:hover {
             opacity: 0.8;
@@ -52,53 +35,11 @@ const StyledToggleOnIcon = styled(ToggleOn)`
 const StyledToggleOffIcon = styled(ToggleOff)`
     && {
         font-size: 40px;
-        color: ${props => props.theme.red};
+        color: ${props => props.disabled ? props.theme.disabled : props.theme.red};
 
-        
         &:hover {
             opacity: 0.8;
         }
-    }
-`;
-
-const StyledNotificationIcon = styled(Notifications)`
-    padding: 8px;
-    border-radius: 20px;
-    color: grey;
-
-    &:hover {
-    background-color: ${props => props.theme.disabled};
-    }
-`;
-
-const StyledBadge = styled(Badge)`
-    && {    
-        color: #fff;
-
-        & .MuiBadge-badge {
-            top: 5px;
-            right: 10px;
-            background: #dc3545;
-            font-size: 0.7em;
-        }
-    }
-`;
-
-const StyledEditIcon = styled(Edit)`
-    padding: 8px;
-    border-radius: 20px;
-
-    &:hover {
-    background-color: ${props => props.theme.disabled};
-    }
-`;
-
-const StyledDeleteIcon = styled(Delete)`
-    padding: 8px;
-    border-radius: 20px;
-
-    &:hover {
-    background-color: ${props => props.disabled === true ? null : props.theme.disabled};
     }
 `;
 
@@ -113,13 +54,16 @@ const ResidentItem = ({ item, handleGetToggleStatusItem, index }) =>  {
             </tr>
         )
     }
+    
+    let phoneNumber = item.PhoneNumber || '';
+    phoneNumber = phoneNumber.slice(0, 4) + " " + phoneNumber.slice(4, 7) + " " + phoneNumber.slice(7);
 
     return (
         <TableRow>
             <TableData grey>{index + 1}</TableData>
             <TableData>{item.ResidentName}</TableData>
-            <TableData center>{item.DateOfBirth}</TableData>
-            <TableData center>{item.PhoneNumber}</TableData>
+            <TableData center>{DateTime.fromISO(item.DateOfBirth).toFormat('dd/MM/yyyy')}</TableData>
+            <TableData center>{phoneNumber}</TableData>
             <TableData center>
                 {
                     item.Type === 'MarketManager' ? 'Quản lý chung cư'
@@ -130,12 +74,19 @@ const ResidentItem = ({ item, handleGetToggleStatusItem, index }) =>  {
             </TableData>
             <TableData center>
                 {
-                    item.Status === Constant.VERIFIED_RESIDENT ?
-                    <StyledToggleOnIcon onClick={() => handleGetToggleStatusItem(item.ResidentId, item.ResidentName, true)} />
-                    : item.Status === Constant.INACTIVE_RESIDENT ?
-                    <StyledToggleOffIcon onClick={() => handleGetToggleStatusItem(item.ResidentId, item.ResidentName, false)} />
-                    : null
-                }    
+                    item.Type === 'MarketManager' ? 
+                    <StyledToggleOnIcon disabled />
+                    :
+                    <>
+                        {
+                            item.Status === Constant.VERIFIED_RESIDENT ?
+                            <StyledToggleOnIcon onClick={() => handleGetToggleStatusItem(item.ResidentId, item.ResidentName, true)} />
+                            : item.Status === Constant.INACTIVE_RESIDENT ?
+                            <StyledToggleOffIcon onClick={() => handleGetToggleStatusItem(item.ResidentId, item.ResidentName, false)} />
+                            : null
+                        }
+                    </>
+                }
             </TableData>
         </TableRow>
     )

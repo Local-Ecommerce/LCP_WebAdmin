@@ -1,4 +1,4 @@
-import { Home, Category, Store, FormatListBulleted, LocationOn, Article, Apartment, NoteAdd, AccountBox } from '@mui/icons-material';
+import { Home, Category, Store, FormatListBulleted, ShoppingCart, LocationOn, Article, Apartment, NoteAdd, AccountBox } from '@mui/icons-material';
 import * as Constant from '../../Constant';
 import styled from 'styled-components';
 
@@ -12,6 +12,9 @@ const StyledStoreIcon = styled(Store)`
     && { font-size: 18px; margin: 0px 15px 0px 10px; }
 `;
 const StyledMenuIcon = styled(FormatListBulleted)`
+    && { font-size: 18px; margin: 0px 15px 0px 10px; }
+`;
+const StyledProductIcon = styled(ShoppingCart)`
     && { font-size: 18px; margin: 0px 15px 0px 10px; }
 `;
 const StyledPoiIcon = styled(LocationOn)`
@@ -55,6 +58,12 @@ const SidebarData = [
         title: 'Bảng giá',
         path: '/menus',
         icon: <StyledMenuIcon />,
+    },
+    {
+        title: 'Sản phẩm',
+        path: '/products',
+        icon: <StyledProductIcon />,
+        role: Constant.MARKET_MANAGER
     },
     {
         title: 'Quản lí thông tin',

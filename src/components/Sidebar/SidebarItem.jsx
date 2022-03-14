@@ -9,7 +9,7 @@ const SidebarLink = styled(Link)`
     text-align: center;
     padding: 0px 20px;
     list-style: none;
-    height: 55px;
+    height: 50px;
     text-decoration: none;
     color: ${props => props.theme.dark};
     font-size: 0.9em;
@@ -33,7 +33,7 @@ const SidebarDiv = styled.div`
     color: rgba(0,0,0,0.3);
     font-size: 14px;
     font-weight: 600;
-    margin-top: 15px;
+    margin-top: 10px;
 `;
 
 const Row = styled.div`

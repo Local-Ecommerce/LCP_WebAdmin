@@ -197,7 +197,7 @@ const TableWrapper = styled.div`
 
 const Table = styled.table`
     table-layout: fixed;
-    border-collapse: collapse;
+    border-spacing: 0px;
     width: 100%;
     max-width: 100%;
     background-color: #fff;

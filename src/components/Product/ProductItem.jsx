@@ -1,14 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import Modal from 'react-modal';
-import { Edit, Delete } from '@mui/icons-material';
-
-const Image = styled.img`
-    vertical-align: middle;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-`;
+import { Close, Check } from '@mui/icons-material';
+import * as Constant from '../../Constant';
 
 const Button = styled.button`
     padding: 3px;
@@ -27,30 +20,40 @@ const Button = styled.button`
 const TableRow = styled.tr`
     &:hover {
         background-color: #F5F5F5;
+        cursor: pointer;
     }
 `;
 
 const TableData = styled.td`
-    padding: 1rem;
+    padding: 8px 16px;
     vertical-align: top;
     border-bottom: 1px solid #dee2e6;
     vertical-align: middle;
     text-align: ${props => props.center ? "center" : "left"};
-    overflow: hidden;
-    white-space: nowrap;
+    font-size: 15px;
+    color: ${props => props.grey ? props.theme.grey : null};
+
+    height: 51px;
+`;
+
+const Image = styled.img`
+    vertical-align: middle;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
 `;
 
 const Status = styled.span`
     display: inline-block;
-    padding: 4px 6px;
-    font-size: 0.8em;
+    padding: 3px 5px;
+    font-size: 11px;
     font-weight: 700;
     text-align: center;
     white-space: nowrap;
     vertical-align: baseline;
     border-radius: 20px;
-    color: #fff;
-    background-color: ${props => props.active === "verified" ? "#28a745"
+    color: ${props => props.active === "inactive" ? "grey" : "#fff"};
+    background-color: ${props => props.active === "active" ? "#28a745"
         :
         props.active === "unverified" ? "#FF8800"
             :
@@ -59,198 +62,98 @@ const Status = styled.span`
                 "#dc3545"};
 `;
 
-const ModalButton = styled.button`
-    min-width: 60px;
-    background: ${props => props.red ? "#dc3545" : "#17a2b8"};
-    color: white;
-    margin: 5px;
-    padding: 7px;
-    border: 2px solid ${props => props.red ? "#dc3545" : "#17a2b8"};
-    border-radius: 3px;
-    text-align: center;
-    float: right;
+const StyledCheckIcon = styled(Check)`
+    && {
+        padding: 8px;
+        border-radius: 20px;
+        color: ${props => props.theme.green};
+        opacity: 0.5;
+    }
 
     &:hover {
-    opacity: 0.8;
-    }
-
-    &:focus {
-    outline: 0;
+    opacity: 1;
+    background-color: ${props => props.theme.disabled};
     }
 `;
 
-const Title = styled.h1`
-    font-size: 30px;
-    margin: 15px;
-    color: #dc3545;
-    border-bottom: 1px solid #dee2e6;
-`;
+const StyledCancelIcon = styled(Close)`
+    && {
+        padding: 8px;
+        border-radius: 20px;
+        color: ${props => props.theme.red};
+        opacity: 0.5;
+    }
 
-const Row = styled.div`
-    margin: 15px;
-`;
-
-const Text = styled.p`
-    color: #000;
-    margin: 5px 0px 0px 0px;
-    font-size: 0.9em;
-    display: inline-block;
-`;
-
-const Name = styled(Text)`
-    font-weight: bold;
-`;
-
-const StyledEditIcon = styled(Edit)`
     &:hover {
-    color: #dc3545;
+    opacity: 1;
+    background-color: ${props => props.theme.disabled};
     }
 `;
 
-const StyledDeleteIcon = styled(Delete)`
-    &:hover {
-    color: ${props => props.disabled === true ? "#E0E0E0" : "#dc3545"};
-    }
-`;
-
-const Form = styled.form`
-    padding: 20px;
-    margin: 0 auto;
-    width: 50%;
-`;
-
-const Item = styled.div`
-    display: flex;
-    flex-direction: column;
-    margin-top: 10px;
-    margin-bottom: 20px;
-`;
-
-const ItemLabel = styled.label`
-    margin-bottom: 5px;
-    font-size: 14px;
-`;
-
-const ItemInput = styled.input`
-    border: none;
-    height: 30px;
-    border-bottom: 1px solid gray;
-    outline: none;
-
-    &: focus {
-    outline: none;
-    }
-`;
-
-const customStyles = {
-    content: {
-        top: '50%',
-        left: '50%',
-        right: '65%',
-        bottom: 'auto',
-        marginRight: '-50%',
-        transform: 'translate(-50%, -50%)',
-    },
-};
-
-const ProductItem = ({ item, handleDeleteItem }) => {
-    const [DeleteModal, changeDeleteModal] = React.useState(false);
-    const [EditModal, changeEditModal] = React.useState(false);
-    const toggleDeleteModal = () => changeDeleteModal(!DeleteModal);
-    const toggleEditModal = () => changeEditModal(!EditModal);
+const ProductItem = ({ item, handleGetRejectItem, handleGetApproveItem, handleGetDetailItem, index }) =>  {
 
     if (item === 0) {
         return (
-            <TableRow>
-                <TableData colSpan={6} >
+            <tr>
+                <TableData center colSpan={100} >
                     <h4>Không tìm thấy dữ liệu.</h4>
                 </TableData>
-            </TableRow>
+            </tr>
         )
     }
+
     let activeCheck = '';
     let activeLabel = '';
-    let disabledCheck = false;
     switch (item.Status) {
-        case 1004:
+        case Constant.VERIFIED_PRODUCT:
+            activeCheck = 'active';
+            activeLabel = 'Hoạt động';
+            break;
+        case Constant.REJECTED_PRODUCT:
             activeCheck = 'deleted';
-            activeLabel = 'Deleted';
-            disabledCheck = true;
+            activeLabel = 'Từ chối';
             break;
-        case 1005:
-            activeCheck = 'verified';
-            activeLabel = 'Verified';
-            break;
-        case 1006:
+        case Constant.UNVERIFIED_PRODUCT:
             activeCheck = 'unverified';
-            activeLabel = 'Unverified - Create';
-            break;
-        case 1007:
-            activeCheck = 'unverified';
-            activeLabel = 'Unverified - Update';
+            activeLabel = 'Chờ duyệt';
             break;
         default:
             activeCheck = 'inactive';
-            activeLabel = 'WRONG STATUS NUMBER';
+            activeLabel = 'WRONG STATUS';
             break;
     }
 
+    const handleSetApproveItem = (e) => {
+        e.stopPropagation();
+        handleGetApproveItem(item.ProductId, item.ProductName);
+    }
+
+    const handleSetRejectItem = (e) => {
+        e.stopPropagation();
+        handleGetRejectItem(item.ProductId, item.ProductName);
+    }
+
     return (
-        <TableRow>
-            <TableData center><Image src={item.Image} /></TableData>
+        <TableRow onClick={() => handleGetDetailItem(item)}>
+            <TableData grey>{index + 1}</TableData>
+            <TableData center> <Image src={item.Image} /> </TableData>
             <TableData>{item.ProductName}</TableData>
-            <TableData>{item.ProductType}</TableData>
-            <TableData center>{item.DefaultPrice}</TableData>
+            <TableData center>{item.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} đ</TableData>
+            <TableData center> <Status active={activeCheck}>{activeLabel}</Status> </TableData>
 
-            <TableData center>
-                <Status active={activeCheck}>{activeLabel}</Status>
-            </TableData>
+            {
+                item.Status === Constant.UNVERIFIED_PRODUCT ?
+                <TableData center>
+                    <Button onClick={handleSetApproveItem}>
+                        <StyledCheckIcon />
+                    </Button>
 
-            <TableData center>
-                <Button onClick={toggleEditModal}>
-                    <StyledEditIcon />
-                </Button>
-
-                <Button disabled={disabledCheck} onClick={toggleDeleteModal}>
-                    <StyledDeleteIcon disabled={disabledCheck} />
-                </Button>
-
-                <Modal isOpen={EditModal} onRequestClose={toggleEditModal} style={customStyles} ariaHideApp={false}>
-                    <Title>Chỉnh sửa sản phẩm</Title>
-
-                    <Form id="form">
-                    <Item>
-                        <ItemLabel>Tựa đề</ItemLabel>
-                        <ItemInput type="text" name="title" />
-                    </Item>
-
-                    <Item>
-                        <ItemLabel>Nội dung</ItemLabel>
-                        <ItemInput type="text" name="text" />
-                    </Item>
-
-                    <Item>
-                        <ItemLabel>ID Quản lý</ItemLabel>
-                        <ItemInput type="text" name="marketManagerId" />
-                    </Item>
-
-                    <Item>
-                        <ItemLabel>ID Chung cư</ItemLabel>
-                        <ItemInput type="text" name="apartmentId" />
-                    </Item>
-
-                    <ModalButton red onClick={() => { handleDeleteItem(item.ProductId); toggleEditModal()}}>Cập nhật</ModalButton>
-                </Form>
-
-                </Modal>
-
-                <Modal isOpen={DeleteModal} onRequestClose={toggleDeleteModal} style={customStyles} ariaHideApp={false}>
-                    <Title>Xác Nhận Xóa</Title>
-                    <Row><Text>Bạn có chắc chắn muốn xóa sản phẩm【<Name>{item.ProductName}</Name>】?</Text></Row>
-                    <ModalButton onClick={toggleDeleteModal}>Quay lại</ModalButton>
-                    <ModalButton red onClick={() => { handleDeleteItem(item.ProductId); toggleDeleteModal()}}>Xóa</ModalButton>
-                </Modal>
-            </TableData>
+                    <Button onClick={handleSetRejectItem}>
+                        <StyledCancelIcon />
+                    </Button>
+                </TableData>
+                : null
+            }
         </TableRow>
     )
 }
