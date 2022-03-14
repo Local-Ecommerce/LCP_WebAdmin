@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { Badge } from '@mui/material';
 import { Edit, Delete, Notifications } from '@mui/icons-material';
 import { ToggleOff, ToggleOn } from '@mui/icons-material';
-import { Link } from "react-router-dom";
 import * as Constant from '../../Constant';
 
 const Button = styled.button`
@@ -103,7 +102,7 @@ const StyledDeleteIcon = styled(Delete)`
     }
 `;
 
-const ResidentItem = ({ item, handleGetEditItem, handleGetToggleStatusItem, index }) =>  {
+const ResidentItem = ({ item, handleGetToggleStatusItem, index }) =>  {
 
     if (item === 0) {
         return (

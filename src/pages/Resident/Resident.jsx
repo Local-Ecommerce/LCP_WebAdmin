@@ -281,18 +281,12 @@ const Footer = styled.div`
 
 const Resident = () =>  {
     const user = JSON.parse(localStorage.getItem('USER'));
-    const [createModal, setCreateModal] = useState(false);
-    function toggleCreateModal() { setCreateModal(!createModal); }
-    const [deleteModal, setDeleteModal] = useState(false);
     const [editModal, setEditModal] = useState(false);
     function toggleEditModal() { setEditModal(!editModal); }
     const [toggleStatusModal, setToggleStatusModal] = useState(false);
     const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
 
-    const [input, setInput] = useState({ name: '', address: '' });
-    const [editItem, setEditItem] = useState({ id: '', name: '', address: '', status: '' });
     const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
-    const [error, setError] = useState({ nameError: '', addressError: '', editNameError: '', editAddressError: '' });
 
     const [loading, setLoading] = useState(false);
 
@@ -367,108 +361,6 @@ const Resident = () =>  {
         setPage(0);
     }
 
-    const handleToggleCreateModal = () => {
-        setInput({ name: '', address: '' });
-        setError(error => ({ ...error, nameError: '', addressError: '' }));
-        toggleCreateModal();
-    }
-
-    const handleAddItem = (event) => {
-        event.preventDefault();
-        if (validCheck()) {
-            const notification = toast.loading("Đang xử lí yêu cầu...");
-            const url = "Residents";
-            const addData = async () => {
-                api.post(url, {
-                    ResidentName: input.name,
-                    address: input.address
-                })
-                .then(function (res) {
-                    if (res.data.ResultMessage === "SUCCESS") {
-                        toast.update(notification, { render: "Cập nhật thành công!", type: "success", autoClose: 5000, isLoading: false });
-                        toggleCreateModal();
-                        setChange(!change);
-                    }
-                })
-                .catch(function (error) {
-                    console.log(error);
-                    toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
-                });
-            };
-            addData();
-        }
-    }
-
-    const validCheck = () => {
-        let check = false;
-        setError(error => ({ ...error, nameError: '', addressError: '' }));
-
-        if (input.name === null || input.name === '') {
-            setError(error => ({ ...error, nameError: 'Vui lòng nhập tên cư dân' }));
-            check = true;
-        }
-        if (input.address === null || input.address === '') {
-            setError(error => ({ ...error, addressError: 'Vui lòng nhập địa chỉ cư dân' }));
-            check = true;
-        }
-        if (check === true) {
-            return false;
-        }
-        return true;
-    }
-
-    const handleGetEditItem = (id, name, address, status) => {
-        setEditItem({ id: id, name: name, address: address, status: status });
-        toggleEditModal();
-    }
-
-    const handleEditItem = (event) => {
-        event.preventDefault();
-        if (validEditCheck()) {
-            const notification = toast.loading("Đang xử lí yêu cầu...");
-            const url = "Residents?id=" + editItem.id;
-            const editData = async () => {
-                api.put(url, {
-                    ResidentName: editItem.name,
-                    address: editItem.address,
-                    status: editItem.status
-                })
-                .then(function (res) {
-                    if (res.data.ResultMessage === "SUCCESS") {
-                        toast.update(notification, { render: "Cập nhật thành công!", type: "success", autoClose: 5000, isLoading: false });
-                        setChange(!change);
-                    }
-                })
-                .catch(function (error) {
-                    console.log(error);
-                    toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
-                });
-            }
-            editData();
-            toggleEditModal();
-        }
-    }
-
-    const validEditCheck = () => {
-        let check = false;
-        setError(error => ({ ...error, editNameError: '', editAddressError: '' }));
-
-        if (editItem.name === null || editItem.name === '') {
-            setError(error => ({ ...error, editNameError: 'Vui lòng nhập tên cư dân' }));
-            check = true;
-        }
-        if (editItem.address === null || editItem.address === '') {
-            setError(error => ({ ...error, editAddressError: 'Vui lòng nhập địa chỉ cư dân' }));
-            check = true;
-        }
-        if (!(editItem.status === Constant.VERIFIED_RESIDENT || editItem.status === Constant.INACTIVE_RESIDENT )) {
-            check = true;
-        }
-        if (check === true) {
-            return false;
-        }
-        return true;
-    }
 
     const handleGetToggleStatusItem = (id, name, status) => {
         setToggleStatusItem({ id: id, name: name, status: status });
@@ -554,7 +446,6 @@ const Resident = () =>  {
                         : 
                         <ResidentList 
                             currentItems={APIdata} 
-                            handleGetEditItem={handleGetEditItem} 
                             handleGetToggleStatusItem={handleGetToggleStatusItem}
                         />
                         }
