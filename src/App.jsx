@@ -17,6 +17,7 @@ import Menu from './pages/Menu/Menu';
 import Apartment from './pages/Apartment/Apartment';
 import Poi from './pages/Poi/Poi';
 import News from './pages/News/News';
+import Resident from './pages/Resident/Resident';
 import PageNotFound from './pages/PageNotFound';
 import ExtendSessionModal from './contexts/ExtendSessionModal';
 
@@ -138,6 +139,11 @@ const App = () => {
                     <Route 
                         exact path="/news" 
                         element={<RequireLoggedIn> <News /> </RequireLoggedIn>}
+                    />
+
+                    <Route 
+                        exact path="/residents" 
+                        element={<RequireLoggedIn> <Resident /> </RequireLoggedIn>}
                     />
                 </Route>
 

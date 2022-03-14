@@ -29,3 +29,10 @@ export const UNVERIFIED_MERCHANT_STORE = 6004;
 export const ACTIVE_MENU = 9001;
 export const DELETED_MENU = 9002;
 export const INACTIVE_MENU = 9005;
+
+//resident status
+export const VERIFIED_RESIDENT = 14001;
+export const DELETED_RESIDENT = 14002;
+export const REJECTED_RESIDENT = 14003;
+export const UNVERIFIED_RESIDENT = 14004;
+export const INACTIVE_RESIDENT = 14005;

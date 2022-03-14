@@ -1,4 +1,4 @@
-import { Home, Category, Store, FormatListBulleted, LocationOn, Article, Apartment, NoteAdd } from '@mui/icons-material';
+import { Home, Category, Store, FormatListBulleted, LocationOn, Article, Apartment, NoteAdd, AccountBox } from '@mui/icons-material';
 import * as Constant from '../../Constant';
 import styled from 'styled-components';
 
@@ -24,6 +24,9 @@ const StyledNewsIcon = styled(Article)`
     && { font-size: 18px; margin: 0px 15px 0px 10px; }
 `;
 const StyledApartmentIcon = styled(Apartment)`
+    && { font-size: 18px; margin: 0px 15px 0px 10px; }
+`;
+const StyledAccountIcon = styled(AccountBox)`
     && { font-size: 18px; margin: 0px 15px 0px 10px; }
 `;
 
@@ -61,6 +64,12 @@ const SidebarData = [
         path: '/apartments',
         icon: <StyledApartmentIcon />,
         role: Constant.ADMIN
+    },
+    {
+        title: 'Cư dân',
+        path: '/residents',
+        icon: <StyledAccountIcon />,
+        role: Constant.MARKET_MANAGER
     },
     {
         title: 'Tạo đơn',
