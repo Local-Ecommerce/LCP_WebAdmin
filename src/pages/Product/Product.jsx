@@ -260,7 +260,7 @@ const Product = () =>  {
 
     const [rejectItem, setRejectItem] = useState({ id: '', name: '' });
     const [approveItem, setApproveItem] = useState({ id: '', name: '' });
-    const [detailItem, setDetailItem] = useState({});
+    const [detailItem, setDetailItem] = useState({ id: '' });
 
     const [APIdata, setAPIdata] = useState([]);
     const [change, setChange] = useState(false);
@@ -391,8 +391,8 @@ const Product = () =>  {
         handleReject();
     }
 
-    const handleGetDetailItem = (item) => {
-        setDetailItem(item);
+    const handleGetDetailItem = (id) => {
+        setDetailItem({ id: id });
         toggleDetailModal();
     }
 
@@ -490,6 +490,14 @@ const Product = () =>  {
 
             <Footer />
 
+            <DetailModal 
+                display={detailModal}
+                toggle={toggleDetailModal}
+                detailItem={detailItem}
+                handleGetApproveItem={handleGetApproveItem}
+                handleGetRejectItem={handleGetRejectItem}
+            />
+            
             <ApproveModal
                 display={approveModal} 
                 toggle={toggleApproveModal} 
@@ -502,12 +510,6 @@ const Product = () =>  {
                 toggle={toggleRejectModal} 
                 rejectItem={rejectItem} 
                 handleRejectItem={handleRejectItem}
-            />
-
-            <DetailModal 
-                display={detailModal}
-                toggle={toggleDetailModal}
-                detailItem={detailItem}
             />
         </PageWrapper>
     )

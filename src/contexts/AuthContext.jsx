@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { api } from "../RequestMethod";
 import { auth } from "../firebase";
 import { useNavigate } from 'react-router-dom';
-import ExtendSessionModal from './ExtendSessionModal';
+import { io } from "socket.io-client";
 
 const AuthContext = React.createContext();
 
@@ -13,6 +13,18 @@ export function useAuth() {
 
 export function AuthProvider({ children }) {
     let navigate = useNavigate();
+    const [socket, setSocket] = useState(null);
+    
+    useEffect(() => { //http://localhost:5002
+        setSocket(io("1.52.23.214:5002", {
+            transports: ['websocket'],
+        }));
+
+        const user = JSON.parse(localStorage.getItem('USER'));
+        if (user) {
+            socket?.emit("newAccount", user.AccountId);
+        }
+    }, []);
 
     async function login(email, password) {
         await auth.signInWithEmailAndPassword(email, password);
@@ -27,8 +39,9 @@ export function AuthProvider({ children }) {
                     role: "R002"
                 })
                 .then(function (res) {
-                    if (res.data.ResultMessage === "SUCCESS" && (res.data.Data.RoleId === "R002" ||
-                            (res.data.Data.RoleId === "R001" && res.data.Data.Residents[0].Type === "MarketManager"))) {
+                    if (res.data.ResultMessage === "SUCCESS" && (res.data.Data.RoleId === "R002" 
+                    || (res.data.Data.RoleId === "R001" && res.data.Data.Residents[0].Type === "MarketManager"))) {
+                        socket?.emit("newAccount", res.data.Data.AccountId);
                         localStorage.setItem('USER', JSON.stringify(res.data.Data));
                         localStorage.setItem('ACCESS_TOKEN', res.data.Data.RefreshTokens[0].AccessToken);
                         localStorage.setItem('REFRESH_TOKEN', res.data.Data.RefreshTokens[0].Token);
@@ -89,6 +102,7 @@ export function AuthProvider({ children }) {
     }
 
     const value = {
+        socket,
         login,
         logout,
         extendSession

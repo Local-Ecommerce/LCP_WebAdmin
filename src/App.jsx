@@ -9,7 +9,7 @@ import { Route, Routes, Outlet, Navigate, useLocation } from "react-router-dom";
 
 import Home from './pages/Home';
 import Login from './pages/Login';
-import Header from './pages/Header';
+import Header from './pages/Header/Header';
 import Sidebar from './pages/Sidebar';
 import Category from './pages/Category/Category';
 import Store from './pages/Store/Store';
@@ -19,6 +19,7 @@ import Poi from './pages/Poi/Poi';
 import News from './pages/News/News';
 import Resident from './pages/Resident/Resident';
 import Product from './pages/Product/Product';
+import CreateOrder from './pages/CreateOrder/CreateOrder';
 import PageNotFound from './pages/PageNotFound';
 import ExtendSessionModal from './contexts/ExtendSessionModal';
 
@@ -135,6 +136,11 @@ const App = () => {
                     <Route 
                         exact path="/apartments" 
                         element={<RequireLoggedIn> <Apartment /> </RequireLoggedIn>}
+                    />
+
+                    <Route 
+                        exact path="/createOrder" 
+                        element={<RequireLoggedIn> <CreateOrder /> </RequireLoggedIn>}
                     />
 
                     <Route 

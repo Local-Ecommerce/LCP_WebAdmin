@@ -269,6 +269,7 @@ const Resident = () =>  {
     const [typing, setTyping] = useState('');
     const [search, setSearch] = useState('');
     const [status, setStatus] = useState(Constant.VERIFIED_RESIDENT);
+    const [type, setType] = useState(Constant.CUSTOMER);
 
     useEffect( () => {  //fetch api data
         setLoading(true);
@@ -278,7 +279,8 @@ const Resident = () =>  {
         "&sort=" + sort +
         "&apartmentid=" + user.Residents[0].ApartmentId +
         (search !== '' ? ("&search=" + search) : '') + 
-        (status !== '' ? ("&status=" + status) : '');
+        (status !== '' ? ("&status=" + status) : '') + 
+        (type !== '' ? ("&type=" + type) : '');
         const fetchData = () => {
             api.get(url)
             .then(function (res) {
@@ -293,7 +295,7 @@ const Resident = () =>  {
             });
         }
         fetchData();
-    }, [change, limit, page, sort, status, search]);
+    }, [change, limit, page, sort, status, search, type]);
 
     useEffect(() => {   //timer when search
         const timeOutId = setTimeout(() => setSearch(typing), 500);
@@ -329,6 +331,12 @@ const Resident = () =>  {
     function handleSetStatus(e) {
         const { value } = e.target;
         setStatus(value);
+        setPage(0);
+    }
+
+    function handleSetType(e) {
+        const { value } = e.target;
+        setType(value);
         setPage(0);
     }
 
@@ -384,7 +392,7 @@ const Resident = () =>  {
                     <Align>
                         <small>Kiểu cư dân:&nbsp;</small>
                         <DropdownWrapper>
-                            <Select value={status}>
+                            <Select value={type} onChange={handleSetType}>
                                 <option value=''>Toàn bộ</option>
                                 <option value={Constant.CUSTOMER}>Khách hàng</option>
                                 <option value={Constant.MERCHANT}>Thương nhân</option>

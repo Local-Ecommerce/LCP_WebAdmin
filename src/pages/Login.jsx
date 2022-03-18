@@ -96,10 +96,7 @@ const Login = () => {
     const { login } = useAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [input, setInput] = useState({
-        username: '',
-        password: ''
-    });
+    const [input, setInput] = useState({ username: '', password: '' });
 
     function handleChange(e) {
         const { name, value } = e.target;

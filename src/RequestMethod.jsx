@@ -1,5 +1,5 @@
 import axios from 'axios';
-const BASE_URL = "https://localcommercialplatform-api.azurewebsites.net/api/";
+const BASE_URL = "https://localhost:5001/api/";
 //"https://localhost:5001/api/";
 //"https://localcommercialplatform-api.azurewebsites.net/api/";
 
@@ -10,8 +10,7 @@ export const api = axios.create({
     }
 });
 
-api.interceptors.request.use(
-    config => {
+api.interceptors.request.use(function (config) {
         let token = localStorage.getItem('ACCESS_TOKEN');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
@@ -20,7 +19,3 @@ api.interceptors.request.use(
     },
     error => Promise.reject(error)
 );
-
-export const publicRequest = (url) => {
-    return BASE_URL + url;
-}

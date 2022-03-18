@@ -41,9 +41,10 @@ const ListWrapper = styled.div`
 
 const ButtonWrapper = styled.div`
     position: absolute;
+    display: inline-block;
     top: 50%;
     left: 100%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) ${props => props.toggle ? "rotate(-180deg)" : null};
     padding: 5px;
     border-radius: 5px;
     background-color: ${props => props.theme.white};
@@ -55,11 +56,11 @@ const StyledDoubleArrowIcon = styled(DoubleArrow)`
         color: ${props => props.theme.grey};
 
         &:hover {
-        opacity: 0.8;
+            opacity: 0.8;
         }
     
         &:active {
-        transform: translateY(1px);
+            transform: translateY(1px);
         }
     }
 `;
@@ -525,7 +526,7 @@ const Store = () => {
             user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager"
             ? null :
             <LeftWrapper toggle={displayApartment}>
-                <ButtonWrapper onClick={toggleDisplayApartment}>
+                <ButtonWrapper toggle={displayApartment} onClick={toggleDisplayApartment}>
                     <StyledDoubleArrowIcon />
                 </ButtonWrapper>
 

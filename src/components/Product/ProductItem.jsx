@@ -134,7 +134,7 @@ const ProductItem = ({ item, handleGetRejectItem, handleGetApproveItem, handleGe
     }
 
     return (
-        <TableRow onClick={() => handleGetDetailItem(item)}>
+        <TableRow onClick={() => handleGetDetailItem(item.ProductId)}>
             <TableData grey>{index + 1}</TableData>
             <TableData center> <Image src={item.Image} /> </TableData>
             <TableData>{item.ProductName}</TableData>
