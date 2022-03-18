@@ -325,7 +325,7 @@ const Header = () => {
             }
             fetchData();
         }
-    }, [user, change]);
+    }, [change]);
 
     let clickOutside = useClickOutside(() => {
         toggleUserDropdown(false);
