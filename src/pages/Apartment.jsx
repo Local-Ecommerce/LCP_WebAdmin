@@ -1,16 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import PoiList from '../../components/Poi/PoiList';
+import ApartmentList from '../components/Apartment/ApartmentList';
 import ReactPaginate from "react-paginate";
 import { AddCircle, Search } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
-import { api } from "../../RequestMethod";
+import { api } from "../RequestMethod";
 import { toast } from 'react-toastify';
-import CreateModal from './CreateModal';
-import EditModal from './EditModal';
-import ToggleStatusModal from './ToggleStatusModal';
-import * as Constant from '../../Constant';
+import CreateModal from '../components/Apartment/CreateModal';
+import EditModal from '../components/Apartment/EditModal';
+import ToggleStatusModal from '../components/Apartment/ToggleStatusModal';
+import * as Constant from '../Constant';
 
 const PageWrapper = styled.div`
     margin: 40px;
@@ -280,7 +280,7 @@ const Footer = styled.div`
     padding-top: 50px;
 `;
 
-const Poi = () =>  {
+const Apartment = () =>  {
     const [createModal, setCreateModal] = useState(false);
     function toggleCreateModal() { setCreateModal(!createModal); }
     const [editModal, setEditModal] = useState(false);
@@ -288,13 +288,12 @@ const Poi = () =>  {
     const [toggleStatusModal, setToggleStatusModal] = useState(false);
     const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
 
-    const [input, setInput] = useState({ title: '', text: '', apartment: '' });
-    const [editItem, setEditItem] = useState({ id: '', title: '', text: '', residentId: '', apartmentId: '', status: '' });
+    const [input, setInput] = useState({ name: '', address: '' });
+    const [editItem, setEditItem] = useState({ id: '', name: '', address: '', status: '' });
     const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
-    const [error, setError] = useState({ titleError: '', apartmentError: '', editError: '' });
+    const [error, setError] = useState({ nameError: '', addressError: '', editNameError: '', editAddressError: '' });
 
     const [loading, setLoading] = useState(false);
-    const user = JSON.parse(localStorage.getItem('USER'));
 
     const [APIdata, setAPIdata] = useState([]);
     const [change, setChange] = useState(false);
@@ -304,24 +303,15 @@ const Poi = () =>  {
     const [total, setTotal] = useState(0);
     const [lastPage, setLastPage] = useState(0);
 
-    const sort = '-releasedate';
+    const sort = '+apartmentname';
     const [typing, setTyping] = useState('');
     const [search, setSearch] = useState('');
-    const [status, setStatus] = useState(Constant.ACTIVE_POI);
+    const [status, setStatus] = useState(Constant.ACTIVE_APARTMENT);
 
     useEffect( () => {  //fetch api data
         setLoading(true);
-        let url = "pois"
-                + "?limit=" + limit 
-                + "&page=" + (page + 1) 
-                + "&sort=" + sort 
-                + "&include=apartment&include=resident"
-                + (search !== '' ? ("&search=" + search) : '') 
-                + (status !== '' ? ("&status=" + status) : '');
-
-        if (user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
-            url = url + "&apartmentid=" + user.Residents[0].ApartmentId;
-        }
+        let url = "apartments?limit=" + limit + "&page=" + (page + 1) + "&sort=" + sort
+        + (search !== '' ? ("&search=" + search) : '') + (status !== '' ? ("&status=" + status) : '');
         const fetchData = () => {
             api.get(url)
             .then(function (res) {
@@ -372,8 +362,8 @@ const Poi = () =>  {
     }
 
     const handleToggleCreateModal = () => {
-        setInput({ title: '', text: '', apartment: '' });
-        setError(error => ({ ...error, titleError: '' }));
+        setInput({ name: '', address: '' });
+        setError(error => ({ ...error, nameError: '', addressError: '' }));
         toggleCreateModal();
     }
 
@@ -381,13 +371,11 @@ const Poi = () =>  {
         event.preventDefault();
         if (validCheck()) {
             const notification = toast.loading("Đang xử lí yêu cầu...");
-            const url = "pois";
+            const url = "apartments";
             const addData = async () => {
                 api.post(url, {
-                    title: input.title,
-                    text: input.text,
-                    residentId: (user.Residents[0] ? user.Residents[0].ResidentId : null),
-                    apartmentId: (user.Residents[0] ? user.Residents[0].ApartmentId : (input.apartment.ApartmentId || null))
+                    apartmentName: input.name,
+                    address: input.address
                 })
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
@@ -407,17 +395,15 @@ const Poi = () =>  {
 
     const validCheck = () => {
         let check = false;
-        setError(error => ({ ...error, titleError: '', apartmentError: '' }));
+        setError(error => ({ ...error, nameError: '', addressError: '' }));
 
-        if (input.title === null || input.title === '') {
-            setError(error => ({ ...error, titleError: 'Vui lòng nhập tiêu đề' }));
+        if (input.name === null || input.name === '') {
+            setError(error => ({ ...error, nameError: 'Vui lòng nhập tên chung cư' }));
             check = true;
         }
-        if (user.RoleId === "R002") {
-            if (input.apartment === null || input.apartment === '') {
-                setError(error => ({ ...error, apartmentError: 'Vui lòng chọn chung cư' }));
-                check = true;
-            }
+        if (input.address === null || input.address === '') {
+            setError(error => ({ ...error, addressError: 'Vui lòng nhập địa chỉ chung cư' }));
+            check = true;
         }
         if (check === true) {
             return false;
@@ -425,8 +411,8 @@ const Poi = () =>  {
         return true;
     }
 
-    const handleGetEditItem = (id) => {
-        setEditItem(data => ({ ...data, id: id }));
+    const handleGetEditItem = (id, name, address, status) => {
+        setEditItem({ id: id, name: name, address: address, status: status });
         toggleEditModal();
     }
 
@@ -434,14 +420,12 @@ const Poi = () =>  {
         event.preventDefault();
         if (validEditCheck()) {
             const notification = toast.loading("Đang xử lí yêu cầu...");
-            const url = "pois?id=" + editItem.id;
+            const url = "apartments?id=" + editItem.id;
             const editData = async () => {
                 api.put(url, {
-                    title: editItem.title,
-                    text: editItem.text,
-                    status: editItem.status,
-                    residentId: editItem.residentId || null,
-                    apartmentId: editItem.apartmentId || null
+                    apartmentName: editItem.name,
+                    address: editItem.address,
+                    status: editItem.status
                 })
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
@@ -461,13 +445,17 @@ const Poi = () =>  {
 
     const validEditCheck = () => {
         let check = false;
-        setError(error => ({ ...error, editError: '' }));
+        setError(error => ({ ...error, editNameError: '', editAddressError: '' }));
 
-        if (editItem.title === null || editItem.title === '') {
-            setError(error => ({ ...error, editError: 'Vui lòng nhập tiêu đề' }));
+        if (editItem.name === null || editItem.name === '') {
+            setError(error => ({ ...error, editNameError: 'Vui lòng nhập tên chung cư' }));
             check = true;
         }
-        if (!(editItem.status === Constant.ACTIVE_POI || editItem.status === Constant.INACTIVE_POI)) {
+        if (editItem.address === null || editItem.address === '') {
+            setError(error => ({ ...error, editAddressError: 'Vui lòng nhập địa chỉ chung cư' }));
+            check = true;
+        }
+        if (!(editItem.status === Constant.ACTIVE_APARTMENT || editItem.status === Constant.INACTIVE_APARTMENT )) {
             check = true;
         }
         if (check === true) {
@@ -485,10 +473,10 @@ const Poi = () =>  {
         event.preventDefault();
         const notification = toast.loading("Đang xử lí yêu cầu...");
 
-        const url = "pois?id=" + toggleStatusItem.id;
+        const url = "apartments?id=" + toggleStatusItem.id;
         const editData = async () => {
             api.put(url, {
-                status: toggleStatusItem.status === true ? Constant.INACTIVE_POI : Constant.ACTIVE_POI
+                status: toggleStatusItem.status === true ? Constant.INACTIVE_APARTMENT : Constant.ACTIVE_APARTMENT
             })
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
@@ -508,19 +496,19 @@ const Poi = () =>  {
     return (
         <PageWrapper>
             <Row mb>
-                <Title>POIs</Title>
+                <Title>Chung cư</Title>
 
                 <AddButton onClick={handleToggleCreateModal}>
-                    <AddIcon /> Tạo POI mới
+                    <AddIcon /> Tạo chung cư mới
                 </AddButton>
             </Row>
-                    
+
             <TableWrapper>
                 <Row mb>
                     <Align>
                         <SearchBar>
                             <StyledSearchIcon />
-                            <Input id="search" placeholder="Tìm kiếm POI" onChange={handleSetSearch} />
+                            <Input id="search" placeholder="Tìm kiếm chung cư" onChange={handleSetSearch} />
                             <Button onClick={() => clearSearch()}>Clear</Button>
                         </SearchBar>
 
@@ -528,8 +516,8 @@ const Poi = () =>  {
                         <DropdownWrapper>
                             <Select value={status} onChange={handleSetStatus}>
                                 <option value=''>Toàn bộ</option>
-                                <option value={Constant.ACTIVE_POI}>Hoạt động</option>
-                                <option value={Constant.INACTIVE_POI}>Ngừng hoạt động</option>
+                                <option value={Constant.ACTIVE_APARTMENT}>Hoạt động</option>
+                                <option value={Constant.INACTIVE_APARTMENT}>Ngừng hoạt động</option>
                             </Select>
                         </DropdownWrapper>
                     </Align>
@@ -546,33 +534,27 @@ const Poi = () =>  {
                         </DropdownWrapper>              
                     </ItemsPerPageWrapper>  
                 </Row>
-                
+
                 <Table>
                     <TableHead>
                         <TableRow>
                             <TableHeader width="3%" grey>#</TableHeader>
-                            <TableHeader width="15%">Tựa đề</TableHeader>
-                            <TableHeader width="30%">Nội dung</TableHeader>
-                            { 
-                                user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager"
-                                ? null : <TableHeader width="10%" center>Chung cư</TableHeader> 
-                            }
-                            <TableHeader width="10%" center>Quản lý</TableHeader>
-                            <TableHeader width="10%" center>Ngày tạo</TableHeader>
+                            <TableHeader width="22%">Tên chung cư</TableHeader>
+                            <TableHeader width="50%">Địa chỉ</TableHeader>
                             <TableHeader width="10%" center>Trạng thái</TableHeader>
-                            <TableHeader width="12%" center>Chỉnh sửa</TableHeader>
+                            <TableHeader width="15%" center>Chỉnh sửa</TableHeader>
                         </TableRow>
                     </TableHead>
-                    
+
                     <TableBody>
                         {
                         loading ? 
                         <tr>
-                            <TableData center colSpan={8}> <CircularProgress /> </TableData>
+                            <TableData center colSpan={5}> <CircularProgress /> </TableData>
                         </tr>
                         : 
-                        <PoiList 
-                            currentItems={APIdata}
+                        <ApartmentList 
+                            currentItems={APIdata} 
                             handleGetEditItem={handleGetEditItem} 
                             handleGetToggleStatusItem={handleGetToggleStatusItem}
                         />
@@ -583,7 +565,7 @@ const Poi = () =>  {
                 <Row mt>
                     { 
                     loading || APIdata.length === 0 ? null
-                    : <small>Hiển thị {page * limit + 1} - {page * limit + APIdata.length} trong tổng số {total} pois.</small> 
+                    : <small>Hiển thị {page * limit + 1} - {page * limit + APIdata.length} trong tổng số {total} chung cư.</small> 
                     }
                     <StyledPaginateContainer>
                         <ReactPaginate
@@ -622,6 +604,13 @@ const Poi = () =>  {
                 handleAddItem={handleAddItem}
             />
 
+            <ToggleStatusModal
+                display={toggleStatusModal}
+                toggle={toggleToggleStatusModal}
+                toggleStatusItem={toggleStatusItem}
+                handleToggleStatus={handleToggleStatus}
+            />
+
             <EditModal 
                 display={editModal}
                 toggle={toggleEditModal}
@@ -630,15 +619,8 @@ const Poi = () =>  {
                 setEditItem={setEditItem}
                 handleEditItem={handleEditItem}
             />
-
-            <ToggleStatusModal
-                display={toggleStatusModal}
-                toggle={toggleToggleStatusModal}
-                toggleStatusItem={toggleStatusItem}
-                handleToggleStatus={handleToggleStatus}
-            />
         </PageWrapper>
     )
 }
 
-export default Poi;
+export default Apartment;

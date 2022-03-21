@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { api } from "../../RequestMethod";
+import { api } from "../RequestMethod";
 import { toast } from 'react-toastify';
 import { Search } from '@mui/icons-material';
 import { TextField as MuiTextField, Autocomplete, Box, FormControlLabel, Checkbox } from '@mui/material';
-import * as Constant from '../../Constant';
+import * as Constant from '../Constant';
 
 const PageWrapper = styled.div`
     width: 720px;

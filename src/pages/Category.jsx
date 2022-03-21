@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import CategoryList from '../../components/Category/CategoryList';
+import CategoryList from '../components/Category/CategoryList';
 import { AddCircle } from '@mui/icons-material';
-import { api } from "../../RequestMethod";
+import { api } from "../RequestMethod";
 import { Search } from '@mui/icons-material';
 import { toast } from 'react-toastify';
-import CreateModal from './CreateModal';
-import DeleteModal from './DeleteModal';
-import * as Constant from '../../Constant';
+import CreateModal from '../components/Category/CreateModal';
+import DeleteModal from '../components/Category/DeleteModal';
+import * as Constant from '../Constant';
 
 const PageWrapper = styled.div`
     margin: 50px 40px;

@@ -1,16 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import ApartmentList from '../../components/Apartment/ApartmentList';
+import NewsList from '../components/News/NewsList';
 import ReactPaginate from "react-paginate";
 import { AddCircle, Search } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
-import { api } from "../../RequestMethod";
+import { api } from "../RequestMethod";
 import { toast } from 'react-toastify';
-import CreateModal from './CreateModal';
-import EditModal from './EditModal';
-import ToggleStatusModal from './ToggleStatusModal';
-import * as Constant from '../../Constant';
+import CreateModal from '../components/News/CreateModal';
+import EditModal from '../components/News/EditModal';
+import ToggleStatusModal from '../components/News/ToggleStatusModal';
+import * as Constant from '../Constant';
 
 const PageWrapper = styled.div`
     margin: 40px;
@@ -280,21 +280,22 @@ const Footer = styled.div`
     padding-top: 50px;
 `;
 
-const Apartment = () =>  {
+const News = () =>  {
     const [createModal, setCreateModal] = useState(false);
     function toggleCreateModal() { setCreateModal(!createModal); }
-    const [deleteModal, setDeleteModal] = useState(false);
     const [editModal, setEditModal] = useState(false);
     function toggleEditModal() { setEditModal(!editModal); }
     const [toggleStatusModal, setToggleStatusModal] = useState(false);
     const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
 
-    const [input, setInput] = useState({ name: '', address: '' });
-    const [editItem, setEditItem] = useState({ id: '', name: '', address: '', status: '' });
+    const [input, setInput] = useState({ title: '', text: '', apartment: '' });
     const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
-    const [error, setError] = useState({ nameError: '', addressError: '', editNameError: '', editAddressError: '' });
+    const [editItem, setEditItem] = useState({ id: '', title: '', text: '', residentId: '', apartmentId: '', status: '' });
+    const [error, setError] = useState({ titleError: '', editError: '' });
 
     const [loading, setLoading] = useState(false);
+    const user = JSON.parse(localStorage.getItem('USER'));
+
 
     const [APIdata, setAPIdata] = useState([]);
     const [change, setChange] = useState(false);
@@ -304,15 +305,24 @@ const Apartment = () =>  {
     const [total, setTotal] = useState(0);
     const [lastPage, setLastPage] = useState(0);
 
-    const sort = '+apartmentname';
+    const sort = '-releasedate';
     const [typing, setTyping] = useState('');
     const [search, setSearch] = useState('');
-    const [status, setStatus] = useState(Constant.ACTIVE_APARTMENT);
+    const [status, setStatus] = useState(Constant.ACTIVE_NEWS);
 
     useEffect( () => {  //fetch api data
         setLoading(true);
-        let url = "apartments?limit=" + limit + "&page=" + (page + 1) + "&sort=" + sort
-        + (search !== '' ? ("&search=" + search) : '') + (status !== '' ? ("&status=" + status) : '');
+        let url = "news"
+                + "?limit=" + limit 
+                + "&page=" + (page + 1) 
+                + "&sort=" + sort 
+                + "&include=apartment&include=resident"
+                + (search !== '' ? ("&search=" + search) : '') 
+                + (status !== '' ? ("&status=" + status) : '');
+
+        if (user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
+            url = url + "&apartmentid=" + user.Residents[0].ApartmentId;
+        }
         const fetchData = () => {
             api.get(url)
             .then(function (res) {
@@ -363,8 +373,8 @@ const Apartment = () =>  {
     }
 
     const handleToggleCreateModal = () => {
-        setInput({ name: '', address: '' });
-        setError(error => ({ ...error, nameError: '', addressError: '' }));
+        setInput({ title: '', text: '', apartment: '' });
+        setError(error => ({ ...error, titleError: '' }));
         toggleCreateModal();
     }
 
@@ -372,11 +382,13 @@ const Apartment = () =>  {
         event.preventDefault();
         if (validCheck()) {
             const notification = toast.loading("Đang xử lí yêu cầu...");
-            const url = "apartments";
+            const url = "news";
             const addData = async () => {
                 api.post(url, {
-                    apartmentName: input.name,
-                    address: input.address
+                    title: input.title,
+                    text: input.text,
+                    residentId: (user.Residents[0] ? user.Residents[0].ResidentId : null),
+                    apartmentId: (user.Residents[0] ? user.Residents[0].ApartmentId : (input.apartment.ApartmentId || null))
                 })
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
@@ -396,14 +408,10 @@ const Apartment = () =>  {
 
     const validCheck = () => {
         let check = false;
-        setError(error => ({ ...error, nameError: '', addressError: '' }));
+        setError(error => ({ ...error, titleError: '' }));
 
-        if (input.name === null || input.name === '') {
-            setError(error => ({ ...error, nameError: 'Vui lòng nhập tên chung cư' }));
-            check = true;
-        }
-        if (input.address === null || input.address === '') {
-            setError(error => ({ ...error, addressError: 'Vui lòng nhập địa chỉ chung cư' }));
+        if (input.title === null || input.title === '') {
+            setError(error => ({ ...error, titleError: 'Vui lòng nhập tiêu đề' }));
             check = true;
         }
         if (check === true) {
@@ -412,8 +420,8 @@ const Apartment = () =>  {
         return true;
     }
 
-    const handleGetEditItem = (id, name, address, status) => {
-        setEditItem({ id: id, name: name, address: address, status: status });
+    const handleGetEditItem = (id) => {
+        setEditItem(data => ({ ...data, id: id }));
         toggleEditModal();
     }
 
@@ -421,12 +429,14 @@ const Apartment = () =>  {
         event.preventDefault();
         if (validEditCheck()) {
             const notification = toast.loading("Đang xử lí yêu cầu...");
-            const url = "apartments?id=" + editItem.id;
+            const url = "news?id=" + editItem.id;
             const editData = async () => {
                 api.put(url, {
-                    apartmentName: editItem.name,
-                    address: editItem.address,
-                    status: editItem.status
+                    title: editItem.title,
+                    text: editItem.text,
+                    status: editItem.status,
+                    residentId: editItem.residentId || null,
+                    apartmentId: editItem.apartmentId || null
                 })
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
@@ -446,17 +456,13 @@ const Apartment = () =>  {
 
     const validEditCheck = () => {
         let check = false;
-        setError(error => ({ ...error, editNameError: '', editAddressError: '' }));
+        setError(error => ({ ...error, editError: '' }));
 
-        if (editItem.name === null || editItem.name === '') {
-            setError(error => ({ ...error, editNameError: 'Vui lòng nhập tên chung cư' }));
+        if (editItem.title === null || editItem.title === '') {
+            setError(error => ({ ...error, editError: 'Vui lòng nhập tiêu đề' }));
             check = true;
         }
-        if (editItem.address === null || editItem.address === '') {
-            setError(error => ({ ...error, editAddressError: 'Vui lòng nhập địa chỉ chung cư' }));
-            check = true;
-        }
-        if (!(editItem.status === Constant.ACTIVE_APARTMENT || editItem.status === Constant.INACTIVE_APARTMENT )) {
+        if (!(editItem.status === Constant.ACTIVE_NEWS || editItem.status === Constant.INACTIVE_NEWS)) {
             check = true;
         }
         if (check === true) {
@@ -474,10 +480,10 @@ const Apartment = () =>  {
         event.preventDefault();
         const notification = toast.loading("Đang xử lí yêu cầu...");
 
-        const url = "apartments?id=" + toggleStatusItem.id;
+        const url = "news?id=" + toggleStatusItem.id;
         const editData = async () => {
             api.put(url, {
-                status: toggleStatusItem.status === true ? Constant.INACTIVE_APARTMENT : Constant.ACTIVE_APARTMENT
+                status: toggleStatusItem.status === true ? Constant.INACTIVE_NEWS : Constant.ACTIVE_NEWS
             })
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
@@ -497,19 +503,19 @@ const Apartment = () =>  {
     return (
         <PageWrapper>
             <Row mb>
-                <Title>Chung cư</Title>
+                <Title>News</Title>
 
                 <AddButton onClick={handleToggleCreateModal}>
-                    <AddIcon /> Tạo chung cư mới
+                    <AddIcon /> Tạo tin mới
                 </AddButton>
             </Row>
 
             <TableWrapper>
-                <Row mb>
+            <Row mb>
                     <Align>
                         <SearchBar>
                             <StyledSearchIcon />
-                            <Input id="search" placeholder="Tìm kiếm chung cư" onChange={handleSetSearch} />
+                            <Input id="search" placeholder="Tìm kiếm tin tức" onChange={handleSetSearch} />
                             <Button onClick={() => clearSearch()}>Clear</Button>
                         </SearchBar>
 
@@ -517,8 +523,8 @@ const Apartment = () =>  {
                         <DropdownWrapper>
                             <Select value={status} onChange={handleSetStatus}>
                                 <option value=''>Toàn bộ</option>
-                                <option value={Constant.ACTIVE_APARTMENT}>Hoạt động</option>
-                                <option value={Constant.INACTIVE_APARTMENT}>Ngừng hoạt động</option>
+                                <option value={Constant.ACTIVE_NEWS}>Hoạt động</option>
+                                <option value={Constant.INACTIVE_NEWS}>Ngừng hoạt động</option>
                             </Select>
                         </DropdownWrapper>
                     </Align>
@@ -540,10 +546,16 @@ const Apartment = () =>  {
                     <TableHead>
                         <TableRow>
                             <TableHeader width="3%" grey>#</TableHeader>
-                            <TableHeader width="22%">Tên chung cư</TableHeader>
-                            <TableHeader width="50%">Địa chỉ</TableHeader>
+                            <TableHeader width="15%">Tựa đề</TableHeader>
+                            <TableHeader width="30%">Nội dung</TableHeader>
+                            { 
+                                user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager"
+                                ? null : <TableHeader width="10%" center>Chung cư</TableHeader> 
+                            }
+                            <TableHeader width="10%" center>Quản lý</TableHeader>
+                            <TableHeader width="10%" center>Ngày tạo</TableHeader>
                             <TableHeader width="10%" center>Trạng thái</TableHeader>
-                            <TableHeader width="15%" center>Chỉnh sửa</TableHeader>
+                            <TableHeader width="12%" center>Chỉnh sửa</TableHeader>
                         </TableRow>
                     </TableHead>
 
@@ -551,10 +563,10 @@ const Apartment = () =>  {
                         {
                         loading ? 
                         <tr>
-                            <TableData center colSpan={5}> <CircularProgress /> </TableData>
+                            <TableData center colSpan={8}> <CircularProgress /> </TableData>
                         </tr>
                         : 
-                        <ApartmentList 
+                        <NewsList 
                             currentItems={APIdata} 
                             handleGetEditItem={handleGetEditItem} 
                             handleGetToggleStatusItem={handleGetToggleStatusItem}
@@ -566,8 +578,9 @@ const Apartment = () =>  {
                 <Row mt>
                     { 
                     loading || APIdata.length === 0 ? null
-                    : <small>Hiển thị {page * limit + 1} - {page * limit + APIdata.length} trong tổng số {total} chung cư.</small> 
+                    : <small>Hiển thị {page * limit + 1} - {page * limit + APIdata.length} trong tổng số {total} tin tức.</small> 
                     }
+
                     <StyledPaginateContainer>
                         <ReactPaginate
                             nextLabel="Next >"
@@ -624,4 +637,4 @@ const Apartment = () =>  {
     )
 }
 
-export default Apartment;
+export default News;

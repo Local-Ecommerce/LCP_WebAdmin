@@ -1,16 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import NewsList from '../../components/News/NewsList';
+import PoiList from '../components/Poi/PoiList';
 import ReactPaginate from "react-paginate";
 import { AddCircle, Search } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
-import { api } from "../../RequestMethod";
+import { api } from "../RequestMethod";
 import { toast } from 'react-toastify';
-import CreateModal from './CreateModal';
-import EditModal from './EditModal';
-import ToggleStatusModal from './ToggleStatusModal';
-import * as Constant from '../../Constant';
+import CreateModal from '../components/Poi/CreateModal';
+import EditModal from '../components/Poi/EditModal';
+import ToggleStatusModal from '../components/Poi/ToggleStatusModal';
+import * as Constant from '../Constant';
 
 const PageWrapper = styled.div`
     margin: 40px;
@@ -280,7 +280,7 @@ const Footer = styled.div`
     padding-top: 50px;
 `;
 
-const News = () =>  {
+const Poi = () =>  {
     const [createModal, setCreateModal] = useState(false);
     function toggleCreateModal() { setCreateModal(!createModal); }
     const [editModal, setEditModal] = useState(false);
@@ -289,13 +289,12 @@ const News = () =>  {
     const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
 
     const [input, setInput] = useState({ title: '', text: '', apartment: '' });
-    const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
     const [editItem, setEditItem] = useState({ id: '', title: '', text: '', residentId: '', apartmentId: '', status: '' });
-    const [error, setError] = useState({ titleError: '', editError: '' });
+    const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
+    const [error, setError] = useState({ titleError: '', apartmentError: '', editError: '' });
 
     const [loading, setLoading] = useState(false);
     const user = JSON.parse(localStorage.getItem('USER'));
-
 
     const [APIdata, setAPIdata] = useState([]);
     const [change, setChange] = useState(false);
@@ -308,11 +307,11 @@ const News = () =>  {
     const sort = '-releasedate';
     const [typing, setTyping] = useState('');
     const [search, setSearch] = useState('');
-    const [status, setStatus] = useState(Constant.ACTIVE_NEWS);
+    const [status, setStatus] = useState(Constant.ACTIVE_POI);
 
     useEffect( () => {  //fetch api data
         setLoading(true);
-        let url = "news"
+        let url = "pois"
                 + "?limit=" + limit 
                 + "&page=" + (page + 1) 
                 + "&sort=" + sort 
@@ -382,7 +381,7 @@ const News = () =>  {
         event.preventDefault();
         if (validCheck()) {
             const notification = toast.loading("Đang xử lí yêu cầu...");
-            const url = "news";
+            const url = "pois";
             const addData = async () => {
                 api.post(url, {
                     title: input.title,
@@ -408,11 +407,17 @@ const News = () =>  {
 
     const validCheck = () => {
         let check = false;
-        setError(error => ({ ...error, titleError: '' }));
+        setError(error => ({ ...error, titleError: '', apartmentError: '' }));
 
         if (input.title === null || input.title === '') {
             setError(error => ({ ...error, titleError: 'Vui lòng nhập tiêu đề' }));
             check = true;
+        }
+        if (user.RoleId === "R002") {
+            if (input.apartment === null || input.apartment === '') {
+                setError(error => ({ ...error, apartmentError: 'Vui lòng chọn chung cư' }));
+                check = true;
+            }
         }
         if (check === true) {
             return false;
@@ -429,7 +434,7 @@ const News = () =>  {
         event.preventDefault();
         if (validEditCheck()) {
             const notification = toast.loading("Đang xử lí yêu cầu...");
-            const url = "news?id=" + editItem.id;
+            const url = "pois?id=" + editItem.id;
             const editData = async () => {
                 api.put(url, {
                     title: editItem.title,
@@ -462,7 +467,7 @@ const News = () =>  {
             setError(error => ({ ...error, editError: 'Vui lòng nhập tiêu đề' }));
             check = true;
         }
-        if (!(editItem.status === Constant.ACTIVE_NEWS || editItem.status === Constant.INACTIVE_NEWS)) {
+        if (!(editItem.status === Constant.ACTIVE_POI || editItem.status === Constant.INACTIVE_POI)) {
             check = true;
         }
         if (check === true) {
@@ -480,10 +485,10 @@ const News = () =>  {
         event.preventDefault();
         const notification = toast.loading("Đang xử lí yêu cầu...");
 
-        const url = "news?id=" + toggleStatusItem.id;
+        const url = "pois?id=" + toggleStatusItem.id;
         const editData = async () => {
             api.put(url, {
-                status: toggleStatusItem.status === true ? Constant.INACTIVE_NEWS : Constant.ACTIVE_NEWS
+                status: toggleStatusItem.status === true ? Constant.INACTIVE_POI : Constant.ACTIVE_POI
             })
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
@@ -503,19 +508,19 @@ const News = () =>  {
     return (
         <PageWrapper>
             <Row mb>
-                <Title>News</Title>
+                <Title>POIs</Title>
 
                 <AddButton onClick={handleToggleCreateModal}>
-                    <AddIcon /> Tạo tin mới
+                    <AddIcon /> Tạo POI mới
                 </AddButton>
             </Row>
-
+                    
             <TableWrapper>
-            <Row mb>
+                <Row mb>
                     <Align>
                         <SearchBar>
                             <StyledSearchIcon />
-                            <Input id="search" placeholder="Tìm kiếm tin tức" onChange={handleSetSearch} />
+                            <Input id="search" placeholder="Tìm kiếm POI" onChange={handleSetSearch} />
                             <Button onClick={() => clearSearch()}>Clear</Button>
                         </SearchBar>
 
@@ -523,8 +528,8 @@ const News = () =>  {
                         <DropdownWrapper>
                             <Select value={status} onChange={handleSetStatus}>
                                 <option value=''>Toàn bộ</option>
-                                <option value={Constant.ACTIVE_NEWS}>Hoạt động</option>
-                                <option value={Constant.INACTIVE_NEWS}>Ngừng hoạt động</option>
+                                <option value={Constant.ACTIVE_POI}>Hoạt động</option>
+                                <option value={Constant.INACTIVE_POI}>Ngừng hoạt động</option>
                             </Select>
                         </DropdownWrapper>
                     </Align>
@@ -541,7 +546,7 @@ const News = () =>  {
                         </DropdownWrapper>              
                     </ItemsPerPageWrapper>  
                 </Row>
-
+                
                 <Table>
                     <TableHead>
                         <TableRow>
@@ -558,7 +563,7 @@ const News = () =>  {
                             <TableHeader width="12%" center>Chỉnh sửa</TableHeader>
                         </TableRow>
                     </TableHead>
-
+                    
                     <TableBody>
                         {
                         loading ? 
@@ -566,8 +571,8 @@ const News = () =>  {
                             <TableData center colSpan={8}> <CircularProgress /> </TableData>
                         </tr>
                         : 
-                        <NewsList 
-                            currentItems={APIdata} 
+                        <PoiList 
+                            currentItems={APIdata}
                             handleGetEditItem={handleGetEditItem} 
                             handleGetToggleStatusItem={handleGetToggleStatusItem}
                         />
@@ -578,9 +583,8 @@ const News = () =>  {
                 <Row mt>
                     { 
                     loading || APIdata.length === 0 ? null
-                    : <small>Hiển thị {page * limit + 1} - {page * limit + APIdata.length} trong tổng số {total} tin tức.</small> 
+                    : <small>Hiển thị {page * limit + 1} - {page * limit + APIdata.length} trong tổng số {total} pois.</small> 
                     }
-
                     <StyledPaginateContainer>
                         <ReactPaginate
                             nextLabel="Next >"
@@ -618,13 +622,6 @@ const News = () =>  {
                 handleAddItem={handleAddItem}
             />
 
-            <ToggleStatusModal
-                display={toggleStatusModal}
-                toggle={toggleToggleStatusModal}
-                toggleStatusItem={toggleStatusItem}
-                handleToggleStatus={handleToggleStatus}
-            />
-
             <EditModal 
                 display={editModal}
                 toggle={toggleEditModal}
@@ -633,8 +630,15 @@ const News = () =>  {
                 setEditItem={setEditItem}
                 handleEditItem={handleEditItem}
             />
+
+            <ToggleStatusModal
+                display={toggleStatusModal}
+                toggle={toggleToggleStatusModal}
+                toggleStatusItem={toggleStatusItem}
+                handleToggleStatus={handleToggleStatus}
+            />
         </PageWrapper>
     )
 }
 
-export default News;
+export default Poi;

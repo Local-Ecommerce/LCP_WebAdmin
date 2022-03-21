@@ -1,13 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState, useRef } from 'react';
 import styled from 'styled-components';
-import MenuList from '../../components/Menu/MenuList';
+import MenuList from '../components/Menu/MenuList';
 import ReactPaginate from "react-paginate";
 import { Search, ArrowRight, FormatListBulleted, DoubleArrow } from '@mui/icons-material';
 import { CircularProgress, Checkbox } from '@mui/material';
-import { api } from "../../RequestMethod";
+import { api } from "../RequestMethod";
 import { List, AutoSizer } from 'react-virtualized';
-import * as Constant from '../../Constant';
+import * as Constant from '../Constant';
 
 const PageWrapper = styled.div`
     margin: 50px 40px 50px ${props => props.toggle ? "370px" : "45px"};

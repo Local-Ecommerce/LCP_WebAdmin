@@ -4,17 +4,17 @@ import { Link } from 'react-router-dom';
 import { Notifications, Search, AccountCircleOutlined, HelpOutlineOutlined, Logout } from '@mui/icons-material';
 import { Badge, CircularProgress } from '@mui/material';
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
-import { api } from "../../RequestMethod";
+import { useAuth } from "../contexts/AuthContext";
+import { api } from "../RequestMethod";
 import { toast } from 'react-toastify';
-import useClickOutside from "../../contexts/useClickOutside";
-import NotificationList from '../../components/Header/NotificationList';
-import RejectModal from './RejectModal';
-import ApproveModal from './ApproveModal';
-import DetailModal from './DetailModal';
-import * as Constant from '../../Constant';
+import useClickOutside from "../contexts/useClickOutside";
+import NotificationList from '../components/Header/NotificationList';
+import RejectModal from '../components/Header/RejectModal';
+import ApproveModal from '../components/Header/ApproveModal';
+import DetailModal from '../components/Header/DetailModal';
+import * as Constant from '../Constant';
 
-import { db } from "../../firebase";
+import { db } from "../firebase";
 import { set, push, ref, remove, update, get, child, onValue } from "firebase/database";
 
 const Wrapper = styled.div`
