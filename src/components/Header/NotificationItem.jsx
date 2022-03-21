@@ -4,10 +4,9 @@ import { DateTime } from 'luxon';
 
 const NotificationWrapper = styled.a`
     height: 50px;
-    padding: 10px;
+    padding: 8px 20px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
     border-bottom: 1px solid #dee2e6;
     text-decoration: none;
     cursor: pointer;
@@ -37,7 +36,6 @@ const Image = styled.img`
 `;
 
 const TextWrapper = styled.div`
-    flex: 8;
 `;
 
 const TopText = styled.span`

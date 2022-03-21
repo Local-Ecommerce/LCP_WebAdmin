@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from "styled-components";
 import { Link } from 'react-router-dom';
 import { Notifications, Search, AccountCircleOutlined, HelpOutlineOutlined, Logout } from '@mui/icons-material';
-import { Badge } from '@mui/material';
+import { Badge, CircularProgress } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { api } from "../../RequestMethod";
@@ -13,6 +13,9 @@ import RejectModal from './RejectModal';
 import ApproveModal from './ApproveModal';
 import DetailModal from './DetailModal';
 import * as Constant from '../../Constant';
+
+import { db } from "../../firebase";
+import { set, push, ref, remove, update, get, child, onValue } from "firebase/database";
 
 const Wrapper = styled.div`
     display: flex;
@@ -156,7 +159,7 @@ const NotificationDropdownWrapper = styled.div`
     right: 50px;
     margin: 0px 20px;
     background: ${props => props.theme.white};
-    width: 350px;
+    width: 400px;
     box-sizing: 0 5px 25px rgba(0,0,0,0.1);
     border-radius: 15px;
     border: 1px solid rgba(0,0,0,0.1);
@@ -175,10 +178,25 @@ const NotificationDropdownWrapper = styled.div`
     }
 `;
 
+const NotificationWrapper = styled.div`
+    max-height: 60vh;
+    overflow: auto;
+    overflow-x: hidden;
+`;
+
+const NotificationLinkWrapper = styled.div`
+    width: 100%;
+    text-align: center;
+    padding: 15px 0px;
+    border-top: 1px solid rgba(0,0,0,0.1);
+`;
+
 const NotificationLink = styled(Link)`
     color: ${props => props.theme.blue};
     font-size: 14px;
     text-decoration: none;
+    font-weight: 500;
+    line-height: 1.2em;
 `;
 
 const UserDropdownWrapper = styled.div`
@@ -282,6 +300,18 @@ const StyledLogoutIcon = styled(Logout)`
     }
 `;
 
+const LoadingWrapper = styled.div`
+    height: auto;
+    margin: 0 auto;
+    text-align: center;
+`;
+
+const StyledLoadingIcon = styled(CircularProgress)`
+    && {
+        margin: 50px;
+    }
+`;
+
 const Header = () => {
     const { logout } = useAuth();
     let navigate = useNavigate();
@@ -294,8 +324,8 @@ const Header = () => {
     const [detailModal, setDetailModal] = useState(false);
     function toggleDetailModal() { setDetailModal(!detailModal); }
 
-    const [rejectItem, setRejectItem] = useState({ id: '', name: '' });
-    const [approveItem, setApproveItem] = useState({ id: '', name: '' });
+    const [rejectItem, setRejectItem] = useState({id : '', name: '', image: '', residentId: ''});
+    const [approveItem, setApproveItem] = useState({id : '', name: '', image: '', residentId: ''});
     const [detailItem, setDetailItem] = useState({ id: '' });
 
     const [activeTab, setActiveTab] = useState(1);
@@ -306,11 +336,13 @@ const Header = () => {
     const [stores, setStores] = useState([]);
     const [residents, setResidents] = useState([]);
     const [change, setChange] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect( () => {  //fetch api data
         if (user && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
+            setLoading(true);
             let url = "products" 
-            + "?limit=10"
+            + "?limit=100"
             + "&sort=+updateddate"
             + "&apartmentid=" + user.Residents[0].ApartmentId
             + "&status=" + Constant.UNVERIFIED_PRODUCT;
@@ -318,9 +350,11 @@ const Header = () => {
                 api.get(url)
                 .then(function (res) {
                     setProducts(res.data.Data.List);
+                    setLoading(false);
                 })
                 .catch(function (error) {
                     console.log(error);
+                    setLoading(false);
                 });
             }
             fetchData();
@@ -328,8 +362,12 @@ const Header = () => {
     }, [change]);
 
     let clickOutside = useClickOutside(() => {
-        toggleUserDropdown(false);
-        toggleNotificationDropdown(false);
+        if (notificationDropdown && !detailModal) {
+            toggleNotificationDropdown(false);
+        }
+        if (userDropdown) {
+            toggleUserDropdown(false);
+        }
     });
 
     async function handleLogout() {
@@ -339,8 +377,27 @@ const Header = () => {
         } catch {}
     }
 
-    const handleGetApproveItem = (id, name) => {
-        setApproveItem({ id: id, name: name });
+    const handleSendNotification = (item, type, reason) => {
+        console.log(reason)
+        push(ref(db, `Notification/` + item.residentId), {
+            createdDate: Date.now(),
+            data: {
+                image: item.image ? item.image : '',
+                name: item.name,
+                id: item.id,
+                reason: reason ? reason : ''
+            },
+            read: 0,
+            receiverId: item.residentId,
+            senderId: user.Residents[0].ResidentId,
+            type: type
+        }).then(
+            console.log("ok")
+        );
+    }
+
+    const handleGetApproveItem = (id, name, image, residentId) => {
+        setApproveItem({ id : id, name: name, image: image, residentId: residentId });
         toggleApproveModal();
     }
 
@@ -349,11 +406,13 @@ const Header = () => {
         const notification = toast.loading("Đang xử lí yêu cầu...");
 
         const handleApprove = async () => {
-            api.put("products/approval?id=" + rejectItem.id)
+            api.put("products/approval?id=" + approveItem.id)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
                     setChange(!change);
                     toggleApproveModal();
+                    toggleDetailModal();
+                    handleSendNotification(approveItem, '001');
                     toast.update(notification, { render: "Duyệt sản phẩm thành công!", type: "success", autoClose: 5000, isLoading: false });
                 }
             })
@@ -365,12 +424,12 @@ const Header = () => {
         handleApprove();
     }
 
-    const handleGetRejectItem = (id, name) => {
-        setRejectItem({ id: id, name: name });
+    const handleGetRejectItem = (id, name, image, residentId) => {
+        setRejectItem({ id : id, name: name, image: image, residentId: residentId });
         toggleRejectModal();
     }
 
-    const handleRejectItem = (event) => {
+    const handleRejectItem = (event, reason) => {
         event.preventDefault();
         const notification = toast.loading("Đang xử lí yêu cầu...");
 
@@ -380,6 +439,8 @@ const Header = () => {
                 if (res.data.ResultMessage === "SUCCESS") {
                     setChange(!change);
                     toggleRejectModal();
+                    toggleDetailModal();
+                    handleSendNotification(rejectItem, '002', reason);
                     toast.update(notification, { render: "Từ chối sản phẩm thành công!", type: "success", autoClose: 5000, isLoading: false });
                 }
             })
@@ -450,40 +511,58 @@ const Header = () => {
                     </Row>
 
                     {
-                        activeTab === 1 && products.length ?
+                        loading ?
+                        <LoadingWrapper>
+                            <StyledLoadingIcon /> 
+                        </LoadingWrapper>
+                        :
                         <>
-                            <NotificationList 
-                                currentItems={products}
-                                handleGetDetailItem={handleGetDetailItem} 
-                            />
-                            <Name>
-                                <NotificationLink to={"/products"}>Xem tất cả sản phẩm chờ duyệt</NotificationLink> 
-                            </Name>
-                        </>
-                        : activeTab === 2 && stores.length ?
-                        <>
-                            <NotificationList 
-                                currentItems={stores} 
-                                handleGetDetailItem={handleGetDetailItem}
-                            />
-                            <Name>
-                                <NotificationLink to={"/stores"}>Xem tất cả cửa hàng chờ duyệt</NotificationLink> 
-                            </Name>
-                        </>
-                        : activeTab === 3 && residents.length ?
-                        <>
-                            <NotificationList 
-                                currentItems={residents} 
-                                handleGetDetailItem={handleGetDetailItem}
-                            />
-                            <Name>
-                                <NotificationLink to={"/residents"}>Xem tất cả cư dân chờ duyệt</NotificationLink> 
-                            </Name>
-                        </>
-                        : 
-                        <NoNotificationWrapper>
-                            <StyledNoNotificationIcon />
-                        </NoNotificationWrapper>
+                            {
+                                activeTab === 1 && products.length ?
+                                <>
+                                    <NotificationWrapper>
+                                        <NotificationList 
+                                            currentItems={products} 
+                                            handleGetDetailItem={handleGetDetailItem}
+                                        />
+                                    </NotificationWrapper>
+
+                                    <NotificationLinkWrapper>
+                                        <NotificationLink to={"/products"}>Xem tất cả sản phẩm chờ duyệt</NotificationLink> 
+                                    </NotificationLinkWrapper>
+                                </>
+                                : activeTab === 2 && stores.length ?
+                                <>
+                                    <NotificationWrapper>
+                                        <NotificationList 
+                                            currentItems={stores} 
+                                            handleGetDetailItem={handleGetDetailItem}
+                                        />
+                                    </NotificationWrapper>
+
+                                    <NotificationLinkWrapper>
+                                        <NotificationLink to={"/stores"}>Xem tất cả cửa hàng chờ duyệt</NotificationLink> 
+                                    </NotificationLinkWrapper>
+                                </>
+                                : activeTab === 3 && residents.length ?
+                                <>
+                                    <NotificationWrapper>
+                                        <NotificationList 
+                                            currentItems={residents} 
+                                            handleGetDetailItem={handleGetDetailItem}
+                                        />
+                                    </NotificationWrapper>
+
+                                    <NotificationLinkWrapper>
+                                        <NotificationLink to={"/residents"}>Xem tất cả cư dân chờ duyệt</NotificationLink> 
+                                    </NotificationLinkWrapper>
+                                </>
+                                : 
+                                <NoNotificationWrapper>
+                                    <StyledNoNotificationIcon />
+                                </NoNotificationWrapper>
+                            }
+                        </> 
                     }
                 </NotificationDropdownWrapper>
                 : null

@@ -2,6 +2,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { api } from "../RequestMethod";
 import { auth } from "../firebase";
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 import { useNavigate } from 'react-router-dom';
 import { io } from "socket.io-client";
 
@@ -26,8 +27,8 @@ export function AuthProvider({ children }) {
     }, []);
 
     async function login(email, password) {
-        await auth.signInWithEmailAndPassword(email, password);
-        auth.onAuthStateChanged(async user => {
+        await signInWithEmailAndPassword(auth, email, password);
+        onAuthStateChanged(auth, async user => {
             if (user) {
                 const firebaseToken = await user.getIdToken(true);
                 console.log("Firebase Token: " + firebaseToken);
@@ -57,7 +58,7 @@ export function AuthProvider({ children }) {
     };
 
     async function logout() {
-        await auth.signOut();
+        await signOut(auth);
         const accessToken = localStorage.getItem("ACCESS_TOKEN");
         
         if (accessToken !== null) {

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
 import { api } from "../../RequestMethod";
-import { HideImage, Close, Check } from '@mui/icons-material';
+import { Close, Check } from '@mui/icons-material';
 import * as Constant from '../../Constant';
 
 const ModalContentWrapper = styled.div`
@@ -10,15 +10,16 @@ const ModalContentWrapper = styled.div`
     padding: 0;
     display: flex;
     justify-content: center;
+    height: 70vh;
 `;
 
 const LeftWrapper = styled.div`
     flex: 1;
-    padding: 20px;
+    padding: 20px 20px;
     border-right: 1px solid rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    align-items: center;
 `;
 
 const RightWrapper = styled.div`
@@ -35,9 +36,9 @@ const ModalButtonWrapper = styled.div`
 const ModalButton = styled.button`
     padding: 8px 10px;
     margin-left: 10px;
-    background: ${props => props.red ? props.theme.red : props.green ? props.theme.green : props.theme.white};
-    color: ${props => props.red || props.green ? props.theme.white : props.theme.grey};
-    border: 1px solid ${props => props.red ? props.theme.red : props.green ? props.theme.green : props.theme.greyBorder};
+    background: ${props => props.red ? props.theme.red : props.blue ? props.theme.blue : props.theme.white};
+    color: ${props => props.red || props.blue ? props.theme.white : props.theme.grey};
+    border: 1px solid ${props => props.red ? props.theme.red : props.blue ? props.theme.blue : props.theme.greyBorder};
     border-radius: 6px;
     text-align: center;
     font-size: 14px;
@@ -69,75 +70,69 @@ const customStyles = {
     },
 };
 
-const Row = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: ${props => props.start ? "flex-start" : "space-between"};
-    margin-left: ${props => props.ml ? "10px" : "0px"};
-    margin-top: ${props => props.mt ? "20px" : "0px"};
-    margin-bottom: ${props => props.mb ? "20px" : "0px"};
-`;
-
-const StyledNoImageIconBig = styled(HideImage)`
-    && {
-        color: rgba(0,0,0,0.1);
-        width: 100%;
-        font-size: 144px;
-        margin: 80px 0;
-    }
-`;
-
-const StyledNoImageIconSmall = styled(HideImage)`
-    && {
-        color: rgba(0,0,0,0.1);
-        width: 12.5%;
-        font-size: 44px;
-    }
-`;
-
 const ProductCode = styled.div`
     font-size: 12px;
     color: ${props => props.theme.grey};
     margin: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 `;
 
 const ProductName = styled.div`
     font-size: 28px;
     color: ${props => props.theme.dark};
     margin: 8px 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 `;
 
 const CategoryName = styled.div`
     font-size: 14px;
     color: ${props => props.theme.grey};
     margin: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 `;
 
 const Price = styled.div`
     font-size: 24px;
     color: ${props => props.theme.dark};
-    margin: 25px 0;
+    margin: 20px 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 `;
 
 const Description = styled.div`
     font-size: 14px;
     color: ${props => props.theme.dark};
+    height: 80px;
+    overflow: auto;
+    padding: 5px;
+    border: 1px solid rgba(0,0,0,0.1);
 `;
 
 const BriefDescription = styled.div`
     font-size: 14px;
     color: ${props => props.theme.dark};
-    margin-top: 15px;
-    margin-bottom: 25px;
+    margin-bottom: 15px;
+    height: 40px;
+    overflow: auto;
+    padding: 5px;
+    border: 1px solid rgba(0,0,0,0.1);
 `;
 
 const OptionWrapper = styled.div`
-    margin: 10px;
+    margin: 0px 10px;
 `;
 
-const ValueLabel = styled.div`
+const Label = styled.div`
     font-size: 14px;
     color: ${props => props.theme.grey};
+    margin-top: ${props => props.mt ? "20px" : null};
 `;
 
 const ValueTag = styled.span`
@@ -171,20 +166,66 @@ const StyledCancelIcon = styled(Close)`
     }
 `;
 
+const BigImageWrapper = styled.div`
+    width: 90%;
+    padding-top: 90%;
+    position: relative;
+    margin-bottom: 15px;
+`;
+
+const SmallImageWrapper = styled.div`
+    width: 90%;
+    height: 50px;
+`;
+
+const SmallImageScroller = styled.div`
+    height: 80px;
+    overflow-y: auto;
+    width: 100%;
+`;
+
+const Image = styled.img`
+    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+`;
+
+const SmallImage = styled.img`
+    object-fit: contain;
+    width: 40px;
+    height: 40px;
+    margin-right: 5px;
+    cursor: pointer;
+    border: 1px solid rgba(0,0,0,0.2);
+    opacity: ${props => props.blur ? "0.4" : "1"};
+`;
+
+const Flex = styled.div`
+    display: flex;
+    align-items: center;
+    height: 40px;
+`;
 
 const DetailModal = ({ display, toggle, detailItem, handleGetApproveItem, handleGetRejectItem }) => {
     const [item, setItem] = useState({});
+    const [images, setImages] = useState([]);
+    const [imageSrc, setImageSrc] = useState('');
     const [colors, setColors] = useState([]);
     const [sizes, setSizes] = useState([]);
     const [weights, setWeights] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const handleSetApproveItem = () => {
-        handleGetApproveItem(item.ProductId, item.ProductName);
+        handleGetApproveItem(item.ProductId, item.ProductName, images[0], item.ResidentId);
     }
 
     const handleSetRejectItem = () => {
-        handleGetRejectItem(item.ProductId, item.ProductName);
+        handleGetRejectItem(item.ProductId, item.ProductName, images[0], item.ResidentId);
     }
 
     useEffect(() => {
@@ -211,6 +252,12 @@ const DetailModal = ({ display, toggle, detailItem, handleGetApproveItem, handle
                     })).map(item => [item['value'], item])).values()].filter(item => (item.value))
                     .map((item, index) => ({ name: index, ...item })));
 
+                    const imageList = res.data.Data.List[0].Image.split("|").filter(item => item).map((item, index) => (
+                        { image: item }
+                    ));
+                    setImages(imageList);
+                    setImageSrc(imageList.length ? imageList[0].image : '');
+
                     api.get("categories?id=" + res.data.Data.List[0].SystemCategoryId + "&include=parent")
                     .then(function (res2) {
                         if (res2.data.ResultMessage === "SUCCESS") {
@@ -236,31 +283,45 @@ const DetailModal = ({ display, toggle, detailItem, handleGetApproveItem, handle
 
             <ModalContentWrapper>
                 <LeftWrapper>
-                    <StyledNoImageIconBig />
-                    <Row>
-                        <StyledNoImageIconSmall />
-                        <StyledNoImageIconSmall />
-                        <StyledNoImageIconSmall />
-                        <StyledNoImageIconSmall />
-                        <StyledNoImageIconSmall />
-                        <StyledNoImageIconSmall />
-                        <StyledNoImageIconSmall />
-                        <StyledNoImageIconSmall />
-                    </Row>
+                    <BigImageWrapper>
+                        <Image src={imageSrc} />
+                    </BigImageWrapper>
+
+                    <SmallImageWrapper>
+                        <SmallImageScroller>
+                        {
+                            images.map(item => {
+                                return <SmallImage 
+                                    src={item.image} blur={item.image !== imageSrc} 
+                                    onClick={() => setImageSrc(item.image)} 
+                                />
+                            })
+                        }
+                        </SmallImageScroller>
+                    </SmallImageWrapper>                  
                 </LeftWrapper>
 
                 <RightWrapper>
                     <ProductCode> {loading ? '' : item.ProductCode} </ProductCode>
                     <ProductName> {loading ? '' : item.ProductName} </ProductName>
                     <CategoryName> {loading ? '' : item.SysCategoryName} </CategoryName>
-                    <Price> {loading ? '' : item.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"} </Price>
-                    <Description> {loading ? '' : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam'} </Description>
-                    <BriefDescription> {loading ? '' : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit'} </BriefDescription>
 
-                    {
-                        colors.length ?
-                        <>
-                            <ValueLabel>Màu sắc:</ValueLabel>
+                    <Price> {loading ? '' : item.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"} </Price>
+                    
+                    <Label>Miêu tả</Label>
+
+                    {/* <Description> {loading ? '' : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'} </Description> */}
+
+                    {/* <BriefDescription> {loading ? '' : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'} </BriefDescription> */}
+                    <Description> {loading ? '' : item.Description} </Description>
+                    <Label mt>Miêu tả ngắn</Label>
+
+                    <BriefDescription> {loading ? '' : item.BriefDescription} </BriefDescription>
+
+                    <Flex>
+                        <Label>Màu sắc:</Label>
+                        {
+                            colors.length ?
                             <OptionWrapper>
                                 {colors.map((item, index) => {
                                     return (
@@ -268,14 +329,14 @@ const DetailModal = ({ display, toggle, detailItem, handleGetApproveItem, handle
                                     );
                                 })}
                             </OptionWrapper>
-                        </>
-                        : null
-                    }
+                            : <Label>&nbsp;N/A</Label>
+                        }
+                    </Flex>
 
-                    {
-                        sizes.length ?
-                        <>
-                            <ValueLabel>Kích thước:</ValueLabel>
+                    <Flex>
+                        <Label>Kích thước:</Label>
+                        {
+                            sizes.length ?
                             <OptionWrapper>
                                 {sizes.map((item, index) => {
                                     return (
@@ -283,14 +344,14 @@ const DetailModal = ({ display, toggle, detailItem, handleGetApproveItem, handle
                                     );
                                 })}
                             </OptionWrapper>
-                        </>
-                        : null
-                    }
+                            : <Label>&nbsp;N/A</Label>
+                        }
+                    </Flex>
 
-                    {
-                        weights.length ?
-                        <>
-                            <ValueLabel>Trọng lượng:</ValueLabel>
+                    <Flex>
+                        <Label>Trọng lượng:</Label>
+                        {
+                            weights.length ?
                             <OptionWrapper>
                                 {weights.map((item, index) => {
                                     return (
@@ -298,22 +359,23 @@ const DetailModal = ({ display, toggle, detailItem, handleGetApproveItem, handle
                                     );
                                 })}
                             </OptionWrapper>
-                        </>
-                        : null
-                    }
+                            : <Label>&nbsp;N/A</Label>
+                        }
+                    </Flex>
                 </RightWrapper>
             </ModalContentWrapper>
+
             <ModalButtonWrapper>
                 <Invisible />
                 {
                     item.Status === Constant.UNVERIFIED_PRODUCT ?
                     <div>
-                        <ModalButton green onClick={handleSetApproveItem}>
+                        <ModalButton blue onClick={handleSetApproveItem}>
                             <StyledCheckIcon />
                             Duyệt
                         </ModalButton>
 
-                        <ModalButton red onClick={handleSetRejectItem}>
+                        <ModalButton onClick={handleSetRejectItem}>
                             <StyledCancelIcon />
                             Từ chối
                         </ModalButton>

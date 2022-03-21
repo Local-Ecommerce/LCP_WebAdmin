@@ -349,7 +349,7 @@ const Product = () =>  {
         const notification = toast.loading("Đang xử lí yêu cầu...");
 
         const handleApprove = async () => {
-            api.put("products/approval?id=" + rejectItem.id)
+            api.put("products/approval?id=" + approveItem.id)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
                     setChange(!change);
