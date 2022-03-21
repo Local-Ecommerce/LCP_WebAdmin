@@ -10,7 +10,6 @@ const ModalContentWrapper = styled.div`
     padding: 0;
     display: flex;
     justify-content: center;
-    height: 70vh;
 `;
 
 const LeftWrapper = styled.div`
@@ -221,11 +220,11 @@ const DetailModal = ({ display, toggle, detailItem, handleGetApproveItem, handle
     const [loading, setLoading] = useState(true);
 
     const handleSetApproveItem = () => {
-        handleGetApproveItem(item.ProductId, item.ProductName, images[0], item.ResidentId);
+        handleGetApproveItem(item.ProductId, item.ProductName, images[0].image, item.ResidentId);
     }
 
     const handleSetRejectItem = () => {
-        handleGetRejectItem(item.ProductId, item.ProductName, images[0], item.ResidentId);
+        handleGetRejectItem(item.ProductId, item.ProductName, images[0].image, item.ResidentId);
     }
 
     useEffect(() => {
@@ -291,7 +290,7 @@ const DetailModal = ({ display, toggle, detailItem, handleGetApproveItem, handle
                         <SmallImageScroller>
                         {
                             images.map(item => {
-                                return <SmallImage 
+                                return <SmallImage key={item}
                                     src={item.image} blur={item.image !== imageSrc} 
                                     onClick={() => setImageSrc(item.image)} 
                                 />

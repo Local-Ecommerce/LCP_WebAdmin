@@ -1,6 +1,11 @@
 import React from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
+import { toast } from 'react-toastify';
+import { api } from "../../RequestMethod";
+
+import { db } from "../../firebase";
+import { ref, push } from "firebase/database";
 
 const ModalTitle = styled.h4`
     border-bottom: 1px solid #cfd2d4;
@@ -58,7 +63,44 @@ const customStyles = {
     },
 };
 
-const ApproveModal = ({ display, toggle, approveItem, handleApproveItem }) => {
+const ApproveModal = ({ display, toggle, approveItem, toggleRefresh, setApproveModal, setDetailModal }) => {
+    const user = JSON.parse(localStorage.getItem('USER'));
+
+    const handleApproveItem = (event) => {
+        event.preventDefault();
+        const handleApprove = async () => {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
+            api.put("products/approval?id=" + approveItem.id)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    console.log(approveItem);
+                    toggleRefresh();
+                    setApproveModal(false);
+                    setDetailModal(false);
+
+                    push(ref(db, `Notification/` + approveItem.residentId), {
+                        createdDate: Date.now(),
+                        data: {
+                            image: approveItem.image ? approveItem.image : '',
+                            name: approveItem.name,
+                            id: approveItem.id
+                        },
+                        read: 0,
+                        receiverId: approveItem.residentId,
+                        senderId: user.Residents[0].ResidentId,
+                        type: '001'
+                    });
+
+                    toast.update(notification, { render: "Duyệt sản phẩm thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        handleApprove();
+    }
 
     return (
         <Modal isOpen={display} onRequestClose={toggle} style={customStyles} ariaHideApp={false}>

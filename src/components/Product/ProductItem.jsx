@@ -40,7 +40,7 @@ const Image = styled.img`
     vertical-align: middle;
     width: 40px;
     height: 40px;
-    border-radius: 50%;
+    border-radius: 3px;
 `;
 
 const Status = styled.span`
@@ -123,19 +123,19 @@ const ProductItem = ({ item, handleGetRejectItem, handleGetApproveItem, handleGe
             break;
     }
 
+
     const handleSetApproveItem = (e) => {
         e.stopPropagation();
-        handleGetApproveItem(item.ProductId, item.ProductName);
+        handleGetApproveItem(item.ProductId, item.ProductName, item.Image.split('|')[0], item.ResidentId);
     }
 
     const handleSetRejectItem = (e) => {
         e.stopPropagation();
-        handleGetRejectItem(item.ProductId, item.ProductName);
+        handleGetRejectItem(item.ProductId, item.ProductName, item.Image.split('|')[0], item.ResidentId);
     }
 
     return (
         <TableRow onClick={() => handleGetDetailItem(item.ProductId)}>
-            <TableData grey>{index + 1}</TableData>
             <TableData center> <Image src={item.Image} /> </TableData>
             <TableData>{item.ProductName}</TableData>
             <TableData center>{item.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} đ</TableData>

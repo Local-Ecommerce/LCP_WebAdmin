@@ -1,7 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
-import { TextField, InputAdornment, FormControlLabel, Radio, RadioGroup, Checkbox } from '@mui/material';
+import { TextField, FormControlLabel, Radio, RadioGroup } from '@mui/material';
+import { toast } from 'react-toastify';
+import { api } from "../../RequestMethod";
+
+import { db } from "../../firebase";
+import { ref, push } from "firebase/database";
 
 const ModalTitle = styled.h4`
     border-bottom: 1px solid #cfd2d4;
@@ -47,12 +52,6 @@ const ModalButton = styled.button`
     }
 `;
 
-const StyledTextField = styled(TextField)`
-    && {
-        margin-top: 20px;
-    }
-`;
-
 const RadioWrapper = styled.div`
     margin: 8px 20px;
 `;
@@ -73,7 +72,8 @@ const customStyles = {
     },
 };
 
-const RejectModal = ({ display, toggle, rejectItem, handleRejectItem }) => {
+const RejectModal = ({ display, toggle, rejectItem, toggleRefresh, setRejectModal, setDetailModal }) => {
+    const user = JSON.parse(localStorage.getItem('USER'));
     const [reason, setReason] = useState('Tên không hợp lệ');
     const [reasonString, setReasonString] = useState('');
     const [error, setError] = useState('');
@@ -96,6 +96,43 @@ const RejectModal = ({ display, toggle, rejectItem, handleRejectItem }) => {
                 handleRejectItem(e, reason);
             }
         }
+    }
+
+    const handleRejectItem = (event, reason) => {
+        event.preventDefault();
+        const notification = toast.loading("Đang xử lí yêu cầu...");
+
+        const handleReject = async () => {
+            api.put("products/rejection?id=" + rejectItem.id)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    toggleRefresh();
+                    setRejectModal(false);
+                    setDetailModal(false);
+
+                    push(ref(db, `Notification/` + rejectItem.residentId), {
+                        createdDate: Date.now(),
+                        data: {
+                            image: rejectItem.image ? rejectItem.image : '',
+                            name: rejectItem.name,
+                            id: rejectItem.id,
+                            reason: reason ? reason : ''
+                        },
+                        read: 0,
+                        receiverId: rejectItem.residentId,
+                        senderId: user.Residents[0].ResidentId,
+                        type: '002'
+                    });
+
+                    toast.update(notification, { render: "Từ chối sản phẩm thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        handleReject();
     }
 
     const validCheck = () => {

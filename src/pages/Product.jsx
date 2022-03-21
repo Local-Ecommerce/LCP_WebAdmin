@@ -7,10 +7,13 @@ import { Search } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
 import { api } from "../RequestMethod";
 import { toast } from 'react-toastify';
-import RejectModal from '../components/Product/RejectModal';
-import ApproveModal from '../components/Product/ApproveModal';
-import DetailModal from '../components/Product/DetailModal';
+import RejectModal from '../components/Notification/RejectModal';
+import ApproveModal from '../components/Notification/ApproveModal';
+import DetailModal from '../components/Notification/DetailModal';
 import * as Constant from '../Constant';
+
+import { db } from "../firebase";
+import { ref, push } from "firebase/database";
 
 const PageWrapper = styled.div`
     margin: 40px;
@@ -248,7 +251,7 @@ const Footer = styled.div`
     padding-top: 50px;
 `;
 
-const Product = () =>  {
+const Product = ({ refresh, toggleRefresh }) =>  {
     const user = JSON.parse(localStorage.getItem('USER'));
 
     const [rejectModal, setRejectModal] = useState(false);
@@ -300,7 +303,7 @@ const Product = () =>  {
             });
         }
         fetchData();
-    }, [change, limit, page, sort, status, search]);
+    }, [refresh, change, limit, page, sort, status, search]);
 
     useEffect(() => {   //timer when search
         const timeOutId = setTimeout(() => setSearch(typing), 500);
@@ -338,57 +341,15 @@ const Product = () =>  {
         setLimit(value);
         setPage(0);
     }
-    
-    const handleGetApproveItem = (id, name) => {
-        setApproveItem({ id: id, name: name });
+
+    const handleGetApproveItem = (id, name, image, residentId) => {
+        setApproveItem({ id : id, name: name, image: image, residentId: residentId });
         toggleApproveModal();
     }
 
-    const handleApproveItem = (event) => {
-        event.preventDefault();
-        const notification = toast.loading("Đang xử lí yêu cầu...");
-
-        const handleApprove = async () => {
-            api.put("products/approval?id=" + approveItem.id)
-            .then(function (res) {
-                if (res.data.ResultMessage === "SUCCESS") {
-                    setChange(!change);
-                    toggleApproveModal();
-                    toast.update(notification, { render: "Duyệt sản phẩm thành công!", type: "success", autoClose: 5000, isLoading: false });
-                }
-            })
-            .catch(function (error) {
-                console.log(error);
-                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
-            });
-        }
-        handleApprove();
-    }
-
-    const handleGetRejectItem = (id, name) => {
-        setRejectItem({ id: id, name: name });
+    const handleGetRejectItem = (id, name, image, residentId) => {
+        setRejectItem({ id : id, name: name, image: image, residentId: residentId });
         toggleRejectModal();
-    }
-
-    const handleRejectItem = (event) => {
-        event.preventDefault();
-        const notification = toast.loading("Đang xử lí yêu cầu...");
-
-        const handleReject = async () => {
-            api.put("products/rejection?id=" + rejectItem.id)
-            .then(function (res) {
-                if (res.data.ResultMessage === "SUCCESS") {
-                    setChange(!change);
-                    toggleRejectModal();
-                    toast.update(notification, { render: "Từ chối sản phẩm thành công!", type: "success", autoClose: 5000, isLoading: false });
-                }
-            })
-            .catch(function (error) {
-                console.log(error);
-                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
-            });
-        }
-        handleReject();
     }
 
     const handleGetDetailItem = (id) => {
@@ -427,9 +388,8 @@ const Product = () =>  {
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableHeader width="3%" grey>#</TableHeader>
-                            <TableHeader width="7%" center>Ảnh</TableHeader>
-                            <TableHeader width="48%">Tên sản phẩm</TableHeader>
+                            <TableHeader width="10%" center>Ảnh</TableHeader>
+                            <TableHeader width={activeTab === 1 ? "45%" : "60%"}>Tên sản phẩm</TableHeader>
                             <TableHeader width="15%" center>Giá</TableHeader>
                             <TableHeader width="15%" center>Trạng thái</TableHeader>
                             {
@@ -502,14 +462,18 @@ const Product = () =>  {
                 display={approveModal} 
                 toggle={toggleApproveModal} 
                 approveItem={approveItem} 
-                handleApproveItem={handleApproveItem}
+                toggleRefresh={toggleRefresh}
+                setApproveModal={setApproveModal}
+                setDetailModal={setDetailModal}
             />
 
             <RejectModal
                 display={rejectModal} 
                 toggle={toggleRejectModal} 
                 rejectItem={rejectItem} 
-                handleRejectItem={handleRejectItem}
+                toggleRefresh={toggleRefresh}
+                setRejectModal={setRejectModal}
+                setDetailModal={setDetailModal}
             />
         </PageWrapper>
     )

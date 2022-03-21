@@ -40,7 +40,7 @@ const ContentWrapper = styled.div`
     left:245px; top:62px; right:0; bottom:0;
 `;
 
-const SidebarLayout = () => (
+const SidebarLayout = ({ refresh, toggleRefresh }) => (
 	<>
         <ToastContainer 
 			style={{ width: "320px" }}
@@ -58,7 +58,7 @@ const SidebarLayout = () => (
 		</SidebarWrapper>
 
 		<HeaderWrapper>
-			<Header />
+			<Header refresh={refresh} toggleRefresh={toggleRefresh} />
 		</HeaderWrapper>
 	</>
 );
@@ -84,6 +84,8 @@ const RequireLoggedIn = ({ children }) => {
 }
 
 const App = () => {
+    const [refresh, setRefresh] = useState(false);
+    const toggleRefresh = () => { setRefresh(!refresh) };
     // const { logout, extendSession } = useAuth();
     // const location = useLocation();
     // const [modal, setModal] = useState(false);
@@ -107,7 +109,7 @@ const App = () => {
     return (
         <> 
             <Routes>
-                <Route element={<SidebarLayout />}>
+                <Route element={<SidebarLayout refresh={refresh} toggleRefresh={toggleRefresh} />}>
                     <Route 
                         exact path="/" 
                         element={<RequireLoggedIn> <Home /> </RequireLoggedIn>}
@@ -130,7 +132,7 @@ const App = () => {
 
                     <Route 
                         exact path="/products" 
-                        element={<RequireLoggedIn> <Product /> </RequireLoggedIn>}
+                        element={<RequireLoggedIn> <Product refresh={refresh} toggleRefresh={toggleRefresh} /> </RequireLoggedIn>}
                     />
 
                     <Route 
