@@ -15,7 +15,7 @@ import DetailModal from '../components/Header/DetailModal';
 import * as Constant from '../Constant';
 
 import { db } from "../firebase";
-import { set, push, ref, remove, update, get, child, onValue } from "firebase/database";
+import { ref, onValue, push, query, limitToFirst, orderByChild, equalTo } from "firebase/database";
 
 const Wrapper = styled.div`
     display: flex;
@@ -341,23 +341,27 @@ const Header = () => {
     useEffect( () => {  //fetch api data
         if (user && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
             setLoading(true);
-            let url = "products" 
-            + "?limit=100"
-            + "&sort=+updateddate"
-            + "&apartmentid=" + user.Residents[0].ApartmentId
-            + "&status=" + Constant.UNVERIFIED_PRODUCT;
-            const fetchData = () => {
-                api.get(url)
-                .then(function (res) {
-                    setProducts(res.data.Data.List);
-                    setLoading(false);
-                })
-                .catch(function (error) {
-                    console.log(error);
-                    setLoading(false);
-                });
-            }
-            fetchData();
+            const dataRef = query(ref(db, 'Notification/' + user.Residents[0].ApartmentId), limitToFirst(100), orderByChild('receiverId'), equalTo(user.Residents[0].ApartmentId));
+            return onValue(dataRef, (snapshot) => {
+                console.log("yo");
+                let url = "products" 
+                + "?limit=100"
+                + "&sort=+updateddate"
+                + "&apartmentid=" + user.Residents[0].ApartmentId
+                + "&status=" + Constant.UNVERIFIED_PRODUCT;
+                const fetchData = () => {
+                    api.get(url)
+                    .then(function (res) {
+                        setProducts(res.data.Data.List);
+                        setLoading(false);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        setLoading(false);
+                    });
+                }
+                fetchData();
+            })
         }
     }, [change]);
 

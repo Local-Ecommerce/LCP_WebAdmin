@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { DateTime } from 'luxon';
-import { useAuth } from "../contexts/AuthContext";
 
 import { db } from "../firebase";
 import { set, push, ref, remove, update, get, child, onValue } from "firebase/database";
 
 const Home = () => {
-    const { socket } = useAuth();
     const user = JSON.parse(localStorage.getItem('USER'));
     const [time, setTime] = useState(DateTime.fromISO(localStorage.getItem('EXPIRED_TIME')).diffNow().toObject().milliseconds);
 
@@ -18,18 +16,10 @@ const Home = () => {
         return () => clearTimeout(timer);
     });
 
-    const handleSendNotification = () => {
-        socket.emit("sendNotification", {
-            accountId: 'ZrPXVdC3H3YgEmm5HiqtgBjOXUx1',
-            product: 'Bánh mì 2 trứng',
-            type: '1',
-        });
-    };
-
     const insertApprove = (e) => {
         e.preventDefault();
 
-        push(ref(db, `Notification/` + 'ZrPXVdC3H3YgEmm5HiqtgBjOXUx1'), {
+        push(ref(db, `Notification/` + user.Residents[0].ApartmentId), {
             createdDate: Date.now(),
             data: {
                 image: 'https://firebasestorage.googleapis.com/v0/b/lcp-mobile-8c400.appspot.com/o/Product%2FPD_yg50vK1rdJGmyAYF%2FImage1?alt=media&token=155581a0-a3e8-4b73-8e01-63ab085bc6f0',
@@ -37,7 +27,7 @@ const Home = () => {
                 id: 'P002'
             },
             read: 0,
-            receiverId: 'ZrPXVdC3H3YgEmm5HiqtgBjOXUx1',
+            receiverId: user.Residents[0].ApartmentId,
             senderId: 'R001',
             type: '001'
         }).then(
@@ -48,13 +38,13 @@ const Home = () => {
     const insertApproveStore = (e) => {
         e.preventDefault();
 
-        push(ref(db, `Notification/` + user.Residents[0].ResidentId), {
+        push(ref(db, `Notification/` + user.Residents[0].ApartmentId), {
             createdDate: Date.now(),
             data: {
                 name: 'Cửa hàng của Nhân'
             },
             read: 0,
-            receiverId: 'ZrPXVdC3H3YgEmm5HiqtgBjOXUx1',
+            receiverId: user.Residents[0].ApartmentId,
             senderId: 'R001',
             type: '101'
         }).then(
@@ -65,7 +55,7 @@ const Home = () => {
     const insertReject = (e) => {
         e.preventDefault();
 
-        push(ref(db, `Notification/` + user.Residents[0].ResidentId), {
+        push(ref(db, `Notification/` + user.Residents[0].ApartmentId), {
             createdDate: Date.now(),
             data: {
                 image: 'https://firebasestorage.googleapis.com/v0/b/lcp-mobile-8c400.appspot.com/o/Product%2FPD_yg50vK1rdJGmyAYF%2FImage1?alt=media&token=155581a0-a3e8-4b73-8e01-63ab085bc6f0',
@@ -74,7 +64,7 @@ const Home = () => {
                 reason: 'Tên không hợp lệ'
             },
             read: 0,
-            receiverId: 'ZrPXVdC3H3YgEmm5HiqtgBjOXUx1',
+            receiverId: user.Residents[0].ApartmentId,
             senderId: 'R001',
             type: '002'
         }).then(
@@ -85,14 +75,14 @@ const Home = () => {
     const insertRejectStore = (e) => {
         e.preventDefault();
 
-        push(ref(db, `Notification/` + user.Residents[0].ResidentId), {
+        push(ref(db, `Notification/` + user.Residents[0].ApartmentId), {
             createdDate: Date.now(),
             data: {
                 name: 'Cửa hàng của Nhân',
                 reason: 'Tên không hợp lệ'
             },
             read: 0,
-            receiverId: 'ZrPXVdC3H3YgEmm5HiqtgBjOXUx1',
+            receiverId: user.Residents[0].ApartmentId,
             senderId: 'R001',
             type: '102'
         }).then(
@@ -103,11 +93,11 @@ const Home = () => {
     const handleSubmitChange = (e) => {
         e.preventDefault();
 
-        update(ref(db, `Notification/` + user.Residents[0].ResidentId), {
+        update(ref(db, `Notification/` + user.Residents[0].ApartmentId), {
             createdDate: Date.now(),
             itemId: "P002",
             read: 0,
-            receiverId: 'ZrPXVdC3H3YgEmm5HiqtgBjOXUx1',
+            receiverId: user.Residents[0].ApartmentId,
             senderId: 'R001',
             type: '001'
         }).then(
@@ -132,7 +122,6 @@ const Home = () => {
         <br/><br/>Refresh Token: {localStorage.getItem('REFRESH_TOKEN')}
         <br/><br/>role: {user && user.RoleId === "R002" ? "Admin" 
                         : user && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager" ? user.Residents[0].Type : null}
-        <br/><br/><button onClick={handleSendNotification}>Test</button>
         <br/><br/><button onClick={insertApprove}>insert approve product</button>
         <br/><br/><button onClick={insertReject}>insert reject product</button>
         <br/><br/><button onClick={insertApproveStore}>insert approve store</button>
