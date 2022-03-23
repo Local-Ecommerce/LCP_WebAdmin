@@ -1,51 +1,58 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import ResidentList from '../components/Resident/ResidentList';
+import { useNavigate, useParams } from "react-router-dom";
+import MenuList from '../components/Menu/MenuList';
 import ReactPaginate from "react-paginate";
-import { Search } from '@mui/icons-material';
+import { AddCircle, Search, KeyboardBackspace } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
 import { api } from "../RequestMethod";
 import { toast } from 'react-toastify';
-import RejectModal from '../components/Resident/RejectModal';
-import ApproveModal from '../components/Resident/ApproveModal';
-import ToggleStatusModal from '../components/Resident/ToggleStatusModal';
+import { useAuth } from "../contexts/AuthContext";
 import * as Constant from '../Constant';
 
 const PageWrapper = styled.div`
     margin: 40px;
 `;
 
-const Tab = styled.h1`
+const StyledBackIcon = styled(KeyboardBackspace)`
+    && {
+        color: #727272;
+        padding: 5px;
+        border: 1px solid #727272;
+        border-radius: 4px;
+        margin-right: 10px;
+        cursor: pointer;
+    }
+`;
+
+const TitleGrey = styled.span`
+    color: #727272;
+`;
+
+const Title = styled.h1`
     font-size: 16px;
     color: #383838;
-    padding: 15px;
-    margin: 0px;
-    background-color: ${props => props.active ? props.theme.white : null};
-    border-radius: 5px 5px 0 0;
-    border: 1px solid rgba(0,0,0,0.1);
-    margin-right: 5px;
-    cursor: pointer;
 `;
 
 const Row = styled.div`
     display: flex;
     align-items: center;
-    justify-content: ${props => props.start ? "flex-start" : "space-between"};
-    margin-left: ${props => props.ml ? "10px" : "0px"};
+    justify-content: space-between;
     margin-top: ${props => props.mt ? "20px" : "0px"};
     margin-bottom: ${props => props.mb ? "20px" : "0px"};
+`;
+
+const Align = styled.div`
+    display: flex;
+    align-items: center;
+    margin: ${props => props.m ? "15px 15px -5px 15px" : null};
 `;
 
 const StyledSearchIcon = styled(Search)`
     && {
         color: grey;
     }
-`;
-
-const Align = styled.div`
-    display: flex;
-    align-items: center;
 `;
 
 const SearchBar = styled.div`
@@ -60,6 +67,7 @@ const SearchBar = styled.div`
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
+    margin-right: 10px;
 `;
 
 const Input = styled.input`
@@ -118,6 +126,39 @@ const Select = styled.select`
 
     &:focus {
     outline: 0;
+    }
+`;
+
+const AddButton = styled.button`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    background-color: ${props => props.theme.green};
+    border-style: none;
+    border-radius: 5px;
+    color: ${props => props.theme.white};
+    text-decoration: none;
+    font-size: 0.9em;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
+
+    &:hover {
+    opacity: 0.8;
+    }
+
+    &:focus {
+    outline: 0;
+    }
+
+    &:active {
+    transform: translateY(1px);
+    }
+`;
+
+const AddIcon = styled(AddCircle)`
+    && {
+        margin-right: 5px;
+        font-size: 20px;
     }
 `;
 
@@ -247,16 +288,21 @@ const Footer = styled.div`
     padding-top: 50px;
 `;
 
-const Resident = () =>  {
-    const user = JSON.parse(localStorage.getItem('USER'));
+const StoreMenu = () =>  {
+    const { id } = useParams();
+    let navigate = useNavigate();
 
-    const [toggleStatusModal, setToggleStatusModal] = useState(false);
-    const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
+    const { createAuthentication } = useAuth();
+    const [store, setStore] = useState({});
 
-    const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
+    const [createModal, setCreateModal] = useState(false);
+    function toggleCreateModal() { setCreateModal(!createModal); }
 
-    const [loading, setLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState(1);
+    const [input, setInput] = useState({ email: '' });
+    const [error, setError] = useState({ email: '' });
+
+    const [loading, setLoading] = useState(true);
+
     const [APIdata, setAPIdata] = useState([]);
     const [change, setChange] = useState(false);
 
@@ -273,26 +319,9 @@ const Resident = () =>  {
 
     useEffect( () => {  //fetch api data
         setLoading(true);
-        let url = "residents" 
-        + "?limit=" + limit 
-        + "&page=" + (page + 1) 
-        + "&sort=" + sort 
-        + "&apartmentid=" + user.Residents[0].ApartmentId
-        + (search !== '' ? ("&search=" + search) : '')
-        + (status !== '' ? ("&status=" + status) : '')
-        + (type !== '' ? ("&type=" + type) : '');
+
         const fetchData = () => {
-            api.get(url)
-            .then(function (res) {
-                setAPIdata(res.data.Data.List);
-                setTotal(res.data.Data.Total);
-                setLastPage(res.data.Data.LastPage);
-                setLoading(false);
-            })
-            .catch(function (error) {
-                console.log(error);
-                setLoading(false);
-            });
+
         }
         fetchData();
     }, [change, limit, page, sort, status, search, type]);
@@ -312,19 +341,15 @@ const Resident = () =>  {
         document.getElementById("search").value = '';
     }
 
+    function handleChange(e) {
+        const { name, value } = e.target;
+        setInput(input => ({ ...input, [name]: value }));
+        setError(error => ({ ...error, [name]: '' }));
+    }
+
     function handleSetSearch(e) {
         const { value } = e.target;
         setTyping(value);
-        setPage(0);
-    }
-
-    function handleSwitchTab(value) {
-        setActiveTab(value);
-        if (value === 1) {
-            setStatus(Constant.VERIFIED_RESIDENT);
-        } else {
-            setStatus(Constant.UNVERIFIED_RESIDENT);
-        }
         setPage(0);
     }
 
@@ -346,46 +371,61 @@ const Resident = () =>  {
         setPage(0);
     }
 
-
-    const handleGetToggleStatusItem = (id, name, status) => {
-        setToggleStatusItem({ id: id, name: name, status: status });
-        toggleToggleStatusModal();
-    }
-
-    const handleToggleStatus = (event) => {
+    const createFirebaseAccount = (event) => {
         event.preventDefault();
-        const notification = toast.loading("Đang xử lí yêu cầu...");
-        let updateStatus = toggleStatusItem.status === true ? Constant.INACTIVE_RESIDENT : Constant.VERIFIED_RESIDENT
-        const url = "residents/" + toggleStatusItem.id + "?status=" + updateStatus;
-        const editData = async () => {
-            api.put(url, )
-            .then(function (res) {
-                if (res.data.ResultMessage === "SUCCESS") {
-                    setChange(!change);
-                    toggleToggleStatusModal();
-                    toast.update(notification, { render: "Cập nhật thành công!", type: "success", autoClose: 5000, isLoading: false });
-                }
+        
+        if (validCheck()) {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
+            createAuthentication(input.email, '123456', id)
+            .then(() => {
+                setInput(input => ({ ...input, email: '' }));
+                toggleCreateModal();
+                toast.update(notification, { render: "Tạo tài khoản thành công!", type: "success", autoClose: 5000, isLoading: false });
             })
-            .catch(function (error) {
-                console.log(error);
-                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            .catch((error) => {
+                if (error.code === 'auth/email-already-in-use') {
+                    toast.update(notification, { render: "Email đã tồn tại trong hệ thống.", type: "error", autoClose: 5000, isLoading: false });
+                } else {
+                    toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+                }
             });
         }
-        editData();
+    }
+
+    const validCheck = () => {
+        let check = false;
+        setError(error => ({ ...error, email: '' }));
+
+        let pattern= /[^@\s]+@[^@\s]+\.[^@\s]+/;
+        if (input.email === null || input.email === '' || !pattern.test(input.email)) {
+            setError(error => ({ ...error, email: 'Vui lòng nhập đúng chuẩn email' }));
+            check = true;
+        }
+        if (check === true) {
+            return false;
+        }
+
+        return true;
     }
 
     return (
         <PageWrapper>
-           <Row ml start>
-                <Tab active={activeTab === 1 ? true : false} onClick={() => handleSwitchTab(1)}>Cư dân</Tab>
-                <Tab active={activeTab === 2 ? true : false} onClick={() => handleSwitchTab(2)}>Cư dân chờ duyệt</Tab>
+            <Row mb>
+                <Align m>
+                    <StyledBackIcon onClick={() => navigate("/stores")} />
+                    <Title><TitleGrey>Chung cư </TitleGrey>/ {loading ? 'Đang tải...' : store.StoreName}</Title>
+                </Align>
+
+                <AddButton onClick={toggleCreateModal}>
+                    <AddIcon /> Tạo quản lí
+                </AddButton>
             </Row>
 
             <TableWrapper>
                 <Row mb>
                     <SearchBar>
                         <StyledSearchIcon />
-                        <Input id="search" placeholder="Tìm kiếm cư dân" onChange={handleSetSearch} />
+                        <Input id="search" placeholder="Tìm kiếm dân cư" onChange={handleSetSearch} />
                         <Button onClick={() => clearSearch()}>Clear</Button>
                     </SearchBar>
 
@@ -401,20 +441,16 @@ const Resident = () =>  {
                         </DropdownWrapper>
                     </Align>
 
-                    {
-                        activeTab === 1 ?
-                        <Align>
-                            <small>Trạng thái:&nbsp;</small>
-                            <DropdownWrapper>
-                                <Select value={status} onChange={handleSetStatus}>
-                                    <option value=''>Toàn bộ</option>
-                                    <option value={Constant.VERIFIED_RESIDENT}>Hoạt động</option>
-                                    <option value={Constant.INACTIVE_RESIDENT}>Ngừng hoạt động</option>
-                                </Select>
-                            </DropdownWrapper>
-                        </Align>
-                        : null
-                    }
+                    <Align>
+                        <small>Trạng thái:&nbsp;</small>
+                        <DropdownWrapper>
+                            <Select value={status} onChange={handleSetStatus}>
+                                <option value=''>Toàn bộ</option>
+                                <option value={Constant.VERIFIED_MERCHANT_STORE}>Hoạt động</option>
+                                <option value={Constant.INACTIVE_APARTMENT}>Ngừng hoạt động</option>
+                            </Select>
+                        </DropdownWrapper>
+                    </Align>
 
                     <Align>
                         <small>Số hàng mỗi trang:&nbsp;</small>
@@ -425,19 +461,18 @@ const Resident = () =>  {
                                 <option value={15}>15</option>
                                 <option value={20}>20</option>
                             </Select>
-                        </DropdownWrapper>              
-                    </Align>  
+                        </DropdownWrapper>       
+                    </Align>   
                 </Row>
 
                 <Table>
                     <TableHead>
                         <TableRow>
                             <TableHeader width="3%" grey>#</TableHeader>
-                            <TableHeader width="32%">Tên cư dân</TableHeader>
-                            <TableHeader width="15%" center>Ngày sinh</TableHeader>
-                            <TableHeader width="15%" center>Số điện thoại</TableHeader>
-                            <TableHeader width="15%" center>Kiểu cư dân</TableHeader>
-                            <TableHeader width="20%" center>Hoạt động</TableHeader>
+                            <TableHeader width="37%">Tiêu đề</TableHeader>
+                            <TableHeader width="20%" center>Giờ hoạt động</TableHeader>
+                            <TableHeader width="20%" center>Ngày hoạt động</TableHeader>
+                            <TableHeader width="20%" center>Trạng thái</TableHeader>
                         </TableRow>
                     </TableHead>
 
@@ -448,9 +483,8 @@ const Resident = () =>  {
                             <TableData center colSpan={100}> <CircularProgress /> </TableData>
                         </tr>
                         : 
-                        <ResidentList 
+                        <MenuList 
                             currentItems={APIdata} 
-                            handleGetToggleStatusItem={handleGetToggleStatusItem}
                         />
                         }
                     </TableBody>
@@ -459,7 +493,7 @@ const Resident = () =>  {
                 <Row mt>
                     { 
                     loading || APIdata.length === 0 ? null
-                    : <small>Hiển thị {page * limit + 1} - {page * limit + APIdata.length} trong tổng số {total} cư dân.</small> 
+                    : <small>Hiển thị {page * limit + 1} - {page * limit + APIdata.length} trong tổng số {total} bảng giá.</small> 
                     }
                     <StyledPaginateContainer>
                         <ReactPaginate
@@ -488,16 +522,8 @@ const Resident = () =>  {
             </TableWrapper>
 
             <Footer />
-
-            <ToggleStatusModal
-                display={toggleStatusModal}
-                toggle={toggleToggleStatusModal}
-                toggleStatusItem={toggleStatusItem}
-                handleToggleStatus={handleToggleStatus}
-            />
-
         </PageWrapper>
     )
 }
 
-export default Resident;
+export default StoreMenu;

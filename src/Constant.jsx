@@ -44,3 +44,8 @@ export const VERIFIED_PRODUCT = 1001;
 export const DELETED_PRODUCT = 1002;
 export const REJECTED_PRODUCT = 1003;
 export const UNVERIFIED_PRODUCT = 1004;
+
+//product in menu status
+export const ACTIVE_PRODUCT_IN_MENU = 10001;
+export const DELETED_PRODUCT_IN_MENU = 10002;
+export const INACTIVE_PRODUCT_IN_MENU = 10005;

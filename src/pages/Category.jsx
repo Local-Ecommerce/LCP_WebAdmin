@@ -331,7 +331,7 @@ const Category = () => {
                     <Align>
                         <SearchBar>
                             <StyledSearchIcon />
-                            <Input id="search" placeholder="Search tên danh mục" onChange={(event) => setSearch(event.target.value)} />
+                            <Input id="search" placeholder="Search tên danh mục cha" onChange={(event) => setSearch(event.target.value)} />
                             <Button onClick={() => clearSearch()}>Clear</Button>
                         </SearchBar>
 

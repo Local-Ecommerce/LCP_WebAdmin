@@ -1,9 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useContext } from "react";
 import { api } from "../RequestMethod";
-import { auth } from "../firebase";
-import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 import { useNavigate } from 'react-router-dom';
+
+import { auth, firestore } from "../firebase";
+import { doc, setDoc } from "firebase/firestore"; 
+import { signOut, createUserWithEmailAndPassword } from "firebase/auth";
 
 const AuthContext = React.createContext();
 
@@ -13,36 +15,6 @@ export function useAuth() {
 
 export function AuthProvider({ children }) {
     let navigate = useNavigate();
-
-    async function login(email, password) {
-        await signInWithEmailAndPassword(auth, email, password);
-        onAuthStateChanged(auth, async user => {
-            if (user) {
-                const firebaseToken = await user.getIdToken(true);
-                console.log("Firebase Token: " + firebaseToken);
-                let url = "accounts/login";
-
-                await api.post(url, {
-                    firebaseToken: firebaseToken,
-                    role: "R002"
-                })
-                .then(function (res) {
-                    if (res.data.ResultMessage === "SUCCESS" && (res.data.Data.RoleId === "R002" 
-                    || (res.data.Data.RoleId === "R001" && res.data.Data.Residents[0].Type === "MarketManager"))) {
-                        localStorage.setItem('USER', JSON.stringify(res.data.Data));
-                        localStorage.setItem('ACCESS_TOKEN', res.data.Data.RefreshTokens[0].AccessToken);
-                        localStorage.setItem('REFRESH_TOKEN', res.data.Data.RefreshTokens[0].Token);
-                        localStorage.setItem('EXPIRED_TIME', res.data.Data.RefreshTokens[0].AccessTokenExpiredDate);
-                        localStorage.setItem('IS_TOGGLE', "0");
-                        navigate("/");
-                    }
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
-            };
-        });
-    };
 
     async function logout() {
         await signOut(auth);
@@ -61,6 +33,23 @@ export function AuthProvider({ children }) {
         localStorage.removeItem("EXPIRED_TIME");
         localStorage.removeItem("IS_TOGGLE");
     };
+
+    async function createAuthentication(email, password, apartmentId) {
+        await createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            setDoc(doc(firestore, "user", userCredential.user.uid), {
+                role: 'MarketManager',
+                fullname: 'Quản lí chung cư',
+                gender: '',
+                deliveryAddress: '',
+                dob: '',
+                apartmentId: apartmentId
+            });
+        })
+        .catch((error) => {
+            console.log(error);
+        })
+    }
     
     async function extendSession() {
         let url = "accounts/refresh-token";
@@ -89,8 +78,8 @@ export function AuthProvider({ children }) {
     }
 
     const value = {
-        login,
         logout,
+        createAuthentication,
         extendSession
     };
 

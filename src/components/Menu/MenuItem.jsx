@@ -1,22 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ContentPasteSearch } from '@mui/icons-material';
-import { Link } from "react-router-dom";
 import * as Constant from '../../Constant';
-
-const Button = styled.button`
-    padding: 3px;
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    overflow: hidden;
-    outline: none;
-    color: ${props => props.disabled === true ? "#E0E0E0" : "grey"};
-
-    &:focus {
-    outline: none;
-    }
-`;
 
 const TableRow = styled.tr`
     &:hover {
@@ -25,13 +9,16 @@ const TableRow = styled.tr`
 `;
 
 const TableData = styled.td`
-    padding: 5px 16px;
+    padding: 8px 16px;
     vertical-align: top;
     border-bottom: 1px solid #dee2e6;
     vertical-align: middle;
     text-align: ${props => props.center ? "center" : "left"};
     font-size: 15px;
     color: ${props => props.grey ? props.theme.grey : null};
+    cursor: pointer;
+
+    height: 50px;
 `;
 
 const Status = styled.span`
@@ -54,16 +41,19 @@ const Status = styled.span`
     "#dc3545"};
 `;
 
-const StyledDetailIcon = styled(ContentPasteSearch)`
-    padding: 8px;
+const DaySpan = styled.span`
+    display: inline-block;
+    padding: 4px;
+    font-size: 0.8em;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
     border-radius: 20px;
-
-    &:hover {
-    background-color: ${props => props.theme.disabled};
-    }
+    color: ${props => props.green ? props.theme.green : props.theme.disabled};
 `;
 
-const MenuItem = ({ item, handleGetDeleteItem, index }) =>  {
+const MenuItem = ({ item, handleGetDetailItem, index }) =>  {
 
     if (item === 0) {
         return (
@@ -77,21 +67,18 @@ const MenuItem = ({ item, handleGetDeleteItem, index }) =>  {
     
     let activeCheck = '';
     let activeLabel = '';
-    let disabledCheck = false;
     switch (item.Status) {
         case Constant.ACTIVE_MENU:
             activeCheck = 'verified';
-            activeLabel = 'Xác thực';
+            activeLabel = 'Hoạt động';
             break;
         case Constant.INACTIVE_MENU:
             activeCheck = 'inactive';
             activeLabel = 'Ngừng';
-            disabledCheck = true;
             break;
         case Constant.DELETED_MENU:
             activeCheck = 'deleted';
             activeLabel = 'Xóa';
-            disabledCheck = true;
             break;
         default:
             activeCheck = 'inactive';
@@ -99,19 +86,34 @@ const MenuItem = ({ item, handleGetDeleteItem, index }) =>  {
             break;
     }
 
+    const handleSetDetailItem = () => {
+        handleGetDetailItem(item.MenuId);
+    }
+
     return (
-        <TableRow>
+        <TableRow onClick={handleSetDetailItem}>
             <TableData grey>{index + 1}</TableData>
             <TableData>{item.MenuName}</TableData>
-            <TableData center>{item.MerchantStore.StoreName}</TableData>
-            <TableData center><Status active={activeCheck}>{activeLabel}</Status></TableData>
+            <TableData center>
+                {
+                    item.TimeStart === '00:00:00' && item.TimeEnd === '23:59:59' ?
+                    "Cả ngày" :
+                    item.TimeStart.slice(0,5) + " - " + item.TimeEnd.slice(0,5)
+                }
+            </TableData>
 
             <TableData center>
-                <Link to={"/store/" + item.MerchantStoreId}>
-                    <Button>
-                        <StyledDetailIcon />
-                    </Button>
-                </Link>
+                {item.RepeatDate.includes('2') ? <DaySpan green>2</DaySpan> : <DaySpan>2</DaySpan>}
+                {item.RepeatDate.includes('3') ? <DaySpan green>3</DaySpan> : <DaySpan>3</DaySpan>}
+                {item.RepeatDate.includes('4') ? <DaySpan green>4</DaySpan> : <DaySpan>4</DaySpan>}
+                {item.RepeatDate.includes('5') ? <DaySpan green>5</DaySpan> : <DaySpan>5</DaySpan>}
+                {item.RepeatDate.includes('6') ? <DaySpan green>6</DaySpan> : <DaySpan>6</DaySpan>}
+                {item.RepeatDate.includes('7') ? <DaySpan green>7</DaySpan> : <DaySpan>7</DaySpan>}
+                {item.RepeatDate.includes('8') ? <DaySpan green>CN</DaySpan> : <DaySpan>CN</DaySpan>}
+            </TableData>
+
+            <TableData center>
+                <Status active={activeCheck}>{activeLabel}</Status>
             </TableData>
         </TableRow>
     )

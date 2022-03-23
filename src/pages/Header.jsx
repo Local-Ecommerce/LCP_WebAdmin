@@ -6,7 +6,6 @@ import { Badge, CircularProgress } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { api } from "../RequestMethod";
-import { toast } from 'react-toastify';
 import useClickOutside from "../contexts/useClickOutside";
 import NotificationList from '../components/Notification/NotificationList';
 import RejectModal from '../components/Notification/RejectModal';
@@ -15,7 +14,7 @@ import DetailModal from '../components/Notification/DetailModal';
 import * as Constant from '../Constant';
 
 import { db } from "../firebase";
-import { ref, onValue, push, query, limitToFirst, orderByChild, equalTo } from "firebase/database";
+import { ref, onValue, query, limitToFirst, orderByChild, equalTo } from "firebase/database";
 
 const Wrapper = styled.div`
     display: flex;
@@ -345,13 +344,24 @@ const Header = ({ refresh, toggleRefresh }) => {
                 let url = "products" 
                 + "?limit=100"
                 + "&sort=+updateddate"
-                + "&apartmentid=" + user.Residents[0].ApartmentId
-                + "&status=" + Constant.UNVERIFIED_PRODUCT;
+                + "&status=" + Constant.UNVERIFIED_PRODUCT
+                + "&apartmentid=" + user.Residents[0].ApartmentId;
                 const fetchData = () => {
                     api.get(url)
                     .then(function (res) {
                         setProducts(res.data.Data.List);
-                        setLoading(false);
+
+                        let url2 = "stores" 
+                        + "?limit=100"
+                        + "&sort=+createddate" 
+                        + "&status=" + Constant.UNVERIFIED_MERCHANT_STORE
+                        + "&apartmentid=" + user.Residents[0].ApartmentId;
+                        api.get(url2)
+                        .then(function (res) {
+                            console.log(res.data.Data.List)
+                            setStores(res.data.Data.List);
+                            setLoading(false);
+                        })
                     })
                     .catch(function (error) {
                         console.log(error);
@@ -407,7 +417,7 @@ const Header = ({ refresh, toggleRefresh }) => {
 
             <div>
                 <IconButton onClick={() => toggleNotificationDropdown(!notificationDropdown)}>
-                    <StyledBadge badgeContent={products.length} overlap="circular">
+                    <StyledBadge badgeContent={products.length + stores.length} overlap="circular">
                         <StyledNotificationIcon />
                     </StyledBadge>
                 </IconButton>

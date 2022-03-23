@@ -1,22 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ContentPasteSearch } from '@mui/icons-material';
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import * as Constant from '../../Constant';
-
-const Button = styled.button`
-    padding: 3px;
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    overflow: hidden;
-    outline: none;
-    color: ${props => props.disabled === true ? "#E0E0E0" : "grey"};
-
-    &:focus {
-    outline: none;
-    }
-`;
 
 const TableRow = styled.tr`
     &:hover {
@@ -32,6 +17,9 @@ const TableData = styled.td`
     text-align: ${props => props.center ? "center" : "left"};
     font-size: 15px;
     color: ${props => props.grey ? props.theme.grey : null};
+    cursor: pointer;
+
+    height: 50px;
 `;
 
 const Status = styled.span`
@@ -54,21 +42,13 @@ const Status = styled.span`
     "#dc3545"};
 `;
 
-const StyledDetailIcon = styled(ContentPasteSearch)`
-    padding: 8px;
-    border-radius: 20px;
-
-    &:hover {
-    background-color: ${props => props.theme.disabled};
-    }
-`;
-
-const StoreItem = ({ item, handleGetDeleteItem, index }) => {
+const StoreItem = ({ item, index }) => {
+    let navigate = useNavigate();
 
     if (item === 0) {
         return (
             <tr>
-                <TableData center colSpan={5}>
+                <TableData center colSpan={100}>
                     <h4>Không tìm thấy dữ liệu.</h4>
                 </TableData>
             </tr>
@@ -84,15 +64,11 @@ const StoreItem = ({ item, handleGetDeleteItem, index }) => {
             break;
         case Constant.VERIFIED_MERCHANT_STORE:
             activeCheck = 'verified';
-            activeLabel = 'Xác thực';
+            activeLabel = 'Hoạt động';
             break;
         case Constant.UNVERIFIED_MERCHANT_STORE:
             activeCheck = 'unverified';
-            activeLabel = 'Tạo mới';
-            break;
-        case Constant.UNVERIFIED_MERCHANT_STORE:
-            activeCheck = 'unverified';
-            activeLabel = 'Cập nhật';
+            activeLabel = 'Chờ duyệt';
             break;
         default:
             activeCheck = 'inactive';
@@ -101,19 +77,11 @@ const StoreItem = ({ item, handleGetDeleteItem, index }) => {
     }
 
     return (
-        <TableRow>
+        <TableRow onClick={() => navigate("/store/" + item.MerchantStoreId)}>
             <TableData grey>{index + 1}</TableData>
             <TableData>{item.StoreName}</TableData>
             <TableData center>{item.Resident.ResidentName}</TableData>
             <TableData center><Status active={activeCheck}>{activeLabel}</Status></TableData>
-
-            <TableData center>
-                <Link to={"/store/" + item.MerchantStoreId}>
-                    <Button>
-                        <StyledDetailIcon />
-                    </Button>
-                </Link>
-            </TableData>
         </TableRow>
     )
 }

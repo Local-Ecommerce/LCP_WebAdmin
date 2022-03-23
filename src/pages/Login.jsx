@@ -1,8 +1,11 @@
 import styled from "styled-components";
 import React, { useState } from 'react';
-import { TextField } from '@mui/material';
-import { useAuth } from "../contexts/AuthContext";
-import { CircularProgress } from '@mui/material';
+import { api } from "../RequestMethod";
+import { useNavigate } from 'react-router-dom';
+import { TextField, CircularProgress } from '@mui/material';
+
+import { auth } from "../firebase";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 
 const LoginFormContainer = styled.div`
     position: fixed;
@@ -44,6 +47,7 @@ const SmallText = styled.h4`
     font-weight: 400;
     margin: 5px 0px 20px 0px;
     text-align: center;
+    font-size: 13px;
 `;
 
 const ErrorText = styled.div`
@@ -93,7 +97,8 @@ const Button = styled.button`
 `;
 
 const Login = () => {
-    const { login } = useAuth();
+    let navigate = useNavigate();
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [input, setInput] = useState({ username: '', password: '' });
@@ -103,27 +108,58 @@ const Login = () => {
         setInput(input => ({ ...input, [name]: value }));
     }
 
-    async function handleSubmit(e) {
+    function handleLogin(e) {
         e.preventDefault();
+        setError('');
+        setLoading(true);
+        signInWithEmailAndPassword(auth, input.username, input.password)
+        .then(() => {
+            onAuthStateChanged(auth, async user => {
+                if (user) {
+                    const firebaseToken = await user.getIdToken(true);
+                    console.log("Firebase Token: " + firebaseToken);
     
-        try {
-            setError('');
-            setLoading(true);
-            await login(input.username, input.password);
-        } catch {
-            setError("Đăng nhập thất bại. Vui lòng thử lại.");
+                    await api.post("accounts/login", {
+                        firebaseToken: firebaseToken,
+                        role: "R002"
+                    })
+                    .then(function (res) {
+                        if (res.data.ResultMessage === "SUCCESS" && (res.data.Data.RoleId === "R002" 
+                        || (res.data.Data.RoleId === "R001" && res.data.Data.Residents[0].Type === "MarketManager"))) {
+                            localStorage.setItem('USER', JSON.stringify(res.data.Data));
+                            localStorage.setItem('ACCESS_TOKEN', res.data.Data.RefreshTokens[0].AccessToken);
+                            localStorage.setItem('REFRESH_TOKEN', res.data.Data.RefreshTokens[0].Token);
+                            localStorage.setItem('EXPIRED_TIME', res.data.Data.RefreshTokens[0].AccessTokenExpiredDate);
+                            localStorage.setItem('IS_TOGGLE', "0");
+                            navigate("/");
+                        } else {
+                            setError("Tài khoản hoặc mật khẩu không hợp lệ. Vui lòng thử lại.");
+                            setLoading(false);
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        setError("Tài khoản hoặc mật khẩu không hợp lệ. Vui lòng thử lại.");
+                        setLoading(false);
+                    });
+                };
+            });
+        })
+        .catch((error) => {
+            console.log(error);
+            setError("Tài khoản hoặc mật khẩu không hợp lệ. Vui lòng thử lại.");
             setLoading(false);
-        }
+        })
     }
 
     return (
         <LoginFormContainer>
             <Title>Welcome to <BlueSpan>LCP+</BlueSpan> </Title>
-            <SmallText>Trang quản lí dành cho quản trị viên và quản lý chung cư của LCP</SmallText>
+            <SmallText>Trang quản lí dành cho quản trị viên và quản lý chung cư</SmallText>
 
             {error !== '' ? <ErrorText>{error}</ErrorText> : null}
 
-            <Form onSubmit={handleSubmit}>
+            <Form onSubmit={handleLogin}>
                 {
                 loading ?
                 <CenterWrapper>

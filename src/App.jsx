@@ -13,8 +13,10 @@ import Header from './pages/Header';
 import Sidebar from './pages/Sidebar';
 import Category from './pages/Category';
 import Store from './pages/Store';
+import StoreMenu from './pages/StoreMenu';
 import Menu from './pages/Menu';
 import Apartment from './pages/Apartment';
+import ApartmentResident from './pages/ApartmentResident';
 import Poi from './pages/Poi';
 import News from './pages/News';
 import Resident from './pages/Resident';
@@ -75,8 +77,9 @@ const RequireLoggedIn = ({ children }) => {
      || typeof user === 'undefined' || user === null 
      || typeof accessToken === 'undefined' || accessToken === null 
      || typeof refreshToken === 'undefined' || refreshToken === null 
-     || typeof expiredTime === 'undefined' || expiredTime === null
-     || typeof isToggle === 'undefined' || isToggle === null || isToggle === "1") {
+     || typeof expiredTime === 'undefined' || expiredTime === null 
+     || DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds < 0) {
+    //  || typeof isToggle === 'undefined' || isToggle === null || isToggle === "1"
         logout();
         return <Navigate to="/login" />;
     };
@@ -126,6 +129,11 @@ const App = () => {
                     />
 
                     <Route 
+                        exact path="/store/:id" 
+                        element={<RequireLoggedIn> <StoreMenu /> </RequireLoggedIn>}
+                    />
+
+                    <Route 
                         exact path="/menus" 
                         element={<RequireLoggedIn> <Menu /> </RequireLoggedIn>}
                     />
@@ -138,6 +146,11 @@ const App = () => {
                     <Route 
                         exact path="/apartments" 
                         element={<RequireLoggedIn> <Apartment /> </RequireLoggedIn>}
+                    />
+
+                    <Route 
+                        exact path="/apartment/:id" 
+                        element={<RequireLoggedIn> <ApartmentResident /> </RequireLoggedIn>}
                     />
 
                     <Route 

@@ -7,6 +7,7 @@ import { Search, ArrowRight, FormatListBulleted, DoubleArrow } from '@mui/icons-
 import { CircularProgress, Checkbox } from '@mui/material';
 import { api } from "../RequestMethod";
 import { List, AutoSizer } from 'react-virtualized';
+import DetailModal from '../components/Menu/DetailModal';
 import * as Constant from '../Constant';
 
 const PageWrapper = styled.div`
@@ -388,8 +389,14 @@ const Center = styled.div`
 
 const Menu = () =>  {
     const listRef = useRef();
+
+    const [detailModal, setDetailModal] = useState(false);
+    function toggleDetailModal() { setDetailModal(!detailModal); }
+    const [detailItem, setDetailItem] = useState({ id: '' });
+
     const [displayAddress, setDisplayAddress] = useState(false);
     function toggleDisplayAddress() { setDisplayAddress(!displayAddress); listRef.current.recomputeRowHeights(); }
+
     const [displayApartment, setDisplayApartment] = useState(false);
     function toggleDisplayApartment() { setDisplayApartment(!displayApartment); };
 
@@ -417,15 +424,14 @@ const Menu = () =>  {
     useEffect( () => {  //fetch api data
         if (apartment.id !== '') {
             setLoading(true);
-            let url = "menus" 
+            let url = "menus"
                     + "?limit=" + limit 
                     + "&page=" + (page + 1) 
                     + "&sort=" + sort 
                     + "&include=merchantstore"
+                    + "&apartmentid=" + apartment.id
                     + (menuSearch !== '' ? ("&search=" + menuSearch) : '') 
-                    + (status !== '' ? ("&status=" + status) : '') 
-                    + "&apartmentid=" + apartment.id;
-
+                    + (status !== '' ? ("&status=" + status) : '');
             const fetchData = () => {
                 api.get(url)
                 .then(function (res) {
@@ -447,7 +453,7 @@ const Menu = () =>  {
         if (user.RoleId === "R002") {
             setApartmentLoading(true);
             let url = "apartments" 
-                    + "?status=4001" 
+                    + "?status=" + Constant.ACTIVE_APARTMENT 
                     + "&limit=1000" 
                     + (apartmentSearch !== '' ? ("&search=" + apartmentSearch) : '');
             const fetchData = () => {
@@ -518,6 +524,11 @@ const Menu = () =>  {
         const { value } = e.target;
         setLimit(value);
         setPage(0);
+    }
+
+    const handleGetDetailItem = (id) => {
+        setDetailItem({ id: id });
+        toggleDetailModal();
     }
 
     return (
@@ -610,9 +621,8 @@ const Menu = () =>  {
                             <DropdownWrapper>
                                 <Select value={status} onChange={handleSetStatus}>
                                     <option value=''>Toàn bộ</option>
-                                    <option value={Constant.ACTIVE_MENU}>Xác thực</option>
-                                    <option value={Constant.DELETED_MENU}>Xóa</option>
-                                    <option value={Constant.INACTIVE_MENU}>Ngừng</option>
+                                    <option value={Constant.ACTIVE_MENU}>Hoạt động</option>
+                                    <option value={Constant.INACTIVE_MENU}>Ngừng hoạt động</option>
                                 </Select>
                             </DropdownWrapper>
                         </Align>
@@ -634,10 +644,10 @@ const Menu = () =>  {
                         <TableHead>
                             <TableRow>
                                 <TableHeader width="3%" grey>#</TableHeader>
-                                <TableHeader width="30%">Tên bảng giá</TableHeader>
-                                <TableHeader width="20%" center>Thuộc cửa hàng</TableHeader>
-                                <TableHeader width="10%" center>Trạng thái</TableHeader>
-                                <TableHeader width="10%" center>Chi tiết</TableHeader>
+                                <TableHeader width="37%">Tiêu đề</TableHeader>
+                                <TableHeader width="20%" center>Giờ hoạt động</TableHeader>
+                                <TableHeader width="20%" center>Ngày hoạt động</TableHeader>
+                                <TableHeader width="20%" center>Trạng thái</TableHeader>
                             </TableRow>
                         </TableHead>
                         
@@ -645,11 +655,12 @@ const Menu = () =>  {
                         {
                             loading ? 
                             <tr>
-                                <TableData center colSpan={5}> <CircularProgress /> </TableData>
+                                <TableData center colSpan={100}> <CircularProgress /> </TableData>
                             </tr>
                             : 
                             <MenuList 
                                 currentItems={APIdata}
+                                handleGetDetailItem={handleGetDetailItem}
                             />
                             }
                         </TableBody>
@@ -689,6 +700,12 @@ const Menu = () =>  {
             </TableWrapper>
 
             <Footer />
+
+            <DetailModal 
+                display={detailModal}
+                toggle={toggleDetailModal}
+                detailItem={detailItem}
+            />
         </PageWrapper>
         </>
     )

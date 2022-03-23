@@ -1,9 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Badge } from '@mui/material';
-import { Edit, Delete, Notifications } from '@mui/icons-material';
+import { Edit } from '@mui/icons-material';
 import { ToggleOff, ToggleOn } from '@mui/icons-material';
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import * as Constant from '../../Constant';
 
 const Button = styled.button`
@@ -62,29 +61,6 @@ const StyledToggleOffIcon = styled(ToggleOff)`
     }
 `;
 
-const StyledNotificationIcon = styled(Notifications)`
-    padding: 8px;
-    border-radius: 20px;
-    color: grey;
-
-    &:hover {
-    background-color: ${props => props.theme.disabled};
-    }
-`;
-
-const StyledBadge = styled(Badge)`
-    && {    
-        color: #fff;
-
-        & .MuiBadge-badge {
-            top: 5px;
-            right: 10px;
-            background: #dc3545;
-            font-size: 0.7em;
-        }
-    }
-`;
-
 const StyledEditIcon = styled(Edit)`
     padding: 8px;
     border-radius: 20px;
@@ -94,16 +70,8 @@ const StyledEditIcon = styled(Edit)`
     }
 `;
 
-const StyledDeleteIcon = styled(Delete)`
-    padding: 8px;
-    border-radius: 20px;
-
-    &:hover {
-    background-color: ${props => props.disabled === true ? null : props.theme.disabled};
-    }
-`;
-
 const ApartmentItem = ({ item, handleGetEditItem, handleGetToggleStatusItem, index }) =>  {
+    const navigate = useNavigate();
 
     if (item === 0) {
         return (
@@ -115,8 +83,13 @@ const ApartmentItem = ({ item, handleGetEditItem, handleGetToggleStatusItem, ind
         )
     }
 
+    const handleSetEditItem = (e) => {
+        e.stopPropagation();
+        handleGetEditItem(item.ApartmentId, item.ApartmentName, item.Address, item.Status);
+    }
+
     return (
-        <TableRow>
+        <TableRow onClick={() => navigate("/apartment/" + item.ApartmentId)}>
             <TableData grey>{index + 1}</TableData>
             <TableData>{item.ApartmentName}</TableData>
             <TableData>{item.Address}</TableData>
@@ -129,17 +102,11 @@ const ApartmentItem = ({ item, handleGetEditItem, handleGetToggleStatusItem, ind
                     : null
                 }    
             </TableData>
-            
+
             <TableData center>
-                <Button onClick={() => handleGetEditItem(item.ApartmentId, item.ApartmentName, item.Address, item.Status)}>
+                <Button onClick={handleSetEditItem}>
                     <StyledEditIcon/>
                 </Button>
-
-                <Link to={"/apartment/" + item.ApartmentId}>
-                    <StyledBadge badgeContent={0} overlap="circular">
-                        <StyledNotificationIcon />
-                    </StyledBadge>
-                </Link>
             </TableData>
         </TableRow>
     )

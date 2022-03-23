@@ -74,9 +74,22 @@ const Title = styled.h1`
 const Row = styled.div`
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: ${props => props.start ? "flex-start" : "space-between"};
+    margin-left: ${props => props.ml ? "10px" : "0px"};
     margin-top: ${props => props.mt ? "20px" : "0px"};
     margin-bottom: ${props => props.mb ? "20px" : "0px"};
+`;
+
+const Tab = styled.h1`
+    font-size: 16px;
+    color: #383838;
+    padding: 15px;
+    margin: 0px;
+    background-color: ${props => props.active ? props.theme.white : null};
+    border-radius: 5px 5px 0 0;
+    border: 1px solid rgba(0,0,0,0.1);
+    margin-right: 5px;
+    cursor: pointer;
 `;
 
 const Align = styled.div`
@@ -392,6 +405,7 @@ const Store = () => {
     function toggleDisplayAddress() { setDisplayAddress(!displayAddress); listRef.current.recomputeRowHeights(); }
     const [displayApartment, setDisplayApartment] = useState(false);
     function toggleDisplayApartment() { setDisplayApartment(!displayApartment); };
+    const [activeTab, setActiveTab] = useState(1);
 
     const [loading, setLoading] = useState(false);
     const [apartmentLoading, setApartmentLoading] = useState(false);
@@ -520,11 +534,21 @@ const Store = () => {
         setPage(0);
     }
 
+    function handleSwitchTab(value) {
+        setActiveTab(value);
+        if (value === 1) {
+            setStatus(Constant.VERIFIED_MERCHANT_STORE);
+        } else {
+            setStatus(Constant.UNVERIFIED_MERCHANT_STORE);
+        }
+        setPage(0);
+    }
+
     return (
         <>
         {
-            user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager"
-            ? null :
+            user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager" ? 
+            null :
             <LeftWrapper toggle={displayApartment}>
                 <ButtonWrapper toggle={displayApartment} onClick={toggleDisplayApartment}>
                     <StyledDoubleArrowIcon />
@@ -579,13 +603,21 @@ const Store = () => {
         }
 
         <PageWrapper toggle={displayApartment}>
-            <Title>
-                <Row>
-                Cửa hàng&nbsp;
-                <small>{apartment.name !== '' ? apartment.name : null}
-                       {apartment.address !== '' ? " - " + apartment.address : null}</small>
-                </Row>
-            </Title>
+            {
+                user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager" ?
+                <Row ml start>
+                    <Tab active={activeTab === 1 ? true : false} onClick={() => handleSwitchTab(1)}>Cửa hàng</Tab>
+                    <Tab active={activeTab === 2 ? true : false} onClick={() => handleSwitchTab(2)}>Cửa hàng chờ duyệt</Tab>
+                </Row> 
+                :
+                <Title>
+                    <Row>
+                    Cửa hàng&nbsp;
+                    <small>{apartment.name !== '' ? apartment.name : null}
+                        {apartment.address !== '' ? " - " + apartment.address : null}</small>
+                    </Row>
+                </Title>
+            }
                 
             <TableWrapper>
                 {
@@ -611,11 +643,8 @@ const Store = () => {
                             <DropdownWrapper>
                                 <Select value={status} onChange={handleSetStatus}>
                                     <option value=''>Toàn bộ</option>
-                                    <option value={Constant.DELETED_MERCHANT_STORE}>Xóa</option>
-                                    <option value={Constant.VERIFIED_MERCHANT_STORE}>Xác thực</option>
-                                    <option value={Constant.REJECTED_MERCHANT_STORE}>Từ chối</option>
-                                    <option value={Constant.UNVERIFIED_MERCHANT_STORE}>Tạo mới</option> 
-                                    <option value={Constant.UNVERIFIED_MERCHANT_STORE}>Cập nhật</option>
+                                    <option value={Constant.VERIFIED_MERCHANT_STORE}>Hoạt động</option>
+                                    <option value={Constant.UNVERIFIED_MERCHANT_STORE}>Chờ xác thực</option> 
                                 </Select>
                             </DropdownWrapper>
                         </Align>
@@ -637,10 +666,9 @@ const Store = () => {
                         <TableHead>
                             <TableRow>
                                 <TableHeader width="3%" grey>#</TableHeader>
-                                <TableHeader width="30%">Tên cửa hàng</TableHeader>
+                                <TableHeader width="57%">Tên cửa hàng</TableHeader>
                                 <TableHeader width="20%" center>Quản lý</TableHeader>
-                                <TableHeader width="10%" center>Trạng thái</TableHeader>
-                                <TableHeader width="10%" center>Chi tiết</TableHeader>
+                                <TableHeader width="20%" center>Trạng thái</TableHeader>
                             </TableRow>
                         </TableHead>
                         
@@ -648,7 +676,7 @@ const Store = () => {
                             {
                             loading ? 
                             <tr>
-                                <TableData center colSpan={5}> <CircularProgress /> </TableData>
+                                <TableData center colSpan={100}> <CircularProgress /> </TableData>
                             </tr>
                             : 
                             <StoreList 
