@@ -9,6 +9,8 @@ import { api } from "../RequestMethod";
 import { List, AutoSizer } from 'react-virtualized';
 import * as Constant from '../Constant';
 
+import DetailModal from '../components/Store/DetailModal';
+
 const PageWrapper = styled.div`
     margin: 50px 40px 50px ${props => props.toggle ? "370px" : "45px"};
     transition: 0.3s;
@@ -130,7 +132,7 @@ const StyledSearchIcon = styled(Search)`
 
 const SearchBar = styled.div`
     display: flex;
-    width: ${props => props.width};
+    width: 50%;
     justify-content: center;
     align-items: center;
     border-radius: 5px;
@@ -401,11 +403,16 @@ const  Center = styled.div`
 
 const Store = () => {
     const listRef = useRef();
+
+    const [detailModal, setDetailModal] = useState(false);
+    function toggleDetailModal() { setDetailModal(!detailModal); }
+    const [detailItem, setDetailItem] = useState({ id: '' });
+
     const [displayAddress, setDisplayAddress] = useState(false);
     function toggleDisplayAddress() { setDisplayAddress(!displayAddress); listRef.current.recomputeRowHeights(); }
+
     const [displayApartment, setDisplayApartment] = useState(false);
     function toggleDisplayApartment() { setDisplayApartment(!displayApartment); };
-    const [activeTab, setActiveTab] = useState(1);
 
     const [loading, setLoading] = useState(false);
     const [apartmentLoading, setApartmentLoading] = useState(false);
@@ -414,6 +421,7 @@ const Store = () => {
     const [APIdata, setAPIdata] = useState([]);
     const [apartments, setApartments] = useState([]);
     const [change, setChange] = useState(false);
+    const [activeTab, setActiveTab] = useState(1);
 
     const [limit, setLimit] = useState(10);
     const [page, setPage] = useState(0);
@@ -522,12 +530,6 @@ const Store = () => {
         setPage(0);
     }
 
-    function handleSetStatus(e) {
-        const { value } = e.target;
-        setStatus(value);
-        setPage(0);
-    }
-
     function handleSetLimit(e) {
         const { value } = e.target;
         setLimit(value);
@@ -542,6 +544,11 @@ const Store = () => {
             setStatus(Constant.UNVERIFIED_MERCHANT_STORE);
         }
         setPage(0);
+    }
+
+    const handleGetDetailItem = (id) => {
+        setDetailItem({ id: id });
+        toggleDetailModal();
     }
 
     return (
@@ -632,22 +639,11 @@ const Store = () => {
                 :
                 <>
                     <Row mb>
-                        <Align>
-                            <SearchBar width="50%" mr>
-                                <StyledSearchIcon />
-                                <Input id="storeSearch" placeholder="Tìm cửa hàng" onChange={handleSetStoreSearch} />
-                                <Button onClick={() => clearStoreSearch()}>Clear</Button>
-                            </SearchBar>
-
-                            <small>Trạng thái:&nbsp;</small>
-                            <DropdownWrapper>
-                                <Select value={status} onChange={handleSetStatus}>
-                                    <option value=''>Toàn bộ</option>
-                                    <option value={Constant.VERIFIED_MERCHANT_STORE}>Hoạt động</option>
-                                    <option value={Constant.UNVERIFIED_MERCHANT_STORE}>Chờ xác thực</option> 
-                                </Select>
-                            </DropdownWrapper>
-                        </Align>
+                        <SearchBar>
+                            <StyledSearchIcon />
+                            <Input id="search" placeholder="Tìm kiếm cửa hàng" onChange={handleSetStoreSearch} />
+                            <Button onClick={() => clearStoreSearch()}>Clear</Button>
+                        </SearchBar>
 
                         <ItemsPerPageWrapper>
                             <small>Số hàng mỗi trang:&nbsp;</small>
@@ -681,6 +677,7 @@ const Store = () => {
                             : 
                             <StoreList 
                                 currentItems={APIdata}
+                                handleGetDetailItem={handleGetDetailItem}
                             />
                             }
                         </TableBody>
@@ -720,6 +717,12 @@ const Store = () => {
             </TableWrapper>
 
             <Footer />
+
+            <DetailModal 
+                display={detailModal}
+                toggle={toggleDetailModal}
+                detailItem={detailItem}
+            />
         </PageWrapper>
         </>
     )

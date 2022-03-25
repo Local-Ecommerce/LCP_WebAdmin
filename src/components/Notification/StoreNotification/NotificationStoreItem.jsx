@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from "styled-components";
+import { HideImage } from '@mui/icons-material';
 import { DateTime } from 'luxon';
 
 const NotificationWrapper = styled.a`
-    height: 50px;
-    padding: 8px 20px;
+    min-height: 50px;
+    padding: 8px 20px 8px 15px;
     display: flex;
     align-items: center;
     border-bottom: 1px solid #dee2e6;
@@ -42,6 +43,11 @@ const TopText = styled.span`
     margin: 5px 0px;
     font-size: 14px;
     line-height: 1.5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 `;
 
 const BottomText = styled.p`
@@ -55,8 +61,19 @@ const BottomText = styled.p`
     line-height: 1.2;
 `;
 
-const NotificationItem = ({ item, handleGetDetailItem }) => {
-    const date = DateTime.fromISO(item.UpdatedDate)
+const StyledNoImageIcon = styled(HideImage)`
+    && {
+        color: rgba(0,0,0,0.2);
+        font-size: 20px;
+        padding: 10px;
+        border-radius: 50%;
+        border: 1px solid rgba(0,0,0,0.2);
+        margin-right: 10px;
+    }
+`;
+
+const NotificationStoreItem = ({ item, handleGetDetailItem }) => {
+    const date = DateTime.fromISO(null)
     const diff = date.diffNow(["years", "months", "days", "hours", "minutes"])
     let timeLabel = '';
 
@@ -77,15 +94,19 @@ const NotificationItem = ({ item, handleGetDetailItem }) => {
     }
 
     const handleSetDetailItem = () => {
-        handleGetDetailItem(item.ProductId);
+        handleGetDetailItem(item);
     }
 
     return (
             <NotificationWrapper onClick={handleSetDetailItem}>
-                <Image src={"./images/product1.png"} />
-
+                {
+                    item.StoreImage ?
+                    <Image src={item.StoreImage ? item.StoreImage : ''} />
+                    : <StyledNoImageIcon />
+                }
+                
                 <TextWrapper>
-                    <TopText><b>{item.ProductName}</b> đang chờ duyệt</TopText>
+                    <TopText><b>{item.StoreName}</b> đang chờ cập nhật</TopText>
 
                     <BottomText>{timeLabel}</BottomText>
                 </TextWrapper>
@@ -93,4 +114,4 @@ const NotificationItem = ({ item, handleGetDetailItem }) => {
     );
 };
 
-export default NotificationItem;
+export default NotificationStoreItem;

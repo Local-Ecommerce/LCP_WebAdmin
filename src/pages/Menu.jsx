@@ -7,8 +7,9 @@ import { Search, ArrowRight, FormatListBulleted, DoubleArrow } from '@mui/icons-
 import { CircularProgress, Checkbox } from '@mui/material';
 import { api } from "../RequestMethod";
 import { List, AutoSizer } from 'react-virtualized';
-import DetailModal from '../components/Menu/DetailModal';
 import * as Constant from '../Constant';
+
+import DetailModal from '../components/Menu/DetailModal';
 
 const PageWrapper = styled.div`
     margin: 50px 40px 50px ${props => props.toggle ? "370px" : "45px"};

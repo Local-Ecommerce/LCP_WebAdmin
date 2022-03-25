@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useNavigate } from "react-router-dom";
 import * as Constant from '../../Constant';
 
 const TableRow = styled.tr`
@@ -42,8 +41,7 @@ const Status = styled.span`
     "#dc3545"};
 `;
 
-const StoreItem = ({ item, index }) => {
-    let navigate = useNavigate();
+const StoreItem = ({ item, index, handleGetDetailItem }) => {
 
     if (item === 0) {
         return (
@@ -75,9 +73,13 @@ const StoreItem = ({ item, index }) => {
             activeLabel = 'WRONG STATUS';
             break;
     }
+    
+    const handleSetDetailItem = () => {
+        handleGetDetailItem(item.MerchantStoreId);
+    }
 
     return (
-        <TableRow onClick={() => navigate("/store/" + item.MerchantStoreId)}>
+        <TableRow onClick={handleSetDetailItem}>
             <TableData grey>{index + 1}</TableData>
             <TableData>{item.StoreName}</TableData>
             <TableData center>{item.Resident.ResidentName}</TableData>

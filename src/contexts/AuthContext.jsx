@@ -40,9 +40,9 @@ export function AuthProvider({ children }) {
             setDoc(doc(firestore, "user", userCredential.user.uid), {
                 role: 'MarketManager',
                 fullname: 'Quản lí chung cư',
-                gender: '',
-                deliveryAddress: '',
-                dob: '',
+                gender: null,
+                deliveryAddress: null,
+                dob: null,
                 apartmentId: apartmentId
             });
         })

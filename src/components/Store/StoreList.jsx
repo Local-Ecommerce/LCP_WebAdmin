@@ -1,7 +1,7 @@
 import React from 'react';
 import StoreItem from '../Store/StoreItem';
 
-const StoreList = ({ currentItems }) => {
+const StoreList = ({ currentItems, handleGetDetailItem }) => {
 
     if (currentItems.length === 0) {
         return <StoreItem item={0} />
@@ -11,6 +11,7 @@ const StoreList = ({ currentItems }) => {
         return (
             <StoreItem
                 item={item} index={index} key={index}
+                handleGetDetailItem={handleGetDetailItem}
             />
         )
     });

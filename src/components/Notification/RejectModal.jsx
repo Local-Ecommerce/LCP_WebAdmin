@@ -72,8 +72,7 @@ const customStyles = {
     },
 };
 
-const RejectModal = ({ display, toggle, rejectItem, toggleRefresh, setRejectModal, setDetailModal }) => {
-    const user = JSON.parse(localStorage.getItem('USER'));
+const RejectModal = ({ display, toggle, rejectItem, handleRejectItem }) => {
     const [reason, setReason] = useState('Tên không hợp lệ');
     const [reasonString, setReasonString] = useState('');
     const [error, setError] = useState('');
@@ -98,43 +97,6 @@ const RejectModal = ({ display, toggle, rejectItem, toggleRefresh, setRejectModa
         }
     }
 
-    const handleRejectItem = (event, reason) => {
-        event.preventDefault();
-        const notification = toast.loading("Đang xử lí yêu cầu...");
-
-        const handleReject = async () => {
-            api.put("products/rejection?id=" + rejectItem.id)
-            .then(function (res) {
-                if (res.data.ResultMessage === "SUCCESS") {
-                    toggleRefresh();
-                    setRejectModal(false);
-                    setDetailModal(false);
-
-                    push(ref(db, `Notification/` + rejectItem.residentId), {
-                        createdDate: Date.now(),
-                        data: {
-                            image: rejectItem.image ? rejectItem.image : '',
-                            name: rejectItem.name,
-                            id: rejectItem.id,
-                            reason: reason ? reason : ''
-                        },
-                        read: 0,
-                        receiverId: rejectItem.residentId,
-                        senderId: user.Residents[0].ResidentId,
-                        type: '002'
-                    });
-
-                    toast.update(notification, { render: "Từ chối sản phẩm thành công!", type: "success", autoClose: 5000, isLoading: false });
-                }
-            })
-            .catch(function (error) {
-                console.log(error);
-                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
-            });
-        }
-        handleReject();
-    }
-
     const validCheck = () => {
         let check = false;
         setError('');
@@ -152,10 +114,10 @@ const RejectModal = ({ display, toggle, rejectItem, toggleRefresh, setRejectModa
 
     return (
         <Modal isOpen={display} onRequestClose={toggle} style={customStyles} ariaHideApp={false}>
-            <ModalTitle>Từ chối sản phẩm</ModalTitle>
+            <ModalTitle>Từ chối</ModalTitle>
 
             <ModalContentWrapper>
-                Bạn có chắc muốn từ chối sản phẩm【<b>{rejectItem ? rejectItem.name : ''}</b>】?
+                Bạn có chắc muốn từ chối【<b>{rejectItem ? rejectItem.name : ''}</b>】?
 
                 <RadioWrapper>
                     <RadioGroup value={reason} name='reason' onChange={(e) => setReason(e.target.value)}>

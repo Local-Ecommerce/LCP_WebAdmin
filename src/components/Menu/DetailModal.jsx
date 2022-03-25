@@ -5,7 +5,7 @@ import Modal from 'react-modal';
 import { api } from "../../RequestMethod";
 import { CircularProgress } from '@mui/material';
 import { Search } from '@mui/icons-material';
-import ProductInMenuList from '../Product/ProductInMenuList';
+import ProductInMenuList from './ProductInMenuList';
 import * as Constant from '../../Constant';
 
 const ModalContentWrapper = styled.div`
@@ -14,6 +14,22 @@ const ModalContentWrapper = styled.div`
     max-height: 60vh;
     overflow: auto;
     overflow-x: hidden;
+    display: flex;
+    justify-content: center;
+`;
+
+const LeftWrapper = styled.div`
+    flex: 1;
+    padding: 20px 20px 20px 0px;
+    border-right: 1px solid rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+`;
+
+const RightWrapper = styled.div`
+    flex: 2;
+    padding: 20px;
 `;
 
 const ModalButtonWrapper = styled.div`
@@ -178,11 +194,37 @@ const TableData = styled.td`
 
 const TableRow = styled.tr``;
 
+const ImageWrapper = styled.div`
+    width: 100%;
+    padding-top: 100%;
+    position: relative;
+    margin-bottom: 15px;
+`;
+
+const Image = styled.img`
+    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+`;
+
+const Text = styled.div`
+    font-size: 20px;
+    color: ${props => props.theme.dark};
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+`;
+
 const customStyles = {
     content: {
         top: '50%',
         left: '50%',
-        right: '30%',
+        right: '40%',
         bottom: 'auto',
         marginRight: '-50%',
         transform: 'translate(-50%, -50%)',
@@ -192,6 +234,7 @@ const customStyles = {
 
 const DetailModal = ({ display, toggle, detailItem }) => {
     const [menu, setMenu] = useState({});
+    const [store, setStore] = useState({});
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -207,7 +250,14 @@ const DetailModal = ({ display, toggle, detailItem }) => {
                     if (res.data.ResultMessage === "SUCCESS") {
                         setMenu(res.data.Data.List[0]);
                         setProducts(res.data.Data.List[0].ProductInMenus);
-                        setLoading(false);
+                        
+                        api.get("stores?id=" + res.data.Data.List[0].MerchantStoreId)
+                        .then(function (res2) {
+                            if (res2.data.ResultMessage === "SUCCESS") {
+                                setStore(res2.data.Data.List[0])
+                                setLoading(false);
+                            }
+                        })
                     }
                 })
                 .catch(function (error) {
@@ -238,50 +288,60 @@ const DetailModal = ({ display, toggle, detailItem }) => {
         <Modal isOpen={display} onRequestClose={toggle} style={customStyles} ariaHideApp={false}>
 
             <ModalContentWrapper>
-                <Row mb>
-                    <SearchBar>
-                        <StyledSearchIcon />
-                        <Input id="search" placeholder="Tìm kiếm sản phẩm" onChange={handleSetSearch} />
-                        <Button type="button" onClick={clearSearch}>Xóa</Button>
-                    </SearchBar>
+                <LeftWrapper>
+                    <ImageWrapper>
+                        <Image src={store.StoreImage} />
+                    </ImageWrapper>
 
-                    <Align>
-                        <small>Trạng thái:&nbsp;</small>
-                        <DropdownWrapper width="16%">
-                            <Select value={status} onChange={handleSetStatus}>
-                            <option value={''}>Toàn bộ</option>
-                                <option value={Constant.VERIFIED_PRODUCT}>Hoạt động</option>
-                                <option value={Constant.REJECTED_PRODUCT}>Từ chối</option>
-                                <option value={Constant.UNVERIFIED_PRODUCT}>Chờ xác thực</option>
-                            </Select>
-                        </DropdownWrapper>
-                    </Align>
-                </Row>
+                    <Text> {loading ? '' : store.StoreName} </Text>
+                </LeftWrapper>
 
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableHeader width="7%" center>Ảnh</TableHeader>
-                            <TableHeader width="53%">Tên sản phẩm</TableHeader>
-                            <TableHeader width="20%" center>Giá</TableHeader>
-                            <TableHeader width="20%" center>Trạng thái</TableHeader>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {
-                            loading ? 
-                            <tr>
-                                <TableData center colSpan={100}> <CircularProgress /> </TableData>
-                            </tr>
-                            : 
-                            <ProductInMenuList 
-                                currentItems={products}
-                                search={search}
-                                status={status}
-                            />
-                        }
-                    </TableBody>
-                </Table>
+                <RightWrapper>
+                    <Row mb>
+                        <SearchBar>
+                            <StyledSearchIcon />
+                            <Input id="search" placeholder="Tìm kiếm sản phẩm" onChange={handleSetSearch} />
+                            <Button type="button" onClick={clearSearch}>Xóa</Button>
+                        </SearchBar>
+
+                        <Align>
+                            <small>Trạng thái:&nbsp;</small>
+                            <DropdownWrapper width="16%">
+                                <Select value={status} onChange={handleSetStatus}>
+                                <option value={''}>Toàn bộ</option>
+                                    <option value={Constant.VERIFIED_PRODUCT}>Hoạt động</option>
+                                    <option value={Constant.REJECTED_PRODUCT}>Từ chối</option>
+                                    <option value={Constant.UNVERIFIED_PRODUCT}>Chờ xác thực</option>
+                                </Select>
+                            </DropdownWrapper>
+                        </Align>
+                    </Row>
+
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableHeader width="15%" center>Ảnh</TableHeader>
+                                <TableHeader width="45%">Tên sản phẩm</TableHeader>
+                                <TableHeader width="20%" center>Giá</TableHeader>
+                                <TableHeader width="20%" center>Trạng thái</TableHeader>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {
+                                loading ? 
+                                <tr>
+                                    <TableData center colSpan={100}> <CircularProgress /> </TableData>
+                                </tr>
+                                : 
+                                <ProductInMenuList 
+                                    currentItems={products}
+                                    search={search}
+                                    status={status}
+                                />
+                            }
+                        </TableBody>
+                    </Table>
+                </RightWrapper>
             </ModalContentWrapper>
 
             <ModalButtonWrapper>

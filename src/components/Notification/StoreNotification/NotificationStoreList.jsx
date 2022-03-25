@@ -1,11 +1,11 @@
 import { React } from 'react';
-import NotificationItem from './NotificationItem';
+import NotificationStoreItem from './NotificationStoreItem';
 
-const NotificationList = ({ currentItems, handleGetDetailItem }) => {
+const NotificationStoreList = ({ currentItems, handleGetDetailItem }) => {
 
     return currentItems && currentItems.map((item, index) => {
         return (
-            <NotificationItem 
+            <NotificationStoreItem 
                 item={item} key={index} 
                 handleGetDetailItem={handleGetDetailItem}
             />
@@ -13,4 +13,4 @@ const NotificationList = ({ currentItems, handleGetDetailItem }) => {
     });
 }
 
-export default NotificationList;
+export default NotificationStoreList;

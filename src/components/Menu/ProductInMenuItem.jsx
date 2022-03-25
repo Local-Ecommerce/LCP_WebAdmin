@@ -18,14 +18,14 @@ const TableData = styled.td`
     font-size: 15px;
     color: ${props => props.grey ? props.theme.grey : null};
 
-    height: 51px;
+    height: 30px;
 `;
 
 const Image = styled.img`
     vertical-align: middle;
-    width: 40px;
-    height: 40px;
-    border-radius: 3px;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
 `;
 
 const Status = styled.span`

@@ -5,16 +5,21 @@ import { Notifications, Search, AccountCircleOutlined, HelpOutlineOutlined, Logo
 import { Badge, CircularProgress } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { toast } from 'react-toastify';
 import { api } from "../RequestMethod";
 import useClickOutside from "../contexts/useClickOutside";
-import NotificationList from '../components/Notification/NotificationList';
+import * as Constant from '../Constant';
 import RejectModal from '../components/Notification/RejectModal';
 import ApproveModal from '../components/Notification/ApproveModal';
-import DetailModal from '../components/Notification/DetailModal';
-import * as Constant from '../Constant';
+
+import DetailProductModal from '../components/Notification/ProductNotification/DetailProductModal';
+import NotificationProductList from '../components/Notification/ProductNotification/NotificationProductList';
+
+import DetailStoreModal from '../components/Notification/StoreNotification/DetailStoreModal';
+import NotificationStoreList from '../components/Notification/StoreNotification/NotificationStoreList';
 
 import { db } from "../firebase";
-import { ref, onValue, query, limitToFirst, orderByChild, equalTo } from "firebase/database";
+import { ref, push, onValue, query, limitToFirst, orderByChild, equalTo } from "firebase/database";
 
 const Wrapper = styled.div`
     display: flex;
@@ -316,16 +321,19 @@ const Header = ({ refresh, toggleRefresh }) => {
     let navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem('USER'));
 
-    const [rejectModal, setRejectModal] = useState(false);
-    function toggleRejectModal() { setRejectModal(!rejectModal); }
-    const [approveModal, setApproveModal] = useState(false);
-    function toggleApproveModal() { setApproveModal(!approveModal); }
-    const [detailModal, setDetailModal] = useState(false);
-    function toggleDetailModal() { setDetailModal(!detailModal); }
+    const [rejectProductModal, setRejectProductModal] = useState(false);    function toggleRejectProductModal() { setRejectProductModal(!rejectProductModal); }
+    const [approveProductModal, setApproveProductModal] = useState(false);  function toggleApproveProductModal() { setApproveProductModal(!approveProductModal); }
+    const [detailProductModal, setDetailProductModal] = useState(false);    function toggleDetailProductModal() { setDetailProductModal(!detailProductModal); }
+    
+    const [rejectStoreModal, setRejectStoreModal] = useState(false);        function toggleRejectStoreModal() { setRejectStoreModal(!rejectStoreModal); }
+    const [approveStoreModal, setApproveStoreModal] = useState(false);      function toggleApproveStoreModal() { setApproveStoreModal(!approveStoreModal); }
+    const [detailStoreModal, setDetailStoreModal] = useState(false);        function toggleDetailStoreModal() { setDetailStoreModal(!detailStoreModal); }
 
     const [rejectItem, setRejectItem] = useState({id : '', name: '', image: '', residentId: ''});
     const [approveItem, setApproveItem] = useState({id : '', name: '', image: '', residentId: ''});
-    const [detailItem, setDetailItem] = useState({ id: '' });
+    const [productItem, setProductItem] = useState({ id: '' });
+    const [storeItem, setStoreItem] = useState({});
+    
 
     const [activeTab, setActiveTab] = useState(1);
     const [notificationDropdown, toggleNotificationDropdown] = useState(false);
@@ -351,15 +359,10 @@ const Header = ({ refresh, toggleRefresh }) => {
                     .then(function (res) {
                         setProducts(res.data.Data.List);
 
-                        let url2 = "stores" 
-                        + "?limit=100"
-                        + "&sort=+createddate" 
-                        + "&status=" + Constant.UNVERIFIED_MERCHANT_STORE
-                        + "&apartmentid=" + user.Residents[0].ApartmentId;
+                        let url2 = "stores/unverified-stores";
                         api.get(url2)
-                        .then(function (res) {
-                            console.log(res.data.Data.List)
-                            setStores(res.data.Data.List);
+                        .then(function (res2) {
+                            setStores(res2.data.Data);
                             setLoading(false);
                         })
                     })
@@ -374,7 +377,7 @@ const Header = ({ refresh, toggleRefresh }) => {
     }, [refresh]);
 
     let clickOutside = useClickOutside(() => {
-        if (notificationDropdown && !detailModal) {
+        if (notificationDropdown && !(detailProductModal || detailStoreModal)) {
             toggleNotificationDropdown(false);
         }
         if (userDropdown) {
@@ -389,19 +392,178 @@ const Header = ({ refresh, toggleRefresh }) => {
         } catch {}
     }
 
-    const handleGetApproveItem = (id, name, image, residentId) => {
+    const handleGetApproveProductItem = (id, name, image, residentId) => {
         setApproveItem({ id : id, name: name, image: image, residentId: residentId });
-        toggleApproveModal();
+        toggleApproveProductModal();
     }
 
-    const handleGetRejectItem = (id, name, image, residentId) => {
+    const handleGetRejectProductItem = (id, name, image, residentId) => {
         setRejectItem({ id : id, name: name, image: image, residentId: residentId });
-        toggleRejectModal();
+        toggleRejectProductModal();
     }
 
-    const handleGetDetailItem = (id) => {
-        setDetailItem({ id: id });
-        toggleDetailModal();
+    const handleGetDetailProductItem = (id) => {
+        setProductItem({ id: id });
+        toggleDetailProductModal();
+    }
+
+    const handleGetApproveStoreItem = (id, name, image, residentId) => {
+        setApproveItem({ id : id, name: name, image: image, residentId: residentId });
+        toggleApproveStoreModal();
+    }
+
+    const handleGetRejectStoreItem = (id, name, image, residentId) => {
+        setRejectItem({ id : id, name: name, image: image, residentId: residentId });
+        toggleRejectStoreModal();
+    }
+
+    const handleGetDetailStoreItem = (item) => {
+        setStoreItem(item);
+        toggleDetailStoreModal();
+    }
+
+    const handleApproveProductItem = (event) => {
+        event.preventDefault();
+        const handleApprove = async () => {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
+            api.put("products/approval?id=" + approveItem.id)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    toggleRefresh();
+                    setApproveProductModal(false);
+                    setDetailProductModal(false);
+
+                    push(ref(db, `Notification/` + approveItem.residentId), {
+                        createdDate: Date.now(),
+                        data: {
+                            image: approveItem.image ? approveItem.image : '',
+                            name: approveItem.name,
+                            id: approveItem.id
+                        },
+                        read: 0,
+                        receiverId: approveItem.residentId,
+                        senderId: user.Residents[0].ResidentId,
+                        type: '001'
+                    });
+
+                    toast.update(notification, { render: "Duyệt sản phẩm thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        handleApprove();
+    }
+
+    const handleRejectProductItem = (event, reason) => {
+        event.preventDefault();
+        const notification = toast.loading("Đang xử lí yêu cầu...");
+
+        const handleReject = async () => {
+            api.put("products/rejection?id=" + rejectItem.id)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    toggleRefresh();
+                    setRejectProductModal(false);
+                    setDetailProductModal(false);
+
+                    push(ref(db, `Notification/` + rejectItem.residentId), {
+                        createdDate: Date.now(),
+                        data: {
+                            image: rejectItem.image ? rejectItem.image : '',
+                            name: rejectItem.name,
+                            id: rejectItem.id,
+                            reason: reason ? reason : ''
+                        },
+                        read: 0,
+                        receiverId: rejectItem.residentId,
+                        senderId: user.Residents[0].ResidentId,
+                        type: '002'
+                    });
+
+                    toast.update(notification, { render: "Từ chối sản phẩm thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        handleReject();
+    }
+
+    const handleApproveStoreItem = (event) => {
+        event.preventDefault();
+        const handleApprove = async () => {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
+            api.put("stores/approval?id=" + approveItem.id)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    toggleRefresh();
+                    setApproveStoreModal(false);
+                    setDetailStoreModal(false);
+
+                    push(ref(db, `Notification/` + approveItem.residentId), {
+                        createdDate: Date.now(),
+                        data: {
+                            image: approveItem.image ? approveItem.image : '',
+                            name: approveItem.name,
+                            id: approveItem.id
+                        },
+                        read: 0,
+                        receiverId: approveItem.residentId,
+                        senderId: user.Residents[0].ResidentId,
+                        type: '101'
+                    });
+
+                    toast.update(notification, { render: "Duyệt cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        handleApprove();
+    }
+
+    const handleRejectStoreItem = (event, reason) => {
+        event.preventDefault();
+        const notification = toast.loading("Đang xử lí yêu cầu...");
+
+        const handleReject = async () => {
+            api.put("stores/rejection?id=" + rejectItem.id)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    toggleRefresh();
+                    setRejectStoreModal(false);
+                    setDetailStoreModal(false);
+
+                    push(ref(db, `Notification/` + rejectItem.residentId), {
+                        createdDate: Date.now(),
+                        data: {
+                            image: rejectItem.image ? rejectItem.image : '',
+                            name: rejectItem.name,
+                            id: rejectItem.id,
+                            reason: reason ? reason : ''
+                        },
+                        read: 0,
+                        receiverId: rejectItem.residentId,
+                        senderId: user.Residents[0].ResidentId,
+                        type: '102'
+                    });
+                    
+                    toast.update(notification, { render: "Từ chối cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        handleReject();
     }
 
     return (
@@ -468,9 +630,9 @@ const Header = ({ refresh, toggleRefresh }) => {
                                 activeTab === 1 && products.length ?
                                 <>
                                     <NotificationWrapper>
-                                        <NotificationList 
+                                        <NotificationProductList 
                                             currentItems={products} 
-                                            handleGetDetailItem={handleGetDetailItem}
+                                            handleGetDetailItem={handleGetDetailProductItem}
                                         />
                                     </NotificationWrapper>
 
@@ -481,9 +643,9 @@ const Header = ({ refresh, toggleRefresh }) => {
                                 : activeTab === 2 && stores.length ?
                                 <>
                                     <NotificationWrapper>
-                                        <NotificationList 
+                                        <NotificationStoreList 
                                             currentItems={stores} 
-                                            handleGetDetailItem={handleGetDetailItem}
+                                            handleGetDetailItem={handleGetDetailStoreItem}
                                         />
                                     </NotificationWrapper>
 
@@ -494,9 +656,9 @@ const Header = ({ refresh, toggleRefresh }) => {
                                 : activeTab === 3 && residents.length ?
                                 <>
                                     <NotificationWrapper>
-                                        <NotificationList 
+                                        <NotificationProductList 
                                             currentItems={residents} 
-                                            handleGetDetailItem={handleGetDetailItem}
+                                            handleGetDetailItem={handleGetDetailStoreItem}
                                         />
                                     </NotificationWrapper>
 
@@ -532,30 +694,48 @@ const Header = ({ refresh, toggleRefresh }) => {
                 : null
             }
 
-            <DetailModal 
-                display={detailModal}
-                toggle={toggleDetailModal}
-                detailItem={detailItem}
-                handleGetApproveItem={handleGetApproveItem}
-                handleGetRejectItem={handleGetRejectItem}
+            <DetailProductModal 
+                display={detailProductModal}
+                toggle={toggleDetailProductModal}
+                detailItem={productItem}
+                handleGetApproveItem={handleGetApproveProductItem}
+                handleGetRejectItem={handleGetRejectProductItem}
+            />
+
+            <DetailStoreModal 
+                display={detailStoreModal}
+                toggle={toggleDetailStoreModal}
+                detailItem={storeItem}
+                handleGetApproveItem={handleGetApproveStoreItem}
+                handleGetRejectItem={handleGetRejectStoreItem}
             />
             
             <ApproveModal
-                display={approveModal} 
-                toggle={toggleApproveModal} 
+                display={approveProductModal} 
+                toggle={toggleApproveProductModal} 
                 approveItem={approveItem} 
-                toggleRefresh={toggleRefresh}
-                setApproveModal={setApproveModal}
-                setDetailModal={setDetailModal}
+                handleApproveItem={handleApproveProductItem}
             />
 
             <RejectModal
-                display={rejectModal} 
-                toggle={toggleRejectModal} 
+                display={rejectProductModal} 
+                toggle={toggleRejectProductModal} 
                 rejectItem={rejectItem} 
-                toggleRefresh={toggleRefresh}
-                setRejectModal={setRejectModal}
-                setDetailModal={setDetailModal}
+                handleRejectItem={handleRejectProductItem}
+            />
+
+            <ApproveModal
+                display={approveStoreModal} 
+                toggle={toggleApproveStoreModal} 
+                approveItem={approveItem} 
+                handleApproveItem={handleApproveStoreItem}
+            />
+
+            <RejectModal
+                display={rejectStoreModal} 
+                toggle={toggleRejectStoreModal} 
+                rejectItem={rejectItem} 
+                handleRejectItem={handleRejectStoreItem}
             />
         </Wrapper>
     );

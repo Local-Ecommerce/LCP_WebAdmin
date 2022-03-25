@@ -5,11 +5,11 @@ import ProductList from '../components/Product/ProductList';
 import ReactPaginate from "react-paginate";
 import { Search } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
-import { api } from "../RequestMethod";
 import { toast } from 'react-toastify';
+import { api } from "../RequestMethod";
 import RejectModal from '../components/Notification/RejectModal';
 import ApproveModal from '../components/Notification/ApproveModal';
-import DetailModal from '../components/Notification/DetailModal';
+import DetailProductModal from '../components/Notification/ProductNotification/DetailProductModal';
 import * as Constant from '../Constant';
 
 import { db } from "../firebase";
@@ -357,6 +357,78 @@ const Product = ({ refresh, toggleRefresh }) =>  {
         toggleDetailModal();
     }
 
+    const handleApproveProductItem = (event) => {
+        event.preventDefault();
+        const handleApprove = async () => {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
+            api.put("products/approval?id=" + approveItem.id)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    toggleRefresh();
+                    setApproveModal(false);
+                    setDetailModal(false);
+
+                    push(ref(db, `Notification/` + approveItem.residentId), {
+                        createdDate: Date.now(),
+                        data: {
+                            image: approveItem.image ? approveItem.image : '',
+                            name: approveItem.name,
+                            id: approveItem.id
+                        },
+                        read: 0,
+                        receiverId: approveItem.residentId,
+                        senderId: user.Residents[0].ResidentId,
+                        type: '001'
+                    });
+
+                    toast.update(notification, { render: "Duyệt sản phẩm thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        handleApprove();
+    }
+
+    const handleRejectProductItem = (event, reason) => {
+        event.preventDefault();
+        const notification = toast.loading("Đang xử lí yêu cầu...");
+
+        const handleReject = async () => {
+            api.put("products/rejection?id=" + rejectItem.id)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    toggleRefresh();
+                    setRejectModal(false);
+                    setDetailModal(false);
+
+                    push(ref(db, `Notification/` + rejectItem.residentId), {
+                        createdDate: Date.now(),
+                        data: {
+                            image: rejectItem.image ? rejectItem.image : '',
+                            name: rejectItem.name,
+                            id: rejectItem.id,
+                            reason: reason ? reason : ''
+                        },
+                        read: 0,
+                        receiverId: rejectItem.residentId,
+                        senderId: user.Residents[0].ResidentId,
+                        type: '002'
+                    });
+
+                    toast.update(notification, { render: "Từ chối sản phẩm thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        handleReject();
+    }
+
     return (
         <PageWrapper>
             <Row ml start>
@@ -450,7 +522,7 @@ const Product = ({ refresh, toggleRefresh }) =>  {
 
             <Footer />
 
-            <DetailModal 
+            <DetailProductModal 
                 display={detailModal}
                 toggle={toggleDetailModal}
                 detailItem={detailItem}
@@ -462,18 +534,14 @@ const Product = ({ refresh, toggleRefresh }) =>  {
                 display={approveModal} 
                 toggle={toggleApproveModal} 
                 approveItem={approveItem} 
-                toggleRefresh={toggleRefresh}
-                setApproveModal={setApproveModal}
-                setDetailModal={setDetailModal}
+                handleApproveItem={handleApproveProductItem}
             />
 
             <RejectModal
                 display={rejectModal} 
                 toggle={toggleRejectModal} 
                 rejectItem={rejectItem} 
-                toggleRefresh={toggleRefresh}
-                setRejectModal={setRejectModal}
-                setDetailModal={setDetailModal}
+                handleRejectItem={handleRejectProductItem}
             />
         </PageWrapper>
     )

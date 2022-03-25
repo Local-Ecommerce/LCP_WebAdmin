@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
-import { api } from "../../RequestMethod";
+import { api } from "../../../RequestMethod";
 import { Close, Check } from '@mui/icons-material';
-import * as Constant from '../../Constant';
+import * as Constant from '../../../Constant';
 
 const ModalContentWrapper = styled.div`
     border-bottom: 1px solid #cfd2d4;
@@ -210,7 +210,7 @@ const Flex = styled.div`
     height: 40px;
 `;
 
-const DetailModal = ({ display, toggle, detailItem, handleGetApproveItem, handleGetRejectItem }) => {
+const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem, handleGetRejectItem }) => {
     const [item, setItem] = useState({});
     const [images, setImages] = useState([]);
     const [imageSrc, setImageSrc] = useState('');
@@ -308,13 +308,9 @@ const DetailModal = ({ display, toggle, detailItem, handleGetApproveItem, handle
                     <Price> {loading ? '' : item.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"} </Price>
                     
                     <Label>Miêu tả</Label>
-
-                    {/* <Description> {loading ? '' : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'} </Description> */}
-
-                    {/* <BriefDescription> {loading ? '' : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'} </BriefDescription> */}
                     <Description> {loading ? '' : item.Description} </Description>
-                    <Label mt>Miêu tả ngắn</Label>
 
+                    <Label mt>Miêu tả ngắn</Label>
                     <BriefDescription> {loading ? '' : item.BriefDescription} </BriefDescription>
 
                     <Flex>
@@ -387,4 +383,4 @@ const DetailModal = ({ display, toggle, detailItem, handleGetApproveItem, handle
     )
 };
 
-export default DetailModal;
+export default DetailProductModal;
