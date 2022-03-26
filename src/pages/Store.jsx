@@ -452,10 +452,9 @@ const Store = ({ refresh, toggleRefresh }) => {
         if (apartment.id !== '') {
             setLoading(true);
 
-            if (user.Residents[0].Type === Constant.MARKET_MANAGER && parseInt(activeTab) === 2) {
+            if (user.RoleId === "R001" && user.Residents[0].Type === Constant.MARKET_MANAGER && parseInt(activeTab) === 2) {
                 api.get("stores/unverified-stores")
                 .then(function (res) {
-                    console.log(res.data)
                     if (res.data.ResultMessage === 'SUCCESS') {
                         setUnverifiedStore(res.data.Data);
                         setLoading(false);

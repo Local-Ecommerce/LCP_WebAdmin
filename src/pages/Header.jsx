@@ -688,7 +688,11 @@ const Header = ({ refresh, toggleRefresh }) => {
                     </Name>
                     
                     <DropdownList>
-                        <DropdownLink to={"/"}> <StyledPersonIcon /> Thông tin cá nhân </DropdownLink>
+                        {
+                            user && user.RoleId === "R002" ?
+                            null :
+                            <DropdownLink to={"/"}> <StyledPersonIcon /> Thông tin cá nhân </DropdownLink>
+                        }
                         <DropdownLink to={"/"}> <StyledHelpIcon /> Trợ giúp </DropdownLink>
                         <DropdownItem onClick={handleLogout}> <StyledLogoutIcon /> Đăng xuất </DropdownItem>
                     </DropdownList>

@@ -7,10 +7,11 @@ import { AddCircle, Search } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
 import { api } from "../RequestMethod";
 import { toast } from 'react-toastify';
-import CreateModal from '../components/Poi/CreateModal';
-import EditModal from '../components/Poi/EditModal';
-import ToggleStatusModal from '../components/Poi/ToggleStatusModal';
 import * as Constant from '../Constant';
+
+import CreateModal from '../components/Poi/CreateModal';
+import DetailModal from '../components/Poi/DetailModal';
+import ToggleStatusModal from '../components/Poi/ToggleStatusModal';
 
 const PageWrapper = styled.div`
     margin: 40px;
@@ -283,13 +284,13 @@ const Footer = styled.div`
 const Poi = () =>  {
     const [createModal, setCreateModal] = useState(false);
     function toggleCreateModal() { setCreateModal(!createModal); }
-    const [editModal, setEditModal] = useState(false);
-    function toggleEditModal() { setEditModal(!editModal); }
+    const [detailModal, setDetailModal] = useState(false);
+    function toggleDetailModal() { setDetailModal(!detailModal); }
     const [toggleStatusModal, setToggleStatusModal] = useState(false);
     const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
 
     const [input, setInput] = useState({ title: '', text: '', apartment: '' });
-    const [editItem, setEditItem] = useState({ id: '', title: '', text: '', residentId: '', apartmentId: '', status: '' });
+    const [detailItem, setDetailItem] = useState({ id: '', title: '', text: '', residentId: '', apartmentId: '', status: '' });
     const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
     const [error, setError] = useState({ titleError: '', apartmentError: '', editError: '' });
 
@@ -425,23 +426,23 @@ const Poi = () =>  {
         return true;
     }
 
-    const handleGetEditItem = (id) => {
-        setEditItem(data => ({ ...data, id: id }));
-        toggleEditModal();
+    const handleGetDetailItem = (id) => {
+        setDetailItem(data => ({ ...data, id: id }));
+        toggleDetailModal();
     }
 
     const handleEditItem = (event) => {
         event.preventDefault();
         if (validEditCheck()) {
             const notification = toast.loading("Đang xử lí yêu cầu...");
-            const url = "pois?id=" + editItem.id;
+            const url = "pois?id=" + detailItem.id;
             const editData = async () => {
                 api.put(url, {
-                    title: editItem.title,
-                    text: editItem.text,
-                    status: editItem.status,
-                    residentId: editItem.residentId || null,
-                    apartmentId: editItem.apartmentId || null
+                    title: detailItem.title,
+                    text: detailItem.text,
+                    status: detailItem.status,
+                    residentId: detailItem.residentId || null,
+                    apartmentId: detailItem.apartmentId || null
                 })
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
@@ -455,7 +456,7 @@ const Poi = () =>  {
                 });
             }
             editData();
-            toggleEditModal();
+            toggleDetailModal();
         }
     }
 
@@ -463,11 +464,11 @@ const Poi = () =>  {
         let check = false;
         setError(error => ({ ...error, editError: '' }));
 
-        if (editItem.title === null || editItem.title === '') {
+        if (detailItem.title === null || detailItem.title === '') {
             setError(error => ({ ...error, editError: 'Vui lòng nhập tiêu đề' }));
             check = true;
         }
-        if (!(editItem.status === Constant.ACTIVE_POI || editItem.status === Constant.INACTIVE_POI)) {
+        if (!(detailItem.status === Constant.ACTIVE_POI || detailItem.status === Constant.INACTIVE_POI)) {
             check = true;
         }
         if (check === true) {
@@ -560,7 +561,6 @@ const Poi = () =>  {
                             <TableHeader width="10%" center>Quản lý</TableHeader>
                             <TableHeader width="10%" center>Ngày tạo</TableHeader>
                             <TableHeader width="10%" center>Trạng thái</TableHeader>
-                            <TableHeader width="12%" center>Chỉnh sửa</TableHeader>
                         </TableRow>
                     </TableHead>
                     
@@ -568,12 +568,12 @@ const Poi = () =>  {
                         {
                         loading ? 
                         <tr>
-                            <TableData center colSpan={8}> <CircularProgress /> </TableData>
+                            <TableData center colSpan={100}> <CircularProgress /> </TableData>
                         </tr>
                         : 
                         <PoiList 
                             currentItems={APIdata}
-                            handleGetEditItem={handleGetEditItem} 
+                            handleGetDetailItem={handleGetDetailItem} 
                             handleGetToggleStatusItem={handleGetToggleStatusItem}
                         />
                         }
@@ -622,12 +622,12 @@ const Poi = () =>  {
                 handleAddItem={handleAddItem}
             />
 
-            <EditModal 
-                display={editModal}
-                toggle={toggleEditModal}
-                editItem={editItem}
+            <DetailModal 
+                display={detailModal}
+                toggle={toggleDetailModal}
+                detailItem={detailItem}
                 error={error}
-                setEditItem={setEditItem}
+                setDetailItem={setDetailItem}
                 handleEditItem={handleEditItem}
             />
 

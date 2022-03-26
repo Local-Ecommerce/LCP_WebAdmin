@@ -7,13 +7,15 @@ import { Search } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
 import { toast } from 'react-toastify';
 import { api } from "../RequestMethod";
-import RejectModal from '../components/Notification/RejectModal';
-import ApproveModal from '../components/Notification/ApproveModal';
-import DetailProductModal from '../components/Notification/ProductNotification/DetailProductModal';
 import * as Constant from '../Constant';
 
 import { db } from "../firebase";
 import { ref, push } from "firebase/database";
+
+import RejectModal from '../components/Notification/RejectModal';
+import ApproveModal from '../components/Notification/ApproveModal';
+import VerifyModal from '../components/Notification/ProductNotification/DetailProductModal';
+import DetailModal from '../components/Product/DetailModal';
 
 const PageWrapper = styled.div`
     margin: 40px;
@@ -260,6 +262,8 @@ const Product = ({ refresh, toggleRefresh }) =>  {
     function toggleApproveModal() { setApproveModal(!approveModal); }
     const [detailModal, setDetailModal] = useState(false);
     function toggleDetailModal() { setDetailModal(!detailModal); }
+    const [verifyModal, setVerifyModal] = useState(false);
+    function toggleVerifyModal() { setVerifyModal(!verifyModal); }
 
     const [rejectItem, setRejectItem] = useState({ id: '', name: '' });
     const [approveItem, setApproveItem] = useState({ id: '', name: '' });
@@ -355,6 +359,11 @@ const Product = ({ refresh, toggleRefresh }) =>  {
     const handleGetDetailItem = (id) => {
         setDetailItem({ id: id });
         toggleDetailModal();
+    }
+
+    const handleGetVerifyItem = (id) => {
+        setDetailItem({ id: id });
+        toggleVerifyModal();
     }
 
     const handleApproveProductItem = (event) => {
@@ -483,7 +492,13 @@ const Product = ({ refresh, toggleRefresh }) =>  {
                             currentItems={APIdata}
                             handleGetRejectItem={handleGetRejectItem}
                             handleGetApproveItem={handleGetApproveItem}
-                            handleGetDetailItem={handleGetDetailItem}
+                            handleGetDetailItem={
+                                activeTab === 1 ? 
+                                handleGetDetailItem 
+                                : activeTab === 2 ? 
+                                handleGetVerifyItem
+                                : null
+                            }
                         />
                         }
                     </TableBody>
@@ -522,9 +537,15 @@ const Product = ({ refresh, toggleRefresh }) =>  {
 
             <Footer />
 
-            <DetailProductModal 
+            <DetailModal 
                 display={detailModal}
                 toggle={toggleDetailModal}
+                detailItem={detailItem}
+            />
+
+            <VerifyModal 
+                display={verifyModal}
+                toggle={toggleVerifyModal}
                 detailItem={detailItem}
                 handleGetApproveItem={handleGetApproveItem}
                 handleGetRejectItem={handleGetRejectItem}

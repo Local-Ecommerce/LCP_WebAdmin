@@ -123,6 +123,12 @@ const ProductItem = ({ item, handleGetRejectItem, handleGetApproveItem, handleGe
             break;
     }
 
+    const handleSetDetailItem = () => {
+        // item.UpdatedMerchantStore ?
+        // handleGetDetailItem(item) 
+        // :
+        handleGetDetailItem(item.ProductId);
+    }
 
     const handleSetApproveItem = (e) => {
         e.stopPropagation();
@@ -135,7 +141,7 @@ const ProductItem = ({ item, handleGetRejectItem, handleGetApproveItem, handleGe
     }
 
     return (
-        <TableRow onClick={() => handleGetDetailItem(item.ProductId)}>
+        <TableRow onClick={handleSetDetailItem}>
             <TableData center> <Image src={item.Image} /> </TableData>
             <TableData>{item.ProductName}</TableData>
             <TableData center>{item.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} đ</TableData>

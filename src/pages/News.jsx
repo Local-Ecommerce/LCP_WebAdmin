@@ -7,10 +7,11 @@ import { AddCircle, Search } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
 import { api } from "../RequestMethod";
 import { toast } from 'react-toastify';
-import CreateModal from '../components/News/CreateModal';
-import EditModal from '../components/News/EditModal';
-import ToggleStatusModal from '../components/News/ToggleStatusModal';
 import * as Constant from '../Constant';
+
+import CreateModal from '../components/News/CreateModal';
+import DetailModal from '../components/News/DetailModal';
+import ToggleStatusModal from '../components/News/ToggleStatusModal';
 
 const PageWrapper = styled.div`
     margin: 40px;
@@ -283,19 +284,18 @@ const Footer = styled.div`
 const News = () =>  {
     const [createModal, setCreateModal] = useState(false);
     function toggleCreateModal() { setCreateModal(!createModal); }
-    const [editModal, setEditModal] = useState(false);
-    function toggleEditModal() { setEditModal(!editModal); }
+    const [detailModal, setDetailModal] = useState(false);
+    function toggleDetailModal() { setDetailModal(!detailModal); }
     const [toggleStatusModal, setToggleStatusModal] = useState(false);
     const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
 
     const [input, setInput] = useState({ title: '', text: '', apartment: '' });
+    const [detailItem, setDetailItem] = useState({ id: '', title: '', text: '', residentId: '', apartmentId: '', status: '' });
     const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
-    const [editItem, setEditItem] = useState({ id: '', title: '', text: '', residentId: '', apartmentId: '', status: '' });
-    const [error, setError] = useState({ titleError: '', editError: '' });
+    const [error, setError] = useState({ titleError: '', apartmentError: '', editError: '' });
 
     const [loading, setLoading] = useState(false);
     const user = JSON.parse(localStorage.getItem('USER'));
-
 
     const [APIdata, setAPIdata] = useState([]);
     const [change, setChange] = useState(false);
@@ -420,23 +420,23 @@ const News = () =>  {
         return true;
     }
 
-    const handleGetEditItem = (id) => {
-        setEditItem(data => ({ ...data, id: id }));
-        toggleEditModal();
+    const handleGetDetailItem = (id) => {
+        setDetailItem(data => ({ ...data, id: id }));
+        toggleDetailModal();
     }
 
     const handleEditItem = (event) => {
         event.preventDefault();
         if (validEditCheck()) {
             const notification = toast.loading("Đang xử lí yêu cầu...");
-            const url = "news?id=" + editItem.id;
+            const url = "news?id=" + detailItem.id;
             const editData = async () => {
                 api.put(url, {
-                    title: editItem.title,
-                    text: editItem.text,
-                    status: editItem.status,
-                    residentId: editItem.residentId || null,
-                    apartmentId: editItem.apartmentId || null
+                    title: detailItem.title,
+                    text: detailItem.text,
+                    status: detailItem.status,
+                    residentId: detailItem.residentId || null,
+                    apartmentId: detailItem.apartmentId || null
                 })
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
@@ -450,7 +450,7 @@ const News = () =>  {
                 });
             }
             editData();
-            toggleEditModal();
+            toggleDetailModal();
         }
     }
 
@@ -458,11 +458,11 @@ const News = () =>  {
         let check = false;
         setError(error => ({ ...error, editError: '' }));
 
-        if (editItem.title === null || editItem.title === '') {
+        if (detailItem.title === null || detailItem.title === '') {
             setError(error => ({ ...error, editError: 'Vui lòng nhập tiêu đề' }));
             check = true;
         }
-        if (!(editItem.status === Constant.ACTIVE_NEWS || editItem.status === Constant.INACTIVE_NEWS)) {
+        if (!(detailItem.status === Constant.ACTIVE_NEWS || detailItem.status === Constant.INACTIVE_NEWS)) {
             check = true;
         }
         if (check === true) {
@@ -555,7 +555,6 @@ const News = () =>  {
                             <TableHeader width="10%" center>Quản lý</TableHeader>
                             <TableHeader width="10%" center>Ngày tạo</TableHeader>
                             <TableHeader width="10%" center>Trạng thái</TableHeader>
-                            <TableHeader width="12%" center>Chỉnh sửa</TableHeader>
                         </TableRow>
                     </TableHead>
 
@@ -563,12 +562,12 @@ const News = () =>  {
                         {
                         loading ? 
                         <tr>
-                            <TableData center colSpan={8}> <CircularProgress /> </TableData>
+                            <TableData center colSpan={100}> <CircularProgress /> </TableData>
                         </tr>
                         : 
                         <NewsList 
                             currentItems={APIdata} 
-                            handleGetEditItem={handleGetEditItem} 
+                            handleGetDetailItem={handleGetDetailItem} 
                             handleGetToggleStatusItem={handleGetToggleStatusItem}
                         />
                         }
@@ -618,20 +617,20 @@ const News = () =>  {
                 handleAddItem={handleAddItem}
             />
 
+            <DetailModal 
+                display={detailModal}
+                toggle={toggleDetailModal}
+                detailItem={detailItem}
+                error={error}
+                setDetailItem={setDetailItem}
+                handleEditItem={handleEditItem}
+            />
+
             <ToggleStatusModal
                 display={toggleStatusModal}
                 toggle={toggleToggleStatusModal}
                 toggleStatusItem={toggleStatusItem}
                 handleToggleStatus={handleToggleStatus}
-            />
-
-            <EditModal 
-                display={editModal}
-                toggle={toggleEditModal}
-                editItem={editItem}
-                error={error}
-                setEditItem={setEditItem}
-                handleEditItem={handleEditItem}
             />
         </PageWrapper>
     )

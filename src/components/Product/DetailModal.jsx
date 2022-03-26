@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
-import { api } from "../../../RequestMethod";
-import { Close, Check } from '@mui/icons-material';
-import * as Constant from '../../../Constant';
+import { api } from "../../RequestMethod";
 
 const ModalTitle = styled.div`
     border-bottom: 1px solid #cfd2d4;
@@ -91,20 +89,6 @@ const ValueTag = styled.span`
 
 const Invisible = styled.div`
     min-width: 80px;
-`;
-
-const StyledCheckIcon = styled(Check)`
-    && {
-        font-size: 18px;
-        margin-right: 5px;
-    }
-`;
-
-const StyledCancelIcon = styled(Close)`
-    && {
-        font-size: 18px;
-        margin-right: 5px;
-    }
 `;
 
 const BigImageWrapper = styled.div`
@@ -199,7 +183,7 @@ const TextArea = styled.textarea`
     }
 `;
 
-const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem, handleGetRejectItem }) => {
+const DetailModal = ({ display, toggle, detailItem}) => {
     const [item, setItem] = useState({});
     const [images, setImages] = useState([]);
     const [imageSrc, setImageSrc] = useState('');
@@ -207,14 +191,6 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
     const [sizes, setSizes] = useState([]);
     const [weights, setWeights] = useState([]);
     const [loading, setLoading] = useState(true);
-
-    const handleSetApproveItem = () => {
-        handleGetApproveItem(item.ProductId, item.ProductName, images[0].image, item.ResidentId);
-    }
-
-    const handleSetRejectItem = () => {
-        handleGetRejectItem(item.ProductId, item.ProductName, images[0].image, item.ResidentId);
-    }
 
     useEffect(() => {
         if (display) {
@@ -295,7 +271,7 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                         <FlexChild mr>
                             <FieldLabel mt>Tên sản phẩm</FieldLabel>
                             <TextField
-                                disabled={true} title={loading ? '' : item.ProductName}
+                                disabled={true}
                                 type="text" value={loading ? '' : item.ProductName}
                             />
                         </FlexChild>
@@ -303,7 +279,7 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                         <FlexChild>
                             <FieldLabel mt>Mã sản phẩm</FieldLabel>
                             <TextField
-                                disabled={true} title={loading ? '' : item.ProductCode ? item.ProductCode : 'N/A'}
+                                disabled={true}
                                 type="text" value={loading ? '' : item.ProductCode ? item.ProductCode : 'N/A'}
                             />
                         </FlexChild>
@@ -313,7 +289,7 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                         <FlexChild mr>
                             <FieldLabel mt>Danh mục</FieldLabel>
                             <TextField
-                                disabled={true} title={loading ? '' : item.SysCategoryName}
+                                disabled={true}
                                 type="text" value={loading ? '' : item.SysCategoryName}
                             />
                         </FlexChild>
@@ -321,7 +297,7 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                         <FlexChild>
                             <FieldLabel mt>Giá</FieldLabel>
                             <TextField
-                                disabled={true} title={loading ? '' : item.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"}
+                                disabled={true}
                                 type="text" value={loading ? '' : item.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"}
                             />
                         </FlexChild>
@@ -331,13 +307,13 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                         <FlexChild mr>
                             <FieldLabel mt>Miêu tả</FieldLabel>
                             <TextArea
-                                disabled={true} rows="4" title={loading ? '' : item.Description}
+                                disabled={true} rows="4"
                                 type="text" value={loading ? '' : item.Description}
                             />
 
                             <FieldLabel mt>Miêu tả ngắn</FieldLabel>
                             <TextArea
-                                disabled={true} rows="2" title={loading ? '' : item.BriefDescription}
+                                disabled={true} rows="2"
                                 type="text" value={loading ? '' : item.BriefDescription}
                             />
                         </FlexChild>
@@ -400,25 +376,10 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
 
             <ModalButtonWrapper>
                 <Invisible />
-                {
-                    item.Status === Constant.UNVERIFIED_PRODUCT ?
-                    <div>
-                        <ModalButton blue onClick={handleSetApproveItem}>
-                            <StyledCheckIcon />
-                            Duyệt
-                        </ModalButton>
-
-                        <ModalButton onClick={handleSetRejectItem}>
-                            <StyledCancelIcon />
-                            Từ chối
-                        </ModalButton>
-                    </div>
-                    : null
-                }
                 <ModalButton onClick={toggle}>Quay lại</ModalButton>
             </ModalButtonWrapper>
         </Modal>
     )
 };
 
-export default DetailProductModal;
+export default DetailModal;

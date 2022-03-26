@@ -173,8 +173,8 @@ const StoreItem = ({ item, handleGetRejectItem, handleGetApproveItem, handleGetD
                 </>
                 :
                 <>
-                    <TableData center><Status active={activeCheck}>{activeLabel}</Status></TableData>
                     <TableData center>{item.Resident.ResidentName}</TableData>
+                    <TableData center><Status active={activeCheck}>{activeLabel}</Status></TableData>
                 </>
             }
         </TableRow>

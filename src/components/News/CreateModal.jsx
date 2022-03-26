@@ -11,9 +11,17 @@ const Row = styled.div`
     margin-top: ${props => props.mt ? "20px" : null};
 `;
 
-const ModalTitle = styled.h2`
+const ModalTitle = styled.h4`
     margin: 25px 20px;
     color: #212529;
+`;
+
+const FieldLabel = styled.div`
+    font-weight: 400;
+    font-size: 14px;
+    margin-top: ${props => props.mt ? "10px" : "0px"};
+    margin-bottom: 5px;
+    color: ${props => props.theme.dark};
 `;
 
 const ModalContentWrapper = styled.div`
@@ -28,15 +36,15 @@ const ModalButtonWrapper = styled.div`
 `;
 
 const ModalButton = styled.button`
-    min-width: 80px;
-    padding: 10px;
+    min-width: 60px;
+    padding: 8px 10px;
     margin-left: 10px;
     background: ${props => props.red ? props.theme.red : props.blue ? props.theme.blue : props.theme.white};
     color: ${props => props.red || props.blue ? props.theme.white : props.theme.grey};
     border: 1px solid ${props => props.red ? props.theme.red : props.blue ? props.theme.blue : props.theme.greyBorder};
     border-radius: 4px;
     text-align: center;
-    font-size: 1rem;
+    font-size: 14px;
 
     &:hover {
     opacity: 0.8;
@@ -62,12 +70,6 @@ const customStyles = {
         padding: '0px',
     },
 };
-
-const FormLabel = styled.div`
-    font-weight: 700;
-    margin-bottom: 10px;
-    margin-top: ${props => props.mt ? "30px" : null};
-`;
 
 const HelperText = styled.div`
     margin-left: ${props => props.ml0 ? "0px" : "30px"};
@@ -103,7 +105,7 @@ const CreateModal = ({ display, toggle, input, error, setInput, handleAddItem })
             <ModalTitle>Tạo tin mới</ModalTitle>
             <ModalContentWrapper>
                 <Row spacebetween>
-                    <FormLabel>Tiêu đề</FormLabel>
+                    <FieldLabel>Tiêu đề</FieldLabel>
                     <HelperText ml0>{input.title.length}/250 kí tự</HelperText>
                 </Row>
                 <TextField
@@ -116,7 +118,7 @@ const CreateModal = ({ display, toggle, input, error, setInput, handleAddItem })
                 />
 
                 <Row spacebetween>
-                    <FormLabel mt>Nội dung</FormLabel>
+                    <FieldLabel mt>Nội dung</FieldLabel>
                     <HelperText ml0 mt>{input.text.length}/5000 kí tự</HelperText>
                 </Row>
                 <TextField
@@ -130,7 +132,7 @@ const CreateModal = ({ display, toggle, input, error, setInput, handleAddItem })
                 {
                 user.RoleId === "R002" ?
                 <>
-                    <FormLabel mt>Chung cư</FormLabel>
+                    <FieldLabel mt>Chung cư</FieldLabel>
                     <Autocomplete
                         onChange={(event, value) => setInput(input => ({ ...input, apartment: value }))}
                         selectOnFocus disablePortal

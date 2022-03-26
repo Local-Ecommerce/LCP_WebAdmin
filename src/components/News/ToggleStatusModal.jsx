@@ -21,17 +21,15 @@ const ModalButtonWrapper = styled.div`
 `;
 
 const ModalButton = styled.button`
-    min-width: 80px;
-    padding: 10px;
+    min-width: 60px;
+    padding: 8px 10px;
     margin-left: 10px;
     background: ${props => props.color === "red" ? props.theme.red : props.color === "green" ? props.theme.green : props.theme.white};
     color: ${props => props.color === "red" || props.color === "green" ? props.theme.white : props.theme.grey};
     border: 1px solid ${props => props.color === "red" ? props.theme.red : props.color === "green" ? props.theme.green : props.theme.greyBorder};
     border-radius: 4px;
     text-align: center;
-    font-size: 1rem;
     font-size: 14px;
-    font-weight: 600;
     float: right;
     margin-bottom: 20px;
 
