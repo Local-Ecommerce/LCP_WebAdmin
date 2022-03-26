@@ -1,11 +1,13 @@
 import styled from "styled-components";
 import React, { useState } from 'react';
 import { api } from "../RequestMethod";
+import { DateTime } from 'luxon';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../contexts/AuthContext";
 import { TextField, CircularProgress } from '@mui/material';
 
 import { auth } from "../firebase";
-import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const LoginFormContainer = styled.div`
     position: fixed;
@@ -98,6 +100,7 @@ const Button = styled.button`
 
 const Login = () => {
     let navigate = useNavigate();
+    const { timer, toggleSessionModal } = useAuth();
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -112,37 +115,36 @@ const Login = () => {
         e.preventDefault();
         setError('');
         setLoading(true);
+
         signInWithEmailAndPassword(auth, input.username, input.password)
-        .then(() => {
-            onAuthStateChanged(auth, async user => {
-                if (user) {
-                    const firebaseToken = await user.getIdToken(true);
-                    console.log("Firebase Token: " + firebaseToken);
-    
-                    await api.post("accounts/login", {
-                        firebaseToken: firebaseToken,
-                        role: "R002"
-                    })
-                    .then(function (res) {
-                        if (res.data.ResultMessage === "SUCCESS" && (res.data.Data.RoleId === "R002" 
-                        || (res.data.Data.RoleId === "R001" && res.data.Data.Residents[0].Type === "MarketManager"))) {
-                            localStorage.setItem('USER', JSON.stringify(res.data.Data));
-                            localStorage.setItem('ACCESS_TOKEN', res.data.Data.RefreshTokens[0].AccessToken);
-                            localStorage.setItem('REFRESH_TOKEN', res.data.Data.RefreshTokens[0].Token);
-                            localStorage.setItem('EXPIRED_TIME', res.data.Data.RefreshTokens[0].AccessTokenExpiredDate);
-                            localStorage.setItem('IS_TOGGLE', "0");
-                            navigate("/");
-                        } else {
-                            setError("Tài khoản hoặc mật khẩu không hợp lệ. Vui lòng thử lại.");
-                            setLoading(false);
-                        }
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                        setError("Tài khoản hoặc mật khẩu không hợp lệ. Vui lòng thử lại.");
-                        setLoading(false);
-                    });
-                };
+        .then((userCredential) => {
+            const firebaseToken = userCredential._tokenResponse.idToken;
+            console.log("Firebase Token: " + firebaseToken);
+
+            api.post("accounts/login", {
+                firebaseToken: firebaseToken,
+                role: "R002"
+            })
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS" && (res.data.Data.RoleId === "R002" 
+                || (res.data.Data.RoleId === "R001" && res.data.Data.Residents[0].Type === "MarketManager"))) {
+                    localStorage.setItem('USER', JSON.stringify(res.data.Data));
+                    localStorage.setItem('ACCESS_TOKEN', res.data.Data.RefreshTokens[0].AccessToken);
+                    localStorage.setItem('REFRESH_TOKEN', res.data.Data.RefreshTokens[0].Token);
+                    localStorage.setItem('EXPIRED_TIME', res.data.Data.RefreshTokens[0].AccessTokenExpiredDate);
+                    timer.current = setTimeout(() => {
+                        toggleSessionModal();
+                    }, DateTime.fromISO(res.data.Data.RefreshTokens[0].AccessTokenExpiredDate).diffNow().toObject().milliseconds - 300000);
+                    navigate("/");
+                } else {
+                    setError("Tài khoản hoặc mật khẩu không hợp lệ. Vui lòng thử lại.");
+                    setLoading(false);
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                setError("Tài khoản hoặc mật khẩu không hợp lệ. Vui lòng thử lại.");
+                setLoading(false);
             });
         })
         .catch((error) => {

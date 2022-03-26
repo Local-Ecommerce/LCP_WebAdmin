@@ -393,7 +393,7 @@ const Menu = () =>  {
 
     const [detailModal, setDetailModal] = useState(false);
     function toggleDetailModal() { setDetailModal(!detailModal); }
-    const [detailItem, setDetailItem] = useState({ id: '' });
+    const [detailItem, setDetailItem] = useState({ id: '', storeId: '' });
 
     const [displayAddress, setDisplayAddress] = useState(false);
     function toggleDisplayAddress() { setDisplayAddress(!displayAddress); listRef.current.recomputeRowHeights(); }
@@ -527,8 +527,8 @@ const Menu = () =>  {
         setPage(0);
     }
 
-    const handleGetDetailItem = (id) => {
-        setDetailItem({ id: id });
+    const handleGetDetailItem = (id, storeId) => {
+        setDetailItem({ id: id, storeId: storeId });
         toggleDetailModal();
     }
 

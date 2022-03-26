@@ -73,7 +73,7 @@ const StyledNoImageIcon = styled(HideImage)`
 `;
 
 const NotificationStoreItem = ({ item, handleGetDetailItem }) => {
-    const date = DateTime.fromISO(null)
+    const date = DateTime.fromISO(item.UpdatedMerchantStore.UpdatedDate)
     const diff = date.diffNow(["years", "months", "days", "hours", "minutes"])
     let timeLabel = '';
 

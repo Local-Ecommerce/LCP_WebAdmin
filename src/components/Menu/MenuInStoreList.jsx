@@ -1,19 +1,20 @@
 import React from 'react';
-import ProductInMenuItem from './ProductInMenuItem';
+import MenuInStoreItem from './MenuInStoreItem';
 
-const ProductInMenuList = ({ currentItems }) => {
+const MenuInStoreList = ({ currentItems, menuId }) => {
 
     if (currentItems.length === 0) {
-        return <ProductInMenuItem item={0} />
+        return <MenuInStoreItem item={0} />
     }
 
     return currentItems && currentItems.map((item, index) => {
         return (
-            <ProductInMenuItem
+            <MenuInStoreItem
                 item={item} index={index} key={index}
+                menuId={menuId}
             />
         )
     });
 }
 
-export default ProductInMenuList;
+export default MenuInStoreList;

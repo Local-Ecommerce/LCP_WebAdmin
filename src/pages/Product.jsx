@@ -22,7 +22,7 @@ const PageWrapper = styled.div`
 const Tab = styled.h1`
     font-size: 16px;
     color: #383838;
-    padding: 15px;
+    padding: 10px;
     margin: 0px;
     background-color: ${props => props.active ? props.theme.white : null};
     border-radius: 5px 5px 0 0;
@@ -431,7 +431,7 @@ const Product = ({ refresh, toggleRefresh }) =>  {
 
     return (
         <PageWrapper>
-            <Row ml start>
+            <Row ml start={1}>
                 <Tab active={activeTab === 1 ? true : false} onClick={() => handleSwitchTab(1)}>Sản phẩm</Tab>
                 <Tab active={activeTab === 2 ? true : false} onClick={() => handleSwitchTab(2)}>Sản phẩm chờ duyệt</Tab>
             </Row>

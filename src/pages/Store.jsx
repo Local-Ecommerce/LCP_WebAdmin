@@ -6,9 +6,16 @@ import ReactPaginate from "react-paginate";
 import { Search, ArrowRight, Store as StoreIcon, DoubleArrow } from '@mui/icons-material';
 import { CircularProgress, Checkbox } from '@mui/material';
 import { api } from "../RequestMethod";
+import { toast } from 'react-toastify';
 import { List, AutoSizer } from 'react-virtualized';
 import * as Constant from '../Constant';
 
+import { db } from "../firebase";
+import { ref, push } from "firebase/database";
+
+import VerifyModal from '../components/Notification/StoreNotification/DetailStoreModal';
+import RejectModal from '../components/Notification/RejectModal';
+import ApproveModal from '../components/Notification/ApproveModal';
 import DetailModal from '../components/Store/DetailModal';
 
 const PageWrapper = styled.div`
@@ -85,19 +92,13 @@ const Row = styled.div`
 const Tab = styled.h1`
     font-size: 16px;
     color: #383838;
-    padding: 15px;
+    padding: 10px;
     margin: 0px;
     background-color: ${props => props.active ? props.theme.white : null};
     border-radius: 5px 5px 0 0;
     border: 1px solid rgba(0,0,0,0.1);
     margin-right: 5px;
     cursor: pointer;
-`;
-
-const Align = styled.div`
-    display: flex;
-    width: 70%;
-    align-items: center;
 `;
 
 const AlignColumn = styled.div`
@@ -401,11 +402,21 @@ const  Center = styled.div`
     top: 45%;
 `;
 
-const Store = () => {
+const Store = ({ refresh, toggleRefresh }) => {
     const listRef = useRef();
 
+    const [rejectModal, setRejectModal] = useState(false);
+    function toggleRejectModal() { setRejectModal(!rejectModal); }
+    const [approveModal, setApproveModal] = useState(false);
+    function toggleApproveModal() { setApproveModal(!approveModal); }
+    const [verifyModal, setVerifyModal] = useState(false);
+    function toggleVerifyModal() { setVerifyModal(!verifyModal); }
     const [detailModal, setDetailModal] = useState(false);
     function toggleDetailModal() { setDetailModal(!detailModal); }
+
+    const [rejectItem, setRejectItem] = useState({ id: '', name: '' });
+    const [approveItem, setApproveItem] = useState({ id: '', name: '' });
+    const [verifyItem, setVerifyItem] = useState({});
     const [detailItem, setDetailItem] = useState({ id: '' });
 
     const [displayAddress, setDisplayAddress] = useState(false);
@@ -419,6 +430,7 @@ const Store = () => {
     const user = JSON.parse(localStorage.getItem('USER'));
 
     const [APIdata, setAPIdata] = useState([]);
+    const [unverifiedStore, setUnverifiedStore] = useState([]);
     const [apartments, setApartments] = useState([]);
     const [change, setChange] = useState(false);
     const [activeTab, setActiveTab] = useState(1);
@@ -439,31 +451,49 @@ const Store = () => {
     useEffect( () => {  //fetch api data
         if (apartment.id !== '') {
             setLoading(true);
-            let url = "stores" 
-                    + "?limit=" + limit 
-                    + "&page=" + (page + 1) 
-                    + "&sort=" + sort 
-                    + "&include=apartment&include=resident"
-                    + (storeSearch !== '' ? ("&search=" + storeSearch) : '') 
-                    + (status !== '' ? ("&status=" + status) : '') 
-                    + "&apartmentid=" + apartment.id;
 
-            const fetchData = () => {
-                api.get(url)
+            if (user.Residents[0].Type === Constant.MARKET_MANAGER && parseInt(activeTab) === 2) {
+                api.get("stores/unverified-stores")
                 .then(function (res) {
-                    setAPIdata(res.data.Data.List);
-                    setTotal(res.data.Data.Total);
-                    setLastPage(res.data.Data.LastPage);
-                    setLoading(false);
+                    console.log(res.data)
+                    if (res.data.ResultMessage === 'SUCCESS') {
+                        setUnverifiedStore(res.data.Data);
+                        setLoading(false);
+                    }
                 })
                 .catch(function (error) {
                     console.log(error);
                     setLoading(false);
                 });
+            } else {
+                let url = "stores" 
+                        + "?limit=" + limit 
+                        + "&page=" + (page + 1) 
+                        + "&sort=" + sort 
+                        + "&include=apartment&include=resident"
+                        + (storeSearch !== '' ? ("&search=" + storeSearch) : '') 
+                        + "&status=" + Constant.VERIFIED_MERCHANT_STORE
+                        + "&apartmentid=" + apartment.id;
+
+                const fetchData = () => {
+                    api.get(url)
+                    .then(function (res) {
+                        if (res.data.ResultMessage === 'SUCCESS') {
+                            setAPIdata(res.data.Data.List);
+                            setTotal(res.data.Data.Total);
+                            setLastPage(res.data.Data.LastPage);
+                            setLoading(false);
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        setLoading(false);
+                    });
+                }
+                fetchData();
             }
-            fetchData();
         }
-    }, [change, limit, page, sort, status, storeSearch, apartment]);
+    }, [refresh, change, limit, page, sort, status, storeSearch, apartment, activeTab]);
 
     useEffect( () => {  //fetch apartment
         if (user.RoleId === "R002") {
@@ -538,17 +568,99 @@ const Store = () => {
 
     function handleSwitchTab(value) {
         setActiveTab(value);
-        if (value === 1) {
-            setStatus(Constant.VERIFIED_MERCHANT_STORE);
-        } else {
-            setStatus(Constant.UNVERIFIED_MERCHANT_STORE);
-        }
         setPage(0);
     }
 
     const handleGetDetailItem = (id) => {
         setDetailItem({ id: id });
         toggleDetailModal();
+    }
+
+    const handleGetVerifyItem = (item) => {
+        setVerifyItem(item);
+        toggleVerifyModal();
+    }
+
+    const handleGetApproveItem = (id, name, image, residentId) => {
+        setApproveItem({ id : id, name: name, image: image, residentId: residentId });
+        toggleApproveModal();
+    }
+
+    const handleGetRejectItem = (id, name, image, residentId) => {
+        setRejectItem({ id : id, name: name, image: image, residentId: residentId });
+        toggleRejectModal();
+    }
+
+    const handleApproveItem = (event) => {
+        event.preventDefault();
+        const handleApprove = async () => {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
+            api.put("stores/approval?id=" + approveItem.id)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    toggleRefresh();
+                    setApproveModal(false);
+                    setDetailModal(false);
+
+                    push(ref(db, `Notification/` + approveItem.residentId), {
+                        createdDate: Date.now(),
+                        data: {
+                            image: approveItem.image ? approveItem.image : '',
+                            name: approveItem.name,
+                            id: approveItem.id
+                        },
+                        read: 0,
+                        receiverId: approveItem.residentId,
+                        senderId: user.Residents[0].ResidentId,
+                        type: '101'
+                    });
+
+                    toast.update(notification, { render: "Duyệt cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        handleApprove();
+    }
+
+    const handleRejectItem = (event, reason) => {
+        event.preventDefault();
+        const notification = toast.loading("Đang xử lí yêu cầu...");
+
+        const handleReject = async () => {
+            api.put("stores/rejection?id=" + rejectItem.id)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    toggleRefresh();
+                    setRejectModal(false);
+                    setDetailModal(false);
+
+                    push(ref(db, `Notification/` + rejectItem.residentId), {
+                        createdDate: Date.now(),
+                        data: {
+                            image: rejectItem.image ? rejectItem.image : '',
+                            name: rejectItem.name,
+                            id: rejectItem.id,
+                            reason: reason ? reason : ''
+                        },
+                        read: 0,
+                        receiverId: rejectItem.residentId,
+                        senderId: user.Residents[0].ResidentId,
+                        type: '102'
+                    });
+                    
+                    toast.update(notification, { render: "Từ chối cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        handleReject();
     }
 
     return (
@@ -637,6 +749,7 @@ const Store = () => {
                     </NoItemText>
                 </NoItemWrapper>
                 :
+                activeTab === 1 ?
                 <>
                     <Row mb>
                         <SearchBar>
@@ -661,10 +774,10 @@ const Store = () => {
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableHeader width="3%" grey>#</TableHeader>
-                                <TableHeader width="57%">Tên cửa hàng</TableHeader>
-                                <TableHeader width="20%" center>Quản lý</TableHeader>
-                                <TableHeader width="20%" center>Trạng thái</TableHeader>
+                                <TableHeader width="10%" center>Ảnh</TableHeader>
+                                <TableHeader width="60%">Tên cửa hàng</TableHeader>
+                                <TableHeader width="15%" center>Quản lý</TableHeader>
+                                <TableHeader width="15%" center>Trạng thái</TableHeader>
                             </TableRow>
                         </TableHead>
                         
@@ -713,6 +826,44 @@ const Store = () => {
                         </StyledPaginateContainer>
                     </Row>
                 </>
+                :
+                <>
+                    <Row mb>
+                        <SearchBar>
+                            <StyledSearchIcon />
+                            <Input id="search" placeholder="Tìm kiếm cửa hàng" onChange={handleSetStoreSearch} />
+                            <Button onClick={() => clearStoreSearch()}>Clear</Button>
+                        </SearchBar>
+                    </Row>
+
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableHeader width="10%" center>Ảnh</TableHeader>
+                                <TableHeader width="45%">Tên cửa hàng</TableHeader>
+                                <TableHeader width="15%" center>Thời gian cập nhật</TableHeader>
+                                <TableHeader width="15%" center>Trạng thái</TableHeader>
+                                <TableHeader width="15%" center>Hành động</TableHeader>
+                            </TableRow>
+                        </TableHead>
+                        
+                        <TableBody>
+                            {
+                            loading ? 
+                            <tr>
+                                <TableData center colSpan={100}> <CircularProgress /> </TableData>
+                            </tr>
+                            : 
+                            <StoreList 
+                                currentItems={unverifiedStore}
+                                handleGetDetailItem={handleGetVerifyItem}
+                                handleGetRejectItem={handleGetRejectItem}
+                                handleGetApproveItem={handleGetApproveItem}
+                            />
+                            }
+                        </TableBody>
+                    </Table>
+                </>
                 }
             </TableWrapper>
 
@@ -722,6 +873,28 @@ const Store = () => {
                 display={detailModal}
                 toggle={toggleDetailModal}
                 detailItem={detailItem}
+            />
+
+            <VerifyModal 
+                display={verifyModal}
+                toggle={toggleVerifyModal}
+                detailItem={verifyItem}
+                handleGetApproveItem={handleGetApproveItem}
+                handleGetRejectItem={handleGetRejectItem}
+            />
+
+            <ApproveModal
+                display={approveModal} 
+                toggle={toggleApproveModal} 
+                approveItem={approveItem} 
+                handleApproveItem={handleApproveItem}
+            />
+
+            <RejectModal
+                display={rejectModal} 
+                toggle={toggleRejectModal} 
+                rejectItem={rejectItem} 
+                handleRejectItem={handleRejectItem}
             />
         </PageWrapper>
         </>

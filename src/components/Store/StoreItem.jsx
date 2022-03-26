@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import * as Constant from '../../Constant';
+import { Close, Check } from '@mui/icons-material';
+import { DateTime } from 'luxon';
 
 const TableRow = styled.tr`
     &:hover {
@@ -41,7 +43,56 @@ const Status = styled.span`
     "#dc3545"};
 `;
 
-const StoreItem = ({ item, index, handleGetDetailItem }) => {
+const Button = styled.button`
+    padding: 3px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    outline: none;
+    color: ${props => props.disabled === true ? "#E0E0E0" : "grey"};
+
+    &:focus {
+    outline: none;
+    }
+`;
+
+const StyledCheckIcon = styled(Check)`
+    && {
+        padding: 8px;
+        border-radius: 20px;
+        color: ${props => props.theme.green};
+        opacity: 0.5;
+    }
+
+    &:hover {
+    opacity: 1;
+    background-color: ${props => props.theme.disabled};
+    }
+`;
+
+const StyledCancelIcon = styled(Close)`
+    && {
+        padding: 8px;
+        border-radius: 20px;
+        color: ${props => props.theme.red};
+        opacity: 0.5;
+    }
+
+    &:hover {
+    opacity: 1;
+    background-color: ${props => props.theme.disabled};
+    }
+`;
+
+const Image = styled.img`
+    vertical-align: middle;
+    width: 40px;
+    height: 40px;
+    border-radius: 3px;
+`;
+
+const StoreItem = ({ item, handleGetRejectItem, handleGetApproveItem, handleGetDetailItem }) => {
 
     if (item === 0) {
         return (
@@ -75,15 +126,57 @@ const StoreItem = ({ item, index, handleGetDetailItem }) => {
     }
     
     const handleSetDetailItem = () => {
+        item.UpdatedMerchantStore ?
+        handleGetDetailItem(item) 
+        :
         handleGetDetailItem(item.MerchantStoreId);
+    }
+
+    const handleSetApproveItem = (e) => {
+        e.stopPropagation();
+        handleGetApproveItem(
+            item.MerchantStoreId, 
+            item.UpdatedMerchantStore.StoreName, 
+            item.UpdatedMerchantStore.StoreImage || '', 
+            item.ResidentId
+        );
+    }
+
+    const handleSetRejectItem = (e) => {
+        e.stopPropagation();
+        handleGetRejectItem(
+            item.MerchantStoreId, 
+            item.UpdatedMerchantStore.StoreName, 
+            item.UpdatedMerchantStore.StoreImage || '', 
+            item.ResidentId
+        );
     }
 
     return (
         <TableRow onClick={handleSetDetailItem}>
-            <TableData grey>{index + 1}</TableData>
+            <TableData center> <Image src={item.StoreImage} /> </TableData>
             <TableData>{item.StoreName}</TableData>
-            <TableData center>{item.Resident.ResidentName}</TableData>
-            <TableData center><Status active={activeCheck}>{activeLabel}</Status></TableData>
+            {
+                item.UpdatedMerchantStore ?
+                <>
+                    <TableData center>{DateTime.fromISO(item.UpdatedMerchantStore.UpdatedDate).toFormat('dd/MM/yyyy t')}</TableData> 
+                    <TableData center><Status active='unverified'>Chờ duyệt</Status></TableData>
+                    <TableData center>
+                        <Button onClick={handleSetApproveItem}>
+                            <StyledCheckIcon />
+                        </Button>
+
+                        <Button onClick={handleSetRejectItem}>
+                            <StyledCancelIcon />
+                        </Button>
+                    </TableData>
+                </>
+                :
+                <>
+                    <TableData center><Status active={activeCheck}>{activeLabel}</Status></TableData>
+                    <TableData center>{item.Resident.ResidentName}</TableData>
+                </>
+            }
         </TableRow>
     )
 }

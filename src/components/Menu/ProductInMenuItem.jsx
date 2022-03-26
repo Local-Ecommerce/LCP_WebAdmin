@@ -2,23 +2,32 @@ import React from 'react';
 import styled from 'styled-components';
 import * as Constant from '../../Constant';
 
-const TableRow = styled.tr`
-    &:hover {
-        background-color: #F5F5F5;
-        cursor: pointer;
-    }
-`;
-
-const TableData = styled.td`
-    padding: 8px 16px;
-    vertical-align: top;
+const ContainerWrapper = styled.div`
+    font-size: 14px;
+    padding: 5px 15px;
+    margin-left: 30px;
+    display: flex;
+    align-items: center;
     border-bottom: 1px solid #dee2e6;
-    vertical-align: middle;
-    text-align: ${props => props.center ? "center" : "left"};
-    font-size: 15px;
-    color: ${props => props.grey ? props.theme.grey : null};
+    text-decoration: none;
+    cursor: pointer;
+    background-color: #fff;
+    color: #404040;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,0.1);
 
-    height: 30px;
+    &:hover {
+    opacity: 0.9;
+    background-color: #F5F5F5;
+    }
+
+    &:focus {
+    outline: 0;
+    }
+
+    &:active {
+    transform: translateY(1px);
+    }
 `;
 
 const Image = styled.img`
@@ -28,16 +37,43 @@ const Image = styled.img`
     border-radius: 50%;
 `;
 
+const ImageWrapper = styled.div`
+    flex: 1;
+    display: flex;
+`;
+
+const NameWrapper = styled.div`
+    flex: 3;
+    width: 1px; //constraint width
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+`;
+
+const PriceWrapper = styled.div`
+    flex: 2;
+    display: flex;
+    justify-content: center;
+`;
+
+const StatusWrapper = styled.div`
+    flex: 1;
+    display: flex;
+    justify-content: center;
+`;
+
 const Status = styled.span`
     display: inline-block;
-    padding: 3px 5px;
-    font-size: 11px;
+    padding: 5px;
+    font-size: 10px;
     font-weight: 700;
     text-align: center;
     white-space: nowrap;
     vertical-align: baseline;
     border-radius: 20px;
-    color: ${props => props.active === "inactive" ? "grey" : "#fff"};
+    color: #fff;
     background-color: ${props => props.active === "active" ? "#28a745"
         :
         props.active === "unverified" ? "#FF8800"
@@ -47,56 +83,31 @@ const Status = styled.span`
                 "#dc3545"};
 `;
 
-const ProductItem = ({ item, index, search, status }) =>  {
-
-    if (item === 0) {
-        return (
-            <tr>
-                <TableData center colSpan={100} >
-                    <h4>Không tìm thấy dữ liệu.</h4>
-                </TableData>
-            </tr>
-        )
-    }
-
-    if (status === '') {
-        if (!item.Product.ProductName.includes(search)) {
-            return null;
-        }
-    } else {
-        if (!item.Product.ProductName.includes(search) || item.Product.Status.toString() !== status.toString()) {
-            return null;
-        }
-    }
+const ProductItem = ({ item }) =>  {
 
     let activeCheck = '';
-    let activeLabel = '';
     switch (item.Product.Status) {
         case Constant.VERIFIED_PRODUCT:
             activeCheck = 'active';
-            activeLabel = 'Hoạt động';
             break;
         case Constant.REJECTED_PRODUCT:
             activeCheck = 'deleted';
-            activeLabel = 'Từ chối';
             break;
         case Constant.UNVERIFIED_PRODUCT:
             activeCheck = 'unverified';
-            activeLabel = 'Chờ duyệt';
             break;
         default:
             activeCheck = 'inactive';
-            activeLabel = 'WRONG STATUS';
             break;
     }
 
     return (
-        <TableRow>
-            <TableData center> <Image src={item.Product.Image} /> </TableData>
-            <TableData>{item.Product.ProductName}</TableData>
-            <TableData center>{item.Price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} đ</TableData>
-            <TableData center> <Status active={activeCheck}>{activeLabel}</Status> </TableData>
-        </TableRow>
+        <ContainerWrapper>
+            <ImageWrapper> <Image src={item.Product.Image} /> </ImageWrapper>
+            <NameWrapper>{item.Product.ProductName}</NameWrapper>
+            <PriceWrapper>{item.Price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} đ</PriceWrapper>
+            <StatusWrapper> <Status active={activeCheck} /> </StatusWrapper>
+        </ContainerWrapper>
     )
 }
 

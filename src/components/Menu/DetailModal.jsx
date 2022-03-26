@@ -3,17 +3,14 @@ import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
 import { api } from "../../RequestMethod";
-import { CircularProgress } from '@mui/material';
-import { Search } from '@mui/icons-material';
-import ProductInMenuList from './ProductInMenuList';
+import { HideImage } from '@mui/icons-material';
 import * as Constant from '../../Constant';
+
+import MenuInStoreList from './MenuInStoreList';
 
 const ModalContentWrapper = styled.div`
     border-bottom: 1px solid #cfd2d4;
     padding: 20px;
-    max-height: 60vh;
-    overflow: auto;
-    overflow-x: hidden;
     display: flex;
     justify-content: center;
 `;
@@ -22,14 +19,37 @@ const LeftWrapper = styled.div`
     flex: 1;
     padding: 20px 20px 20px 0px;
     border-right: 1px solid rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 `;
 
 const RightWrapper = styled.div`
     flex: 2;
     padding: 20px;
+    max-height: 50vh;
+    overflow: auto;
+    overflow-x: hidden;
+`;
+
+const FieldLabel = styled.div`
+    font-weight: 400;
+    font-size: 14px;
+    margin-top: ${props => props.mt ? "10px" : "0px"};
+    margin-bottom: 5px;
+    color: ${props => props.theme.dark};
+`;
+
+const TextField = styled.input`
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 5px;
+    padding: 10px;
+    outline: none;
+    border: 1px solid ${props => props.error ? props.theme.red : props.theme.greyBorder};
+    border-radius: 3px;
+    font-size: 14px;
+
+    &:disabled {
+        color: ${props => props.theme.black};
+    }
 `;
 
 const ModalButtonWrapper = styled.div`
@@ -64,160 +84,29 @@ const ModalButton = styled.button`
     }
 `;
 
-const Row = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: ${props => props.mt ? "20px" : "0px"};
-    margin-bottom: ${props => props.mb ? "20px" : "0px"};
-`;
-
-const Align = styled.div`
-    display: flex;
-    align-items: center;
-`;
-
-const StyledSearchIcon = styled(Search)`
+const StyledNoImageIcon = styled(HideImage)`
     && {
-        color: grey;
+        color: rgba(0,0,0,0.2);
+        font-size: 40px;
+        padding: 40px;
+        border-radius: 3px;
+        border: 1px solid rgba(0,0,0,0.2);
     }
-`;
-
-const SearchBar = styled.div`
-    display: flex;
-    width: 50%;
-    justify-content: center;
-    align-items: center;
-    border-radius: 5px;
-    border-color: #D8D8D8;
-    border-style: solid;
-    border-width: thin;
-    height: 44px;
-    padding: 0px 3px 0px 8px;
-    background-color: #ffffff;
-    margin-right: 10px;
-`;
-
-const Input = styled.input`
-    padding: 4px;
-    flex-grow: 1;
-    background-color: transparent;
-    outline: none;
-    border: none;
-    margin-right: 8px;
-
-    &:focus {
-    outline: 0;
-    }
-`;
-
-const Button = styled.button`
-    height: 36px;
-    width: 70px;
-    background-color: #17a2b8;
-    border-style: none;
-    border-radius: 5px;
-    color: #fff;
-
-    &:hover {
-    opacity: 0.8;
-    }
-
-    &:focus {
-    outline: 0;
-    }
-
-    &:active {
-    transform: translateY(1px);
-    }
-`;
-
-const DropdownWrapper = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 5px;
-    border-color: #D8D8D8;
-    border-style: solid;
-    border-width: thin;
-    height: 44px;
-    padding: 0px 3px 0px 8px;
-    background-color: #ffffff;
-`;
-
-const Select = styled.select`
-    padding: 4px;
-    flex-grow: 1;
-    background-color: transparent;
-    outline: none;
-    border: none;
-
-    &:focus {
-    outline: 0;
-    }
-`;
-
-const Table = styled.table`
-    table-layout: fixed;
-    border-spacing: 0px;
-    width: 100%;
-    max-width: 100%;
-    background-color: #fff;
-    overflow: hidden;
-    border-radius: 5px;
-`;
-
-const TableHead = styled.thead`
-    display: table-header-group;
-    vertical-align: bottom;
-`;
-
-const TableHeader = styled.th`
-    width: ${props => props.width};
-    text-align: ${props => props.center ? "center" : "left"};
-    padding: 16px;
-    font-size: 15px;
-    color: ${props => props.grey ? props.theme.grey : null};
-    border-bottom: 1px solid #dee2e6;
-`;
-
-const TableBody = styled.tbody`
-    border-top: 1px solid #dee2e6;
-`;
-
-const TableData = styled.td`
-    border-bottom: 1px solid #dee2e6;
-    vertical-align: middle;
-    text-align: ${props => props.center ? "center" : "left"};
-    height: 100px;
-`;
-
-const TableRow = styled.tr``;
-
-const ImageWrapper = styled.div`
-    width: 100%;
-    padding-top: 100%;
-    position: relative;
-    margin-bottom: 15px;
 `;
 
 const Image = styled.img`
     object-fit: contain;
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
+    width: 120px;
+    height: 120px;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,0.2);
 `;
 
-const Text = styled.div`
-    font-size: 20px;
-    color: ${props => props.theme.dark};
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
+const Label = styled.div`
+    font-size: 16px;
+    color: #383838;
+    font-weight: 600;
+    margin-bottom: 10px;
 `;
 
 const customStyles = {
@@ -233,29 +122,36 @@ const customStyles = {
 };
 
 const DetailModal = ({ display, toggle, detailItem }) => {
-    const [menu, setMenu] = useState({});
+    const [resident, setResident] = useState({});
+    const [menus, setMenus] = useState([]);
     const [store, setStore] = useState({});
-    const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
-
-    const [search, setSearch] = useState('');
-    const [status, setStatus] = useState('');
 
     useEffect(() => {
         if (display) {
             setLoading(true);
             const fetchData = async () => {
-                api.get("menus?id=" + detailItem.id + "&include=product")
+                api.get("stores?id=" + detailItem.storeId)
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
-                        setMenu(res.data.Data.List[0]);
-                        setProducts(res.data.Data.List[0].ProductInMenus);
-                        
-                        api.get("stores?id=" + res.data.Data.List[0].MerchantStoreId)
+                        setStore(res.data.Data.List[0])
+
+                        let url = "menus"
+                        + "?sort=-createddate"
+                        + "&include=product"
+                        + "&status=" + Constant.ACTIVE_MENU;
+                        api.get(url)
                         .then(function (res2) {
                             if (res2.data.ResultMessage === "SUCCESS") {
-                                setStore(res2.data.Data.List[0])
-                                setLoading(false);
+                                setMenus(res2.data.Data.List);
+
+                                api.get("residents?id=" + res.data.Data.List[0].ResidentId)
+                                .then(function (res3) {
+                                    if (res3.data.ResultMessage === 'SUCCESS') {
+                                        setResident(res3.data.Data.List[0]);
+                                        setLoading(false);
+                                    }
+                                })
                             }
                         })
                     }
@@ -269,83 +165,46 @@ const DetailModal = ({ display, toggle, detailItem }) => {
         }
     }, [display]);
 
-    function handleSetSearch(e) {
-        const { value } = e.target;
-        setSearch(value);
-    }
-
-    const clearSearch = () => {
-        setSearch('');
-        document.getElementById("search").value = '';
-    }
-
-    function handleSetStatus(e) {
-        const { value } = e.target;
-        setStatus(value);
-    }
-
     return (
         <Modal isOpen={display} onRequestClose={toggle} style={customStyles} ariaHideApp={false}>
 
             <ModalContentWrapper>
                 <LeftWrapper>
-                    <ImageWrapper>
-                        <Image src={store.StoreImage} />
-                    </ImageWrapper>
+                    <Label>Cửa hàng</Label>
+                    {
+                        store.StoreImage ?
+                        <Image src={store.StoreImage ? store.StoreImage : ''} />
+                        : <StyledNoImageIcon />
+                    }
 
-                    <Text> {loading ? '' : store.StoreName} </Text>
+                    <FieldLabel mt>Tên cửa hàng</FieldLabel>
+                    <TextField
+                        disabled={true}
+                        type="text" value={store.StoreName}
+                    />
+
+                    <FieldLabel mt>Quản lí</FieldLabel>
+                    <TextField
+                        disabled={true}
+                        type="text" value={resident.ResidentName}
+                    />
+
+                    <FieldLabel mt>Địa chỉ</FieldLabel>
+                    <TextField
+                        disabled={true}
+                        type="text" value={resident.DeliveryAddress}
+                    />
                 </LeftWrapper>
 
                 <RightWrapper>
-                    <Row mb>
-                        <SearchBar>
-                            <StyledSearchIcon />
-                            <Input id="search" placeholder="Tìm kiếm sản phẩm" onChange={handleSetSearch} />
-                            <Button type="button" onClick={clearSearch}>Xóa</Button>
-                        </SearchBar>
+                    <Label>Bảng giá</Label>
 
-                        <Align>
-                            <small>Trạng thái:&nbsp;</small>
-                            <DropdownWrapper width="16%">
-                                <Select value={status} onChange={handleSetStatus}>
-                                <option value={''}>Toàn bộ</option>
-                                    <option value={Constant.VERIFIED_PRODUCT}>Hoạt động</option>
-                                    <option value={Constant.REJECTED_PRODUCT}>Từ chối</option>
-                                    <option value={Constant.UNVERIFIED_PRODUCT}>Chờ xác thực</option>
-                                </Select>
-                            </DropdownWrapper>
-                        </Align>
-                    </Row>
-
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableHeader width="15%" center>Ảnh</TableHeader>
-                                <TableHeader width="45%">Tên sản phẩm</TableHeader>
-                                <TableHeader width="20%" center>Giá</TableHeader>
-                                <TableHeader width="20%" center>Trạng thái</TableHeader>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {
-                                loading ? 
-                                <tr>
-                                    <TableData center colSpan={100}> <CircularProgress /> </TableData>
-                                </tr>
-                                : 
-                                <ProductInMenuList 
-                                    currentItems={products}
-                                    search={search}
-                                    status={status}
-                                />
-                            }
-                        </TableBody>
-                    </Table>
+                    {loading ? null : <MenuInStoreList currentItems={menus} menuId={detailItem.id} />}
                 </RightWrapper>
             </ModalContentWrapper>
 
             <ModalButtonWrapper>
-                <small>{products.length} sản phẩm thuộc {menu.MenuName}</small>
+                <small>{menus.length} bảng giá thuộc {store.StoreName}</small>
                 <ModalButton onClick={toggle}>Quay lại</ModalButton>
             </ModalButtonWrapper>
         </Modal>

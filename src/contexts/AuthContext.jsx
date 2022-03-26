@@ -1,8 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import { api } from "../RequestMethod";
+import { DateTime } from 'luxon';
 import { useNavigate } from 'react-router-dom';
 
+import ExtendSessionModal from './ExtendSessionModal';
 import { auth, firestore } from "../firebase";
 import { doc, setDoc } from "firebase/firestore"; 
 import { signOut, createUserWithEmailAndPassword } from "firebase/auth";
@@ -15,23 +17,40 @@ export function useAuth() {
 
 export function AuthProvider({ children }) {
     let navigate = useNavigate();
+    const [sessionModal, setSessionModal] = useState(false);
+    function toggleSessionModal() { 
+        setSessionModal(!sessionModal); 
+    };
+    const timer = useRef(null);
+
+    useEffect(() => {
+        const expiredTime = localStorage.getItem("EXPIRED_TIME");
+        if (expiredTime && typeof expiredTime !== 'undefined' && expiredTime !== null && DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds > 0) {
+            timer.current = setTimeout(() => {
+                if (!sessionModal) {
+                    toggleSessionModal();
+                }
+            }, DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds - 300000);
+            
+            return () => clearTimeout(timer.current);
+        }
+    }, []);
 
     async function logout() {
         await signOut(auth);
         const accessToken = localStorage.getItem("ACCESS_TOKEN");
-        
-        if (accessToken !== null) {
+        if (accessToken !== 'undefined' && accessToken !== null) {
             await api.put("accounts/logout")
             .catch(function (error) {
                 console.log(error);
             });
         };
-
+        setSessionModal(false);
+        clearTimeout(timer.current);
         localStorage.removeItem("USER");
         localStorage.removeItem("ACCESS_TOKEN");
         localStorage.removeItem("REFRESH_TOKEN");
         localStorage.removeItem("EXPIRED_TIME");
-        localStorage.removeItem("IS_TOGGLE");
     };
 
     async function createAuthentication(email, password, apartmentId) {
@@ -65,7 +84,6 @@ export function AuthProvider({ children }) {
                 if (res.data.ResultMessage === "SUCCESS") {
                     localStorage.setItem('ACCESS_TOKEN', res.data.Data.AccessToken);
                     localStorage.setItem('EXPIRED_TIME', res.data.Data.AccessTokenExpiredDate);
-                    localStorage.setItem('IS_TOGGLE', "0");
                     navigate("/");
                 }
             })
@@ -80,12 +98,22 @@ export function AuthProvider({ children }) {
     const value = {
         logout,
         createAuthentication,
-        extendSession
+        timer,
+        toggleSessionModal
     };
 
     return (
-        <AuthContext.Provider value={value}>
-            {children}
-        </AuthContext.Provider>
+        <>
+            <AuthContext.Provider value={value}>
+                {children}
+            </AuthContext.Provider>
+
+            <ExtendSessionModal 
+                display={sessionModal}
+                toggle={toggleSessionModal}
+                extendSession={extendSession}
+                logout={logout}
+            />
+        </>
     );
 }

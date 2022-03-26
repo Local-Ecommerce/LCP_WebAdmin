@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
 import { Close, Check, HideImage } from '@mui/icons-material';
 import { DateTime } from 'luxon';
+import { api } from '../../../RequestMethod';
 
 const ModalContentWrapper = styled.div`
     border-bottom: 1px solid #cfd2d4;
@@ -26,6 +27,21 @@ const HeaderWrapper = styled.div`
 
 const ContentWrapper = styled.div`
     padding: 20px;
+`;
+
+const Flex = styled.div`
+    display: flex;
+`;
+
+const ImageWrapper = styled.div`
+    margin-right: 20px;
+`;
+
+const ResidentWrapper = styled.div`
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 `;
 
 const Header = styled.div`
@@ -94,13 +110,14 @@ const FieldLabel = styled.div`
     font-size: 14px;
     margin-top: ${props => props.mt ? "20px" : "0px"};
     margin-bottom: 10px;
+    color: ${props => props.theme.dark};
 `;
 
 const TextField = styled.input`
     width: 100%;
     box-sizing: border-box;
     margin-bottom: 5px;
-    padding: 10px 14px;
+    padding: 10px;
     outline: none;
     border: 1px solid ${props => props.error ? props.theme.red : props.theme.greyBorder};
     border-radius: 3px;
@@ -134,7 +151,22 @@ const customStyles = {
 };
 
 const DetailStoreModal = ({ display, toggle, detailItem, handleGetApproveItem, handleGetRejectItem }) => {
-    console.log(detailItem.MerchantStoreId)
+    const [resident, setResident] = useState({});
+    
+    useEffect(() => {
+        if (display) {
+            api.get("residents?id=" + detailItem.ResidentId)
+            .then(function (res) {
+                if (res.data.ResultMessage === 'SUCCESS') {
+                    setResident(res.data.Data.List[0]);
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
+        }
+    }, [display])
+
     const handleSetApproveItem = () => {
         handleGetApproveItem(
             detailItem.MerchantStoreId, 
@@ -166,22 +198,44 @@ const DetailStoreModal = ({ display, toggle, detailItem, handleGetApproveItem, h
                             </HeaderWrapper>
 
                             <ContentWrapper>
-                                <FieldLabel>Ảnh cửa hàng</FieldLabel>
-                                {
-                                    detailItem.StoreImage ?
-                                    <Image src={detailItem.StoreImage ? detailItem.StoreImage : ''} />
-                                    : <StyledNoImageIcon />
-                                }
+                                <Flex>
+                                    <ImageWrapper>
+                                        <FieldLabel>Ảnh cửa hàng</FieldLabel>
+                                        {
+                                            detailItem.StoreImage ?
+                                            <Image src={detailItem.StoreImage ? detailItem.StoreImage : ''} />
+                                            : <StyledNoImageIcon />
+                                        }
+                                    </ImageWrapper>
+
+                                    <ResidentWrapper>
+                                        <div>
+                                            <FieldLabel>Quản lí</FieldLabel>
+                                            <TextField
+                                                disabled={true}
+                                                type="text" value={resident.ResidentName}
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <FieldLabel>Địa chỉ</FieldLabel>
+                                            <TextField
+                                                disabled={true}
+                                                type="text" value={resident.DeliveryAddress}
+                                            />
+                                        </div>
+                                    </ResidentWrapper>
+                                </Flex>
 
                                 <FieldLabel mt>Tên cửa hàng</FieldLabel>
                                 <TextField
-                                    disabled={true} maxLength={250}
+                                    disabled={true}
                                     type="text" value={detailItem.StoreName}
                                 />
 
                                 <FieldLabel mt>Ngày tạo</FieldLabel>
                                 <TextField
-                                    disabled={true} maxLength={250}
+                                    disabled={true}
                                     type="text" value={DateTime.fromISO(detailItem.CreatedDate).toFormat('dd/MM/yyyy t')}
                                 />
                             </ContentWrapper>

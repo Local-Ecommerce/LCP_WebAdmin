@@ -90,7 +90,7 @@ const StyledCancelIcon = styled(Close)`
     }
 `;
 
-const ProductItem = ({ item, handleGetRejectItem, handleGetApproveItem, handleGetDetailItem, index }) =>  {
+const ProductItem = ({ item, handleGetRejectItem, handleGetApproveItem, handleGetDetailItem }) =>  {
 
     if (item === 0) {
         return (

@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { DateTime } from 'luxon';
 import styled from "styled-components";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, Slide } from 'react-toastify';
 import { useAuth } from "./contexts/AuthContext";
-import { Route, Routes, Outlet, Navigate, useLocation } from "react-router-dom";
+import { Route, Routes, Outlet, Navigate } from "react-router-dom";
 
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -23,7 +23,6 @@ import Resident from './pages/Resident';
 import Product from './pages/Product';
 import CreateOrder from './pages/CreateOrder';
 import PageNotFound from './pages/PageNotFound';
-import ExtendSessionModal from './contexts/ExtendSessionModal';
 
 const HeaderWrapper = styled.div`
     position:absolute; position: fixed; 
@@ -71,7 +70,6 @@ const RequireLoggedIn = ({ children }) => {
     const accessToken = localStorage.getItem("ACCESS_TOKEN");
     const refreshToken = localStorage.getItem("REFRESH_TOKEN");
     const expiredTime = localStorage.getItem("EXPIRED_TIME");
-    const isToggle = localStorage.getItem("IS_TOGGLE");
 
     if ((user && user.RoleId === "R001" && user.Residents[0].Type !== "MarketManager")
      || typeof user === 'undefined' || user === null 
@@ -79,35 +77,16 @@ const RequireLoggedIn = ({ children }) => {
      || typeof refreshToken === 'undefined' || refreshToken === null 
      || typeof expiredTime === 'undefined' || expiredTime === null 
      || DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds < 0) {
-    //  || typeof isToggle === 'undefined' || isToggle === null || isToggle === "1"
         logout();
         return <Navigate to="/login" />;
-    };
+    }
+
     return children;
 }
 
 const App = () => {
     const [refresh, setRefresh] = useState(false);
     const toggleRefresh = () => { setRefresh(!refresh) };
-    // const { logout, extendSession } = useAuth();
-    // const location = useLocation();
-    // const [modal, setModal] = useState(false);
-    // function toggleModal() {
-    //     localStorage.setItem('IS_TOGGLE', "1");
-    //     setModal(true); 
-    // }
-
-    // useEffect(() => {
-    //     const isToggle = localStorage.getItem("IS_TOGGLE");
-    //     const expiredTime = localStorage.getItem("EXPIRED_TIME");
-
-    //     if (isToggle === "0" && expiredTime && DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds < 0) {
-    //         console.log("case: 3");
-    //         toggleModal();
-    //     }
-
-    //     console.log(location.pathname);
-    // }, [location]);
 
     return (
         <> 
@@ -125,7 +104,7 @@ const App = () => {
 
                     <Route 
                         exact path="/stores" 
-                        element={<RequireLoggedIn> <Store /> </RequireLoggedIn>}
+                        element={<RequireLoggedIn> <Store refresh={refresh} toggleRefresh={toggleRefresh} /> </RequireLoggedIn>}
                     />
 
                     <Route 

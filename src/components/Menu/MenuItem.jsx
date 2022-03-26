@@ -87,7 +87,7 @@ const MenuItem = ({ item, handleGetDetailItem, index }) =>  {
     }
 
     const handleSetDetailItem = () => {
-        handleGetDetailItem(item.MenuId);
+        handleGetDetailItem(item.MenuId, item.MerchantStoreId);
     }
 
     return (

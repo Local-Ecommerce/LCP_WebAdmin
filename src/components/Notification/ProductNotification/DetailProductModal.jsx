@@ -5,6 +5,13 @@ import { api } from "../../../RequestMethod";
 import { Close, Check } from '@mui/icons-material';
 import * as Constant from '../../../Constant';
 
+const ModalTitle = styled.div`
+    border-bottom: 1px solid #cfd2d4;
+    padding: 20px;
+    color: #212529;
+    font-weight: 600;
+`;
+
 const ModalContentWrapper = styled.div`
     border-bottom: 1px solid #cfd2d4;
     padding: 0;
@@ -14,15 +21,11 @@ const ModalContentWrapper = styled.div`
 
 const LeftWrapper = styled.div`
     flex: 1;
-    padding: 20px 20px;
-    border-right: 1px solid rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    padding: 20px 0px 20px 20px;
 `;
 
 const RightWrapper = styled.div`
-    flex: 1;
+    flex: 2;
     padding: 20px;
 `;
 
@@ -69,82 +72,21 @@ const customStyles = {
     },
 };
 
-const ProductCode = styled.div`
-    font-size: 12px;
-    color: ${props => props.theme.grey};
-    margin: 0;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-`;
-
-const ProductName = styled.div`
-    font-size: 28px;
-    color: ${props => props.theme.dark};
-    margin: 8px 0;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-`;
-
-const CategoryName = styled.div`
-    font-size: 14px;
-    color: ${props => props.theme.grey};
-    margin: 0;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-`;
-
-const Price = styled.div`
-    font-size: 24px;
-    color: ${props => props.theme.dark};
-    margin: 20px 0;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-`;
-
-const Description = styled.div`
-    font-size: 14px;
-    color: ${props => props.theme.dark};
-    height: 80px;
-    overflow: auto;
-    padding: 5px;
-    border: 1px solid rgba(0,0,0,0.1);
-`;
-
-const BriefDescription = styled.div`
-    font-size: 14px;
-    color: ${props => props.theme.dark};
-    margin-bottom: 15px;
-    height: 40px;
-    overflow: auto;
-    padding: 5px;
-    border: 1px solid rgba(0,0,0,0.1);
-`;
-
 const OptionWrapper = styled.div`
-    margin: 0px 10px;
-`;
-
-const Label = styled.div`
-    font-size: 14px;
-    color: ${props => props.theme.grey};
-    margin-top: ${props => props.mt ? "20px" : null};
+    margin-bottom: 15px;
 `;
 
 const ValueTag = styled.span`
     display: inline-block;
     padding: 4px 10px;
-    font-size: 13px;
+    font-size: 12px;
     text-align: center;
     white-space: nowrap;
     vertical-align: baseline;
     border-radius: 20px;
     color: ${props => props.theme.white};
     background-color: ${props =>  props.theme.blue};
-    margin: 0px 5px 5px 0px;
+    margin: 2px 5px 5px 0px;
 `;
 
 const Invisible = styled.div`
@@ -166,21 +108,23 @@ const StyledCancelIcon = styled(Close)`
 `;
 
 const BigImageWrapper = styled.div`
-    width: 90%;
-    padding-top: 90%;
+    width: 100%;
+    padding-top: 100%;
     position: relative;
     margin-bottom: 15px;
+    margin-top: 10px;
+    border: 1px solid rgba(0,0,0,0.2);
 `;
 
 const SmallImageWrapper = styled.div`
-    width: 90%;
-    height: 50px;
+    width: 100%;
 `;
 
 const SmallImageScroller = styled.div`
-    height: 80px;
-    overflow-y: auto;
+    overflow: auto;
     width: 100%;
+    display: flex;
+    align-items: center;
 `;
 
 const Image = styled.img`
@@ -196,18 +140,63 @@ const Image = styled.img`
 
 const SmallImage = styled.img`
     object-fit: contain;
-    width: 40px;
-    height: 40px;
-    margin-right: 5px;
+    width: 15%;
+    height: 15%;
+    max-width: 40px;
+    max-height: 40px;
     cursor: pointer;
     border: 1px solid rgba(0,0,0,0.2);
+    margin-right: 5px;
     opacity: ${props => props.blur ? "0.4" : "1"};
 `;
 
 const Flex = styled.div`
+    width: 100%;
     display: flex;
-    align-items: center;
-    height: 40px;
+`;
+
+const FlexChild = styled.div`
+    width: 50%;
+    margin-right: ${props => props.mr ? "20px" : null};
+`;
+
+const FieldLabel = styled.div`
+    font-weight: 400;
+    font-size: 14px;
+    margin-top: ${props => props.mt ? "10px" : "0px"};
+    margin-bottom: 5px;
+    color: ${props => props.theme.dark};
+`;
+
+const TextField = styled.input`
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 5px;
+    padding: 10px;
+    outline: none;
+    border: 1px solid ${props => props.error ? props.theme.red : props.theme.greyBorder};
+    border-radius: 3px;
+    font-size: 14px;
+
+    &:disabled {
+        color: ${props => props.theme.black};
+    }
+`;
+
+const TextArea = styled.textarea`
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 5px;
+    padding: 10px;
+    outline: none;
+    border: 1px solid ${props => props.error ? props.theme.red : props.theme.greyBorder};
+    border-radius: 3px;
+    font-size: 14px;
+    resize: none;
+
+    &:disabled {
+        color: ${props => props.theme.black};
+    }
 `;
 
 const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem, handleGetRejectItem }) => {
@@ -279,6 +268,7 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
 
     return (
         <Modal isOpen={display} onRequestClose={toggle} style={customStyles} ariaHideApp={false}>
+            <ModalTitle>Chi tiết sản phẩm</ModalTitle>
 
             <ModalContentWrapper>
                 <LeftWrapper>
@@ -301,61 +291,109 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                 </LeftWrapper>
 
                 <RightWrapper>
-                    <ProductCode> {loading ? '' : item.ProductCode} </ProductCode>
-                    <ProductName> {loading ? '' : item.ProductName} </ProductName>
-                    <CategoryName> {loading ? '' : item.SysCategoryName} </CategoryName>
-
-                    <Price> {loading ? '' : item.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"} </Price>
-                    
-                    <Label>Miêu tả</Label>
-                    <Description> {loading ? '' : item.Description} </Description>
-
-                    <Label mt>Miêu tả ngắn</Label>
-                    <BriefDescription> {loading ? '' : item.BriefDescription} </BriefDescription>
-
                     <Flex>
-                        <Label>Màu sắc:</Label>
-                        {
-                            colors.length ?
-                            <OptionWrapper>
-                                {colors.map((item, index) => {
-                                    return (
-                                        <ValueTag key={index}> {item.value} </ValueTag>
-                                    );
-                                })}
-                            </OptionWrapper>
-                            : <Label>&nbsp;N/A</Label>
-                        }
+                        <FlexChild mr>
+                            <FieldLabel mt>Tên sản phẩm</FieldLabel>
+                            <TextField
+                                disabled={true}
+                                type="text" value={loading ? '' : item.ProductName}
+                            />
+                        </FlexChild>
+
+                        <FlexChild>
+                            <FieldLabel mt>Mã sản phẩm</FieldLabel>
+                            <TextField
+                                disabled={true}
+                                type="text" value={loading ? '' : item.ProductCode ? item.ProductCode : 'N/A'}
+                            />
+                        </FlexChild>
                     </Flex>
 
                     <Flex>
-                        <Label>Kích thước:</Label>
-                        {
-                            sizes.length ?
-                            <OptionWrapper>
-                                {sizes.map((item, index) => {
-                                    return (
-                                        <ValueTag key={index}> {item.value} </ValueTag>
-                                    );
-                                })}
-                            </OptionWrapper>
-                            : <Label>&nbsp;N/A</Label>
-                        }
+                        <FlexChild mr>
+                            <FieldLabel mt>Danh mục</FieldLabel>
+                            <TextField
+                                disabled={true}
+                                type="text" value={loading ? '' : item.SysCategoryName}
+                            />
+                        </FlexChild>
+
+                        <FlexChild>
+                            <FieldLabel mt>Giá</FieldLabel>
+                            <TextField
+                                disabled={true}
+                                type="text" value={loading ? '' : item.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"}
+                            />
+                        </FlexChild>
                     </Flex>
 
                     <Flex>
-                        <Label>Trọng lượng:</Label>
-                        {
-                            weights.length ?
-                            <OptionWrapper>
-                                {weights.map((item, index) => {
-                                    return (
-                                        <ValueTag key={index}> {item.value} kg </ValueTag>
-                                    );
-                                })}
-                            </OptionWrapper>
-                            : <Label>&nbsp;N/A</Label>
-                        }
+                        <FlexChild mr>
+                            <FieldLabel mt>Miêu tả</FieldLabel>
+                            <TextArea
+                                disabled={true} rows="4"
+                                type="text" value={loading ? '' : item.Description}
+                            />
+
+                            <FieldLabel mt>Miêu tả ngắn</FieldLabel>
+                            <TextArea
+                                disabled={true} rows="2"
+                                type="text" value={loading ? '' : item.BriefDescription}
+                            />
+                        </FlexChild>
+
+                        <FlexChild>
+                            {
+                                colors.length ?
+                                <>
+                                    <FieldLabel mt>Màu sắc</FieldLabel>
+                                    {
+                                        <OptionWrapper>
+                                            {colors.map((item, index) => {
+                                                return (
+                                                    <ValueTag key={index}> {item.value} </ValueTag>
+                                                );
+                                            })}
+                                        </OptionWrapper>
+                                    }
+                                </>
+                                : null
+                            }
+
+                            {
+                                sizes.length ?
+                                <>
+                                    <FieldLabel mt>Kích thước</FieldLabel>
+                                    {
+                                        <OptionWrapper>
+                                            {sizes.map((item, index) => {
+                                                return (
+                                                    <ValueTag key={index}> {item.value} </ValueTag>
+                                                );
+                                            })}
+                                        </OptionWrapper>
+                                    }
+                                </>
+                                : null
+                            }
+
+                            {
+                                weights.length ?
+                                <>
+                                    <FieldLabel mt>Trọng lượng</FieldLabel>
+                                    {
+                                        <OptionWrapper>
+                                            {weights.map((item, index) => {
+                                                return (
+                                                    <ValueTag key={index}> {item.value} </ValueTag>
+                                                );
+                                            })}
+                                        </OptionWrapper>
+                                    }
+                                </>
+                                : null
+                            }
+                        </FlexChild>
                     </Flex>
                 </RightWrapper>
             </ModalContentWrapper>

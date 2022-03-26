@@ -19,7 +19,7 @@ const PageWrapper = styled.div`
 const Tab = styled.h1`
     font-size: 16px;
     color: #383838;
-    padding: 15px;
+    padding: 10px;
     margin: 0px;
     background-color: ${props => props.active ? props.theme.white : null};
     border-radius: 5px 5px 0 0;

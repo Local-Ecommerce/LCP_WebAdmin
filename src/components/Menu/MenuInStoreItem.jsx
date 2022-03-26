@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { ArrowDropUp, ArrowDropDown} from '@mui/icons-material';
 import * as Constant from '../../Constant';
 
-import ProductInMenuList from './ProductInMenuList';
+import ProductInMenuList from '../Menu/ProductInMenuList';
 
 const ContainerWrapper = styled.div`
     font-size: 14px;
@@ -111,8 +111,8 @@ const ProductWrapper = styled.div`
     margin-bottom: 10px;
 `;
 
-const StoreMenuItem = ({ item }) =>  {
-    const [dropdown, setDropdown] = useState(false);
+const MenuInStoreItem = ({ item, menuId }) =>  {
+    const [dropdown, setDropdown] = useState(menuId === item.MenuId ? true : false);
     const toggleDropdown = () => { setDropdown(!dropdown) };
 
     let activeCheck = '';
@@ -180,4 +180,4 @@ const StoreMenuItem = ({ item }) =>  {
     )
 }
 
-export default StoreMenuItem;
+export default MenuInStoreItem;

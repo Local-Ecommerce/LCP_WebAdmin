@@ -345,7 +345,7 @@ const Header = ({ refresh, toggleRefresh }) => {
     const [loading, setLoading] = useState(false);
 
     useEffect( () => {  //fetch api data
-        if (user && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
+        if (user && user.RoleId === "R001" && user.Residents[0].Type === Constant.MARKET_MANAGER) {
             setLoading(true);
             const dataRef = query(ref(db, 'Notification/' + user.Residents[0].ApartmentId), limitToFirst(100), orderByChild('receiverId'), equalTo(user.Residents[0].ApartmentId));
             return onValue(dataRef, (snapshot) => {
@@ -389,7 +389,9 @@ const Header = ({ refresh, toggleRefresh }) => {
         try {
             await logout();
             navigate("/");
-        } catch {}
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     const handleGetApproveProductItem = (id, name, image, residentId) => {

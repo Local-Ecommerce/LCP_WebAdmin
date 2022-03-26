@@ -1,7 +1,7 @@
 import React from 'react';
 import ProductInMenuItem from './ProductInMenuItem';
 
-const ProductInMenuList = ({ currentItems, search, status }) => {
+const ProductInMenuList = ({ currentItems }) => {
 
     if (currentItems.length === 0) {
         return <ProductInMenuItem item={0} />
@@ -11,7 +11,6 @@ const ProductInMenuList = ({ currentItems, search, status }) => {
         return (
             <ProductInMenuItem
                 item={item} index={index} key={index}
-                search={search} status={status}
             />
         )
     });

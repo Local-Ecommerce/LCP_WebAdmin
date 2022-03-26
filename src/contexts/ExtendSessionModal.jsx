@@ -56,7 +56,7 @@ const customStyles = {
     },
 };
 
-const ExtendSessionModal = ({ display, extendSession, logout }) => {
+const ExtendSessionModal = ({ display, toggle, extendSession, logout }) => {
     let navigate = useNavigate();
 
     async function handleExtendSession() {
@@ -70,13 +70,15 @@ const ExtendSessionModal = ({ display, extendSession, logout }) => {
 
     return (
         <Modal isOpen={display} style={customStyles} ariaHideApp={false}>
-            <ModalTitle>Hết hạn đăng nhập</ModalTitle>
+            <ModalTitle>Gia hạn đăng nhập</ModalTitle>
             <ModalContentWrapper>
-                Hạn đăng nhập đã hết, bạn có muốn làm mới đăng nhập?
+                Hạn đăng nhập đã gần hết, bạn có muốn làm mới hạn đăng nhập?
             </ModalContentWrapper>
+
             <ModalButtonWrapper>
+                {/* <ModalButton blue onClick={handleExtendSession}>Làm mới</ModalButton> */}
                 <ModalButton onClick={handleLogout}>Đăng xuất</ModalButton>
-                <ModalButton blue onClick={handleExtendSession}>Làm mới</ModalButton>
+                <ModalButton onClick={toggle}>Quay lại</ModalButton>
             </ModalButtonWrapper>
         </Modal>
     )
