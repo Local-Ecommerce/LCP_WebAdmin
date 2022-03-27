@@ -1,10 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DateTime } from 'luxon';
 import styled from "styled-components";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, Slide } from 'react-toastify';
 import { useAuth } from "./contexts/AuthContext";
+import { loadReCaptcha } from 'react-recaptcha-google';
 import { Route, Routes, Outlet, Navigate } from "react-router-dom";
 
 import Home from './pages/Home';
@@ -13,7 +14,6 @@ import Header from './pages/Header';
 import Sidebar from './pages/Sidebar';
 import Category from './pages/Category';
 import Store from './pages/Store';
-import StoreMenu from './pages/StoreMenu';
 import Menu from './pages/Menu';
 import Apartment from './pages/Apartment';
 import ApartmentResident from './pages/ApartmentResident';
@@ -22,6 +22,7 @@ import News from './pages/News';
 import Resident from './pages/Resident';
 import Product from './pages/Product';
 import CreateOrder from './pages/CreateOrder';
+import UserProfile from './pages/UserProfile';
 import PageNotFound from './pages/PageNotFound';
 
 const HeaderWrapper = styled.div`
@@ -88,6 +89,10 @@ const App = () => {
     const [refresh, setRefresh] = useState(false);
     const toggleRefresh = () => { setRefresh(!refresh) };
 
+    useEffect(() => {
+        loadReCaptcha();
+    }, [])
+
     return (
         <> 
             <Routes>
@@ -105,11 +110,6 @@ const App = () => {
                     <Route 
                         exact path="/stores" 
                         element={<RequireLoggedIn> <Store refresh={refresh} toggleRefresh={toggleRefresh} /> </RequireLoggedIn>}
-                    />
-
-                    <Route 
-                        exact path="/store/:id" 
-                        element={<RequireLoggedIn> <StoreMenu /> </RequireLoggedIn>}
                     />
 
                     <Route 
@@ -150,6 +150,11 @@ const App = () => {
                     <Route 
                         exact path="/residents" 
                         element={<RequireLoggedIn> <Resident /> </RequireLoggedIn>}
+                    />
+
+                    <Route 
+                        exact path="/userProfile" 
+                        element={<RequireLoggedIn> <UserProfile /> </RequireLoggedIn>}
                     />
                 </Route>
 

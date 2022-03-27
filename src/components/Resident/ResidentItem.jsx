@@ -66,9 +66,9 @@ const ResidentItem = ({ item, handleGetToggleStatusItem, index }) =>  {
             <TableData center>{phoneNumber}</TableData>
             <TableData center>
                 {
-                    item.Type === 'MarketManager' ? 'Quản lý chung cư'
-                    : item.Type === 'Merchant' ? 'Thương nhân' 
-                    : item.Type === 'Customer' ? 'Khách hàng'
+                    item.Type === Constant.MARKET_MANAGER ? 'Quản lý chung cư'
+                    : item.Type === Constant.MERCHANT ? 'Thương nhân' 
+                    : item.Type === Constant.CUSTOMER ? 'Khách hàng'
                     : null
                 }    
             </TableData>

@@ -278,6 +278,8 @@ const Category = () => {
     const handleEditItem = (id, name, type, belongTo, status) => {
         const url = "categories?id=" + id;
         const editData = async () => {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
+
             api.put(url, {
                 sysCategoryName: name,
                 type: type,
@@ -286,15 +288,13 @@ const Category = () => {
             })
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
-                    const notify = () => toast.success("Cập nhật thành công " + name + "!", {
-                        position: toast.POSITION.TOP_CENTER
-                    });
-                    notify();
+                    toast.update(notification, { render: "Cập nhật thành công!", type: "success", autoClose: 5000, isLoading: false });
                     setChange(!change);
                 }
             })
             .catch(function (error) {
                 console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
             });
         }
         editData();

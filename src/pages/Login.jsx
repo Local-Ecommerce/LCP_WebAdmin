@@ -41,15 +41,15 @@ const Title = styled.h1`
 
 const BlueSpan = styled.span`
     color: #3075BA;
-    font-size: 40px;
+    font-size: ${props => props.fontSize};
 `;
 
 const SmallText = styled.h4`
     color: rgba(23,31,35,.64);
     font-weight: 400;
-    margin: 5px 0px 20px 0px;
+    margin: 5px -10px 20px -10px;
     text-align: center;
-    font-size: 13px;
+    font-size: 14px;
 `;
 
 const ErrorText = styled.div`
@@ -98,17 +98,28 @@ const Button = styled.button`
     }
 `;
 
+const ForgetPasswordTitle = styled.div`
+    font-size: 20px;
+`;
+
 const Login = () => {
     let navigate = useNavigate();
     const { timer, toggleSessionModal } = useAuth();
 
     const [loading, setLoading] = useState(false);
+    const [toggle, setToggle] = useState(false);
+    const toggleForm = () => { setToggle(!toggle) }
+
     const [error, setError] = useState('');
     const [input, setInput] = useState({ username: '', password: '' });
 
     function handleChange(e) {
         const { name, value } = e.target;
         setInput(input => ({ ...input, [name]: value }));
+    }
+
+    function onChange(value) {
+        console.log("Captcha value:", value);
     }
 
     function handleLogin(e) {
@@ -156,43 +167,80 @@ const Login = () => {
 
     return (
         <LoginFormContainer>
-            <Title>Welcome to <BlueSpan>LCP+</BlueSpan> </Title>
-            <SmallText>Trang quản lí dành cho quản trị viên và quản lý chung cư</SmallText>
-
-            {error !== '' ? <ErrorText>{error}</ErrorText> : null}
-
-            <Form onSubmit={handleLogin}>
-                {
-                loading ?
-                <CenterWrapper>
-                    <CircularProgress /> 
-                </CenterWrapper>
-                :
+            {
+                !toggle ?
                 <>
-                    <TextFieldWrapper mt>
-                        <TextField
-                            fullWidth
-                            value={input.username ? input.username : ''} name="username"
-                            onChange={handleChange}
-                            label="Tài khoản"
-                        />
-                    </TextFieldWrapper>
+                    <Title>Welcome to <BlueSpan fontSize="40px">LCP</BlueSpan> </Title>
+                    <SmallText>Trang quản lí dành cho <b>quản trị viên</b> và <b>quản lý chung cư</b></SmallText>
 
-                    <TextFieldWrapper>
-                        <TextField
-                            fullWidth
-                            value={input.password ? input.password : ''} name="password"
-                            type="password"
-                            onChange={handleChange}
-                            label="Mật khẩu" 
-                        />
-                    </TextFieldWrapper>
+                    {error !== '' ? <ErrorText>{error}</ErrorText> : null}
 
-                    <Button>Đăng nhập</Button>
-                    <BottomText>Quên mật khẩu?</BottomText>
+                    <Form onSubmit={handleLogin}>
+                        {
+                        loading ?
+                        <CenterWrapper>
+                            <CircularProgress /> 
+                        </CenterWrapper>
+                        :
+                        <>
+                            <TextFieldWrapper mt>
+                                <TextField
+                                    fullWidth
+                                    value={input.username ? input.username : ''} name="username"
+                                    onChange={handleChange}
+                                    label="Tài khoản"
+                                />
+                            </TextFieldWrapper>
+
+                            <TextFieldWrapper>
+                                <TextField
+                                    fullWidth
+                                    value={input.password ? input.password : ''} name="password"
+                                    type="password"
+                                    onChange={handleChange}
+                                    label="Mật khẩu" 
+                                />
+                            </TextFieldWrapper>
+
+                            <Button>Đăng nhập</Button>
+                            <BottomText onClick={toggleForm}>Quên mật khẩu?</BottomText>
+                        </>
+                        }
+                    </Form>
                 </>
-                }
-            </Form>
+
+                :
+                
+                <>
+                    <Title><BlueSpan fontSize="28px">Quên mật khẩu?</BlueSpan></Title>
+                    <SmallText>Nhập địa chỉ email đã đăng kí cho tài khoản của bạn</SmallText>
+
+                    {error !== '' ? <ErrorText>{error}</ErrorText> : null}
+
+                    <Form onSubmit={handleLogin}>
+                        {
+                        loading ?
+                        <CenterWrapper>
+                            <CircularProgress /> 
+                        </CenterWrapper>
+                        :
+                        <>
+                            <TextFieldWrapper mt>
+                                <TextField
+                                    fullWidth
+                                    value={input.username ? input.username : ''} name="username"
+                                    onChange={handleChange}
+                                    label="Tài khoản"
+                                />
+                            </TextFieldWrapper>
+
+                            <Button>Đăng nhập</Button>
+                            <BottomText onClick={toggleForm}>Quên mật khẩu?</BottomText>
+                        </>
+                        }
+                    </Form>
+                </>
+            }
         </LoginFormContainer>
     )
 }

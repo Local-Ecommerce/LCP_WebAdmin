@@ -3,6 +3,10 @@ export const MERCHANT = "Merchant";
 export const CUSTOMER = "Customer";
 export const ADMIN = "Admin";
 
+//captcha google key
+export const CAPTCHA_CLIENT_KEY = '6LdcxxkfAAAAAMWqNDaLPF4A1dI7sKr51S7Qbwth';
+export const CAPTCHA_SECRET_KEY = '6LdcxxkfAAAAALq3NZ0Q5Vg2VvNzB8SB1UU0QD4_';
+
 //poi status
 export const ACTIVE_POI = 8001;
 export const INACTIVE_POI = 8005;

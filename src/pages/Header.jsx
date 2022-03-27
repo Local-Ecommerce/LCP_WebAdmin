@@ -357,6 +357,7 @@ const Header = ({ refresh, toggleRefresh }) => {
                 const fetchData = () => {
                     api.get(url)
                     .then(function (res) {
+                        console.log(res.data.Data.List)
                         setProducts(res.data.Data.List);
 
                         let url2 = "stores/unverified-stores";
@@ -691,7 +692,7 @@ const Header = ({ refresh, toggleRefresh }) => {
                         {
                             user && user.RoleId === "R002" ?
                             null :
-                            <DropdownLink to={"/"}> <StyledPersonIcon /> Thông tin cá nhân </DropdownLink>
+                            <DropdownLink to={"/userProfile"}> <StyledPersonIcon /> Thông tin cá nhân </DropdownLink>
                         }
                         <DropdownLink to={"/"}> <StyledHelpIcon /> Trợ giúp </DropdownLink>
                         <DropdownItem onClick={handleLogout}> <StyledLogoutIcon /> Đăng xuất </DropdownItem>

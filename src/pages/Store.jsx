@@ -133,7 +133,7 @@ const StyledSearchIcon = styled(Search)`
 
 const SearchBar = styled.div`
     display: flex;
-    width: 50%;
+    width: ${props => props.width};
     justify-content: center;
     align-items: center;
     border-radius: 5px;
@@ -751,7 +751,7 @@ const Store = ({ refresh, toggleRefresh }) => {
                 activeTab === 1 ?
                 <>
                     <Row mb>
-                        <SearchBar>
+                        <SearchBar width="50%">
                             <StyledSearchIcon />
                             <Input id="search" placeholder="Tìm kiếm cửa hàng" onChange={handleSetStoreSearch} />
                             <Button onClick={() => clearStoreSearch()}>Clear</Button>

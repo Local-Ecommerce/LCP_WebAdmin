@@ -209,7 +209,9 @@ const EditButton = styled.button`
 const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
     const [child, setChild] = useState(false);
     const [edit, toggleEdit] = useState(false);
-    const [dropdown, toggleDropdown] = useState(false);
+    const [dropdown, setDropdown] = useState(false);
+    const toggleDropdown = () => { setDropdown(!dropdown); }
+
     const [input, setInput] = useState({ name: '', status: '' });
     const [error, setError] = useState({ nameError: '' });
 
@@ -218,7 +220,7 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
     }
 
     let clickOutside = useClickOutside(() => {
-        toggleDropdown(false);
+        setDropdown(false);
     });
 
     const handleGetCreateItem = (e) => {
@@ -229,7 +231,7 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
     const handleGetEditItem = (e) => {
         if (validCheck()) {
             e.stopPropagation();
-            getEditItem(item.SystemCategoryId, input.name, 'Khác', item.BelongTo || null, input.status);
+            getEditItem(item.SystemCategoryId, input.name, item.Type, item.BelongTo || null, input.status);
             toggleEdit(!edit);
         }
     }
@@ -259,10 +261,6 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
         toggleEdit(!edit);
     }
 
-    const handleToggleDropdown = () => {
-        toggleDropdown(!dropdown);
-    }
-
     function handleChange(e) {
         const { name, value } = e.target;
         setInput(input => ({ ...input, [name]: value }));
@@ -270,7 +268,7 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
 
     function handleStatusChange(value) {
         setInput(input => ({ ...input, status: value }));
-        toggleDropdown(!dropdown);
+        setDropdown(!dropdown);
     }
 
     let activeCheck = '';
@@ -310,7 +308,7 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
             edit ?
             <CategoryContent edit level={item.CategoryLevel}>
                 <SelectWrapper ref={clickOutside}>
-                    <Select onClick={handleToggleDropdown}>
+                    <Select onClick={toggleDropdown}>
                         {input.status === Constant.ACTIVE_SYSTEM_CATEGORY ? 'Hoạt động' : input.status === Constant.INACTIVE_SYSTEM_CATEGORY ? 'Ngừng hoạt động' : ''}
                         <ArrowDropDown />
                     </Select>

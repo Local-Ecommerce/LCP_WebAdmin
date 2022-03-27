@@ -209,11 +209,11 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
     const [loading, setLoading] = useState(true);
 
     const handleSetApproveItem = () => {
-        handleGetApproveItem(item.ProductId, item.ProductName, images[0].image, item.ResidentId);
+        handleGetApproveItem(item.ProductId, item.ProductName, images.length ? images[0].image : '', item.ResidentId);
     }
 
     const handleSetRejectItem = () => {
-        handleGetRejectItem(item.ProductId, item.ProductName, images[0].image, item.ResidentId);
+        handleGetRejectItem(item.ProductId, item.ProductName, images.length ? images[0].image : '', item.ResidentId);
     }
 
     useEffect(() => {
@@ -279,8 +279,8 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                     <SmallImageWrapper>
                         <SmallImageScroller>
                         {
-                            images.map(item => {
-                                return <SmallImage key={item}
+                            images.map((item, index) => {
+                                return <SmallImage key={index}
                                     src={item.image} blur={item.image !== imageSrc} 
                                     onClick={() => setImageSrc(item.image)} 
                                 />

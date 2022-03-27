@@ -69,7 +69,7 @@ const ApartmentResidentItem = ({ item, index }) =>  {
             break;
         case Constant.INACTIVE_RESIDENT:
             activeCheck = 'inactive';
-            activeLabel = 'Ngừng hoạt động';
+            activeLabel = 'Ngừng';
             break;
         default:
             activeCheck = 'inactive';
@@ -85,9 +85,9 @@ const ApartmentResidentItem = ({ item, index }) =>  {
             <TableData center>{phoneNumber}</TableData>
             <TableData center>
                 {
-                    item.Type === 'MarketManager' ? 'Quản lý chung cư'
-                    : item.Type === 'Merchant' ? 'Thương nhân' 
-                    : item.Type === 'Customer' ? 'Khách hàng'
+                    item.Type === Constant.MARKET_MANAGER ? 'Quản lý chung cư'
+                    : item.Type === Constant.MERCHANT ? 'Thương nhân' 
+                    : item.Type === Constant.CUSTOMER ? 'Khách hàng'
                     : null
                 }    
             </TableData>
