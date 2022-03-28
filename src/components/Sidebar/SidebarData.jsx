@@ -41,13 +41,34 @@ const SidebarData = [
         icon: <StyledHomeIcon />,
     },
     {
-        title: 'Quản lí sản phẩm',
-    },
-    {
         title: 'Danh mục',
         path: '/categories',
         icon: <StyledCategoryIcon />,
         role: Constant.ADMIN
+    },
+    {
+        title: 'Chung cư',
+        path: '/apartments',
+        icon: <StyledApartmentIcon />,
+        role: Constant.ADMIN
+    },
+    {
+        title: 'Tạo đơn',
+        path: '/createOrder',
+        icon: <StyledCreateOrderIcon />,
+        role: Constant.MARKET_MANAGER
+    },
+    {
+        title: 'Cư dân',
+        path: '/residents',
+        icon: <StyledAccountIcon />,
+        role: Constant.MARKET_MANAGER
+    },
+    {
+        title: 'Sản phẩm',
+        path: '/products',
+        icon: <StyledProductIcon />,
+        role: Constant.MARKET_MANAGER
     },
     {
         title: 'Cửa hàng',
@@ -60,33 +81,6 @@ const SidebarData = [
         icon: <StyledMenuIcon />,
     },
     {
-        title: 'Sản phẩm',
-        path: '/products',
-        icon: <StyledProductIcon />,
-        role: Constant.MARKET_MANAGER
-    },
-    {
-        title: 'Quản lí thông tin',
-    },
-    {
-        title: 'Chung cư',
-        path: '/apartments',
-        icon: <StyledApartmentIcon />,
-        role: Constant.ADMIN
-    },
-    {
-        title: 'Cư dân',
-        path: '/residents',
-        icon: <StyledAccountIcon />,
-        role: Constant.MARKET_MANAGER
-    },
-    {
-        title: 'Tạo đơn',
-        path: '/createOrder',
-        icon: <StyledCreateOrderIcon />,
-        role: Constant.MARKET_MANAGER
-    },
-    {
         title: 'News',
         path: '/news',
         icon: <StyledNewsIcon />
@@ -95,7 +89,7 @@ const SidebarData = [
         title: 'POIs',
         path: '/pois',
         icon: <StyledPoiIcon />
-    }
+    },
 ];
 
 export default SidebarData;
