@@ -206,14 +206,14 @@ const EditButton = styled.button`
     }
 `;
 
-const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
+const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem, parentDisabled }) => {
     const [child, setChild] = useState(false);
     const [edit, toggleEdit] = useState(false);
     const [dropdown, setDropdown] = useState(false);
     const toggleDropdown = () => { setDropdown(!dropdown); }
 
     const [input, setInput] = useState({ name: '', status: '' });
-    const [error, setError] = useState({ nameError: '' });
+    const [error, setError] = useState({ name: '' });
 
     const handleToggleChild = () => {
         setChild(!child);
@@ -225,23 +225,23 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
 
     const handleGetCreateItem = (e) => {
         e.stopPropagation();
-        getCreateItem(item.SystemCategoryId, item.Type, item.SysCategoryName);
+        getCreateItem(item.SystemCategoryId, item.SysCategoryName);
     }
 
     const handleGetEditItem = (e) => {
         if (validCheck()) {
             e.stopPropagation();
-            getEditItem(item.SystemCategoryId, input.name, item.Type, item.BelongTo || null, input.status);
+            getEditItem(item.SystemCategoryId, input.name, item.BelongTo || null, input.status);
             toggleEdit(!edit);
         }
     }
 
     const validCheck = () => {
         let check = false;
-        setError(error => ({ ...error, nameError: '' }));
+        setError(error => ({ ...error, name: '' }));
 
         if (input.name === null || input.name === '') {
-            setError(error => ({ ...error, nameError: 'Vui lòng nhập tên danh mục' }));
+            setError(error => ({ ...error, name: 'Vui lòng nhập tên danh mục' }));
             check = true;
         }
         if (check === true) {
@@ -274,25 +274,26 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
     let activeCheck = '';
     let activeLabel = '';
     let disabledCheck = false;
-    switch (item.Status) {
-        case Constant.ACTIVE_SYSTEM_CATEGORY:
-            activeCheck = 'active';
-            activeLabel = 'Hoạt động';
-            break;
-        case Constant.INACTIVE_SYSTEM_CATEGORY:
-            activeCheck = 'inactive';
-            activeLabel = 'Ngừng hoạt động';
-            break;
-        case Constant.DELETED_SYSTEM_CATEGORY:
-            activeCheck = 'deleted';
-            activeLabel = 'Ngừng hoạt động';
-            disabledCheck = true;
-            break;
-        default:
-            activeCheck = 'inactive';
-            activeLabel = 'WRONG STATUS NUMBER';
-            break;
+    if (parentDisabled) {
+        activeCheck = 'inactive';
+        activeLabel = 'Ngừng hoạt động';
+    } else {
+        switch (item.Status) {
+            case Constant.ACTIVE_SYSTEM_CATEGORY:
+                activeCheck = 'active';
+                activeLabel = 'Hoạt động';
+                break;
+            case Constant.INACTIVE_SYSTEM_CATEGORY:
+                activeCheck = 'inactive';
+                activeLabel = 'Ngừng hoạt động';
+                break;
+            default:
+                activeCheck = 'inactive';
+                activeLabel = 'WRONG STATUS NUMBER';
+                break;
+        }
     }
+    
 
     if (item === 0) {
         return (
@@ -323,7 +324,7 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
                     inputProps={{ maxLength: 250 }} 
                     value={input.name ? input.name : ''} name='name'
                     onChange={handleChange}
-                    error={error.nameError !== ''}
+                    error={error.name !== ''}
                 />
 
                 <EditButton onClick={handleToggleEdit}>Hủy</EditButton>
@@ -366,14 +367,15 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem }) => {
             }
 
             {child &&
-                item.Children.map((item, index) => {
+                item.Children.map((sub, index) => {
                     return (
                         <CategoryItem 
-                            item={item} 
+                            item={sub} 
                             getCreateItem={getCreateItem} 
                             getEditItem={getEditItem}
-                            getDeleteItem={getDeleteItem} 
-                            key={index} 
+                            getDeleteItem={getDeleteItem}
+                            parentDisabled={item.Status === Constant.INACTIVE_SYSTEM_CATEGORY ? true : false}
+                            key={index}
                         />
                     );
                 })

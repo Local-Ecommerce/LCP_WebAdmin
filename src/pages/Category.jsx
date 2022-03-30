@@ -5,9 +5,10 @@ import { AddCircle } from '@mui/icons-material';
 import { api } from "../RequestMethod";
 import { Search } from '@mui/icons-material';
 import { toast } from 'react-toastify';
+import * as Constant from '../Constant';
+
 import CreateModal from '../components/Category/CreateModal';
 import DeleteModal from '../components/Category/DeleteModal';
-import * as Constant from '../Constant';
 
 const PageWrapper = styled.div`
     margin: 50px 40px;
@@ -165,8 +166,8 @@ const Category = () => {
     function toggleCreateModal() { setCreateModal(!createModal); }
     const [deleteModal, setDeleteModal] = useState(false);
     function toggleDeleteModal() { setDeleteModal(!deleteModal); }
-    const [input, setInput] = useState({ name: '', type: 'Khác', belongTo: '', belongToName: '' })
-    const [error, setError] = useState({ nameError: '', typeError: '' })
+    const [input, setInput] = useState({ name: '', belongTo: '', belongToName: '' })
+    const [error, setError] = useState({ name: '' })
     const [deleteItem, setDeleteItem] = useState({ id: '', name: '' });
     
     const [APIdata, setAPIdata] = useState([]);
@@ -175,10 +176,12 @@ const Category = () => {
     const [change, setChange] = useState(false);
     const [search, setSearch] = useState(""); //search filter
     const [status, setStatus] = useState(Constant.ACTIVE_SYSTEM_CATEGORY); //status filter
-    const [type, setType] = useState('Khác');
 
     useEffect(() => {
-        const url = "categories?limit=100&sort=-syscategoryname";
+        const url = "categories" 
+        + "?sort=-syscategoryname" 
+        + "&status=" + Constant.ACTIVE_SYSTEM_CATEGORY
+        + "&status=" + Constant.INACTIVE_SYSTEM_CATEGORY;
         const fetchData = () => {
             api.get(url)
             .then(function (res) {
@@ -193,16 +196,15 @@ const Category = () => {
 
     useEffect(() => {   //filter based on 'search' & 'status'
         const result = APIdata.filter((item) => {
-            if (status !== "0") {
+            if (status !== Constant.ACTIVE_SYSTEM_CATEGORY + "&status=" + Constant.INACTIVE_SYSTEM_CATEGORY) {
                 return [item.SystemCategoryId, item.SysCategoryName].join('').toLowerCase().includes(search.toLowerCase())
-                        && item.Status === parseInt(status) && item.Type === type;
+                        && item.Status === parseInt(status);
             } else {
-                return [item.SystemCategoryId, item.SysCategoryName].join('').toLowerCase().includes(search.toLowerCase())
-                        && item.Type === type;
+                return [item.SystemCategoryId, item.SysCategoryName].join('').toLowerCase().includes(search.toLowerCase());
             }
         })
         setFilteredData(result);
-    }, [search, status, type, APIdata]);
+    }, [search, status, APIdata]);
 
     const clearSearch = () => {
         setSearch('');
@@ -210,12 +212,12 @@ const Category = () => {
     }
 
     const handleToggleCreateModal = () => {
-        setInput({ name: '', type: 'Khác', belongTo: '', belongToName: '' });
+        setInput({ name: '', belongTo: '', belongToName: '' });
         toggleCreateModal();
     }
 
-    const handleGetCreateItem = (id, type, name) => {
-        setInput({ name: '', type: type, belongTo: id, belongToName: name });
+    const handleGetCreateItem = (id, name) => {
+        setInput({ name: '', belongTo: id, belongToName: name });
         toggleCreateModal();
     }
 
@@ -234,23 +236,22 @@ const Category = () => {
         if (validCheck()) {
             const url = "categories";
             const addData = async () => {
+                const notification = toast.loading("Đang xử lí yêu cầu...");
+
                 api.post(url, {
                     sysCategoryName: input.name,
-                    type: input.type,
                     belongTo: input.belongTo || null
                 })
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
-                        const notify = () => toast.success("Tạo thành công danh mục " + input.name + "!", {
-                            position: toast.POSITION.TOP_CENTER
-                        });
-                        notify();
+                        toast.update(notification, { render: "Tạo danh mục thành công!", type: "success", autoClose: 5000, isLoading: false });
                         toggleCreateModal();
                         setChange(!change);
                     }
                 })
                 .catch(function (error) {
                     console.log(error);
+                    toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
                 });
             };
             addData();
@@ -259,14 +260,10 @@ const Category = () => {
 
     const validCheck = () => {
         let check = false;
-        setError(error => ({ ...error, nameError: '', typeError: '' }));
+        setError(error => ({ ...error, name: '' }));
 
         if (input.name === null || input.name === '') {
-            setError(error => ({ ...error, nameError: 'Vui lòng nhập tên danh mục' }));
-            check = true;
-        }
-        if (input.type === null || input.type === '') {
-            setError(error => ({ ...error, typeError: 'Vui lòng chọn loại danh mục' }));
+            setError(error => ({ ...error, name: 'Vui lòng nhập tên danh mục' }));
             check = true;
         }
         if (check === true) {
@@ -275,14 +272,13 @@ const Category = () => {
         return true;
     }
 
-    const handleEditItem = (id, name, type, belongTo, status) => {
+    const handleEditItem = (id, name, belongTo, status) => {
         const url = "categories?id=" + id;
         const editData = async () => {
             const notification = toast.loading("Đang xử lí yêu cầu...");
 
             api.put(url, {
                 sysCategoryName: name,
-                type: type,
                 status: status,
                 belongTo: belongTo
             })
@@ -304,18 +300,18 @@ const Category = () => {
         event.preventDefault();
         const url = "categories?id=" + deleteItem.id;
         const deleteData = async () => {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
+
             api.delete(url)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
-                    const notify = () => toast.success("Xóa thành công danh mục " + deleteItem.name + "!", {
-                        position: toast.POSITION.TOP_CENTER
-                    });
-                    notify();
+                    toast.update(notification, { render: "Xóa danh mục thành công!", type: "success", autoClose: 5000, isLoading: false });
                     setChange(!change);
                 }
             })
             .catch(function (error) {
                 console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
             });
         };
         deleteData();
@@ -338,17 +334,11 @@ const Category = () => {
                         <small>Trạng thái:&nbsp;</small>
                         <DropdownWrapper width="16%">
                             <Select value={status} onChange={(event) => setStatus(event.target.value)}>
-                                <option value={"0"}>Toàn bộ</option>
+                                <option value={Constant.ACTIVE_SYSTEM_CATEGORY + "&status=" + Constant.INACTIVE_SYSTEM_CATEGORY}>
+                                    Toàn bộ
+                                </option>
                                 <option value={Constant.ACTIVE_SYSTEM_CATEGORY}>Hoạt động</option>
                                 <option value={Constant.INACTIVE_SYSTEM_CATEGORY}>Ngừng hoạt động</option>
-                            </Select>
-                        </DropdownWrapper>
-
-                        <small>Loại:&nbsp;</small>
-                        <DropdownWrapper width="16%">
-                            <Select value={type} onChange={(event) => setType(event.target.value)}>
-                                <option value="Khác">Khác</option>
-                                <option value="Tươi sống">Tươi sống</option>
                             </Select>
                         </DropdownWrapper>
                     </Align>

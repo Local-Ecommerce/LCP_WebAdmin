@@ -98,10 +98,6 @@ const Button = styled.button`
     }
 `;
 
-const ForgetPasswordTitle = styled.div`
-    font-size: 20px;
-`;
-
 const Login = () => {
     let navigate = useNavigate();
     const { timer, toggleSessionModal } = useAuth();
@@ -116,10 +112,6 @@ const Login = () => {
     function handleChange(e) {
         const { name, value } = e.target;
         setInput(input => ({ ...input, [name]: value }));
-    }
-
-    function onChange(value) {
-        console.log("Captcha value:", value);
     }
 
     function handleLogin(e) {
@@ -234,8 +226,8 @@ const Login = () => {
                                 />
                             </TextFieldWrapper>
 
-                            <Button>Đăng nhập</Button>
-                            <BottomText onClick={toggleForm}>Quên mật khẩu?</BottomText>
+                            <Button>Gửi</Button>
+                            <BottomText onClick={toggleForm}>Trở về đăng nhập</BottomText>
                         </>
                         }
                     </Form>

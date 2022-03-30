@@ -78,7 +78,6 @@ const HelperText = styled.div`
 `;
 
 const CreateModal = ({ display, toggle, input, error, handleChange, handleAddItem }) => {
-    const types = ['Tươi sống', 'Khác'];
 
     return (
         <Modal isOpen={display} onRequestClose={toggle} style={customStyles} ariaHideApp={false}>
@@ -93,25 +92,9 @@ const CreateModal = ({ display, toggle, input, error, handleChange, handleAddIte
                     inputProps={{ maxLength: 250 }} 
                     value={input.name ? input.name : ''} name='name'
                     onChange={handleChange}
-                    error={error.nameError !== ''}
-                    helperText={error.nameError}
+                    error={error.name !== ''}
+                    helperText={error.name}
                 />
-
-                <FormLabel mt>Loại</FormLabel>
-                <TextField
-                    fullWidth size="small" select
-                    InputProps={{ readOnly: (input.belongTo === '' ? false : true) }}
-                    value={input.type ? input.type : ''} name='type'
-                    onChange={handleChange}
-                    error={error.typeError !== ''}
-                    helperText={error.typeError}
-                >
-                    {types.map((type) => (
-                        <MenuItem key={type} value={type}>
-                            {type}
-                        </MenuItem>
-                    ))}
-                </TextField>
                 
                 {
                 input.belongTo === '' ?
@@ -121,8 +104,7 @@ const CreateModal = ({ display, toggle, input, error, handleChange, handleAddIte
                     <TextField
                         fullWidth size="small"
                         InputProps={{ readOnly: true }}
-                        value={input.belongToName ? input.belongToName : ''} name='name'
-                        onChange={handleChange}
+                        value={input.belongToName ? input.belongToName : ''}
                     />
                 </>
                 }
