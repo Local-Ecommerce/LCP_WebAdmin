@@ -437,7 +437,7 @@ const Resident = () =>  {
                             <TableHeader width="15%" center>Ngày sinh</TableHeader>
                             <TableHeader width="15%" center>Số điện thoại</TableHeader>
                             <TableHeader width="15%" center>Kiểu cư dân</TableHeader>
-                            <TableHeader width="20%" center>Hoạt động</TableHeader>
+                            <TableHeader width="20%" center>Trạng thái</TableHeader>
                         </TableRow>
                     </TableHead>
 

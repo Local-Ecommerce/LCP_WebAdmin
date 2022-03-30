@@ -18,6 +18,9 @@ import NotificationProductList from '../components/Notification/ProductNotificat
 import DetailStoreModal from '../components/Notification/StoreNotification/DetailStoreModal';
 import NotificationStoreList from '../components/Notification/StoreNotification/NotificationStoreList';
 
+import DetailResidentModal from '../components/Notification/ResidentNotification/DetailResidentModal';
+import NotificationResidentList from '../components/Notification/ResidentNotification/NotificationResidentList';
+
 import { db } from "../firebase";
 import { ref, push, onValue, query, limitToFirst, orderByChild, equalTo } from "firebase/database";
 
@@ -329,10 +332,15 @@ const Header = ({ refresh, toggleRefresh }) => {
     const [approveStoreModal, setApproveStoreModal] = useState(false);      function toggleApproveStoreModal() { setApproveStoreModal(!approveStoreModal); }
     const [detailStoreModal, setDetailStoreModal] = useState(false);        function toggleDetailStoreModal() { setDetailStoreModal(!detailStoreModal); }
 
+    const [rejectResidentModal, setRejectResidentModal] = useState(false);        function toggleRejectResidentModal() { setRejectResidentModal(!rejectResidentModal); }
+    const [approveResidentModal, setApproveResidentModal] = useState(false);      function toggleApproveResidentModal() { setApproveResidentModal(!approveResidentModal); }
+    const [detailResidentModal, setDetailResidentModal] = useState(false);        function toggleDetailResidentModal() { setDetailResidentModal(!detailResidentModal); }
+
     const [rejectItem, setRejectItem] = useState({id : '', name: '', image: '', residentId: ''});
     const [approveItem, setApproveItem] = useState({id : '', name: '', image: '', residentId: ''});
     const [productItem, setProductItem] = useState({ id: '' });
     const [storeItem, setStoreItem] = useState({});
+    const [residentItem, setResidentItem] = useState({});
     
 
     const [activeTab, setActiveTab] = useState(1);
@@ -364,6 +372,18 @@ const Header = ({ refresh, toggleRefresh }) => {
                         api.get(url2)
                         .then(function (res2) {
                             setStores(res2.data.Data);
+
+                            setResidents([
+                                {
+                                    ResidentId: '1',
+                                    ResidentName: 'Lê Văn Tám', 
+                                    PhoneNumber: '0901234567', 
+                                    DeliveryAddress: 'Tầng 2A',
+                                    Gender: 'Nam',
+                                    DateOfBirth: '01/01/1995',
+                                    Status: 14004
+                                }
+                            ])
                             setLoading(false);
                         })
                     })
@@ -423,6 +443,21 @@ const Header = ({ refresh, toggleRefresh }) => {
     const handleGetDetailStoreItem = (item) => {
         setStoreItem(item);
         toggleDetailStoreModal();
+    }
+
+    const handleGetApproveResidentItem = (id, name, image, residentId) => {
+        setApproveItem({ id : id, name: name, image: image, residentId: residentId });
+        toggleApproveResidentModal();
+    }
+
+    const handleGetRejectResidentItem = (id, name, image, residentId) => {
+        setRejectItem({ id : id, name: name, image: image, residentId: residentId });
+        toggleRejectResidentModal();
+    }
+
+    const handleGetDetailResidentItem = (item) => {
+        setResidentItem(item);
+        toggleDetailResidentModal();
     }
 
     const handleApproveProductItem = (event) => {
@@ -569,6 +604,78 @@ const Header = ({ refresh, toggleRefresh }) => {
         handleReject();
     }
 
+    const handleApproveResidentItem = (event) => {
+        event.preventDefault();
+        const handleApprove = async () => {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
+            api.put("stores/approval?id=" + approveItem.id)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    toggleRefresh();
+                    setApproveStoreModal(false);
+                    setDetailStoreModal(false);
+
+                    push(ref(db, `Notification/` + approveItem.residentId), {
+                        createdDate: Date.now(),
+                        data: {
+                            image: approveItem.image ? approveItem.image : '',
+                            name: approveItem.name,
+                            id: approveItem.id
+                        },
+                        read: 0,
+                        receiverId: approveItem.residentId,
+                        senderId: user.Residents[0].ResidentId,
+                        type: '101'
+                    });
+
+                    toast.update(notification, { render: "Duyệt cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        handleApprove();
+    }
+
+    const handleRejectResidentItem = (event, reason) => {
+        event.preventDefault();
+        const notification = toast.loading("Đang xử lí yêu cầu...");
+
+        const handleReject = async () => {
+            api.put("stores/rejection?id=" + rejectItem.id)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    toggleRefresh();
+                    setRejectStoreModal(false);
+                    setDetailStoreModal(false);
+
+                    push(ref(db, `Notification/` + rejectItem.residentId), {
+                        createdDate: Date.now(),
+                        data: {
+                            image: rejectItem.image ? rejectItem.image : '',
+                            name: rejectItem.name,
+                            id: rejectItem.id,
+                            reason: reason ? reason : ''
+                        },
+                        read: 0,
+                        receiverId: rejectItem.residentId,
+                        senderId: user.Residents[0].ResidentId,
+                        type: '102'
+                    });
+                    
+                    toast.update(notification, { render: "Từ chối cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        handleReject();
+    }
+
     return (
         <Wrapper>
             <Link to={"/"}>
@@ -582,7 +689,7 @@ const Header = ({ refresh, toggleRefresh }) => {
 
             <div>
                 <IconButton onClick={() => toggleNotificationDropdown(!notificationDropdown)}>
-                    <StyledBadge badgeContent={products.length + stores.length} overlap="circular">
+                    <StyledBadge badgeContent={products.length + stores.length + residents.length} overlap="circular">
                         <StyledNotificationIcon />
                     </StyledBadge>
                 </IconButton>
@@ -659,9 +766,9 @@ const Header = ({ refresh, toggleRefresh }) => {
                                 : activeTab === 3 && residents.length ?
                                 <>
                                     <NotificationWrapper>
-                                        <NotificationProductList 
+                                        <NotificationResidentList 
                                             currentItems={residents} 
-                                            handleGetDetailItem={handleGetDetailStoreItem}
+                                            handleGetDetailItem={handleGetDetailResidentItem}
                                         />
                                     </NotificationWrapper>
 
@@ -716,6 +823,14 @@ const Header = ({ refresh, toggleRefresh }) => {
                 handleGetApproveItem={handleGetApproveStoreItem}
                 handleGetRejectItem={handleGetRejectStoreItem}
             />
+
+            <DetailResidentModal 
+                display={detailResidentModal}
+                toggle={toggleDetailResidentModal}
+                detailItem={residentItem}
+                handleGetApproveItem={handleGetApproveResidentItem}
+                handleGetRejectItem={handleGetRejectResidentItem}
+            />
             
             <ApproveModal
                 display={approveProductModal} 
@@ -743,6 +858,20 @@ const Header = ({ refresh, toggleRefresh }) => {
                 toggle={toggleRejectStoreModal} 
                 rejectItem={rejectItem} 
                 handleRejectItem={handleRejectStoreItem}
+            />
+
+            <ApproveModal
+                display={approveResidentModal} 
+                toggle={toggleApproveResidentModal} 
+                approveItem={approveItem} 
+                handleApproveItem={handleApproveResidentItem}
+            />
+
+            <RejectModal
+                display={rejectResidentModal} 
+                toggle={toggleRejectResidentModal} 
+                rejectItem={rejectItem} 
+                handleRejectItem={handleRejectResidentItem}
             />
         </Wrapper>
     );
