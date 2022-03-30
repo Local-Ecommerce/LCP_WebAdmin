@@ -7,7 +7,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { TextField, CircularProgress } from '@mui/material';
 
 import { auth } from "../firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 
 const LoginFormContainer = styled.div`
     position: fixed;
@@ -60,6 +60,11 @@ const ErrorText = styled.div`
     border-radius: 5px;
 `;
 
+const SuccessText = styled.div`
+    text-align: center;
+    color: green;
+`;
+
 const BottomText = styled.a`
     margin-top: 20px;
     display: flex;
@@ -106,20 +111,24 @@ const Login = () => {
     const [toggle, setToggle] = useState(false);
     const toggleForm = () => { setToggle(!toggle) }
 
+    const [input, setInput] = useState({ email: '', password: '', forgetEmail: '' });
     const [error, setError] = useState('');
-    const [input, setInput] = useState({ username: '', password: '' });
+    const [success, setSuccess] = useState('');
 
     function handleChange(e) {
         const { name, value } = e.target;
+        setError('');
+        setSuccess('');
         setInput(input => ({ ...input, [name]: value }));
     }
 
     function handleLogin(e) {
         e.preventDefault();
         setError('');
+        setSuccess('');
         setLoading(true);
 
-        signInWithEmailAndPassword(auth, input.username, input.password)
+        signInWithEmailAndPassword(auth, input.email, input.password)
         .then((userCredential) => {
             const firebaseToken = userCredential._tokenResponse.idToken;
             console.log("Firebase Token: " + firebaseToken);
@@ -157,6 +166,19 @@ const Login = () => {
         })
     }
 
+    function handleForgetPassword(e) {
+        e.preventDefault();
+        setError('');
+
+        sendPasswordResetEmail(auth, input.forgetEmail)
+        .then(() => {
+            setSuccess('Gửi thành công. Vui lòng kiểm tra email.');
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+    }
+
     return (
         <LoginFormContainer>
             {
@@ -166,6 +188,7 @@ const Login = () => {
                     <SmallText>Trang quản lí dành cho <b>quản trị viên</b> và <b>quản lý chung cư</b></SmallText>
 
                     {error !== '' ? <ErrorText>{error}</ErrorText> : null}
+                    {success !== '' ? <ErrorText>{success}</ErrorText> : null}
 
                     <Form onSubmit={handleLogin}>
                         {
@@ -178,9 +201,9 @@ const Login = () => {
                             <TextFieldWrapper mt>
                                 <TextField
                                     fullWidth
-                                    value={input.username ? input.username : ''} name="username"
+                                    value={input.email ? input.email : ''} name="email"
                                     onChange={handleChange}
-                                    label="Tài khoản"
+                                    label="Email"
                                 />
                             </TextFieldWrapper>
 
@@ -208,8 +231,9 @@ const Login = () => {
                     <SmallText>Nhập địa chỉ email đã đăng kí cho tài khoản của bạn</SmallText>
 
                     {error !== '' ? <ErrorText>{error}</ErrorText> : null}
+                    {success !== '' ? <SuccessText>{success}</SuccessText> : null}
 
-                    <Form onSubmit={handleLogin}>
+                    <Form onSubmit={handleForgetPassword}>
                         {
                         loading ?
                         <CenterWrapper>
@@ -220,9 +244,9 @@ const Login = () => {
                             <TextFieldWrapper mt>
                                 <TextField
                                     fullWidth
-                                    value={input.username ? input.username : ''} name="username"
+                                    value={input.forgetEmail ? input.forgetEmail : ''} name="forgetEmail"
                                     onChange={handleChange}
-                                    label="Tài khoản"
+                                    label="Email"
                                 />
                             </TextFieldWrapper>
 

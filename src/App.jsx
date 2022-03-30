@@ -5,7 +5,6 @@ import styled from "styled-components";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, Slide } from 'react-toastify';
 import { useAuth } from "./contexts/AuthContext";
-import { loadReCaptcha } from 'react-recaptcha-google';
 import { Route, Routes, Outlet, Navigate } from "react-router-dom";
 
 import Home from './pages/Home';
@@ -89,11 +88,7 @@ const RequireLoggedIn = ({ children }) => {
 const App = () => {
     const [refresh, setRefresh] = useState(false);
     const toggleRefresh = () => { setRefresh(!refresh) };
-
-    useEffect(() => {
-        loadReCaptcha();
-    }, [])
-
+    
     return (
         <> 
             <Routes>
