@@ -282,6 +282,7 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                 api.get(url)
                 .then(function (res) {
                     setItem(res.data.Data.List[0]);
+                    console.log(res.data.Data.List[0])
 
                     setColors([...new Map(res.data.Data.List[0].RelatedProducts.map(({ Color }) => ({ 
                         value: Color, error: '', old: true
@@ -375,7 +376,7 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                             </SmallImageWrapper>       
 
                             {
-                                item.Image !== item.CurrentProduct.Image ?
+                                item.CurrentProduct && item.Image !== item.CurrentProduct.Image ?
                                 <Status>Cập nhật</Status>
                                 : null
                             }
@@ -391,7 +392,7 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                                     <Row>
                                         Tên sản phẩm
                                         {
-                                            !loading && item.ProductName !== item.CurrentProduct.ProductName ?
+                                            item.CurrentProduct && !loading && item.ProductName !== item.CurrentProduct.ProductName ?
                                             <Status>Cập nhật</Status>
                                             : null
                                         }
@@ -416,7 +417,7 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                                     <Row>
                                         Mã sản phẩm
                                         {
-                                            !loading && item.ProductCode !== item.CurrentProduct.ProductCode ?
+                                            item.CurrentProduct && !loading && item.ProductCode !== item.CurrentProduct.ProductCode ?
                                             <Status>Cập nhật</Status>
                                             : null
                                         }
@@ -443,7 +444,7 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                                     <Row>
                                         Danh mục
                                         {
-                                            !loading && item.SysCategoryName !== prevCategory ?
+                                            item.CurrentProduct && !loading && item.SysCategoryName !== prevCategory ?
                                             <Status>Cập nhật</Status>
                                             : null
                                         }
@@ -468,7 +469,7 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                                     <Row>
                                         Giá
                                         {
-                                            !loading && item.DefaultPrice.toString() !== item.CurrentProduct.DefaultPrice.toString() ?
+                                            item.CurrentProduct && !loading && item.DefaultPrice.toString() !== item.CurrentProduct.DefaultPrice.toString() ?
                                             <Status>Cập nhật</Status>
                                             : null
                                         }
@@ -495,7 +496,7 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                                     <Row>
                                         Miêu tả
                                         {
-                                            !loading && item.Description !== item.CurrentProduct.Description ?
+                                            item.CurrentProduct && !loading && item.Description !== item.CurrentProduct.Description ?
                                             <Status>Cập nhật</Status>
                                             : null
                                         }
@@ -518,7 +519,7 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                                     <Row>
                                         Miêu tả ngắn
                                         {
-                                            !loading && item.BriefDescription !== item.CurrentProduct.BriefDescription ?
+                                            item.CurrentProduct && !loading && item.BriefDescription !== item.CurrentProduct.BriefDescription ?
                                             <Status>Cập nhật</Status>
                                             : null
                                         }
