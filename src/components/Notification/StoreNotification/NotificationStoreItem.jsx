@@ -40,9 +40,8 @@ const TextWrapper = styled.div`
 `;
 
 const TopText = styled.span`
-    margin: 5px 0px;
+    margin: 3px 0px;
     font-size: 14px;
-    line-height: 1.5;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;

@@ -72,18 +72,31 @@ const customStyles = {
     },
 };
 
-const RejectModal = ({ display, toggle, rejectItem, handleRejectItem }) => {
-    const [reason, setReason] = useState('Tên không hợp lệ');
+const RejectModal = ({ display, toggle, rejectItem, handleRejectItem, type }) => {
+    const [reason, setReason] = useState('Ảnh không hợp lệ');
     const [reasonString, setReasonString] = useState('');
     const [error, setError] = useState('');
 
-    const reasons = [
+    const productReasons = [
+        'Ảnh không hợp lệ',
         'Tên không hợp lệ',
         'Miêu tả không hợp lệ',
         'Giá tiền không hợp lệ',
         'Danh mục không hợp lệ',
         'Tùy chọn không hợp lệ',
-        'Mã sản phẩm không hợp lệ',
+        'Khác'
+    ];
+
+    const storeReasons = [
+        'Ảnh không hợp lệ',
+        'Tên không hợp lệ',
+        'Khác'
+    ];
+
+    const residentReasons = [
+        'Ảnh không hợp lệ',
+        'Tên không hợp lệ',
+        'Không phải người thuộc chung cư',
         'Khác'
     ];
 
@@ -122,13 +135,31 @@ const RejectModal = ({ display, toggle, rejectItem, handleRejectItem }) => {
                 <RadioWrapper>
                     <RadioGroup value={reason} name='reason' onChange={(e) => setReason(e.target.value)}>
                         {
-                            reasons.map(reason => {
+                            type === 'product' ?
+                            productReasons.map(reason => {
                                 return <FormControlLabel 
                                     value={reason} key={reason}
                                     control={<Radio size="small" />} 
                                     label={<RadioLabel>{reason}</RadioLabel>} 
                                 />
                             })
+                            : type === 'store' ?
+                            storeReasons.map(reason => {
+                                return <FormControlLabel 
+                                    value={reason} key={reason}
+                                    control={<Radio size="small" />} 
+                                    label={<RadioLabel>{reason}</RadioLabel>} 
+                                />
+                            })
+                            : type === 'resident' ?
+                            residentReasons.map(reason => {
+                                return <FormControlLabel 
+                                    value={reason} key={reason}
+                                    control={<Radio size="small" />} 
+                                    label={<RadioLabel>{reason}</RadioLabel>} 
+                                />
+                            })
+                            : null
                         }
 
                         {

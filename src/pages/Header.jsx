@@ -844,6 +844,7 @@ const Header = ({ refresh, toggleRefresh }) => {
                 toggle={toggleRejectProductModal} 
                 rejectItem={rejectItem} 
                 handleRejectItem={handleRejectProductItem}
+                type='product'
             />
 
             <ApproveModal
@@ -858,6 +859,7 @@ const Header = ({ refresh, toggleRefresh }) => {
                 toggle={toggleRejectStoreModal} 
                 rejectItem={rejectItem} 
                 handleRejectItem={handleRejectStoreItem}
+                type='store'
             />
 
             <ApproveModal
@@ -872,6 +874,7 @@ const Header = ({ refresh, toggleRefresh }) => {
                 toggle={toggleRejectResidentModal} 
                 rejectItem={rejectItem} 
                 handleRejectItem={handleRejectResidentItem}
+                type='resident'
             />
         </Wrapper>
     );
