@@ -6,6 +6,9 @@ import imageCompression from 'browser-image-compression';
 import useClickOutside from "../contexts/useClickOutside";
 import { Close, AddPhotoAlternate, ArrowDropDown } from "@mui/icons-material";
 
+import { auth } from "../firebase";
+import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
+
 const PageWrapper = styled.div`
     width: 720px;
     margin: 70px auto;
@@ -262,14 +265,13 @@ const UserProfile = () => {
 	const [editPassword, setEditPassword] = useState(false);
 
     const [item, setItem] = useState('');
-    const [input, setInput] = useState({ name: '', image: '', gender: 'Nam' });
-	const [inputPassword, setInputPassword] = useState({ password: '', confirmPassword: '', newPassword: '' });
-    const [error, setError] = useState({ name: '', image: '' });
+    const [input, setInput] = useState({ name: '', image: '', gender: 'Nam', phone: '', address: '', password: '******', confirmPassword: '', newPassword: '' });
+    const [error, setError] = useState({ name: '', image: '', phone: '', address: '', password: '', confirmPassword: '', newPassword: '' });
 
 	let clickOutside = useClickOutside(() => {
         setDropdown(false);
     });
-	
+
     function handleChange(e) {
         const { name, value } = e.target;
         setInput(input => ({ ...input, [name]: value }));
@@ -282,7 +284,11 @@ const UserProfile = () => {
     }
 
 	const handleToggleEditPassword = () => {
-        if (editPassword) { setInputPassword({ password: '', confirmPassword: '', newPassword: '' }) };
+        if (!editPassword) { 
+            setInput(input => ({ ...input, password: '', confirmPassword: '', newPassword: '' }))
+        } else { 
+            setInput(input => ({ ...input, password: '******', confirmPassword: '', newPassword: '' }))
+        };
         setEditPassword(!editPassword);
     }
 
@@ -318,6 +324,65 @@ const UserProfile = () => {
         setInput(input => ({ ...input, image: '' }));
     };
 
+    const handleUpdatePassword = async (event) => {
+        event.preventDefault();
+
+        if (checkPasswordValid()) {
+            const credential = EmailAuthProvider.credential(
+                auth.currentUser.email,
+                input.password
+            );
+    
+            reauthenticateWithCredential(
+                auth.currentUser, 
+                credential
+            ).then(() => {
+                const notification = toast.loading("Đang xử lí yêu cầu...");
+    
+                updatePassword(auth.currentUser, input.newPassword)
+                .then(() => {
+                    handleToggleEditPassword();
+                    toast.update(notification, { render: "Cập nhật thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }).catch((error) => {
+                    console.log(error);
+                    toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+                });
+            }).catch((error) => {
+                console.log(error);
+                setError(error => ({ ...error, password: 'Mật khẩu không đúng. Vui lòng thử lại' }));
+                setError(error => ({ ...error, confirmPassword: 'Mật khẩu không đúng. Vui lòng thử lại' }));
+            });
+        }
+    }
+
+    const checkPasswordValid = () => {
+        let check = false;
+        setError(error => ({ ...error, password: '', confirmPassword: '', newPassword: '' }));
+
+        if (input.password === null || input.password === '') {
+            setError(error => ({ ...error, password: 'Vui lòng không bỏ trống' }));
+            check = true;
+        }
+        if (input.confirmPassword === null || input.confirmPassword === '') {
+            setError(error => ({ ...error, confirmPassword: 'Vui lòng không bỏ trống' }));
+            check = true;
+        }
+        if (input.confirmPassword !== input.password) {
+            setError(error => ({ ...error, confirmPassword: 'Mật khẩu xác nhận không trùng khớp với mật khẩu' }));
+            check = true;
+        }
+        if (input.newPassword.length < 6) {
+            setError(error => ({ ...error, newPassword: 'Mật khẩu phải bao gồm ít nhất 6 kí tự' }));
+            check = true;
+        }
+
+        if (check) {
+            return false;
+        }
+
+        return true;
+    }
+
     const handleEditItem = (event) => {
         event.preventDefault();
 
@@ -335,8 +400,8 @@ const UserProfile = () => {
                     }
                 })
                 .catch(function (error) {
-                    console.log(error);
-                    toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+                    console.log(error);toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+                    
                 });
             };
             editItem();
@@ -372,17 +437,17 @@ const UserProfile = () => {
 
                     <InputWrapper pb={!editPassword}>
                         <Row spacebetween>
-                            <FieldLabel>Mật khẩu</FieldLabel>
-                            <HelperText ml0>{input.name.length}/250 kí tự</HelperText>
+                            <FieldLabel>Mật khẩu hiện tại</FieldLabel>
+                            {!editPassword ? null : <HelperText ml0>{input.password.length}/20 kí tự</HelperText>}
                         </Row>
 
                         <TextField
-                            disabled={!editPassword} maxLength={250}
-                            type="text" value={loading ? "Đang tải..." : input.name} name='name'
+                            disabled={!editPassword} maxLength={20}
+                            type="password" value={loading ? "Đang tải..." : input.password} name='password'
                             onChange={handleChange}
-                            error={error.name !== ''}
+                            error={error.password !== ''}
                          />
-                         <HelperText error>{error.name}</HelperText>
+                         <HelperText error>{error.password}</HelperText>
                     </InputWrapper>
 
 					{
@@ -391,36 +456,46 @@ const UserProfile = () => {
 							<InputWrapper>
 								<Row spacebetween>
 									<FieldLabel>Xác nhận mật khẩu</FieldLabel>
-									<HelperText ml0>{input.name.length}/250 kí tự</HelperText>
+									<HelperText ml0>{input.confirmPassword.length}/20 kí tự</HelperText>
 								</Row>
 
 								<TextField
-									disabled={!editPassword} maxLength={250}
-									type="text" value={loading ? "Đang tải..." : input.name} name='name'
+									disabled={!editPassword} maxLength={20}
+									type="password" value={loading ? "Đang tải..." : input.confirmPassword} name='confirmPassword'
 									onChange={handleChange}
-									error={error.name !== ''}
+									error={error.confirmPassword !== ''}
 								/>
-								<HelperText error>{error.name}</HelperText>
+								<HelperText error>{error.confirmPassword}</HelperText>
 							</InputWrapper>
 
 							<InputWrapper pb>
 								<Row spacebetween>
 									<FieldLabel>Mật khẩu mới</FieldLabel>
-									<HelperText ml0>{input.name.length}/250 kí tự</HelperText>
+									<HelperText ml0>{input.newPassword.length}/20 kí tự</HelperText>
 								</Row>
 
 								<TextField
-									disabled={!editPassword} maxLength={250}
-									type="text" value={loading ? "Đang tải..." : input.name} name='name'
+									disabled={!editPassword} maxLength={20}
+									type="password" value={loading ? "Đang tải..." : input.newPassword} name='newPassword'
 									onChange={handleChange}
-									error={error.name !== ''}
+									error={error.newPassword !== ''}
 								/>
-								<HelperText error>{error.name}</HelperText>
+								<HelperText error>{error.newPassword}</HelperText>
 							</InputWrapper>
 						</>
 						: null
 					}
                 </ContainerWrapper>
+
+                {
+                    editPassword ?
+                    <FooterWrapper>
+                        <FloatRight>
+                            <Button onClick={handleUpdatePassword}>Lưu</Button>
+                        </FloatRight>
+                    </FooterWrapper>
+                    : null
+                }
 
                 <ContainerWrapper>
                     <HeaderWrapper>

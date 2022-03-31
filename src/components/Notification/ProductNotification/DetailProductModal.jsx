@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
 import { api } from "../../../RequestMethod";
-import { Close, Check } from '@mui/icons-material';
+import { Close, Check, Help } from '@mui/icons-material';
 import * as Constant from '../../../Constant';
 
 const ModalTitle = styled.div`
@@ -200,10 +200,67 @@ const TextArea = styled.textarea`
     }
 `;
 
+const Row = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const TooltipText = styled.div`
+    visibility: hidden;
+    width: ${props => props.w ? "270px" : null};
+    font-size: 13px;
+    font-weight: 400;
+    background-color: ${props => props.theme.dark};
+    color: ${props => props.theme.white};
+    padding: 6px;
+    border-radius: 6px;
+
+    position: absolute;
+    z-index: 1;
+`;
+
+const Tooltip = styled.div`
+    position: relative;
+    display: inline-block;
+    width: ${props => props.w0 ? null : "100%"};
+
+    &:hover ${TooltipText} {
+        visibility: visible;
+    }
+`;
+
+const Status = styled.span`
+    display: inline-block;
+    padding: 3px 5px;
+    font-size: 9px;
+    margin-left: 5px;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 20px;
+    color: #fff;
+    background-color: #dc3545;
+`;
+
+const StyledHelpIcon = styled(Help)`
+    && {
+        font-size: 18px;
+        margin-left: 8px;
+        color: ${props => props.theme.grey};
+        opacity: 0.5;
+        cursor: pointer;
+
+        &:hover {
+            opacity: 1.0;
+        }
+    }
+`;
+
 const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem, handleGetRejectItem }) => {
     const [item, setItem] = useState({});
     const [images, setImages] = useState([]);
     const [imageSrc, setImageSrc] = useState('');
+    const [prevCategory, setPrevCategory] = useState('');
     const [colors, setColors] = useState([]);
     const [sizes, setSizes] = useState([]);
     const [weights, setWeights] = useState([]);
@@ -220,7 +277,7 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
     useEffect(() => {
         if (display) {
             setLoading(true);
-            const url = "products?id=" + detailItem.id + "&include=related";
+            const url = "products?id=" + detailItem.id + "&include=related&status=" + Constant.UNVERIFIED_PRODUCT;
             const fetchData = async () => {
                 api.get(url)
                 .then(function (res) {
@@ -254,7 +311,18 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                                 ...item,
                                 SysCategoryName: res2.data.Data.List[0].SysCategoryName
                             }));
-                            setLoading(false);
+
+                            if (res.data.Data.List[0].CurrentProduct) {
+                                api.get("categories?id=" + res.data.Data.List[0].CurrentProduct.SystemCategoryId + "&include=parent")
+                                .then(function (res3) {
+                                    if (res3.data.ResultMessage === "SUCCESS") {
+                                        setPrevCategory(res3.data.Data.List[0].SysCategoryName);
+                                        setLoading(false);
+                                    }
+                                })
+                            } else {
+                                setLoading(false);
+                            }
                         }
                     })
                 })
@@ -269,83 +337,208 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
 
     return (
         <Modal isOpen={display} onRequestClose={toggle} style={customStyles} ariaHideApp={false}>
-            <ModalTitle>Chi tiết sản phẩm</ModalTitle>
+            <ModalTitle>
+                <Row>
+                    Chi tiết sản phẩm
+                    {
+                        item.CurrentProduct ?
+                        <Tooltip w0>
+                            <StyledHelpIcon />
+                            <TooltipText w>Rê chuột vào ô để xem dữ liệu của sản phẩm trước khi cập nhật</TooltipText>
+                        </Tooltip>
+                        : null
+                    }
+                </Row>
+            </ModalTitle>
 
             <ModalContentWrapper>
                 <LeftWrapper>
-                    <BigImageWrapper>
-                        <Image src={imageSrc} />
-                    </BigImageWrapper>
+                    {
+                        loading ? 
+                        null :
+                        <>
+                            <BigImageWrapper>
+                                <Image src={imageSrc} />
+                            </BigImageWrapper>
 
-                    <SmallImageWrapper>
-                        <SmallImageScroller>
-                        {
-                            images.map((item, index) => {
-                                return <SmallImage key={index}
-                                    src={item.image} blur={item.image !== imageSrc} 
-                                    onClick={() => setImageSrc(item.image)} 
-                                />
-                            })
-                        }
-                        </SmallImageScroller>
-                    </SmallImageWrapper>                  
+                            <SmallImageWrapper>
+                                <SmallImageScroller>
+                                {
+                                    images.map((item, index) => {
+                                        return <SmallImage key={index}
+                                            src={item.image} blur={item.image !== imageSrc} 
+                                            onClick={() => setImageSrc(item.image)} 
+                                        />
+                                    })
+                                }
+                                </SmallImageScroller>
+                            </SmallImageWrapper>       
+
+                            {
+                                item.Image !== item.CurrentProduct.Image ?
+                                <Status>Cập nhật</Status>
+                                : null
+                            }
+                        </>
+                    }
                 </LeftWrapper>
 
                 <RightWrapper>
                     <Flex>
                         <FlexChild mr>
-                            <FieldLabel mt>Tên sản phẩm</FieldLabel>
-                            <TextField
-                                disabled={true} title={loading ? '' : item.ProductName}
-                                type="text" value={loading ? '' : item.ProductName}
-                            />
+                            <Tooltip>
+                                <FieldLabel mt>
+                                    <Row>
+                                        Tên sản phẩm
+                                        {
+                                            !loading && item.ProductName !== item.CurrentProduct.ProductName ?
+                                            <Status>Cập nhật</Status>
+                                            : null
+                                        }
+                                    </Row>
+                                </FieldLabel>
+
+                                <TextField
+                                    disabled={true}
+                                    type="text" value={loading ? '' : item.ProductName}
+                                />
+                                {
+                                    item.CurrentProduct ?
+                                    <TooltipText>{loading ? '' : item.CurrentProduct.ProductName}</TooltipText>
+                                    : null
+                                }
+                            </Tooltip>
                         </FlexChild>
 
                         <FlexChild>
-                            <FieldLabel mt>Mã sản phẩm</FieldLabel>
-                            <TextField
-                                disabled={true} title={loading ? '' : item.ProductCode ? item.ProductCode : 'N/A'}
-                                type="text" value={loading ? '' : item.ProductCode ? item.ProductCode : 'N/A'}
-                            />
+                            <Tooltip>
+                                <FieldLabel mt>
+                                    <Row>
+                                        Mã sản phẩm
+                                        {
+                                            !loading && item.ProductCode !== item.CurrentProduct.ProductCode ?
+                                            <Status>Cập nhật</Status>
+                                            : null
+                                        }
+                                    </Row>
+                                </FieldLabel>
+
+                                <TextField
+                                    disabled={true}
+                                    type="text" value={loading ? '' : item.ProductCode ? item.ProductCode : 'N/A'}
+                                />
+                                {
+                                    item.CurrentProduct ?
+                                    <TooltipText>{loading ? '' : item.CurrentProduct.ProductCode}</TooltipText>
+                                    : null
+                                }
+                            </Tooltip>
                         </FlexChild>
                     </Flex>
 
                     <Flex>
                         <FlexChild mr>
-                            <FieldLabel mt>Danh mục</FieldLabel>
-                            <TextField
-                                disabled={true} title={loading ? '' : item.SysCategoryName}
-                                type="text" value={loading ? '' : item.SysCategoryName}
-                            />
+                            <Tooltip>
+                                <FieldLabel mt>
+                                    <Row>
+                                        Danh mục
+                                        {
+                                            !loading && item.SysCategoryName !== prevCategory ?
+                                            <Status>Cập nhật</Status>
+                                            : null
+                                        }
+                                    </Row>
+                                </FieldLabel>
+
+                                <TextField
+                                    disabled={true}
+                                    type="text" value={loading ? '' : item.SysCategoryName}
+                                />
+                                {
+                                    item.CurrentProduct ?
+                                    <TooltipText>{loading ? '' : prevCategory}</TooltipText>
+                                    : null
+                                }
+                            </Tooltip>
                         </FlexChild>
 
                         <FlexChild>
-                            <FieldLabel mt>Giá</FieldLabel>
-                            <TextField
-                                disabled={true} title={loading ? '' : item.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"}
-                                type="text" value={loading ? '' : item.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"}
-                            />
+                            <Tooltip>
+                                <FieldLabel mt>
+                                    <Row>
+                                        Giá
+                                        {
+                                            !loading && item.DefaultPrice.toString() !== item.CurrentProduct.DefaultPrice.toString() ?
+                                            <Status>Cập nhật</Status>
+                                            : null
+                                        }
+                                    </Row>
+                                </FieldLabel>
+
+                                <TextField
+                                    disabled={true}
+                                    type="text" value={loading ? '' : item.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"}
+                                />
+                                {
+                                    item.CurrentProduct ?
+                                    <TooltipText>{loading ? '' : item.CurrentProduct.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"}</TooltipText>
+                                    : null
+                                }
+                            </Tooltip>
                         </FlexChild>
                     </Flex>
 
                     <Flex>
                         <FlexChild mr>
-                            <FieldLabel mt>Miêu tả</FieldLabel>
-                            <TextArea
-                                disabled={true} rows="4" title={loading ? '' : item.Description}
-                                type="text" value={loading ? '' : item.Description}
-                            />
+                            <Tooltip>
+                                <FieldLabel mt>
+                                    <Row>
+                                        Miêu tả
+                                        {
+                                            !loading && item.Description !== item.CurrentProduct.Description ?
+                                            <Status>Cập nhật</Status>
+                                            : null
+                                        }
+                                    </Row>
+                                </FieldLabel>
 
-                            <FieldLabel mt>Miêu tả ngắn</FieldLabel>
-                            <TextArea
-                                disabled={true} rows="2" title={loading ? '' : item.BriefDescription}
-                                type="text" value={loading ? '' : item.BriefDescription}
-                            />
+                                <TextArea
+                                    disabled={true} rows="4"
+                                    type="text" value={loading ? '' : item.Description}
+                                />
+                                {
+                                    item.CurrentProduct ?
+                                    <TooltipText>{loading ? '' : item.CurrentProduct.Description}</TooltipText>
+                                    : null
+                                }
+                            </Tooltip>
+
+                            <Tooltip>
+                                <FieldLabel mt>
+                                    <Row>
+                                        Miêu tả ngắn
+                                        {
+                                            !loading && item.BriefDescription !== item.CurrentProduct.BriefDescription ?
+                                            <Status>Cập nhật</Status>
+                                            : null
+                                        }
+                                    </Row>
+                                </FieldLabel>
+                                <TextArea
+                                    disabled={true} rows="2"
+                                    type="text" value={loading ? '' : item.BriefDescription}
+                                />
+                                {
+                                    item.CurrentProduct ?
+                                    <TooltipText>{loading ? '' : item.CurrentProduct.BriefDescription}</TooltipText>
+                                    : null
+                                }
+                            </Tooltip>
                         </FlexChild>
 
                         <FlexChild>
                             {
-                                colors.length ?
+                                !loading && colors.length ?
                                 <>
                                     <FieldLabel mt>Màu sắc</FieldLabel>
                                     {
@@ -362,7 +555,7 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                             }
 
                             {
-                                sizes.length ?
+                                !loading && sizes.length ?
                                 <>
                                     <FieldLabel mt>Kích thước</FieldLabel>
                                     {
@@ -379,7 +572,7 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                             }
 
                             {
-                                weights.length ?
+                                !loading && weights.length ?
                                 <>
                                     <FieldLabel mt>Trọng lượng</FieldLabel>
                                     {
