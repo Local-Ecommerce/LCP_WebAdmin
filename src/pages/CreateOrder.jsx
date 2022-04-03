@@ -1,13 +1,18 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { api } from "../RequestMethod";
 import { toast } from 'react-toastify';
-import { Search } from '@mui/icons-material';
-import { TextField as MuiTextField, Autocomplete, Box, FormControlLabel, Checkbox } from '@mui/material';
+import ReactPaginate from "react-paginate";
+import { Search, ArrowDropDown, ArrowDropUp, ShoppingCart } from '@mui/icons-material';
+import { TextField as MuiTextField, Autocomplete, Box, FormControlLabel, Checkbox, CircularProgress } from '@mui/material';
 import * as Constant from '../Constant';
 
+import OrderProductList from '../components/CreateOrder/OrderProductList';
+import ProductInCartList from '../components/CreateOrder/ProductInCartList';
+
 const PageWrapper = styled.div`
-    width: 720px;
+    width: 760px;
     margin: 60px auto;
 `;
 
@@ -33,6 +38,20 @@ const HeaderWrapper = styled.div`
 const Header = styled.div`
     font-weight: 600;
     padding: 20px 0;
+`;
+
+const StyledDropdownIcon = styled(ArrowDropDown)`
+    && {
+        margin-right: 20px;
+        cursor: pointer;
+    }
+`;
+
+const StyledDropupIcon = styled(ArrowDropUp)`
+    && {
+        margin-right: 20px;
+        cursor: pointer;
+    }
 `;
 
 const TextFieldWrapper = styled.div`
@@ -110,7 +129,7 @@ const StyledSearchIcon = styled(Search)`
 
 const SearchBar = styled.div`
     display: flex;
-    width: 50%;
+    width: 70%;
     justify-content: center;
     align-items: center;
     border-radius: 5px;
@@ -156,23 +175,178 @@ const ClearButton = styled.button`
     }
 `;
 
+const DropdownWrapper = styled.div`
+    display: flex;
+    width: ${props => props.width};
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    border-color: #D8D8D8;
+    border-style: solid;
+    border-width: thin;
+    height: 44px;
+    padding: 0px 3px 0px 8px;
+    background-color: #ffffff;
+`;
+
+const Select = styled.select`
+    padding: 4px;
+    flex-grow: 1;
+    background-color: transparent;
+    outline: none;
+    border: none;
+
+    &:focus {
+    outline: 0;
+    }
+`;
+
 const ProductWrapper = styled.div`
     padding: 20px;
+`;
+
+const NoItemWrapper = styled.div`
+    height: auto;
+    margin: 0 auto;
+    text-align: center;
+`;
+
+const StyledNoProductIcon = styled(ShoppingCart)`
+    && {
+        margin-top: 50px;
+        margin-bottom: 20px;
+        font-size: 100px;
+        color: #D8D8D8;
+    }
+`;
+
+const StyledFirstSearchIcon = styled(Search)`
+    && {
+        margin-top: 50px;
+        margin-bottom: 20px;
+        font-size: 100px;
+        color: #D8D8D8;
+    }
+`;
+
+const NoItemText = styled.div`
+    padding-bottom: 50px;
+    text-decoration: none;
+    font-size: 14px;
+    color: ${props => props.theme.grey};
+`;
+
+const Center = styled.div`
+    margin: 30px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+`;
+
+const StyledPaginateContainer = styled.div`
+    margin-right; 10px;
+    margin-left: auto;
+
+    .pagination {
+    padding: 0px;
+    margin: 0px;
+    color: #0366d6;
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    border-radius: 0.25rem;
+    }
+
+    .break-me {
+    cursor: default;
+    }
+
+    .active {
+    border-color: transparent;
+    background-color: #0366d6;
+    color: white;
+    }
+
+    .page-link {
+    position: relative;
+    display: block;
+    padding: 0.5rem 0.75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: #007bff;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    }
+
+    .page-link:hover {
+    color: #0056b3;
+    text-decoration: none;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    }
+
+    .page-link:focus {
+    z-index: 2;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    .page-link:not(:disabled):not(.disabled) {
+    cursor: pointer;
+    }
+
+    .page-item:first-child .page-link {
+    margin-left: 0;
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+    }
+
+    .page-item:last-child .page-link {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+    }
+
+    .page-item.active .page-link {
+    z-index: 1;
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+    }
+
+    .page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    cursor: auto;
+    background-color: #fff;
+    border-color: #dee2e6;
+    }
 `;
 
 const CreateOrder = () => {
     const user = JSON.parse(localStorage.getItem('USER'));
 
     const [manual, setManual] = useState(false);
+    const [dropdown, setDropdown] = useState(true); const toggleDropdown = () => { setDropdown(!dropdown) };
+
+    const [searched, setSearched] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const [autocomplete, setAutocomplete] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [cart, setCart] = useState([]);
+
     const [input, setInput] = useState({ name: '', phone: '', address: '', otp: '' });
     const [error, setError] = useState({ name: '', phone: '', address: '', otp: '' });
 
-    const [change, setChange] = useState(false);
     const [search, setSearch] = useState('');
+    const [sort, setSort] = useState('');
     const [typing, setTyping] = useState('');
+
+    const limit = 12;
+    const [page, setPage] = useState(0);
+    const [total, setTotal] = useState(0);
+    const [lastPage, setLastPage] = useState(0);
 
     useEffect (() => {
         if (user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
@@ -189,6 +363,31 @@ const CreateOrder = () => {
         }
     }, []);
 
+    useEffect (() => {
+        if (search !== '' && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
+            setLoading(true);
+            const fetchData = () => {
+                let url = "menu-products" 
+                + "?include=product"
+                + "&limit=" + limit
+                + "&page=" + (page + 1);
+                api.get(url)
+                .then(function (res) {
+                    setProducts(res.data.Data.List);
+                    setTotal(res.data.Data.Total);
+                    setLastPage(res.data.Data.LastPage);
+                    setSearched(true);
+                    setLoading(false);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                    setLoading(false);
+                });
+            }
+            fetchData();
+        }
+    }, [search, page, sort]);
+
     useEffect(() => {   //timer when search apartment
         const timeOutId = setTimeout(() => setSearch(typing), 500);
         return () => clearTimeout(timeOutId);
@@ -200,9 +399,25 @@ const CreateOrder = () => {
         setError(error => ({ ...error, [name]: '' }));
     }
 
+    const AddItemToCart = (newItem, quantity) => {
+        newItem.Quantity = quantity;
+        setCart(cart => [...cart, newItem]);
+    }
+
+    const handleChangeQuantity = (id, newQuantity) => {
+        let index = cart.findIndex((item) => item.Product.ProductId === id);
+        let newArray = [...cart];
+        newArray[index].Quantity = newQuantity;
+        setCart(newArray);
+    }
+
     useEffect(() => {
-        console.log(input)
-    },[input])
+        console.log(cart)
+    }, [cart])
+
+    const handlePageClick = (event) => {
+        setPage(event.selected);
+    };
 
     const handleSetManual = () => {
         setManual(!manual);
@@ -318,16 +533,120 @@ const CreateOrder = () => {
 
                 <ContainerWrapper>
                     <HeaderWrapper>
-                        <Header>Sản phẩm</Header>
+                        <Row>
+                            <Header>Sản phẩm</Header>
+
+                            {
+                                dropdown ?
+                                <StyledDropupIcon onClick={toggleDropdown} />
+                                : <StyledDropdownIcon onClick={toggleDropdown} />
+                            }
+                        </Row>
                     </HeaderWrapper>
 
-                    <ProductWrapper>
-                        <SearchBar width="100%">
-                            <StyledSearchIcon />
-                            <Input id="search" placeholder="Tìm sản phẩm" onChange={handleSetSearch} />
-                            <ClearButton onClick={() => clearSearch()}>Clear</ClearButton>
-                        </SearchBar>
-                    </ProductWrapper>
+                    {
+                        dropdown ?
+                        <ProductWrapper>
+                            <Row>
+                                <SearchBar>
+                                    <StyledSearchIcon />
+                                    <Input id="search" placeholder="Tìm sản phẩm" onChange={handleSetSearch} />
+                                    <ClearButton onClick={() => clearSearch()}>Clear</ClearButton>
+                                </SearchBar>
+
+                                <DropdownWrapper>
+                                    <Select value={sort} onChange={event => setSort(event.target.value)}>
+                                        <option value="">Sắp xếp: Mới nhất</option>
+                                        <option value="1">Sắp xếp: Cũ nhất</option>
+                                        <option value="2">Sắp xếp: Giá cao nhất</option>
+                                        <option value="3">Sắp xếp: Giá thấp nhất</option>
+                                    </Select>
+                                </DropdownWrapper>
+                            </Row>
+
+                            {
+                                searched ?
+                                <>
+                                    {
+                                        loading ?
+                                        <Center>
+                                            <CircularProgress />
+                                        </Center>
+                                        :
+                                        <>
+                                            <OrderProductList
+                                                currentItems={products}
+                                                AddItemToCart={AddItemToCart}
+                                            />
+
+                                            <Row>
+                                                { 
+                                                    products.length === 0 ? null
+                                                    : <small>Hiển thị {page * limit + 1} - {page * limit + products.length} trong tổng số {total} sản phẩm.</small> 
+                                                }
+                                                <StyledPaginateContainer>
+                                                    <ReactPaginate
+                                                        nextLabel="Next >"
+                                                        onPageChange={handlePageClick}
+                                                        pageRangeDisplayed={3}
+                                                        marginPagesDisplayed={2}
+                                                        pageCount={lastPage}
+                                                        previousLabel="< Prev"
+                                                        pageClassName="page-item"
+                                                        pageLinkClassName="page-link"
+                                                        previousClassName="page-item"
+                                                        previousLinkClassName="page-link"
+                                                        nextClassName="page-item"
+                                                        nextLinkClassName="page-link"
+                                                        breakLabel="..."
+                                                        breakClassName="page-item"
+                                                        breakLinkClassName="page-link"
+                                                        containerClassName="pagination"
+                                                        activeClassName="active"
+                                                        forcePage={page}
+                                                        renderOnZeroPageCount={null}
+                                                    />
+                                                </StyledPaginateContainer>
+                                            </Row>
+                                        </>
+                                    }
+                                </>
+                                : 
+                                <NoItemWrapper>
+                                    <StyledFirstSearchIcon />
+        
+                                    <NoItemText>
+                                        Vui lòng sử dụng thanh tìm kiếm để tìm sản phẩm.
+                                    </NoItemText>
+                                </NoItemWrapper>
+                            }
+
+                            
+                        </ProductWrapper>
+                        : null
+                    }
+                </ContainerWrapper>
+
+                <ContainerWrapper>
+                    <HeaderWrapper>
+                        <Header>Giỏ hàng</Header>
+                    </HeaderWrapper>
+
+                    {
+                        cart.length ?
+                        <ProductInCartList 
+                            currentItems={cart}
+                            handleChangeQuantity={handleChangeQuantity}
+                        />
+                        :
+                        <NoItemWrapper>
+                            <StyledNoProductIcon />
+
+                            <NoItemText>
+                                Chưa có sản phẩm trong giỏ.
+                            </NoItemText>
+                        </NoItemWrapper>
+                    }
                 </ContainerWrapper>
 
                 <FooterWrapper>
