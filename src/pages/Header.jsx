@@ -373,18 +373,15 @@ const Header = ({ refresh, toggleRefresh }) => {
                         .then(function (res2) {
                             setStores(res2.data.Data);
 
-                            setResidents([
-                                {
-                                    ResidentId: '1',
-                                    ResidentName: 'Lê Văn Tám', 
-                                    PhoneNumber: '0901234567', 
-                                    DeliveryAddress: 'Tầng 2A',
-                                    Gender: 'Nam',
-                                    DateOfBirth: '01/01/1995',
-                                    Status: 14004
-                                }
-                            ])
-                            setLoading(false);
+                            let url3 = "residents" 
+                            + "?status=" + Constant.UNVERIFIED_RESIDENT
+                            + "&type=" + Constant.CUSTOMER;
+                            api.get(url3)
+                            .then(function (res3) {
+                                console.log(res3.data.Data.List)
+                                setResidents(res3.data.Data.List);
+                                setLoading(false);
+                            })
                         })
                     })
                     .catch(function (error) {
@@ -608,12 +605,12 @@ const Header = ({ refresh, toggleRefresh }) => {
         event.preventDefault();
         const handleApprove = async () => {
             const notification = toast.loading("Đang xử lí yêu cầu...");
-            api.put("stores/approval?id=" + approveItem.id)
+            api.put("residents/" + approveItem.id + "?status=" + Constant.VERIFIED_RESIDENT)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
                     toggleRefresh();
-                    setApproveStoreModal(false);
-                    setDetailStoreModal(false);
+                    setApproveResidentModal(false);
+                    setDetailResidentModal(false);
 
                     push(ref(db, `Notification/` + approveItem.residentId), {
                         createdDate: Date.now(),
@@ -625,10 +622,10 @@ const Header = ({ refresh, toggleRefresh }) => {
                         read: 0,
                         receiverId: approveItem.residentId,
                         senderId: user.Residents[0].ResidentId,
-                        type: '101'
+                        type: '201'
                     });
 
-                    toast.update(notification, { render: "Duyệt cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
+                    toast.update(notification, { render: "Duyệt cư dân thành công!", type: "success", autoClose: 5000, isLoading: false });
                 }
             })
             .catch(function (error) {
@@ -644,12 +641,12 @@ const Header = ({ refresh, toggleRefresh }) => {
         const notification = toast.loading("Đang xử lí yêu cầu...");
 
         const handleReject = async () => {
-            api.put("stores/rejection?id=" + rejectItem.id)
+            api.put("residents/" + rejectItem.id + "?status=" + Constant.REJECTED_RESIDENT)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
                     toggleRefresh();
-                    setRejectStoreModal(false);
-                    setDetailStoreModal(false);
+                    setRejectResidentModal(false);
+                    setDetailResidentModal(false);
 
                     push(ref(db, `Notification/` + rejectItem.residentId), {
                         createdDate: Date.now(),
@@ -662,10 +659,10 @@ const Header = ({ refresh, toggleRefresh }) => {
                         read: 0,
                         receiverId: rejectItem.residentId,
                         senderId: user.Residents[0].ResidentId,
-                        type: '102'
+                        type: '202'
                     });
                     
-                    toast.update(notification, { render: "Từ chối cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
+                    toast.update(notification, { render: "Từ chối cư dân thành công!", type: "success", autoClose: 5000, isLoading: false });
                 }
             })
             .catch(function (error) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { api } from "../RequestMethod";
 import { toast } from 'react-toastify';
@@ -256,7 +256,6 @@ const HiddenInputFile = styled.input`
 `;
 
 const UserProfile = () => {
-    const user = JSON.parse(localStorage.getItem('USER'));
     const [dropdown, setDropdown] = useState(false);
 	const toggleDropdown = () => { if (editable) { setDropdown(!dropdown); }}
 

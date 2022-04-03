@@ -1,9 +1,8 @@
 
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
-import { api } from "../../../RequestMethod";
 import { Close, Check } from '@mui/icons-material';
 import * as Constant from '../../../Constant';
 
@@ -132,16 +131,16 @@ const customStyles = {
 const DetailResidentModal = ({ display, toggle, detailItem, handleGetApproveItem, handleGetRejectItem }) => {
 
     const handleSetApproveItem = () => {
-        handleGetApproveItem(detailItem.ResidentId, detailItem.ResidentName, /*image*/ '');
+        handleGetApproveItem(detailItem.ResidentId, detailItem.ResidentName, /*image*/ '', detailItem.ResidentId);
     }
 
     const handleSetRejectItem = () => {
-        handleGetRejectItem(detailItem.ResidentId, detailItem.ResidentName, /*image*/ '');
+        handleGetRejectItem(detailItem.ResidentId, detailItem.ResidentName, /*image*/ '', detailItem.ResidentId);
     }
 
     return (
         <Modal isOpen={display} onRequestClose={toggle} style={customStyles} ariaHideApp={false}>
-            <ModalTitle>Chi tiết khách hàng</ModalTitle>
+            <ModalTitle>Chi tiết cư dân</ModalTitle>
 
             {
                 display ?
@@ -157,7 +156,7 @@ const DetailResidentModal = ({ display, toggle, detailItem, handleGetApproveItem
                                 <FieldLabel mt>Tên</FieldLabel>
                                 <TextField
                                     disabled={true}
-                                    type="text" value={detailItem.ResidentName}
+                                    type="text" value={detailItem.ResidentName ? detailItem.ResidentName : ''}
                                 />
                             </FlexChild>
 
@@ -165,7 +164,7 @@ const DetailResidentModal = ({ display, toggle, detailItem, handleGetApproveItem
                                 <FieldLabel mt>Số điện thoại</FieldLabel>
                                 <TextField
                                     disabled={true}
-                                    type="text" value={detailItem && detailItem.PhoneNumber.slice(0, 4) + " " + detailItem.PhoneNumber.slice(4, 7) + " " + detailItem.PhoneNumber.slice(7)}
+                                    type="text" value={detailItem.PhoneNumber ? detailItem.PhoneNumber.slice(0, 4) + " " + detailItem.PhoneNumber.slice(4, 7) + " " + detailItem.PhoneNumber.slice(7) : ''}
                                 />
                             </FlexChild>
                         </Flex>
@@ -175,7 +174,7 @@ const DetailResidentModal = ({ display, toggle, detailItem, handleGetApproveItem
                                 <FieldLabel mt>Giới tính</FieldLabel>
                                 <TextField
                                     disabled={true}
-                                    type="text" value={detailItem.Gender}
+                                    type="text" value={detailItem.Gender ? detailItem.Gender : ''}
                                 />
                             </FlexChild>
 
@@ -183,7 +182,7 @@ const DetailResidentModal = ({ display, toggle, detailItem, handleGetApproveItem
                                 <FieldLabel mt>Ngày sinh</FieldLabel>
                                 <TextField
                                     disabled={true}
-                                    type="text" value={detailItem.DateOfBirth}
+                                    type="text" value={detailItem.DateOfBirth ? detailItem.DateOfBirth : ''}
                                 />
                             </FlexChild>
                         </Flex>
@@ -191,7 +190,7 @@ const DetailResidentModal = ({ display, toggle, detailItem, handleGetApproveItem
                         <FieldLabel mt>Địa chỉ</FieldLabel>
                         <TextField
                             disabled={true}
-                            type="text" value={detailItem.DeliveryAddress}
+                            type="text" value={detailItem.DeliveryAddress ? detailItem.DeliveryAddress : ''}
                         />
                     </RightWrapper>
                 </ModalContentWrapper>

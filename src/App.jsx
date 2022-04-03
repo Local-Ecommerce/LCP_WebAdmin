@@ -145,7 +145,7 @@ const App = () => {
 
                     <Route 
                         exact path="/residents" 
-                        element={<RequireLoggedIn> <Resident /> </RequireLoggedIn>}
+                        element={<RequireLoggedIn> <Resident refresh={refresh} toggleRefresh={toggleRefresh} /> </RequireLoggedIn>}
                     />
 
                     <Route 

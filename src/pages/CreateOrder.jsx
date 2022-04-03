@@ -8,13 +8,7 @@ import * as Constant from '../Constant';
 
 const PageWrapper = styled.div`
     width: 720px;
-    margin: 40px auto;
-`;
-
-const Title = styled.h1`
-    font-size: 16px;
-    color: #383838;
-    margin: 15px 15px ${props => props.mb0 ? "-5px" : "15px"} 15px;
+    margin: 60px auto;
 `;
 
 const Row = styled.div`
@@ -227,8 +221,6 @@ const CreateOrder = () => {
 
     return (
         <PageWrapper>
-            <Title>Tạo đơn</Title>
-
             <form id="form">
                 <ContainerWrapper>
                     <HeaderWrapper>

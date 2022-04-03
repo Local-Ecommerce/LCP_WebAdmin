@@ -81,12 +81,12 @@ const SidebarData = [
         icon: <StyledMenuIcon />,
     },
     {
-        title: 'News',
+        title: 'Tin tức',
         path: '/news',
         icon: <StyledNewsIcon />
     },
     {
-        title: 'POIs',
+        title: 'Điểm thú vị',
         path: '/pois',
         icon: <StyledPoiIcon />
     },

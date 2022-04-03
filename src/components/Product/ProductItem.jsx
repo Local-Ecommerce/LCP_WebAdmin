@@ -124,9 +124,6 @@ const ProductItem = ({ item, handleGetRejectItem, handleGetApproveItem, handleGe
     }
 
     const handleSetDetailItem = () => {
-        // item.UpdatedMerchantStore ?
-        // handleGetDetailItem(item) 
-        // :
         handleGetDetailItem(item.ProductId);
     }
 

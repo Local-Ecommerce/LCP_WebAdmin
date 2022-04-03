@@ -1,7 +1,7 @@
 import React from 'react';
 import ResidentItem from './ResidentItem';
 
-const ResidentList = ({ currentItems, handleGetToggleStatusItem }) => {
+const ResidentList = ({ currentItems, handleGetToggleStatusItem, handleGetDetailItem, handleGetApproveItem, handleGetRejectItem }) => {
 
     if (currentItems.length === 0) {
         return <ResidentItem item={0} />
@@ -12,6 +12,9 @@ const ResidentList = ({ currentItems, handleGetToggleStatusItem }) => {
             <ResidentItem
                 item={item} index={index} key={index}
                 handleGetToggleStatusItem={handleGetToggleStatusItem}
+                handleGetDetailItem={handleGetDetailItem}
+                handleGetApproveItem={handleGetApproveItem}
+                handleGetRejectItem={handleGetRejectItem}
             />
         )
     });

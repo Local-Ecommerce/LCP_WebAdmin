@@ -1,8 +1,22 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ToggleOff, ToggleOn } from '@mui/icons-material';
+import { ToggleOff, ToggleOn, Close, Check } from '@mui/icons-material';
 import * as Constant from '../../Constant';
 import { DateTime } from 'luxon';
+
+const Button = styled.button`
+    padding: 3px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    outline: none;
+    color: ${props => props.disabled === true ? "#E0E0E0" : "grey"};
+
+    &:focus {
+    outline: none;
+    }
+`;
 
 const TableRow = styled.tr`
     &:hover {
@@ -19,6 +33,25 @@ const TableData = styled.td`
     text-align: ${props => props.center ? "center" : "left"};
     font-size: 15px;
     color: ${props => props.grey ? props.theme.grey : null};
+`;
+
+const Status = styled.span`
+    display: inline-block;
+    padding: 3px 5px;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 20px;
+    color: ${props => props.active === "inactive" ? "grey" : "#fff"};
+    background-color: ${props => props.active === "active" ? "#28a745"
+        :
+        props.active === "unverified" ? "#FF8800"
+            :
+            props.active === "deleted" ? "#dc3545"
+                :
+                "#dc3545"};
 `;
 
 const StyledToggleOnIcon = styled(ToggleOn)`
@@ -43,7 +76,35 @@ const StyledToggleOffIcon = styled(ToggleOff)`
     }
 `;
 
-const ResidentItem = ({ item, handleGetToggleStatusItem, index }) =>  {
+const StyledCheckIcon = styled(Check)`
+    && {
+        padding: 8px;
+        border-radius: 20px;
+        color: ${props => props.theme.green};
+        opacity: 0.5;
+    }
+
+    &:hover {
+    opacity: 1;
+    background-color: ${props => props.theme.disabled};
+    }
+`;
+
+const StyledCancelIcon = styled(Close)`
+    && {
+        padding: 8px;
+        border-radius: 20px;
+        color: ${props => props.theme.red};
+        opacity: 0.5;
+    }
+
+    &:hover {
+    opacity: 1;
+    background-color: ${props => props.theme.disabled};
+    }
+`;
+
+const ResidentItem = ({ item, handleGetToggleStatusItem, handleGetDetailItem, handleGetApproveItem, handleGetRejectItem, index }) =>  {
 
     if (item === 0) {
         return (
@@ -54,12 +115,26 @@ const ResidentItem = ({ item, handleGetToggleStatusItem, index }) =>  {
             </tr>
         )
     }
+
+    const handleSetDetailItem = () => {
+        handleGetDetailItem(item);
+    }
+
+    const handleSetApproveItem = (e) => {
+        e.stopPropagation();
+        handleGetApproveItem(item.ResidentId, item.ResidentName, /*image*/ '', item.ResidentId);
+    }
+
+    const handleSetRejectItem = (e) => {
+        e.stopPropagation();
+        handleGetRejectItem(item.ResidentId, item.ResidentName, /*image*/ '', item.ResidentId);
+    }
     
     let phoneNumber = item.PhoneNumber || '';
     phoneNumber = phoneNumber.slice(0, 4) + " " + phoneNumber.slice(4, 7) + " " + phoneNumber.slice(7);
 
     return (
-        <TableRow>
+        <TableRow onClick={handleSetDetailItem}>
             <TableData grey>{index + 1}</TableData>
             <TableData>{item.ResidentName}</TableData>
             <TableData center>{DateTime.fromISO(item.DateOfBirth).toFormat('dd/MM/yyyy')}</TableData>
@@ -83,11 +158,27 @@ const ResidentItem = ({ item, handleGetToggleStatusItem, index }) =>  {
                             <StyledToggleOnIcon onClick={() => handleGetToggleStatusItem(item.ResidentId, item.ResidentName, true)} />
                             : item.Status === Constant.INACTIVE_RESIDENT ?
                             <StyledToggleOffIcon onClick={() => handleGetToggleStatusItem(item.ResidentId, item.ResidentName, false)} />
+                            : item.Status === Constant.UNVERIFIED_RESIDENT ?
+                            <Status active='unverified'>Chờ duyệt</Status>
                             : null
                         }
                     </>
                 }
             </TableData>
+
+            {
+                item.Status === Constant.UNVERIFIED_RESIDENT ?
+                <TableData center>
+                    <Button onClick={handleSetApproveItem}>
+                        <StyledCheckIcon />
+                    </Button>
+
+                    <Button onClick={handleSetRejectItem}>
+                        <StyledCancelIcon />
+                    </Button>
+                </TableData>
+                : null
+            }
         </TableRow>
     )
 }

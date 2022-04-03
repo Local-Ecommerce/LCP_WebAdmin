@@ -493,10 +493,8 @@ const Product = ({ refresh, toggleRefresh }) =>  {
                             handleGetRejectItem={handleGetRejectItem}
                             handleGetApproveItem={handleGetApproveItem}
                             handleGetDetailItem={
-                                activeTab === 1 ? 
-                                handleGetDetailItem 
-                                : activeTab === 2 ? 
-                                handleGetVerifyItem
+                                activeTab === 1 ? handleGetDetailItem 
+                                : activeTab === 2 ? handleGetVerifyItem
                                 : null
                             }
                         />

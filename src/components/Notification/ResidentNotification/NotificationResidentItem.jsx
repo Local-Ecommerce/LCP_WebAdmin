@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from "styled-components";
+import { Person } from '@mui/icons-material';
 import { DateTime } from 'luxon';
 
 const NotificationWrapper = styled.a`
@@ -33,6 +34,17 @@ const Image = styled.img`
     height: 40px;
     border-radius: 50%;
     margin-right: 10px;
+`;
+
+const StyledNoImageIcon = styled(Person)`
+    && {
+        color: rgba(0,0,0,0.3);
+        font-size: 26px;
+        padding: 7px;
+        border-radius: 50%;
+        border: 1px solid rgba(0,0,0,0.3);
+        margin-right: 10px;
+    }
 `;
 
 const TextWrapper = styled.div`
@@ -86,7 +98,11 @@ const NotificationResidentItem = ({ item, handleGetDetailItem }) => {
 
     return (
             <NotificationWrapper onClick={handleSetDetailItem}>
-                <Image src={item.Image} />
+                {
+                    item.Image ?
+                    <Image src={item.Image} />
+                    : <StyledNoImageIcon />
+                }
 
                 <TextWrapper>
                     <TopText><b>{item.ResidentName}</b> đang chờ duyệt</TopText>

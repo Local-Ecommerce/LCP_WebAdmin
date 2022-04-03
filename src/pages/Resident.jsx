@@ -7,10 +7,15 @@ import { Search } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
 import { api } from "../RequestMethod";
 import { toast } from 'react-toastify';
-import RejectModal from '../components/Resident/RejectModal';
-import ApproveModal from '../components/Resident/ApproveModal';
-import ToggleStatusModal from '../components/Resident/ToggleStatusModal';
 import * as Constant from '../Constant';
+
+import { db } from "../firebase";
+import { ref, push } from "firebase/database";
+
+import RejectModal from '../components/Notification/RejectModal';
+import ApproveModal from '../components/Notification/ApproveModal';
+import DetailModal from '../components/Notification/ResidentNotification/DetailResidentModal';
+import ToggleStatusModal from '../components/Resident/ToggleStatusModal';
 
 const PageWrapper = styled.div`
     margin: 40px;
@@ -247,13 +252,22 @@ const Footer = styled.div`
     padding-top: 50px;
 `;
 
-const Resident = () =>  {
+const Resident = ({ refresh, toggleRefresh }) =>  {
     const user = JSON.parse(localStorage.getItem('USER'));
 
     const [toggleStatusModal, setToggleStatusModal] = useState(false);
     const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
+    const [rejectModal, setRejectModal] = useState(false);
+    function toggleRejectModal() { setRejectModal(!rejectModal); }
+    const [approveModal, setApproveModal] = useState(false);
+    function toggleApproveModal() { setApproveModal(!approveModal); }
+    const [detailModal, setDetailModal] = useState(false);
+    function toggleDetailModal() { setDetailModal(!detailModal); }
 
     const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
+    const [rejectItem, setRejectItem] = useState({ id: '', name: '' });
+    const [approveItem, setApproveItem] = useState({ id: '', name: '' });
+    const [detailItem, setDetailItem] = useState({});
 
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState(1);
@@ -295,7 +309,7 @@ const Resident = () =>  {
             });
         }
         fetchData();
-    }, [change, limit, page, sort, status, search, type]);
+    }, [refresh, change, limit, page, sort, status, search, type]);
 
     useEffect(() => {   //timer when search
         const timeOutId = setTimeout(() => setSearch(typing), 500);
@@ -346,10 +360,96 @@ const Resident = () =>  {
         setPage(0);
     }
 
+    const handleGetApproveItem = (id, name, image, residentId) => {
+        setApproveItem({ id : id, name: name, image: image, residentId: residentId });
+        toggleApproveModal();
+    }
+
+    const handleGetRejectItem = (id, name, image, residentId) => {
+        setRejectItem({ id : id, name: name, image: image, residentId: residentId });
+        toggleRejectModal();
+    }
+
+    const handleGetDetailItem = (item) => {
+        setDetailItem(item);
+        toggleDetailModal();
+    }
 
     const handleGetToggleStatusItem = (id, name, status) => {
         setToggleStatusItem({ id: id, name: name, status: status });
         toggleToggleStatusModal();
+    }
+
+    const handleApproveResidentItem = (event) => {
+        event.preventDefault();
+        const handleApprove = async () => {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
+            api.put("residents/" + approveItem.id + "?status=" + Constant.VERIFIED_RESIDENT)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    toggleRefresh();
+                    setApproveModal(false);
+                    setDetailModal(false);
+
+                    push(ref(db, `Notification/` + approveItem.residentId), {
+                        createdDate: Date.now(),
+                        data: {
+                            image: approveItem.image ? approveItem.image : '',
+                            name: approveItem.name,
+                            id: approveItem.id
+                        },
+                        read: 0,
+                        receiverId: approveItem.residentId,
+                        senderId: user.Residents[0].ResidentId,
+                        type: '201'
+                    });
+
+                    toast.update(notification, { render: "Duyệt cư dân thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        handleApprove();
+    }
+
+    const handleRejectResidentItem = (event, reason) => {
+        event.preventDefault();
+        const notification = toast.loading("Đang xử lí yêu cầu...");
+
+        const handleReject = async () => {
+            api.put("residents/" + rejectItem.id + "?status=" + Constant.REJECTED_RESIDENT)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    toggleRefresh();
+                    setRejectModal(false);
+                    setDetailModal(false);
+
+                    push(ref(db, `Notification/` + rejectItem.residentId), {
+                        createdDate: Date.now(),
+                        data: {
+                            image: rejectItem.image ? rejectItem.image : '',
+                            name: rejectItem.name,
+                            id: rejectItem.id,
+                            reason: reason ? reason : ''
+                        },
+                        read: 0,
+                        receiverId: rejectItem.residentId,
+                        senderId: user.Residents[0].ResidentId,
+                        type: '202'
+                    });
+                    
+                    toast.update(notification, { render: "Từ chối cư dân thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        handleReject();
     }
 
     const handleToggleStatus = (event) => {
@@ -438,6 +538,11 @@ const Resident = () =>  {
                             <TableHeader width="15%" center>Số điện thoại</TableHeader>
                             <TableHeader width="15%" center>Kiểu cư dân</TableHeader>
                             <TableHeader width="20%" center>Trạng thái</TableHeader>
+                            {
+                                activeTab === 1 ?
+                                null :
+                                <TableHeader width="15%" center>Hành động</TableHeader>
+                            }
                         </TableRow>
                     </TableHead>
 
@@ -451,6 +556,9 @@ const Resident = () =>  {
                         <ResidentList 
                             currentItems={APIdata} 
                             handleGetToggleStatusItem={handleGetToggleStatusItem}
+                            handleGetDetailItem={handleGetDetailItem}
+                            handleGetApproveItem={handleGetApproveItem}
+                            handleGetRejectItem={handleGetRejectItem}
                         />
                         }
                     </TableBody>
@@ -494,6 +602,28 @@ const Resident = () =>  {
                 toggle={toggleToggleStatusModal}
                 toggleStatusItem={toggleStatusItem}
                 handleToggleStatus={handleToggleStatus}
+            />
+
+            <DetailModal 
+                display={detailModal}
+                toggle={toggleDetailModal}
+                detailItem={detailItem}
+                handleGetApproveItem={handleGetApproveItem}
+                handleGetRejectItem={handleGetRejectItem}
+            />
+
+            <ApproveModal
+                display={approveModal} 
+                toggle={toggleApproveModal} 
+                approveItem={approveItem} 
+                handleApproveItem={handleApproveResidentItem}
+            />
+
+            <RejectModal
+                display={rejectModal} 
+                toggle={toggleRejectModal} 
+                rejectItem={rejectItem} 
+                handleRejectItem={handleRejectResidentItem}
             />
 
         </PageWrapper>
