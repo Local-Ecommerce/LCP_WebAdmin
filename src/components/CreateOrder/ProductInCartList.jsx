@@ -9,7 +9,7 @@ const CartWrapper = styled.div`
 const TotalPriceWrapper = styled.div`
     display: flex;
     justify-content: flex-end;
-    padding: 30px 40px;
+    padding: 30px;
 `;
 
 const Row = styled.div`
@@ -31,7 +31,7 @@ const TotalPriceText = styled.div`
     font-weight: 600;
 `;
 
-const ProductInCartList = ({ currentItems, handleChangeQuantity }) => {
+const ProductInCartList = ({ currentItems, handleChangeQuantity, RemoveItemFromCart }) => {
 
     if (currentItems.length === 0) {
         return <ProductInCartItem item={0} />
@@ -39,7 +39,7 @@ const ProductInCartList = ({ currentItems, handleChangeQuantity }) => {
 
     let totalAmount = 0;
     currentItems.forEach(item => {
-        totalAmount = totalAmount + item.Price * item.Quantity
+        totalAmount = totalAmount + item.DefaultPrice * item.Quantity
     })
 
     return (
@@ -49,6 +49,7 @@ const ProductInCartList = ({ currentItems, handleChangeQuantity }) => {
                     <ProductInCartItem
                         item={item} key={index}
                         handleChangeQuantity={handleChangeQuantity}
+                        RemoveItemFromCart={RemoveItemFromCart}
                     />
                 )
             })}

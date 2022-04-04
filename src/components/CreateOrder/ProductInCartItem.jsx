@@ -6,7 +6,7 @@ import { HideImage, Close, Add, Remove } from '@mui/icons-material';
 
 const ContainerWrapper = styled.div`
     font-size: 14px;
-    padding: 10px;
+    padding: 10px 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -35,11 +35,17 @@ const Flex3Wrapper = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    margin: 0px 20px;
+    margin: 0px 10px;
 `;
 
 const Flex1Wrapper = styled.div`
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+`;
+
+const Flex = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
@@ -47,15 +53,15 @@ const Flex1Wrapper = styled.div`
 
 const Image = styled.img`
     vertical-align: middle;
-    width: 70px;
-    height: 70px;
+    width: 60px;
+    height: 60px;
     border-radius: 3px;
 `;
 
 const StyledNoImageIcon = styled(HideImage)`
     && {
         color: ${props => props.theme.grey};
-        font-size: 30px;
+        font-size: 20px;
         padding: 20px;
         border-radius: 3px;
         border: 1px solid rgba(0,0,0,0.2);
@@ -68,13 +74,13 @@ const Category = styled.div`
 `;
 
 const Name = styled.div`
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
 `;
 
 const Quantity = styled.div`
     width: 20px;
-    padding: 5px;
+    padding: 3px;
     outline: none;
     border: 1px solid ${props => props.error ? props.theme.red : props.theme.greyBorder};
     font-size: 14px;
@@ -83,7 +89,7 @@ const Quantity = styled.div`
 `;
 
 const Price = styled.div`
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
 `;
 
@@ -101,7 +107,7 @@ const Button = styled.button`
 
 const StyledAddIcon = styled(Add)`
     && {
-        font-size: 16px;
+        font-size: 14px;
         color: ${props => props.theme.dark};
         padding: 5px;
         background-color: rgba(0,0,0,0.2);
@@ -116,7 +122,7 @@ const StyledAddIcon = styled(Add)`
 
 const StyledRemoveIcon = styled(Remove)`
     && {
-        font-size: 16px;
+        font-size: 14px;
         color: ${props => props.theme.dark};
         padding: 5px;
         background-color: rgba(0,0,0,0.2);
@@ -141,13 +147,13 @@ const StyledCloseIcon = styled(Close)`
     }
 `;
 
-const ProductInCartItem = ({ item, handleChangeQuantity }) =>  {
+const ProductInCartItem = ({ item, handleChangeQuantity, RemoveItemFromCart }) =>  {
     const [categoryName, setCategoryName] = useState('');
 
     useEffect(() => {
         if (item !== 0) {
             const fetchData = () => {
-                api.get("categories?id=" + item.Product.SystemCategoryId + "&include=parent")
+                api.get("categories?id=" + item.SystemCategoryId + "&include=parent")
                 .then(function (res) {
                     setCategoryName(res.data.Data.List[0].SysCategoryName);
                 })
@@ -165,40 +171,45 @@ const ProductInCartItem = ({ item, handleChangeQuantity }) =>  {
 
     const handleAddQuantity = (e) => {
         e.preventDefault();
-        handleChangeQuantity(item.Product.ProductId, item.Quantity + 1);
+        handleChangeQuantity(item.ProductId, item.Quantity + 1);
     }
 
     const handleRemoveQuantity = (e) => {
         e.preventDefault();
         if (item.Quantity > 1) {
-            handleChangeQuantity(item.Product.ProductId, item.Quantity - 1);
+            handleChangeQuantity(item.ProductId, item.Quantity - 1);
         }
+    }
+
+    const handleRemoveItemFromCart = (e) => {
+        e.preventDefault();
+        RemoveItemFromCart(item.ProductId);
     }
 
     return (
         <ContainerWrapper>
             {
-                item.Product.Image ?
-                <Image src={item.Product.Image ? item.Product.Image.split("|")[0] : ''} />
+                item.Image ?
+                <Image src={item.Image ? item.Image.split("|")[0] : ''} />
                 : <StyledNoImageIcon />
             }
 
             <Flex3Wrapper>
                 <Category>{categoryName}</Category>
-                <Name>{item.Product.ProductName}</Name>
+                <Name>{item.ProductName}</Name>
             </Flex3Wrapper>
 
             <Flex1Wrapper>
-                <StyledRemoveIcon onClick={handleRemoveQuantity} />
-                <Quantity>{item.Quantity}</Quantity>
-                <StyledAddIcon onClick={handleAddQuantity} />
+                <Price>{(item.DefaultPrice * item.Quantity).toString().replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",")} đ</Price>
+                
+                <Flex>
+                    <StyledRemoveIcon onClick={handleRemoveQuantity} />
+                    <Quantity>{item.Quantity}</Quantity>
+                    <StyledAddIcon onClick={handleAddQuantity} />
+                </Flex>
             </Flex1Wrapper>
 
-            <Flex1Wrapper>
-                <Price>{(item.Price * item.Quantity).toString().replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",")} đ</Price>
-            </Flex1Wrapper>
-
-            <Button type="button">
+            <Button type="button" onClick={handleRemoveItemFromCart}>
                 <StyledCloseIcon />
             </Button>
         </ContainerWrapper>

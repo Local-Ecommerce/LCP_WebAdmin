@@ -4,7 +4,8 @@ import styled from 'styled-components';
 import { api } from "../RequestMethod";
 import { toast } from 'react-toastify';
 import ReactPaginate from "react-paginate";
-import { Search, ArrowDropDown, ArrowDropUp, ShoppingCart } from '@mui/icons-material';
+import useClickOutside from "../contexts/useClickOutside";
+import { Search, ArrowDropDown, ShoppingCart } from '@mui/icons-material';
 import { TextField as MuiTextField, Autocomplete, Box, FormControlLabel, Checkbox, CircularProgress } from '@mui/material';
 import * as Constant from '../Constant';
 
@@ -12,8 +13,24 @@ import OrderProductList from '../components/CreateOrder/OrderProductList';
 import ProductInCartList from '../components/CreateOrder/ProductInCartList';
 
 const PageWrapper = styled.div`
-    width: 760px;
+    min-width: 720px;
+    max-width: 1200px;
     margin: 60px auto;
+`;
+
+const FlexWrapper = styled.div`
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+`;
+
+const LeftWrapper = styled.div`
+    flex: 3;
+    margin-right: 30px;
+`;
+
+const RightWrapper = styled.div`
+    flex: 2;
 `;
 
 const Row = styled.div`
@@ -38,20 +55,6 @@ const HeaderWrapper = styled.div`
 const Header = styled.div`
     font-weight: 600;
     padding: 20px 0;
-`;
-
-const StyledDropdownIcon = styled(ArrowDropDown)`
-    && {
-        margin-right: 20px;
-        cursor: pointer;
-    }
-`;
-
-const StyledDropupIcon = styled(ArrowDropUp)`
-    && {
-        margin-right: 20px;
-        cursor: pointer;
-    }
 `;
 
 const TextFieldWrapper = styled.div`
@@ -175,29 +178,63 @@ const ClearButton = styled.button`
     }
 `;
 
-const DropdownWrapper = styled.div`
-    display: flex;
-    width: ${props => props.width};
-    justify-content: center;
-    align-items: center;
-    border-radius: 5px;
-    border-color: #D8D8D8;
-    border-style: solid;
-    border-width: thin;
-    height: 44px;
-    padding: 0px 3px 0px 8px;
-    background-color: #ffffff;
+const SelectWrapper = styled.div`
+    width: 220px;
+    margin-right: 10px;
+    display: inline-block;
+    background-color: ${props => props.theme.white};
+    border-radius: 3px;
+    border: 1px solid ${props => props.theme.greyBorder};
+    transition: all .5s ease;
+    position: relative;
+    font-size: 14px;
+    color: ${props => props.theme.black};
+    text-align: left;
+
+    &:hover {
+        box-shadow: 0 0 4px rgb(204, 204, 204);
+        border-radius: 2px 2px 0 0;
+    }
+
+    &:active {
+        box-shadow: 0 0 4px rgb(204, 204, 204);
+        border-radius: 2px 2px 0 0;
+    }
 `;
 
-const Select = styled.select`
-    padding: 4px;
-    flex-grow: 1;
-    background-color: transparent;
-    outline: none;
-    border: none;
+const Select = styled.div`
+    cursor: pointer;
+    display: flex;
+    padding: 8px 10px 8px 15px;
+    justify-content: space-between;
+    align-items: center;
+`;
 
-    &:focus {
-    outline: 0;
+const DropdownMenu = styled.ul`
+    position: absolute;
+    background-color: #fff;
+    width: 100%;
+    left: 0;
+    margin-top: 1px;
+    box-shadow: 0 1px 2px rgb(204, 204, 204);
+    border-radius: 0 1px 2px 2px;
+    overflow: hidden;
+    display: ${props => props.dropdown === true ? "" : "none"};
+    max-height: 500px;
+    overflow-y: auto;
+    z-index: 9;
+    padding: 0;
+    list-style: none;
+`;
+
+const DropdownList = styled.li`
+    padding: 10px;
+    transition: all .2s ease-in-out;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+
+    &:hover {
+        background-color: ${props => props.theme.hover};
     }
 `;
 
@@ -222,11 +259,18 @@ const StyledNoProductIcon = styled(ShoppingCart)`
 
 const StyledFirstSearchIcon = styled(Search)`
     && {
-        margin-top: 50px;
+        margin-top: 200px;
         margin-bottom: 20px;
         font-size: 100px;
         color: #D8D8D8;
     }
+`;
+
+const NoProductText = styled.div`
+    padding-bottom: 200px;
+    text-decoration: none;
+    font-size: 14px;
+    color: ${props => props.theme.grey};
 `;
 
 const NoItemText = styled.div`
@@ -327,12 +371,12 @@ const CreateOrder = () => {
     const user = JSON.parse(localStorage.getItem('USER'));
 
     const [manual, setManual] = useState(false);
-    const [dropdown, setDropdown] = useState(true); const toggleDropdown = () => { setDropdown(!dropdown) };
-
-    const [searched, setSearched] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [dropdown, setDropdown] = useState(false);
+    const toggleDropdown = () => { setDropdown(!dropdown); }
 
     const [autocomplete, setAutocomplete] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);
     const [cart, setCart] = useState([]);
 
@@ -340,6 +384,7 @@ const CreateOrder = () => {
     const [error, setError] = useState({ name: '', phone: '', address: '', otp: '' });
 
     const [search, setSearch] = useState('');
+    const [category, setCategory] = useState({id: '', name: 'Danh mục'});
     const [sort, setSort] = useState('');
     const [typing, setTyping] = useState('');
 
@@ -354,6 +399,15 @@ const CreateOrder = () => {
                 api.get("residents?status=" + Constant.VERIFIED_RESIDENT + "&apartmentid=" + user.Residents[0].ApartmentId)
                 .then(function (res) {
                     setAutocomplete(res.data.Data.List);
+
+                    const url2 = "categories" 
+                    + "?sort=-syscategoryname" 
+                    + "&status=" + Constant.ACTIVE_SYSTEM_CATEGORY;
+                    api.get(url2)
+                    .then(function (res2) {
+                        console.log(res2.data.Data.List)
+                        setCategories(res2.data.Data.List);
+                    })
                 })
                 .catch(function (error) {
                     console.log(error);
@@ -364,19 +418,21 @@ const CreateOrder = () => {
     }, []);
 
     useEffect (() => {
-        if (search !== '' && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
+        if ((search !== '' || category.id !== '') && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
             setLoading(true);
             const fetchData = () => {
-                let url = "menu-products" 
-                + "?include=product"
+                let url = "products" 
+                + "?apartmentid=" + user.Residents[0].ApartmentId
                 + "&limit=" + limit
-                + "&page=" + (page + 1);
+                + "&page=" + (page + 1)
+                + "&search=" + search
+                + (category.id !== '' ? "&categoryid=" + category.id : '');
                 api.get(url)
                 .then(function (res) {
+                    console.log(res.data.Data.List)
                     setProducts(res.data.Data.List);
                     setTotal(res.data.Data.Total);
                     setLastPage(res.data.Data.LastPage);
-                    setSearched(true);
                     setLoading(false);
                 })
                 .catch(function (error) {
@@ -385,13 +441,19 @@ const CreateOrder = () => {
                 });
             }
             fetchData();
+        } else {
+            setProducts([]);
         }
-    }, [search, page, sort]);
+    }, [search, page, sort, category]);
 
     useEffect(() => {   //timer when search apartment
         const timeOutId = setTimeout(() => setSearch(typing), 500);
         return () => clearTimeout(timeOutId);
     }, [typing]);
+
+    let clickOutside = useClickOutside(() => {
+        setDropdown(false);
+    });
 
     function handleChange(e) {
         const { name, value } = e.target;
@@ -400,12 +462,20 @@ const CreateOrder = () => {
     }
 
     const AddItemToCart = (newItem, quantity) => {
-        newItem.Quantity = quantity;
-        setCart(cart => [...cart, newItem]);
+        if (!cart.some(item => item.ProductId === newItem.ProductId)) {
+            newItem.Quantity = quantity;
+            setCart(cart => [...cart, newItem]);
+        }
+    }
+
+    const RemoveItemFromCart = (id) => {
+        setCart(cart.filter((item) => {
+            return item.ProductId !== id
+        }));
     }
 
     const handleChangeQuantity = (id, newQuantity) => {
-        let index = cart.findIndex((item) => item.Product.ProductId === id);
+        let index = cart.findIndex((item) => item.ProductId === id);
         let newArray = [...cart];
         newArray[index].Quantity = newQuantity;
         setCart(newArray);
@@ -424,6 +494,11 @@ const CreateOrder = () => {
         setInput({ name: '', phone: '', address: '', otp: '' });
     }
 
+    const handleSetCategory = (id, name) => {
+        setCategory({id: id, name: name});
+        toggleDropdown();
+    }
+
     const clearSearch = () => {
         setTyping('');
         document.getElementById("search").value = '';
@@ -436,116 +511,13 @@ const CreateOrder = () => {
 
     return (
         <PageWrapper>
-            <form id="form">
-                <ContainerWrapper>
-                    <HeaderWrapper>
-                        <Row>
-                            <Header>Thông tin người đặt đơn</Header>
-
-                            <StyledFormControlLabel
-                                labelPlacement="start"
-                                style={{ pointerEvents: "none" }}
-                                control={
-                                    <Checkbox
-                                        checked={manual}
-                                        onClick={handleSetManual}
-                                        style={{ pointerEvents: "auto" }}
-                                    />
-                                }
-                                label={<span style={{ fontSize: '14px' }} >Chưa có tài khoản</span>} 
-                            />
-                        </Row>
-                    </HeaderWrapper>
-
-                    <TextFieldWrapper mb0>
-
-                        <Row spacebetween>
-                            <FieldLabel>Tên</FieldLabel>
-                            <HelperText ml0>{input.name.length}/250 kí tự</HelperText>
-                        </Row>
-
-                        {
-                            manual ? 
-                            <TextField
-                                maxLength={250}
-                                type="text" value={loading ? "Đang tải..." : input.name} name='name'
-                                onChange={handleChange}
-                                error={error.name !== ''}
-                            />
-                            :
-                            <>
-                                <Autocomplete
-                                    size="small"
-                                    onChange={(event, value) => setInput(input => ({ ...input, 
-                                        name: value.ResidentName, 
-                                        phone: value.PhoneNumber || '',
-                                        address: value.DeliveryAddress || '' 
-                                    }))}
-                                    selectOnFocus disablePortal
-                                    getOptionLabel={(item) => item.ResidentName}
-                                    options={autocomplete}
-                                    renderOption={(props, item) => {
-                                        return (
-                                            <Box {...props} key={item.ResidentId}>
-                                                {item.ResidentName}&nbsp;
-                                                <small>{item.PhoneNumber ? "- " + item.PhoneNumber.slice(0, 4) + " " + item.PhoneNumber.slice(4, 7) + " " + item.PhoneNumber.slice(7) : ''}</small>
-                                            </Box>
-                                        ); 
-                                    }}
-                                    renderInput={(params) => <MuiTextField {...params} error={error.name !== ''} />}
-                                />
-                                <HelperText>Chọn <b>chưa có tài khoản</b> để điền thủ công thông tin người đặt đơn</HelperText>
-                            </>
-                        }
-                        <HelperText error>{error.name}</HelperText>
-                    </TextFieldWrapper>
-
-                    <TextFieldWrapper mb0>
-                        <Row spacebetween>
-                            <FieldLabel>Số điện thoại</FieldLabel>
-                            <HelperText ml0>{input.phone.length}/100 kí tự</HelperText>
-                        </Row>
-
-                        <TextField
-                            maxLength={100} disabled={!manual}
-                            type="text" value={loading ? "Đang tải..." : input.phone} name='phone'
-                            onChange={handleChange}
-                            error={error.phone !== ''}
-                         />
-                         <HelperText error>{error.phone}</HelperText>
-                    </TextFieldWrapper>
-
-                    <TextFieldWrapper>
-                        <Row spacebetween>
-                            <FieldLabel>Địa chỉ nhận hàng</FieldLabel>
-                            <HelperText ml0>{input.address.length}/100 kí tự</HelperText>
-                        </Row>
-
-                        <TextField
-                            maxLength={100} disabled={!manual}
-                            type="text" value={loading ? "Đang tải..." : input.address} name='address'
-                            onChange={handleChange}
-                            error={error.address !== ''}
-                         />
-                         <HelperText error>{error.address}</HelperText>
-                    </TextFieldWrapper>
-                </ContainerWrapper>
-
-                <ContainerWrapper>
-                    <HeaderWrapper>
-                        <Row>
+            <FlexWrapper>
+                <LeftWrapper>
+                    <ContainerWrapper>
+                        <HeaderWrapper>
                             <Header>Sản phẩm</Header>
+                        </HeaderWrapper>
 
-                            {
-                                dropdown ?
-                                <StyledDropupIcon onClick={toggleDropdown} />
-                                : <StyledDropdownIcon onClick={toggleDropdown} />
-                            }
-                        </Row>
-                    </HeaderWrapper>
-
-                    {
-                        dropdown ?
                         <ProductWrapper>
                             <Row>
                                 <SearchBar>
@@ -554,25 +526,68 @@ const CreateOrder = () => {
                                     <ClearButton onClick={() => clearSearch()}>Clear</ClearButton>
                                 </SearchBar>
 
-                                <DropdownWrapper>
-                                    <Select value={sort} onChange={event => setSort(event.target.value)}>
-                                        <option value="">Sắp xếp: Mới nhất</option>
-                                        <option value="1">Sắp xếp: Cũ nhất</option>
-                                        <option value="2">Sắp xếp: Giá cao nhất</option>
-                                        <option value="3">Sắp xếp: Giá thấp nhất</option>
+                                <SelectWrapper ref={clickOutside}>
+                                    <Select onClick={toggleDropdown}>
+                                        {category.name}
+                                        <ArrowDropDown />
                                     </Select>
-                                </DropdownWrapper>
+                                    <DropdownMenu dropdown={dropdown}>
+                                        <DropdownList onClick={() => handleSetCategory('', 'Danh mục')}>Danh mục</DropdownList>
+                                        {
+                                            categories.map(category => {
+                                                return <>
+                                                    <DropdownList 
+                                                        key={category.SystemCategoryId}
+                                                        onClick={() => handleSetCategory(category.SystemCategoryId, category.SysCategoryName)}
+                                                    >
+                                                        {category.SysCategoryName}
+                                                    </DropdownList>
+
+                                                    {
+                                                        category.Children ?
+                                                        category.Children.map(category => {
+                                                            return <>
+                                                                <DropdownList 
+                                                                    key={category.SystemCategoryId}
+                                                                    onClick={() => handleSetCategory(category.SystemCategoryId, category.SysCategoryName)}
+                                                                >
+                                                                    {category.SysCategoryName}
+                                                                </DropdownList>
+
+                                                                {
+                                                                    category.Children ?
+                                                                    category.Children.map(category => {
+                                                                        return <>
+                                                                            <DropdownList 
+                                                                                key={category.SystemCategoryId}
+                                                                                onClick={() => handleSetCategory(category.SystemCategoryId, category.SysCategoryName)}
+                                                                            >
+                                                                                {category.SysCategoryName}
+                                                                            </DropdownList>
+                                                                        </>
+                                                                    })
+                                                                    : null
+                                                                }
+                                                            </>
+                                                        })
+                                                        : null
+                                                    }
+                                                </>
+                                            })
+                                        }
+                                    </DropdownMenu>
+                                </SelectWrapper>
                             </Row>
 
                             {
-                                searched ?
+                                loading ?
+                                <Center>
+                                    <CircularProgress />
+                                </Center>
+                                :
                                 <>
                                     {
-                                        loading ?
-                                        <Center>
-                                            <CircularProgress />
-                                        </Center>
-                                        :
+                                        products.length ?
                                         <>
                                             <OrderProductList
                                                 currentItems={products}
@@ -580,10 +595,8 @@ const CreateOrder = () => {
                                             />
 
                                             <Row>
-                                                { 
-                                                    products.length === 0 ? null
-                                                    : <small>Hiển thị {page * limit + 1} - {page * limit + products.length} trong tổng số {total} sản phẩm.</small> 
-                                                }
+                                                <small>Hiển thị {page * limit + 1} - {page * limit + products.length} trong tổng số {total} sản phẩm.</small>
+                                                
                                                 <StyledPaginateContainer>
                                                     <ReactPaginate
                                                         nextLabel="Next >"
@@ -609,52 +622,146 @@ const CreateOrder = () => {
                                                 </StyledPaginateContainer>
                                             </Row>
                                         </>
+                                        : 
+                                        <NoItemWrapper>
+                                            <StyledFirstSearchIcon />
+                
+                                            <NoProductText>
+                                                Vui lòng sử dụng thanh tìm kiếm để tìm sản phẩm.
+                                            </NoProductText>
+                                        </NoItemWrapper>
                                     }
                                 </>
-                                : 
-                                <NoItemWrapper>
-                                    <StyledFirstSearchIcon />
-        
-                                    <NoItemText>
-                                        Vui lòng sử dụng thanh tìm kiếm để tìm sản phẩm.
-                                    </NoItemText>
-                                </NoItemWrapper>
                             }
-
-                            
                         </ProductWrapper>
-                        : null
-                    }
-                </ContainerWrapper>
+                    </ContainerWrapper>
+                </LeftWrapper>
 
-                <ContainerWrapper>
-                    <HeaderWrapper>
-                        <Header>Giỏ hàng</Header>
-                    </HeaderWrapper>
+                <RightWrapper>
+                    <ContainerWrapper>
+                        <HeaderWrapper>
+                            <Row>
+                                <Header>Thông tin người đặt</Header>
 
-                    {
-                        cart.length ?
-                        <ProductInCartList 
-                            currentItems={cart}
-                            handleChangeQuantity={handleChangeQuantity}
-                        />
-                        :
-                        <NoItemWrapper>
-                            <StyledNoProductIcon />
+                                <StyledFormControlLabel
+                                    labelPlacement="start"
+                                    style={{ pointerEvents: "none" }}
+                                    control={
+                                        <Checkbox
+                                            checked={manual}
+                                            onClick={handleSetManual}
+                                            style={{ pointerEvents: "auto" }}
+                                        />
+                                    }
+                                    label={<span style={{ fontSize: '14px' }} >Chưa có tài khoản</span>} 
+                                />
+                            </Row>
+                        </HeaderWrapper>
 
-                            <NoItemText>
-                                Chưa có sản phẩm trong giỏ.
-                            </NoItemText>
-                        </NoItemWrapper>
-                    }
-                </ContainerWrapper>
+                        <TextFieldWrapper mb0>
 
-                <FooterWrapper>
-                    <FloatRight>
-                        <Button>Tạo</Button>
-                    </FloatRight>
-                </FooterWrapper>
-            </form>
+                            <Row spacebetween>
+                                <FieldLabel>Tên</FieldLabel>
+                                <HelperText ml0>{input.name.length}/250 kí tự</HelperText>
+                            </Row>
+
+                            {
+                                manual ? 
+                                <TextField
+                                    maxLength={250}
+                                    type="text" value={loading ? "Đang tải..." : input.name} name='name'
+                                    onChange={handleChange}
+                                    error={error.name !== ''}
+                                />
+                                :
+                                <>
+                                    <Autocomplete
+                                        size="small"
+                                        onChange={(event, value) => setInput(input => ({ ...input, 
+                                            name: value.ResidentName, 
+                                            phone: value.PhoneNumber || '',
+                                            address: value.DeliveryAddress || '' 
+                                        }))}
+                                        selectOnFocus disablePortal
+                                        getOptionLabel={(item) => item.ResidentName}
+                                        options={autocomplete}
+                                        renderOption={(props, item) => {
+                                            return (
+                                                <Box {...props} key={item.ResidentId}>
+                                                    {item.ResidentName}&nbsp;
+                                                    <small>{item.PhoneNumber ? "- " + item.PhoneNumber.slice(0, 4) + " " + item.PhoneNumber.slice(4, 7) + " " + item.PhoneNumber.slice(7) : ''}</small>
+                                                </Box>
+                                            ); 
+                                        }}
+                                        renderInput={(params) => <MuiTextField {...params} error={error.name !== ''} />}
+                                    />
+                                    <HelperText>Chọn <b>chưa có tài khoản</b> để điền thủ công.</HelperText>
+                                </>
+                            }
+                            <HelperText error>{error.name}</HelperText>
+                        </TextFieldWrapper>
+
+                        <TextFieldWrapper mb0>
+                            <Row spacebetween>
+                                <FieldLabel>Số điện thoại</FieldLabel>
+                                <HelperText ml0>{input.phone.length}/100 kí tự</HelperText>
+                            </Row>
+
+                            <TextField
+                                maxLength={100} disabled={!manual}
+                                type="text" value={loading ? "Đang tải..." : input.phone} name='phone'
+                                onChange={handleChange}
+                                error={error.phone !== ''}
+                            />
+                            <HelperText error>{error.phone}</HelperText>
+                        </TextFieldWrapper>
+
+                        <TextFieldWrapper>
+                            <Row spacebetween>
+                                <FieldLabel>Địa chỉ nhận hàng</FieldLabel>
+                                <HelperText ml0>{input.address.length}/100 kí tự</HelperText>
+                            </Row>
+
+                            <TextField
+                                maxLength={100} disabled={!manual}
+                                type="text" value={loading ? "Đang tải..." : input.address} name='address'
+                                onChange={handleChange}
+                                error={error.address !== ''}
+                            />
+                            <HelperText error>{error.address}</HelperText>
+                        </TextFieldWrapper>
+                    </ContainerWrapper>
+
+                    <ContainerWrapper>
+                        <HeaderWrapper>
+                            <Header>Giỏ hàng</Header>
+                        </HeaderWrapper>
+
+                        {
+                            cart.length ?
+                            <ProductInCartList 
+                                currentItems={cart}
+                                handleChangeQuantity={handleChangeQuantity}
+                                RemoveItemFromCart={RemoveItemFromCart}
+                            />
+                            :
+                            <NoItemWrapper>
+                                <StyledNoProductIcon />
+
+                                <NoItemText>
+                                    Chưa có sản phẩm trong giỏ.
+                                </NoItemText>
+                            </NoItemWrapper>
+                        }
+                    </ContainerWrapper>
+                </RightWrapper>
+            </FlexWrapper>
+
+            <FooterWrapper>
+                <FloatRight>
+                    <Button>Tạo</Button>
+                </FloatRight>
+            </FooterWrapper>
         </PageWrapper>
     )
 }

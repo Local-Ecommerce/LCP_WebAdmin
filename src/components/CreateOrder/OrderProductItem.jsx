@@ -6,7 +6,7 @@ const ProductWrapper = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    width: 140px;
+    width: 124px;
     height: 270px;
     margin: 10px;
     padding: 10px;
@@ -105,10 +105,10 @@ const OrderProductItem = ({ item, handleGetDetailItem, AddItemToCart }) =>  {
         <ProductWrapper>
             <div>
                 <ImageWrapper>
-                    <Image src={item.Product.Image} />
+                    <Image src={item.Image} />
                 </ImageWrapper>
-                <Name>{item.Product.ProductName}</Name>
-                <Price>{item.Price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"}</Price>
+                <Name>{item.ProductName}</Name>
+                <Price>{item.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"}</Price>
             </div>
 
             <Button type="button" onClick={handleAddItemToCart}>
