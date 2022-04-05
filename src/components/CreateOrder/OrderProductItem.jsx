@@ -7,7 +7,7 @@ const ProductWrapper = styled.div`
     flex-direction: column;
     justify-content: space-between;
     width: 124px;
-    height: 270px;
+    height: 260px;
     margin: 10px;
     padding: 10px;
     box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.50);
@@ -47,7 +47,7 @@ const Name = styled.div`
 
 const Price = styled.div`
     font-weight: 600;
-    font-size: 18px;
+    font-size: 16px;
     margin-top: 10px;
 `;
 
@@ -93,7 +93,7 @@ const OrderProductItem = ({ item, handleGetDetailItem, AddItemToCart }) =>  {
 
     const handleSetDetailItem = (e) => {
         e.preventDefault();
-        handleGetDetailItem(item.ProductId);
+        handleGetDetailItem(item);
     }
 
     const handleAddItemToCart = (e) => {
@@ -102,7 +102,7 @@ const OrderProductItem = ({ item, handleGetDetailItem, AddItemToCart }) =>  {
     }
 
     return (
-        <ProductWrapper>
+        <ProductWrapper onClick={handleSetDetailItem}>
             <div>
                 <ImageWrapper>
                     <Image src={item.Image} />

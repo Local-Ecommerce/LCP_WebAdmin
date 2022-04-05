@@ -11,6 +11,7 @@ import * as Constant from '../Constant';
 
 import OrderProductList from '../components/CreateOrder/OrderProductList';
 import ProductInCartList from '../components/CreateOrder/ProductInCartList';
+import DetailProductModal from '../components/CreateOrder/DetailProductModal';
 
 const PageWrapper = styled.div`
     min-width: 720px;
@@ -142,6 +143,7 @@ const SearchBar = styled.div`
     height: 44px;
     padding: 0px 3px 0px 8px;
     background-color: #ffffff;
+    margin-right: 20px;
 `;
 
 const Input = styled.input`
@@ -183,7 +185,7 @@ const SelectWrapper = styled.div`
     margin-right: 10px;
     display: inline-block;
     background-color: ${props => props.theme.white};
-    border-radius: 3px;
+    border-radius: 5px;
     border: 1px solid ${props => props.theme.greyBorder};
     transition: all .5s ease;
     position: relative;
@@ -372,6 +374,9 @@ const CreateOrder = () => {
 
     const [manual, setManual] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    const [detailProductModal, setDetailProductModal] = useState(false);
+    const toggleDetailProductModal = () => { setDetailProductModal(!detailProductModal) };
     const [dropdown, setDropdown] = useState(false);
     const toggleDropdown = () => { setDropdown(!dropdown); }
 
@@ -380,6 +385,7 @@ const CreateOrder = () => {
     const [products, setProducts] = useState([]);
     const [cart, setCart] = useState([]);
 
+    const [detailItem, setDetailItem] = useState({});
     const [input, setInput] = useState({ name: '', phone: '', address: '', otp: '' });
     const [error, setError] = useState({ name: '', phone: '', address: '', otp: '' });
 
@@ -423,6 +429,7 @@ const CreateOrder = () => {
             const fetchData = () => {
                 let url = "products" 
                 + "?apartmentid=" + user.Residents[0].ApartmentId
+                + "&include=related"
                 + "&limit=" + limit
                 + "&page=" + (page + 1)
                 + "&search=" + search
@@ -481,10 +488,6 @@ const CreateOrder = () => {
         setCart(newArray);
     }
 
-    useEffect(() => {
-        console.log(cart)
-    }, [cart])
-
     const handlePageClick = (event) => {
         setPage(event.selected);
     };
@@ -507,6 +510,11 @@ const CreateOrder = () => {
     function handleSetSearch(e) {
         const { value } = e.target;
         setTyping(value);
+    }
+
+    const handleGetDetailItem = (item) => {
+        setDetailItem(item);
+        toggleDetailProductModal();
     }
 
     return (
@@ -592,34 +600,39 @@ const CreateOrder = () => {
                                             <OrderProductList
                                                 currentItems={products}
                                                 AddItemToCart={AddItemToCart}
+                                                handleGetDetailItem={handleGetDetailItem}
                                             />
 
                                             <Row>
                                                 <small>Hiển thị {page * limit + 1} - {page * limit + products.length} trong tổng số {total} sản phẩm.</small>
                                                 
-                                                <StyledPaginateContainer>
-                                                    <ReactPaginate
-                                                        nextLabel="Next >"
-                                                        onPageChange={handlePageClick}
-                                                        pageRangeDisplayed={3}
-                                                        marginPagesDisplayed={2}
-                                                        pageCount={lastPage}
-                                                        previousLabel="< Prev"
-                                                        pageClassName="page-item"
-                                                        pageLinkClassName="page-link"
-                                                        previousClassName="page-item"
-                                                        previousLinkClassName="page-link"
-                                                        nextClassName="page-item"
-                                                        nextLinkClassName="page-link"
-                                                        breakLabel="..."
-                                                        breakClassName="page-item"
-                                                        breakLinkClassName="page-link"
-                                                        containerClassName="pagination"
-                                                        activeClassName="active"
-                                                        forcePage={page}
-                                                        renderOnZeroPageCount={null}
-                                                    />
-                                                </StyledPaginateContainer>
+                                                {
+                                                    detailProductModal ?
+                                                    null :
+                                                    <StyledPaginateContainer>
+                                                        <ReactPaginate
+                                                            nextLabel="Next >"
+                                                            onPageChange={handlePageClick}
+                                                            pageRangeDisplayed={3}
+                                                            marginPagesDisplayed={2}
+                                                            pageCount={lastPage}
+                                                            previousLabel="< Prev"
+                                                            pageClassName="page-item"
+                                                            pageLinkClassName="page-link"
+                                                            previousClassName="page-item"
+                                                            previousLinkClassName="page-link"
+                                                            nextClassName="page-item"
+                                                            nextLinkClassName="page-link"
+                                                            breakLabel="..."
+                                                            breakClassName="page-item"
+                                                            breakLinkClassName="page-link"
+                                                            containerClassName="pagination"
+                                                            activeClassName="active"
+                                                            forcePage={page}
+                                                            renderOnZeroPageCount={null}
+                                                        />
+                                                    </StyledPaginateContainer>
+                                                }
                                             </Row>
                                         </>
                                         : 
@@ -762,6 +775,13 @@ const CreateOrder = () => {
                     <Button>Tạo</Button>
                 </FloatRight>
             </FooterWrapper>
+
+            <DetailProductModal 
+                display={detailProductModal}
+                toggle={toggleDetailProductModal} 
+                detailItem={detailItem}
+                AddItemToCart={AddItemToCart}
+            />
         </PageWrapper>
     )
 }
