@@ -22,9 +22,9 @@ const LeftWrapper = styled.div`
 `;
 
 const RightWrapper = styled.div`
-    flex: 2;
+    flex: 3;
     padding: 20px;
-    max-height: 50vh;
+    max-height: 60vh;
     overflow: auto;
     overflow-x: hidden;
 `;
@@ -113,7 +113,7 @@ const customStyles = {
     content: {
         top: '50%',
         left: '50%',
-        right: '40%',
+        right: '30%',
         bottom: 'auto',
         marginRight: '-50%',
         transform: 'translate(-50%, -50%)',
@@ -138,7 +138,6 @@ const DetailModal = ({ display, toggle, detailItem }) => {
 
                         let url = "menus"
                         + "?sort=-createddate"
-                        + "&include=product"
                         + "&status=" + Constant.ACTIVE_MENU;
                         api.get(url)
                         .then(function (res2) {

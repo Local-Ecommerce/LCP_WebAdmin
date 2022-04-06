@@ -96,11 +96,6 @@ const OrderProductItem = ({ item, handleGetDetailItem, AddItemToCart }) =>  {
         handleGetDetailItem(item);
     }
 
-    const handleAddItemToCart = (e) => {
-        e.preventDefault();
-        AddItemToCart(item, 1);
-    }
-
     return (
         <ProductWrapper onClick={handleSetDetailItem}>
             <div>
@@ -111,7 +106,7 @@ const OrderProductItem = ({ item, handleGetDetailItem, AddItemToCart }) =>  {
                 <Price>{item.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"}</Price>
             </div>
 
-            <Button type="button" onClick={handleAddItemToCart}>
+            <Button type="button">
                 <StyledShoppingCartIcon />
                 Bỏ vào giỏ
             </Button>

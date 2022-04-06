@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import { ArrowDropDown, ArrowDropUp } from '@mui/icons-material';
 import * as Constant from '../../Constant';
 
 const ContainerWrapper = styled.div`
     font-size: 14px;
-    padding: 5px 15px;
+    padding: 10px 0;
     margin-left: 30px;
     display: flex;
     align-items: center;
@@ -40,6 +41,8 @@ const Image = styled.img`
 const ImageWrapper = styled.div`
     flex: 1;
     display: flex;
+    opacity: ${props => props.disabled ? "0" : null};
+    justify-content: center;
 `;
 
 const NameWrapper = styled.div`
@@ -62,6 +65,7 @@ const StatusWrapper = styled.div`
     flex: 1;
     display: flex;
     justify-content: center;
+    opacity: ${props => props.disabled ? "0" : null};
 `;
 
 const Status = styled.span`
@@ -83,7 +87,23 @@ const Status = styled.span`
                 "#dc3545"};
 `;
 
-const ProductItem = ({ item }) =>  {
+const StyledDropdownIcon = styled(ArrowDropDown)`
+    && {
+        margin-left: 5px;
+        font-size: 20px;
+    }
+`;
+
+const StyledDropupIcon = styled(ArrowDropUp)`
+    && {
+        margin-left: 5px;
+        font-size: 20px;
+    }
+`;
+
+const ProductInMenuItem = ({ item }) =>  {
+    const [dropdown, setDropdown] = useState(false);
+    const toggleDropdown = () => { setDropdown(!dropdown) };
 
     let activeCheck = '';
     switch (item.Product.Status) {
@@ -102,13 +122,47 @@ const ProductItem = ({ item }) =>  {
     }
 
     return (
-        <ContainerWrapper>
-            <ImageWrapper> <Image src={item.Product.Image} /> </ImageWrapper>
-            <NameWrapper>{item.Product.ProductName}</NameWrapper>
-            <PriceWrapper>{item.Price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} đ</PriceWrapper>
-            <StatusWrapper> <Status active={activeCheck} /> </StatusWrapper>
-        </ContainerWrapper>
+        <>
+            <ContainerWrapper onClick={toggleDropdown}>
+                <ImageWrapper> <Image src={item.Product.Image} /> </ImageWrapper>
+
+                <NameWrapper>
+                    {item.Product.ProductName}
+                    {
+                        item.RelatedProductInMenu.length && !dropdown ?
+                        <StyledDropdownIcon />
+                        : item.RelatedProductInMenu.length && dropdown ?
+                        <StyledDropupIcon />
+                        : null
+                    }
+                </NameWrapper>
+
+                <PriceWrapper>{item.Price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} đ</PriceWrapper>
+                <StatusWrapper> <Status active={activeCheck} /> </StatusWrapper>
+            </ContainerWrapper>
+
+            {
+                item.RelatedProductInMenu && dropdown ?
+                <>
+                    {item.RelatedProductInMenu.map((related, index2) => {
+                        return <ContainerWrapper key={index2}>
+                            <ImageWrapper disabled> <Image src={related.Product.Image} /> </ImageWrapper>
+
+                            <NameWrapper>
+                                {related.Product.Color ? related.Product.Color + " / " : ''}
+                                {related.Product.Size ? related.Product.Size + " / " : ''}
+                                {related.Product.Weight ? related.Product.Weight + "kg " : ''}
+                            </NameWrapper>
+
+                            <PriceWrapper>{related.Price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} đ</PriceWrapper>
+                            <StatusWrapper disabled> <Status active={activeCheck} /> </StatusWrapper>
+                        </ContainerWrapper>
+                    })}
+                </>
+                : null
+            }
+        </>
     )
 }
 
-export default ProductItem;
+export default ProductInMenuItem;

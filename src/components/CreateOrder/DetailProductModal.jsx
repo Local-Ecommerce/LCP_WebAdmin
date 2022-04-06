@@ -146,7 +146,7 @@ const Button = styled.button`
     align-items: center;
     justify-content: center;
     padding: 12px 25px;
-    background: #fbebed;
+    background: ${props => props.theme.white};
     color: ${props => props.theme.red};
     border: 1px solid ${props => props.theme.red};
     border-radius: 3px;
@@ -156,7 +156,7 @@ const Button = styled.button`
 
     &:hover {
         opacity: 0.8;
-        background-color: ${props => props.theme.white};
+        background-color: #fbebed;
     }
 
     &:focus {

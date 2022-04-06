@@ -411,7 +411,6 @@ const CreateOrder = () => {
                     + "&status=" + Constant.ACTIVE_SYSTEM_CATEGORY;
                     api.get(url2)
                     .then(function (res2) {
-                        console.log(res2.data.Data.List)
                         setCategories(res2.data.Data.List);
                     })
                 })

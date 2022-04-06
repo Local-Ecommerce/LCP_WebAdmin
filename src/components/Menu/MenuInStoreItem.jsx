@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { api } from "../../RequestMethod";
 import { ArrowDropUp, ArrowDropDown} from '@mui/icons-material';
 import * as Constant from '../../Constant';
 
 import ProductInMenuList from '../Menu/ProductInMenuList';
 
 const ContainerWrapper = styled.div`
-    font-size: 14px;
-    padding: 15px 20px;
+    font-size: 15px;
+    padding: 18px 20px;
     margin-bottom: ${props => props.dropdown ? "0px" : "10px"};
     display: flex;
     align-items: center;
@@ -108,12 +109,41 @@ const DropupIcon = styled(ArrowDropUp)`
 `;
 
 const ProductWrapper = styled.div`
-    margin-bottom: 10px;
+    margin-top: -10px;
+    margin-bottom: 15px;
 `;
 
 const MenuInStoreItem = ({ item, menuId }) =>  {
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(false);
+
     const [dropdown, setDropdown] = useState(menuId === item.MenuId ? true : false);
     const toggleDropdown = () => { setDropdown(!dropdown) };
+
+    useEffect(() => {
+        const fetchData = () => {
+            
+            let url = "menu-products" 
+            + "?menuid=" + item.MenuId
+            + "&status=" + Constant.ACTIVE_PRODUCT_IN_MENU
+            + "&include=product";
+            api.get(url)
+            .then(function (res) {
+                setProducts(res.data.Data.map((item) => ({ 
+                    ...item, 
+                    Price: item.Price.toString().replace(/\D/g, "").toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+                    RelatedProductInMenu: item.RelatedProductInMenu.map((related) => ({
+                        ...related,
+                        Price: related.Price.toString().replace(/\D/g, "").toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                    }))
+                })));
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
+        }
+        fetchData();
+    }, []);
 
     let activeCheck = '';
     let activeLabel = '';
@@ -170,9 +200,9 @@ const MenuInStoreItem = ({ item, menuId }) =>  {
             </ContainerWrapper>
 
             {
-                item.ProductInMenus.length && dropdown ? 
+                products.length && dropdown ? 
                 <ProductWrapper>
-                    <ProductInMenuList currentItems={item.ProductInMenus} />
+                    <ProductInMenuList currentItems={products} />
                 </ProductWrapper>
                 : null
             }

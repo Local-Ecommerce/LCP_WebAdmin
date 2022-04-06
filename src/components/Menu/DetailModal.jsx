@@ -138,7 +138,6 @@ const DetailModal = ({ display, toggle, detailItem }) => {
 
                         let url = "menus"
                         + "?sort=-createddate"
-                        + "&include=product"
                         + "&status=" + Constant.ACTIVE_MENU;
                         api.get(url)
                         .then(function (res2) {
