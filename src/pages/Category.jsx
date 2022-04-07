@@ -5,6 +5,7 @@ import { AddCircle } from '@mui/icons-material';
 import { api } from "../RequestMethod";
 import { Search } from '@mui/icons-material';
 import { toast } from 'react-toastify';
+import imageCompression from 'browser-image-compression';
 import * as Constant from '../Constant';
 
 import CreateModal from '../components/Category/CreateModal';
@@ -166,8 +167,8 @@ const Category = () => {
     function toggleCreateModal() { setCreateModal(!createModal); }
     const [deleteModal, setDeleteModal] = useState(false);
     function toggleDeleteModal() { setDeleteModal(!deleteModal); }
-    const [input, setInput] = useState({ name: '', belongTo: '', belongToName: '' })
-    const [error, setError] = useState({ name: '' })
+    const [input, setInput] = useState({ image: '', name: '', belongTo: '', belongToName: '' });
+    const [error, setError] = useState({ image: '', name: '' });
     const [deleteItem, setDeleteItem] = useState({ id: '', name: '' });
     
     const [APIdata, setAPIdata] = useState([]);
@@ -212,12 +213,12 @@ const Category = () => {
     }
 
     const handleToggleCreateModal = () => {
-        setInput({ name: '', belongTo: '', belongToName: '' });
+        setInput({ image: '', name: '', belongTo: '', belongToName: '' });
         toggleCreateModal();
     }
 
     const handleGetCreateItem = (id, name) => {
-        setInput({ name: '', belongTo: id, belongToName: name });
+        setInput({ image: '', name: '', belongTo: id, belongToName: name });
         toggleCreateModal();
     }
 
@@ -231,6 +232,33 @@ const Category = () => {
         setInput(input => ({ ...input, [name]: value }));
     }
 
+    const toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+
+    const handleSetImage = async (e) => {
+        setError(error => ({ ...error, image: '' }));
+        const [file] = e.target.files;
+        const options = {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 640,
+            fileType: "image/jpg"
+        }
+        if (file) {
+            const compressedFile = await imageCompression(file, options);
+            let base64 = await toBase64(compressedFile);
+            setInput(input => ({ ...input, image: base64.toString() }));
+        }
+    };
+
+    const handleRemoveImage = () => {
+        setError(error => ({ ...error, image: '' }));
+        setInput(input => ({ ...input, image: '' }));
+    };
+
     const handleAddItem = (event) => {
         event.preventDefault();
         if (validCheck()) {
@@ -240,6 +268,7 @@ const Category = () => {
 
                 api.post(url, {
                     sysCategoryName: input.name,
+                    categoryImage: input.image.split(',')[1],
                     belongTo: input.belongTo || null
                 })
                 .then(function (res) {
@@ -266,19 +295,25 @@ const Category = () => {
             setError(error => ({ ...error, name: 'Vui lòng nhập tên danh mục' }));
             check = true;
         }
+        if (input.image === '') {
+            setError(error => ({ ...error, image: 'Xin hãy chọn ảnh cho danh mục' }));
+            check = true;
+        }
+
         if (check === true) {
             return false;
         }
         return true;
     }
 
-    const handleEditItem = (id, name, belongTo, status) => {
+    const handleEditItem = (id, name, image, belongTo, status) => {
         const url = "categories?id=" + id;
         const editData = async () => {
             const notification = toast.loading("Đang xử lí yêu cầu...");
 
             api.put(url, {
                 sysCategoryName: name,
+                categoryImage: image.split(',')[1],
                 status: status,
                 belongTo: belongTo
             })
@@ -367,6 +402,8 @@ const Category = () => {
                 error={error} 
                 handleChange={handleChange}
                 handleAddItem={handleAddItem}
+                handleSetImage={handleSetImage}
+                handleRemoveImage={handleRemoveImage}
             />
 
             <DeleteModal 

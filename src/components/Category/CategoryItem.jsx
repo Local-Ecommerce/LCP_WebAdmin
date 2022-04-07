@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { ArrowDropUp, ArrowDropDown, Edit, Delete, AddCircle } from '@mui/icons-material';
+import { ArrowDropUp, ArrowDropDown, Edit, Delete, AddCircle, HideImage } from '@mui/icons-material';
 import { TextField } from '@mui/material';
 import useClickOutside from "../../contexts/useClickOutside";
+import imageCompression from 'browser-image-compression';
 import * as Constant from '../../Constant';
 
 const CategoryContent = styled.div`
@@ -56,7 +57,7 @@ const DropupIcon = styled(ArrowDropUp)`
 `;
 
 const Status = styled.span`
-    margin-right: 20px;
+    margin-right: 10px;
     display: inline-block;
     padding: 4px 5px;
     font-size: 0.7em;
@@ -206,14 +207,50 @@ const EditButton = styled.button`
     }
 `;
 
+const ImageWrapper = styled.div`
+    margin-right: 10px;
+    border-radius: 3px;
+    border: ${props => props.edit ? "1px solid " + props.theme.greyBorder : null};
+
+    &:hover {
+        opacity: 0.8;
+    }
+`;
+
+const Image = styled.img`
+    vertical-align: middle;
+    width: 40px;
+    height: 40px;
+    border-radius: 3px;
+    margin-right;
+    cursor: pointer;
+`;
+
+const StyledNoImageIcon = styled(HideImage)`
+    && {
+        color: ${props => props.theme.grey};
+        font-size: 30px;
+        padding: 5px;
+        border-radius: 3px;
+        border: 1px solid rgba(0,0,0,0.2);
+        cursor: pointer;
+    }
+`;
+
+const HiddenInputFile = styled.input`
+    opacity: 0;
+    position: absolute;
+    z-index: -1;
+`;
+
 const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem, parentDisabled }) => {
     const [child, setChild] = useState(false);
     const [edit, toggleEdit] = useState(false);
     const [dropdown, setDropdown] = useState(false);
     const toggleDropdown = () => { setDropdown(!dropdown); }
 
-    const [input, setInput] = useState({ name: '', status: '' });
-    const [error, setError] = useState({ name: '' });
+    const [input, setInput] = useState({ image: '', name: '', status: '' });
+    const [error, setError] = useState({ image: '', name: '' });
 
     const handleToggleChild = () => {
         setChild(!child);
@@ -231,7 +268,7 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem, parentD
     const handleGetEditItem = (e) => {
         if (validCheck()) {
             e.stopPropagation();
-            getEditItem(item.SystemCategoryId, input.name, item.BelongTo || null, input.status);
+            getEditItem(item.SystemCategoryId, input.name, input.image, item.BelongTo || null, input.status);
             toggleEdit(!edit);
         }
     }
@@ -257,7 +294,7 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem, parentD
 
     const handleToggleEdit = (e) => {
         e.stopPropagation();
-        setInput({ name: item.SysCategoryName, status: item.Status });
+        setInput({ image: item.CategoryImage, name: item.SysCategoryName, status: item.Status });
         toggleEdit(!edit);
     }
 
@@ -270,6 +307,28 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem, parentD
         setInput(input => ({ ...input, status: value }));
         setDropdown(!dropdown);
     }
+
+    const toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+
+    const handleSetImage = async (e) => {
+        setError(error => ({ ...error, image: '' }));
+        const [file] = e.target.files;
+        const options = {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 640,
+            fileType: "image/jpg"
+        }
+        if (file) {
+            const compressedFile = await imageCompression(file, options);
+            let base64 = await toBase64(compressedFile);
+            setInput(input => ({ ...input, image: base64.toString() }));
+        }
+    };
 
     let activeCheck = '';
     let activeLabel = '';
@@ -293,7 +352,6 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem, parentD
                 break;
         }
     }
-    
 
     if (item === 0) {
         return (
@@ -313,11 +371,23 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem, parentD
                         {input.status === Constant.ACTIVE_SYSTEM_CATEGORY ? 'Hoạt động' : input.status === Constant.INACTIVE_SYSTEM_CATEGORY ? 'Ngừng hoạt động' : ''}
                         <ArrowDropDown />
                     </Select>
+                    
                     <DropdownMenu dropdown={dropdown}>
                         <DropdownList onClick={() => handleStatusChange(Constant.ACTIVE_SYSTEM_CATEGORY)}>Hoạt động</DropdownList>
                         <DropdownList onClick={() => handleStatusChange(Constant.INACTIVE_SYSTEM_CATEGORY)}>Ngừng hoạt động</DropdownList>
                     </DropdownMenu>
                 </SelectWrapper>
+
+                <ImageWrapper edit>
+                    <label>
+                        {
+                            input.image ?
+                            <Image src={input.image ? input.image : ''} />
+                            : <StyledNoImageIcon />
+                        }
+                        <HiddenInputFile type="file" accept="image/png, image/jpeg" onChange={handleSetImage} />
+                    </label>
+                </ImageWrapper>
 
                 <TextField
                     fullWidth size="small" 
@@ -336,6 +406,15 @@ const CategoryItem = ({ item, getCreateItem, getEditItem, getDeleteItem, parentD
             <CategoryContent level={item.CategoryLevel} onClick={item.Children && handleToggleChild}>
                 <NameWrapper>
                     <Status active={activeCheck}>{activeLabel}</Status>
+
+                    <ImageWrapper>
+                        {
+                            item.CategoryImage ?
+                            <Image src={item.CategoryImage ? item.CategoryImage : ''} />
+                            : <StyledNoImageIcon />
+                        }
+                    </ImageWrapper>
+
                     {item.SysCategoryName}
                     {Array.isArray(item.Children) && item.Children.length && child
                     ? <DropupIcon />
