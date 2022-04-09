@@ -11,6 +11,7 @@ const ModalContentWrapper = styled.div`
     display: flex;
     justify-content: center;
     max-height: 70vh;
+    overflow-y: auto;
 `;
 
 const LeftWrapper = styled.div`
@@ -125,7 +126,7 @@ const OptionWrapper = styled.div`
 `;
 
 const OptionLabel = styled.div`
-    min-width: 90px;
+    min-width: 120px;
     color: ${props => props.theme.grey};
 `;
 
@@ -146,9 +147,9 @@ const Button = styled.button`
     align-items: center;
     justify-content: center;
     padding: 12px 25px;
-    background: ${props => props.theme.white};
-    color: ${props => props.theme.red};
-    border: 1px solid ${props => props.theme.red};
+    border: 1px solid ${props => props.disabled ? props.theme.disabled : props.theme.red};
+    background-color: ${props => props.disabled ? props.theme.disabled : props.theme.white};
+    color: ${props => props.disabled ? props.theme.white : props.theme.red};
     border-radius: 3px;
     font-size: 16px;
     cursor: pointer;
@@ -156,7 +157,7 @@ const Button = styled.button`
 
     &:hover {
         opacity: 0.8;
-        background-color: #fbebed;
+        background-color: ${props => props.disabled ? null : "#fbebed"};
     }
 
     &:focus {
@@ -248,15 +249,18 @@ const DetailProductModal = ({ display, toggle, detailItem, AddItemToCart }) => {
     const [colors, setColors] = useState([]);
     const [sizes, setSizes] = useState([]);
     const [weights, setWeights] = useState([]);
+    const [combination, setCombination] = useState([]);
+    const [selected, setSelected] = useState({ id: '', color: null, size: null, weight: 0, price: '' });
+    const [selectedChange, setSelectedChange] = useState(false);
 
-    const [selectedColor, setSelectedColor] = useState('');
-    const [selectedSize, setSelectedSize] = useState('');
-    const [selectedWeight, setSelectedWeight] = useState('');
     const [quantity, setQuantity] = useState(1);
 
     useEffect(() => {
         if (display) {
-            setImages([]); setColors([]); setSizes([]); setWeights([]); setQuantity(1); setCategory('');
+            setImages([]); setImageSrc(''); setPrices([]); setCategory('');
+            setColors([]); setSizes([]); setWeights([]); setCombination([]);
+            setSelected({ id: '', color: null, size: null, weight: 0, price: '' });
+            setQuantity(1); 
 
             const imageList = detailItem.Image.split("|").filter(item => item).map((item) => (
                 { image: item }
@@ -269,15 +273,22 @@ const DetailProductModal = ({ display, toggle, detailItem, AddItemToCart }) => {
 
                 setColors([...new Map(detailItem.RelatedProducts.map(({ Color }) => ({ 
                     value: Color
-                })).map(item => [item['value'], item])).values()].filter(item => (item.value)));
+                })).map(item => [item['value'], item])).values()].filter(item => (item.value))
+                .sort((a, b) => a.value.localeCompare(b.value)));
 
                 setSizes([...new Map(detailItem.RelatedProducts.map(({ Size }) => ({ 
                     value: Size
-                })).map(item => [item['value'], item])).values()].filter(item => (item.value)));
+                })).map(item => [item['value'], item])).values()].filter(item => (item.value))
+                .sort((a, b) => a.value.localeCompare(b.value)));
 
                 setWeights([...new Map(detailItem.RelatedProducts.map(({ Weight }) => ({ 
                     value: Weight
-                })).map(item => [item['value'], item])).values()].filter(item => (item.value)));
+                })).map(item => [item['value'], item])).values()].filter(item => (item.value))
+                .sort((a, b) => a.value - b.value));
+
+                setCombination(detailItem.RelatedProducts.map((item) => ({ 
+                    id: item.ProductId, color: item.Color, size: item.Size, weight: item.Weight, price: item.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                })));
 
             } else {
                 setPrices([detailItem.DefaultPrice]);
@@ -294,11 +305,41 @@ const DetailProductModal = ({ display, toggle, detailItem, AddItemToCart }) => {
             }
             fetchData();
         }
-    }, [display])
+    }, [display]);
+
+    const handleSetSelected = (name, value) => {
+        setSelected(prev => ({ ...prev, [name]: value }));
+        setSelectedChange(!selectedChange);
+    }
+
+    useEffect(() => {
+        const sameCombination = combination.filter(item => item.color === selected.color 
+        && item.size === selected.size && item.weight === selected.weight);
+
+        if (sameCombination && sameCombination.length) {
+            setSelected(prev => ({ ...prev, id: sameCombination[0].id, price: sameCombination[0].price }));
+        } else {
+            setSelected(prev => ({ ...prev, id: '', price: '' }));
+        }
+    }, [selectedChange])
 
     const handleAddItemToCart = (e) => {
         e.preventDefault();
-        AddItemToCart(detailItem, quantity);
+        if (selected && selected.id !== '') {
+            const relatedItem = {...detailItem};
+            relatedItem.ProductId = selected.id;
+            relatedItem.ProductName = detailItem.ProductName + " "
+            + (selected.color ? selected.color : '')
+            + (selected.color && (selected.size || selected.weight) ? " / " : '')
+            + (selected.size ? selected.size : '')
+            + (selected.size && selected.weight ? " / " : '')
+            + (selected.weight ? selected.weight + "kg " : '');
+            relatedItem.DefaultPrice = selected.price.replace(/\D/g, "");
+
+            AddItemToCart(relatedItem, quantity);
+        } else {
+            AddItemToCart(detailItem, quantity);
+        }
         toggle();
     }
 
@@ -344,8 +385,13 @@ const DetailProductModal = ({ display, toggle, detailItem, AddItemToCart }) => {
                     {
                         prices.length === 1 || (prices.length > 1 && Math.min(...prices) === Math.max(...prices)) ?
                         <Price>{prices[0].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"}</Price>
+                        : selected && selected.price !== '' ?
+                        <Price>{selected.price} đ</Price>
                         : prices.length > 1 ?
-                        <Price>{Math.min(...prices)} - {Math.max(...prices)}</Price>
+                        <Price>
+                            {Math.min(...prices).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ - "} 
+                            {Math.max(...prices).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"}
+                        </Price>
                         : null
                     }
 
@@ -362,9 +408,9 @@ const DetailProductModal = ({ display, toggle, detailItem, AddItemToCart }) => {
                             {colors.map((item, index) => {
                                 return (
                                     <Option 
-                                        key={index} 
-                                        onClick={() => setSelectedColor(item.value)}
-                                        active={selectedColor === item.value}
+                                        key={index}
+                                        onClick={() => handleSetSelected('color', item.value)}
+                                        active={selected.color === item.value}
                                     > 
                                         {item.value} 
                                     </Option>
@@ -382,9 +428,9 @@ const DetailProductModal = ({ display, toggle, detailItem, AddItemToCart }) => {
                             {sizes.map((item, index) => {
                                 return (
                                     <Option 
-                                        key={index} 
-                                        onClick={() => setSelectedSize(item.value)}
-                                        active={selectedSize === item.value}
+                                        key={index}
+                                        onClick={() => handleSetSelected('size', item.value)}
+                                        active={selected.size === item.value}
                                     > 
                                         {item.value} 
                                     </Option>
@@ -402,11 +448,11 @@ const DetailProductModal = ({ display, toggle, detailItem, AddItemToCart }) => {
                             {weights.map((item, index) => {
                                 return (
                                     <Option 
-                                        key={index} 
-                                        onClick={() => setSelectedWeight(item.value)}
-                                        active={selectedWeight === item.value}
+                                        key={index}
+                                        onClick={() => handleSetSelected('weight', item.value)}
+                                        active={selected.weight === item.value}
                                     > 
-                                        {item.value} 
+                                        {item.value} kg
                                     </Option>
                                 );
                             })}
@@ -422,7 +468,11 @@ const DetailProductModal = ({ display, toggle, detailItem, AddItemToCart }) => {
                         <StyledAddIcon onClick={handleAddQuantity} />
                     </OptionWrapper>
 
-                    <Button type="button" onClick={handleAddItemToCart}>
+                    <Button 
+                        type="button" 
+                        onClick={handleAddItemToCart} 
+                        disabled={combination && combination.length && selected.id === ''}
+                    >
                         <StyledShoppingCartIcon />
                         Bỏ vào giỏ hàng
                     </Button>

@@ -1,4 +1,5 @@
-import React from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ShoppingCart } from '@mui/icons-material';
 
@@ -85,7 +86,16 @@ const StyledShoppingCartIcon = styled(ShoppingCart)`
     }
 `;
 
-const OrderProductItem = ({ item, handleGetDetailItem, AddItemToCart }) =>  {
+const OrderProductItem = ({ item, handleGetDetailItem }) =>  {
+    const [prices, setPrices] = useState([]);
+    
+    useEffect(() => {
+        if (item.RelatedProducts.length > 0) {
+            setPrices(item.RelatedProducts.map((item) => (item.DefaultPrice)));
+        } else {
+            setPrices([item.DefaultPrice]);
+        }
+    }, [])
 
     if (item === 0) {
         return null;
@@ -103,7 +113,16 @@ const OrderProductItem = ({ item, handleGetDetailItem, AddItemToCart }) =>  {
                     <Image src={item.Image} />
                 </ImageWrapper>
                 <Name>{item.ProductName}</Name>
-                <Price>{item.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"}</Price>
+                {
+                    prices.length === 1 || (prices.length > 1 && Math.min(...prices) === Math.max(...prices)) ?
+                    <Price>{prices[0].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"}</Price>
+                    : prices.length > 1 ?
+                    <Price>
+                        {Math.min(...prices).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ - "} 
+                        {Math.max(...prices).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"}
+                    </Price>
+                    : null
+                }
             </div>
 
             <Button type="button">

@@ -31,10 +31,6 @@ const ContainerWrapper = styled.div`
 
 const Flex3Wrapper = styled.div`
     flex: 2.5;
-    width: 1px; //constraint width
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     margin: 0px 10px;
 `;
 
@@ -76,6 +72,12 @@ const Category = styled.div`
 const Name = styled.div`
     font-size: 14px;
     font-weight: 600;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 `;
 
 const Quantity = styled.div`

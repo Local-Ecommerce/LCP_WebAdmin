@@ -431,11 +431,11 @@ const CreateOrder = () => {
                 + "&include=related"
                 + "&limit=" + limit
                 + "&page=" + (page + 1)
+                + "&status=" + Constant.VERIFIED_PRODUCT
                 + "&search=" + search
                 + (category.id !== '' ? "&categoryid=" + category.id : '');
                 api.get(url)
                 .then(function (res) {
-                    console.log(res.data.Data.List)
                     setProducts(res.data.Data.List);
                     setTotal(res.data.Data.Total);
                     setLastPage(res.data.Data.LastPage);
@@ -541,8 +541,8 @@ const CreateOrder = () => {
                                     <DropdownMenu dropdown={dropdown}>
                                         <DropdownList onClick={() => handleSetCategory('', 'Danh mục')}>Danh mục</DropdownList>
                                         {
-                                            categories.map(category => {
-                                                return <>
+                                            categories.map((category, index) => {
+                                                return <div key={index}>
                                                     <DropdownList 
                                                         key={category.SystemCategoryId}
                                                         onClick={() => handleSetCategory(category.SystemCategoryId, category.SysCategoryName)}
@@ -552,8 +552,8 @@ const CreateOrder = () => {
 
                                                     {
                                                         category.Children ?
-                                                        category.Children.map(category => {
-                                                            return <>
+                                                        category.Children.map((category, index) => {
+                                                            return <div key={index}>
                                                                 <DropdownList 
                                                                     key={category.SystemCategoryId}
                                                                     onClick={() => handleSetCategory(category.SystemCategoryId, category.SysCategoryName)}
@@ -563,23 +563,23 @@ const CreateOrder = () => {
 
                                                                 {
                                                                     category.Children ?
-                                                                    category.Children.map(category => {
-                                                                        return <>
+                                                                    category.Children.map((category, index) => {
+                                                                        return <div key={index}>
                                                                             <DropdownList 
                                                                                 key={category.SystemCategoryId}
                                                                                 onClick={() => handleSetCategory(category.SystemCategoryId, category.SysCategoryName)}
                                                                             >
                                                                                 {category.SysCategoryName}
                                                                             </DropdownList>
-                                                                        </>
+                                                                        </div>
                                                                     })
                                                                     : null
                                                                 }
-                                                            </>
+                                                            </div>
                                                         })
                                                         : null
                                                     }
-                                                </>
+                                                </div>
                                             })
                                         }
                                     </DropdownMenu>

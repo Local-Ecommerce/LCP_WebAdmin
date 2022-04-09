@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { DateTime } from 'luxon';
 import styled from "styled-components";
 import 'react-toastify/dist/ReactToastify.css';
@@ -164,12 +164,6 @@ const App = () => {
                     element={<PageNotFound />}
                 />
             </Routes>
-
-            {/* <ExtendSessionModal 
-                display={modal}
-                extendSession={extendSession}
-                logout={logout}
-            /> */}
         </>
     )
 }

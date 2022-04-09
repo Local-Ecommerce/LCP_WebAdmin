@@ -26,7 +26,7 @@ const LeftWrapper = styled.div`
 `;
 
 const RightWrapper = styled.div`
-    flex: 2;
+    flex: 3;
     padding: 20px;
 `;
 
@@ -65,7 +65,7 @@ const customStyles = {
     content: {
         top: '50%',
         left: '50%',
-        right: '40%',
+        right: '30%',
         bottom: 'auto',
         marginRight: '-50%',
         transform: 'translate(-50%, -50%)',
@@ -79,8 +79,8 @@ const OptionWrapper = styled.div`
 
 const ValueTag = styled.span`
     display: inline-block;
-    padding: 4px 10px;
-    font-size: 12px;
+    padding: 6px 10px;
+    font-size: 14px;
     text-align: center;
     white-space: nowrap;
     vertical-align: baseline;
@@ -261,6 +261,7 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
     const [images, setImages] = useState([]);
     const [imageSrc, setImageSrc] = useState('');
     const [prevCategory, setPrevCategory] = useState('');
+    const [prices, setPrices] = useState([]);
     const [colors, setColors] = useState([]);
     const [sizes, setSizes] = useState([]);
     const [weights, setWeights] = useState([]);
@@ -284,20 +285,24 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                     setItem(res.data.Data.List[0]);
                     console.log(res.data.Data.List[0])
 
-                    setColors([...new Map(res.data.Data.List[0].RelatedProducts.map(({ Color }) => ({ 
-                        value: Color, error: '', old: true
-                    })).map(item => [item['value'], item])).values()].filter(item => (item.value))
-                    .map((item, index) => ({ name: index, ...item })));
-
-                    setSizes([...new Map(res.data.Data.List[0].RelatedProducts.map(({ Size }) => ({ 
-                        value: Size, error: '', old: true
-                    })).map(item => [item['value'], item])).values()].filter(item => (item.value))
-                    .map((item, index) => ({ name: index, ...item })));
-
-                    setWeights([...new Map(res.data.Data.List[0].RelatedProducts.map(({ Weight }) => ({ 
-                        value: Weight, error: '', old: true
-                    })).map(item => [item['value'], item])).values()].filter(item => (item.value))
-                    .map((item, index) => ({ name: index, ...item })));
+                    if (res.data.Data.List[0].RelatedProducts.length > 0) {
+                        setPrices(res.data.Data.List[0].RelatedProducts.map((item) => (item.DefaultPrice)));
+        
+                        setColors([...new Map(res.data.Data.List[0].RelatedProducts.map(({ Color }) => ({ 
+                            value: Color
+                        })).map(item => [item['value'], item])).values()].filter(item => (item.value)));
+        
+                        setSizes([...new Map(res.data.Data.List[0].RelatedProducts.map(({ Size }) => ({ 
+                            value: Size
+                        })).map(item => [item['value'], item])).values()].filter(item => (item.value)));
+        
+                        setWeights([...new Map(res.data.Data.List[0].RelatedProducts.map(({ Weight }) => ({ 
+                            value: Weight
+                        })).map(item => [item['value'], item])).values()].filter(item => (item.value)));
+        
+                    } else {
+                        setPrices([res.data.Data.List[0].DefaultPrice]);
+                    }
 
                     const imageList = res.data.Data.List[0].Image.split("|").filter(item => item).map((item, index) => (
                         { image: item }
@@ -478,7 +483,15 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
 
                                 <TextField
                                     disabled={true}
-                                    type="text" value={loading ? '' : item.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"}
+                                    type="text" value={
+                                        loading ? '' 
+                                        : prices.length === 1 || (prices.length > 1 && Math.min(...prices) === Math.max(...prices)) ?
+                                        prices[0].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"
+                                        : prices.length > 1 ?
+                                        Math.min(...prices).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ - " +
+                                        Math.max(...prices).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"
+                                        : null
+                                    }
                                 />
                                 {
                                     item.CurrentProduct ?
@@ -526,7 +539,7 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                                     </Row>
                                 </FieldLabel>
                                 <TextArea
-                                    disabled={true} rows="2"
+                                    disabled={true} rows="3"
                                     type="text" value={loading ? '' : item.BriefDescription}
                                 />
                                 {
@@ -580,7 +593,7 @@ const DetailProductModal = ({ display, toggle, detailItem, handleGetApproveItem,
                                         <OptionWrapper>
                                             {weights.map((item, index) => {
                                                 return (
-                                                    <ValueTag key={index}> {item.value} </ValueTag>
+                                                    <ValueTag key={index}> {item.value} kg </ValueTag>
                                                 );
                                             })}
                                         </OptionWrapper>

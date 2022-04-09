@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import styled from "styled-components";
 import { Link } from 'react-router-dom';
@@ -22,7 +23,7 @@ import DetailResidentModal from '../components/Notification/ResidentNotification
 import NotificationResidentList from '../components/Notification/ResidentNotification/NotificationResidentList';
 
 import { db } from "../firebase";
-import { ref, push, onValue, query, limitToFirst, orderByChild, equalTo } from "firebase/database";
+import { ref, push, onValue, query, limitToLast, orderByChild, equalTo } from "firebase/database";
 
 const Wrapper = styled.div`
     display: flex;
@@ -355,7 +356,7 @@ const Header = ({ refresh, toggleRefresh }) => {
     useEffect( () => {  //fetch api data
         if (user && user.RoleId === "R001" && user.Residents[0].Type === Constant.MARKET_MANAGER) {
             setLoading(true);
-            const dataRef = query(ref(db, 'Notification/' + user.Residents[0].ApartmentId), limitToFirst(100), orderByChild('receiverId'), equalTo(user.Residents[0].ApartmentId));
+            const dataRef = query(ref(db, 'Notification/' + user.Residents[0].ApartmentId), limitToLast(100), orderByChild('receiverId'), equalTo(user.Residents[0].ApartmentId));
             return onValue(dataRef, (snapshot) => {
                 let url = "products" 
                 + "?limit=100"
