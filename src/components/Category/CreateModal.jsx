@@ -147,10 +147,6 @@ const Image = styled.img`
 
 const CreateModal = ({ display, toggle, input, error, handleChange, handleAddItem, handleSetImage, handleRemoveImage }) => {
 
-    useEffect(() => {
-        console.log(input)
-    }, [input])
-
     return (
         <Modal isOpen={display} onRequestClose={toggle} style={customStyles} ariaHideApp={false}>
             <ModalTitle>Tạo danh mục mới</ModalTitle>

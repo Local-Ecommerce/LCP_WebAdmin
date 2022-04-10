@@ -434,9 +434,9 @@ const Poi = () =>  {
     const handleEditItem = (event) => {
         event.preventDefault();
         if (validEditCheck()) {
-            const notification = toast.loading("Đang xử lí yêu cầu...");
-            const url = "pois?id=" + detailItem.id;
             const editData = async () => {
+                const notification = toast.loading("Đang xử lí yêu cầu...");
+                const url = "pois?id=" + detailItem.id;
                 api.put(url, {
                     title: detailItem.title,
                     text: detailItem.text,

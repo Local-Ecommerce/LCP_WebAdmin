@@ -335,6 +335,7 @@ const DetailProductModal = ({ display, toggle, detailItem, AddItemToCart }) => {
             + (selected.size && selected.weight ? " / " : '')
             + (selected.weight ? selected.weight + "kg " : '');
             relatedItem.DefaultPrice = selected.price.replace(/\D/g, "");
+            relatedItem.RelatedProducts = null;
 
             AddItemToCart(relatedItem, quantity);
         } else {

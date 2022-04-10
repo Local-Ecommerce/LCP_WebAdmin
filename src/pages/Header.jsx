@@ -376,6 +376,7 @@ const Header = ({ refresh, toggleRefresh }) => {
 
                             let url3 = "residents" 
                             + "?status=" + Constant.UNVERIFIED_RESIDENT
+                            + "&apartmentid=" + user.Residents[0].ApartmentId
                             + "&type=" + Constant.CUSTOMER;
                             api.get(url3)
                             .then(function (res3) {
