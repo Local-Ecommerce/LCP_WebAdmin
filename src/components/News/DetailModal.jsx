@@ -326,10 +326,7 @@ const DetailModal = ({ display, toggle, detailItem, error, setDetailItem, handle
                             </FlexChild>
 
                             <FlexChild flex={3}>
-                                <Row spacebetween>
-                                    <FieldLabel>Tiêu đề</FieldLabel>
-                                    <HelperText ml0>{detailItem.title.length}/250 kí tự</HelperText>
-                                </Row>
+                                <FieldLabel>Tiêu đề</FieldLabel>
 
                                 <TextField
                                     disabled={disableEdit}

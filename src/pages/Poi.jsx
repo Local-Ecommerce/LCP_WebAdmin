@@ -553,8 +553,8 @@ const Poi = () =>  {
                         <DropdownWrapper>
                             <Select value={status} onChange={handleSetStatus}>
                                 <option value=''>Toàn bộ</option>
-                                <option value={Constant.ACTIVE_NEWS}>Hoạt động</option>
-                                <option value={Constant.INACTIVE_NEWS}>Ngừng hoạt động</option>
+                                <option value={Constant.ACTIVE_POI}>Hoạt động</option>
+                                <option value={Constant.INACTIVE_POI}>Ngừng hoạt động</option>
                             </Select>
                         </DropdownWrapper>
                     </Align>
