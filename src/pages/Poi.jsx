@@ -289,7 +289,7 @@ const Poi = () =>  {
     const [toggleStatusModal, setToggleStatusModal] = useState(false);
     const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
 
-    const [input, setInput] = useState({ type: 'Tin tức', title: '', priority: false, text: '', apartment: '' });
+    const [input, setInput] = useState({ type: 'Vui chơi', title: '', priority: false, text: '', apartment: '' });
     const [detailItem, setDetailItem] = useState({ id: '', title: '', text: '', residentId: '', apartmentId: '', status: '' });
     const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
     const [error, setError] = useState({ titleError: '', apartmentError: '', editError: '' });
@@ -381,7 +381,7 @@ const Poi = () =>  {
     }
 
     const handleToggleCreateModal = () => {
-        setInput({ type: 'Tin tức', title: '', priority: false, text: '', apartment: '' });
+        setInput({ type: 'Vui chơi', title: '', priority: false, text: '', apartment: '' });
         setError(error => ({ ...error, titleError: '' }));
         toggleCreateModal();
     }
@@ -541,9 +541,9 @@ const Poi = () =>  {
                         <DropdownWrapper>
                             <Select value={type} onChange={handleSetType}>
                                 <option value=''>Toàn bộ</option>
-                                <option value={'Tin tức'}>Tin tức</option>
-                                <option value={'Thông tin'}>Thông tin</option>
-                                <option value={'Thông báo'}>Thông báo</option>
+                                <option value={'Vui chơi'}>Vui chơi</option>
+                                <option value={'Mua sắm'}>Thông tin</option>
+                                <option value={'Thể thao'}>Thông báo</option>
                             </Select>
                         </DropdownWrapper>
                     </Align>

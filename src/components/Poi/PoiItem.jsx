@@ -63,9 +63,9 @@ const Type = styled.span`
     border-radius: 20px;
     color: ${props => props.theme.white};
     background-color: ${props => 
-      props.type === 'Thông tin' ? props.theme.blue
-    : props.type === 'Thông báo' ? props.theme.green
-    : props.type === 'Tin tức' ? props.theme.orange
+      props.type === 'Vui chơi' ? props.theme.blue
+    : props.type === 'Mua sắm' ? props.theme.green
+    : props.type === 'Thể thao' ? props.theme.orange
     : props.type === 'Ghim' ? props.theme.red
     : props.theme.disabled};
 `;

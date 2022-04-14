@@ -168,9 +168,9 @@ const CreateModal = ({ display, toggle, input, error, setInput, handleAddItem })
 	const toggleDropdown = () => { setDropdown(!dropdown); }
 
     const types = [
-        'Tin tức', 
-        'Thông tin',   
-        'Thông báo'
+        'Vui chơi', 
+        'Mua sắm',   
+        'Thể thao'
     ];
     const [autocomplete, setAutocomplete] = useState([]);
 
