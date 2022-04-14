@@ -3,8 +3,9 @@ import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
 import { api } from "../../RequestMethod";
+import imageCompression from 'browser-image-compression';
 import useClickOutside from "../../contexts/useClickOutside";
-import { ArrowDropDown } from "@mui/icons-material";
+import { ArrowDropDown, Close, AddPhotoAlternate, Add } from "@mui/icons-material";
 import { TextField, Autocomplete, Box, FormControlLabel, Checkbox } from '@mui/material';
 
 const Row = styled.div`
@@ -161,9 +162,103 @@ const StyledFormControlLabel = styled(FormControlLabel)`
     }
 `;
 
+const ImageListWrapper = styled.div`
+	display: flex;
+	flex-wrap: wrap;
+    margin-top: 25px;
+`;
+
+const ImageWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 14px;
+    margin: 0px 35px 0px 0px;
+    position: relative;
+`;
+
+const Image = styled.img`
+    object-fit: contain;
+    width: 88px;
+    height: 88px;
+    margin-bottom: 10px;
+    display: ${(props) => (props.display === "true" ? null : "none")};
+    cursor: pointer;
+`;
+
+const StyledPhotoIcon = styled(AddPhotoAlternate)`
+  && {
+    cursor: pointer;
+    border: 2px dashed #727272;
+    padding: 30px;
+    border-radius: 5px;
+    color: #383838;
+    margin-bottom: 10px;
+
+    &:active {
+      transform: translateY(1px);
+    }
+
+    &:hover {
+      opacity: 0.8;
+      background-color: #e8e8e8;
+    }
+  }
+`;
+
+const StyledAddIcon = styled(Add)`
+  && {
+    cursor: pointer;
+    border: 2px dashed #727272;
+    padding: 30px;
+    border-radius: 5px;
+    color: #383838;
+    margin-bottom: 10px;
+
+    &:active {
+      transform: translateY(1px);
+    }
+
+    &:hover {
+      opacity: 0.8;
+      background-color: #e8e8e8;
+    }
+  }
+`;
+
+const StyledCloseButton = styled(Close)`
+  && {
+    position: absolute;
+    padding: 2px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 25px;
+    color: white;
+    font-size: 20px;
+    top: -10px;
+    right: -10px;
+    cursor: pointer;
+
+    &:active {
+      transform: translateY(1px);
+    }
+
+    &:hover {
+      opacity: 0.8;
+      background-color: ${(props) => props.theme.dark};
+    }
+  }
+`;
+
+const HiddenInputFile = styled.input`
+  opacity: 0;
+  position: absolute;
+  z-index: -1;
+`;
+
 const CreateModal = ({ display, toggle, input, error, setInput, handleAddItem }) => {
     const user = JSON.parse(localStorage.getItem('USER'));
 
+    const [index, setIndex] = useState(0);
     const [dropdown, setDropdown] = useState(false);
 	const toggleDropdown = () => { setDropdown(!dropdown); }
 
@@ -198,6 +293,55 @@ const CreateModal = ({ display, toggle, input, error, setInput, handleAddItem })
         setInput(input => ({ ...input, type: value }));
         setDropdown(!dropdown);
     }
+
+    const addImage = () => {
+		if (Object.keys(input.images).length <= 5) {
+            let newImages = [...input.images];
+            newImages.push({ name: index, image: "" });
+            setInput(input => ({ ...input, images: newImages }));
+			setIndex(index + 1);
+		}
+	};
+
+	const removeBlankImage = (name) => {
+        const newImages = [...input.images].filter((item) => {
+            return item.name !== name;
+        });
+        setInput(input => ({ ...input, images: newImages }));
+	};
+
+    const toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+
+    const handleSetImage = async (e) => {
+        const { name } = e.target;
+        const [file] = e.target.files;
+        const options = {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 640,
+            fileType: "image/jpg"
+        }
+        if (file) {
+            const compressedFile = await imageCompression(file, options);
+            let base64 = await toBase64(compressedFile);
+
+            let newImages = [...input.images];
+            let index = newImages.findIndex(obj => parseInt(obj.name) === parseInt(name));
+            newImages[index] = { name: name, image: base64.toString() };
+            setInput(input => ({ ...input, images: newImages }));
+        }
+    };
+
+    const handleRemoveImage = (name) => {
+        let newImages = [...input.images];
+        let index = newImages.findIndex(obj => parseInt(obj.name) === parseInt(name));
+        newImages[index] = { name: name, image: '' };
+        setInput(input => ({ ...input, images: newImages }));
+    };
 
     return (
         <Modal isOpen={display} onRequestClose={toggle} style={customStyles} ariaHideApp={false}>
@@ -261,6 +405,51 @@ const CreateModal = ({ display, toggle, input, error, setInput, handleAddItem })
                     value={input.text} name='text'
                     onChange={(event) => setInput(input => ({ ...input, text: event.target.value }))}
                 />
+
+                <ImageListWrapper>
+                    {input.images.map((image, index) => {
+                        return (
+                            <ImageWrapper key={index}>
+                                {
+                                    image.image === "" ? 
+                                    <>
+                                        <StyledCloseButton
+                                        onClick={() => removeBlankImage(image.name)}
+                                        />
+                                        <label>
+                                        <HiddenInputFile
+                                            type="file"
+                                            name={image.name}
+                                            accept="image/png, image/jpeg"
+                                            onChange={handleSetImage}
+                                        />
+                                        <StyledPhotoIcon />
+                                        </label>
+                                    </>
+                                    : 
+                                    <StyledCloseButton onClick={() => handleRemoveImage(image.name)} />
+                                }
+                                <Image
+                                id={image.name}
+                                src={image.image}
+                                display={image.image === "" ? "false" : "true"}
+                                />
+                                Hình ảnh {index + 1}
+                            </ImageWrapper>
+                        );
+                    })}
+
+                    {
+                        Object.keys(input.images).length <= 5 ? 
+                        (
+                            <ImageWrapper>
+                                <StyledAddIcon onClick={addImage} />
+                                Thêm ảnh
+                            </ImageWrapper>
+                        ) 
+                        : null
+                    }
+                </ImageListWrapper>
                 
                 {
                 user.RoleId === "R002" ?

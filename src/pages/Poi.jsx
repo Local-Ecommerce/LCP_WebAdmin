@@ -289,8 +289,8 @@ const Poi = () =>  {
     const [toggleStatusModal, setToggleStatusModal] = useState(false);
     const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
 
-    const [input, setInput] = useState({ type: 'Vui chơi', title: '', priority: false, text: '', apartment: '' });
-    const [detailItem, setDetailItem] = useState({ id: '', title: '', text: '', residentId: '', apartmentId: '', status: '' });
+    const [input, setInput] = useState({ type: 'Vui chơi', title: '', priority: false, text: '', images: [{ name: 0, image: '' }], apartment: '' });
+    const [detailItem, setDetailItem] = useState({ id: '', type: 'Vui chơi', title: '', priority: false, text: '', currentImages: [], images: [], residentId: '', apartmentId: '', status: '' });
     const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
     const [error, setError] = useState({ titleError: '', apartmentError: '', editError: '' });
 
@@ -381,7 +381,7 @@ const Poi = () =>  {
     }
 
     const handleToggleCreateModal = () => {
-        setInput({ type: 'Vui chơi', title: '', priority: false, text: '', apartment: '' });
+        setInput({ type: 'Vui chơi', title: '', priority: false, text: '', images: [{ name: 0, image: '' }], apartment: '' });
         setError(error => ({ ...error, titleError: '' }));
         toggleCreateModal();
     }
@@ -397,6 +397,7 @@ const Poi = () =>  {
                     text: input.text,
                     priority: input.priority,
                     type: input.type,
+                    image: input.images.filter(item => item.image !== '').map(item => item.image.split(',')[1]),
                     residentId: (user.Residents[0] ? user.Residents[0].ResidentId : null),
                     apartmentId: (user.Residents[0] ? user.Residents[0].ApartmentId : (input.apartment.ApartmentId || null))
                 })
@@ -437,13 +438,18 @@ const Poi = () =>  {
     }
 
     const handleGetDetailItem = (id) => {
-        setDetailItem(data => ({ ...data, id: id }));
+        setDetailItem({ id: id, type: 'Vui chơi', title: '', priority: false, text: '', currentImages: [], images: [], residentId: '', apartmentId: '', status: '' });
         toggleDetailModal();
     }
 
     const handleEditItem = (event) => {
         event.preventDefault();
         if (validEditCheck()) {
+            let imageDifference = [];
+            imageDifference = detailItem.currentImages.filter(o1 => !detailItem.images.some(o2 => o1.image === o2.image))
+            .concat(detailItem.images.filter(o1 => !detailItem.currentImages.some(o2 => o1.image === o2.image)))
+            .filter(item => item.image !== '').map(item => item.image.includes(',') ? item.image.split(',')[1] : item.image);
+
             const editData = async () => {
                 const notification = toast.loading("Đang xử lí yêu cầu...");
                 const url = "pois?id=" + detailItem.id;
@@ -452,6 +458,7 @@ const Poi = () =>  {
                     text: detailItem.text,
                     priority: detailItem.priority,
                     type: detailItem.type,
+                    image: imageDifference,
                     status: detailItem.status,
                     residentId: detailItem.residentId || null,
                     apartmentId: detailItem.apartmentId || null

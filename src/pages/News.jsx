@@ -289,8 +289,8 @@ const News = () =>  {
     const [toggleStatusModal, setToggleStatusModal] = useState(false);
     const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
 
-    const [input, setInput] = useState({ type: 'Tin tức', title: '', priority: false, text: '', apartment: '' });
-    const [detailItem, setDetailItem] = useState({ id: '', type: 'Tin tức', title: '', priority: false, text: '', residentId: '', apartmentId: '', status: '' });
+    const [input, setInput] = useState({ type: 'Tin tức', title: '', priority: false, text: '', images: [{ name: 0, image: '' }], apartment: '' });
+    const [detailItem, setDetailItem] = useState({ id: '', type: 'Tin tức', title: '', priority: false, text: '', currentImages: [], images: [], residentId: '', apartmentId: '', status: '' });
     const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
     const [error, setError] = useState({ titleError: '', apartmentError: '', editError: '' });
 
@@ -381,7 +381,7 @@ const News = () =>  {
     }
 
     const handleToggleCreateModal = () => {
-        setInput({ type: 'Tin tức', title: '', priority: false, text: '', apartment: '' });
+        setInput({ type: 'Tin tức', title: '', priority: false, text: '', images: [{ name: 0, image: '' }], apartment: '' });
         setError(error => ({ ...error, titleError: '' }));
         toggleCreateModal();
     }
@@ -397,6 +397,7 @@ const News = () =>  {
                     text: input.text,
                     priority: input.priority,
                     type: input.type,
+                    image: input.images.filter(item => item.image !== '').map(item => item.image.split(',')[1]),
                     residentId: (user.Residents[0] ? user.Residents[0].ResidentId : null),
                     apartmentId: (user.Residents[0] ? user.Residents[0].ApartmentId : (input.apartment.ApartmentId || null))
                 })
@@ -431,13 +432,18 @@ const News = () =>  {
     }
 
     const handleGetDetailItem = (id) => {
-        setDetailItem({ id: id, type: 'Tin tức', title: '', priority: false, text: '', residentId: '', apartmentId: '', status: '' });
+        setDetailItem({ id: id, type: 'Tin tức', title: '', priority: false, text: '', currentImages: [], images: [], residentId: '', apartmentId: '', status: '' });
         toggleDetailModal();
     }
 
     const handleEditItem = (event) => {
         event.preventDefault();
         if (validEditCheck()) {
+            let imageDifference = [];
+            imageDifference = detailItem.currentImages.filter(o1 => !detailItem.images.some(o2 => o1.image === o2.image))
+            .concat(detailItem.images.filter(o1 => !detailItem.currentImages.some(o2 => o1.image === o2.image)))
+            .filter(item => item.image !== '').map(item => item.image.includes(',') ? item.image.split(',')[1] : item.image);
+
             const notification = toast.loading("Đang xử lí yêu cầu...");
             const url = "news?id=" + detailItem.id;
             const editData = async () => {
@@ -446,6 +452,7 @@ const News = () =>  {
                     text: detailItem.text,
                     priority: detailItem.priority,
                     type: detailItem.type,
+                    image: imageDifference,
                     status: detailItem.status,
                     residentId: detailItem.residentId || null,
                     apartmentId: detailItem.apartmentId || null
