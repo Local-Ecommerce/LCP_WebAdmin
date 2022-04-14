@@ -1,8 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
 import { api } from "../../RequestMethod";
-import { TextField, Autocomplete, Box } from '@mui/material';
+import useClickOutside from "../../contexts/useClickOutside";
+import { ArrowDropDown } from "@mui/icons-material";
+import { TextField, Autocomplete, Box, FormControlLabel, Checkbox } from '@mui/material';
 
 const Row = styled.div`
     display: flex;
@@ -80,8 +83,96 @@ const HelperText = styled.div`
     color: #727272;
 `;
 
+const Flex = styled.div`
+    display: flex;
+`;
+
+const FlexChild = styled.div`
+  	width: 100%;
+    flex: ${props => props.flex ? props.flex : 1};
+    margin-right: ${props => props.mr ? "20px" : null};
+`;
+
+const SelectWrapper = styled.div`
+    width: 100%;
+    display: inline-block;
+    border-radius: 3px;
+	background-color: ${props => props.disabled ? "#fafafa" : null};
+    border: 1px solid ${props => props.error ? props.theme.red : props.theme.greyBorder};
+    transition: all .5s ease;
+    position: relative;
+    font-size: 14px;
+    text-align: left;
+
+    &:hover {
+        box-shadow: 0 0 4px rgb(204, 204, 204);
+        border-radius: 2px 2px 0 0;
+    }
+
+    &:active {
+        box-shadow: 0 0 4px rgb(204, 204, 204);
+        border-radius: 2px 2px 0 0;
+    }
+
+	&:disabled {
+        color: ${props => props.theme.black};
+    }
+`;
+
+const Select = styled.div`
+    cursor: pointer;
+    display: flex;
+    padding: 7px 10px 7px 15px;
+    justify-content: space-between;
+    align-items: center;
+`;
+
+const DropdownMenu = styled.ul`
+    position: absolute;
+    background-color: #fff;
+    width: 100%;
+    left: 0;
+    margin-top: 1px;
+    box-shadow: 0 1px 2px rgb(204, 204, 204);
+    border-radius: 0 1px 2px 2px;
+    overflow: hidden;
+    display: ${props => props.dropdown === true ? "" : "none"};
+    max-height: 144px;
+    overflow-y: auto;
+    z-index: 9;
+    padding: 0;
+    list-style: none;
+`;
+
+const DropdownList = styled.li`
+    padding: 10px;
+    transition: all .2s ease-in-out;
+	border-top: 1px solid rgba(0,0,0,0.05);
+    cursor: pointer;
+
+	&:hover {
+		background-color: ${props => props.theme.hover};
+	}
+`;
+
+const StyledFormControlLabel = styled(FormControlLabel)`
+    && {
+        margin: 10px -10px;
+    }
+`;
+
+
 const CreateModal = ({ display, toggle, input, error, setInput, handleAddItem }) => {
     const user = JSON.parse(localStorage.getItem('USER'));
+
+    const [dropdown, setDropdown] = useState(false);
+	const toggleDropdown = () => { setDropdown(!dropdown); }
+
+    const types = [
+        'Tin tức', 
+        'Thông tin',   
+        'Thông báo'
+    ];
     const [autocomplete, setAutocomplete] = useState([]);
 
     useEffect (() => {
@@ -100,26 +191,70 @@ const CreateModal = ({ display, toggle, input, error, setInput, handleAddItem })
         }
     }, []);
 
+    let clickOutside = useClickOutside(() => {
+        setDropdown(false);
+    });
+
+    function handleSetType(value) {
+        setInput(input => ({ ...input, type: value }));
+        setDropdown(!dropdown);
+    }
+
+
     return (
         <Modal isOpen={display} onRequestClose={toggle} style={customStyles} ariaHideApp={false}>
             <ModalTitle>Tạo tin mới</ModalTitle>
             <ModalContentWrapper>
-                <Row spacebetween>
-                    <FieldLabel>Tiêu đề</FieldLabel>
-                    <HelperText ml0>{input.title.length}/250 kí tự</HelperText>
-                </Row>
-                <TextField
-                    fullWidth size="small"
-                    inputProps={{ maxLength: 250 }} 
-                    value={input.title} name='title'
-                    onChange={(event) => setInput(input => ({ ...input, title: event.target.value }))}
-                    error={error.titleError !== ''}
-                    helperText={error.titleError}
+                <Flex>
+                    <FlexChild flex={1} mr>
+                        <FieldLabel>Loại</FieldLabel>
+                        
+                        <SelectWrapper ref={clickOutside}>
+                            <Select onClick={toggleDropdown}>
+                                {input.type}
+                                <ArrowDropDown />
+                            </Select>
+
+                            <DropdownMenu dropdown={dropdown}>
+                                {types.map(type => {
+                                    return <DropdownList onClick={() => handleSetType(type)}>{type}</DropdownList>
+                                })}
+                            </DropdownMenu>
+                        </SelectWrapper>
+                    </FlexChild>
+
+                    <FlexChild flex={3}>
+                        <Row spacebetween>
+                            <FieldLabel>Tiêu đề</FieldLabel>
+                            <HelperText ml0>{input.title.length}/250 kí tự</HelperText>
+                        </Row>
+
+                        <TextField
+                            fullWidth size="small"
+                            inputProps={{ maxLength: 250 }} 
+                            value={input.title} name='title'
+                            onChange={(event) => setInput(input => ({ ...input, title: event.target.value }))}
+                            error={error.titleError !== ''}
+                            helperText={error.titleError}
+                        />
+                    </FlexChild>
+                </Flex>
+
+                <StyledFormControlLabel 
+                    style={{ pointerEvents: "none" }}
+                    control={
+                        <Checkbox
+                            onClick={(event) => setInput(input => ({ ...input, priority: event.target.checked }))}
+                            style={{ pointerEvents: "auto" }}
+                            checked={input.priority}
+                        />
+                    }
+                    label={<span style={{ fontSize: '14px' }}>Ghim lên đầu bảng thông báo</span>} 
                 />
 
                 <Row spacebetween>
-                    <FieldLabel mt>Nội dung</FieldLabel>
-                    <HelperText ml0 mt>{input.text.length}/5000 kí tự</HelperText>
+                    <FieldLabel>Nội dung</FieldLabel>
+                    <HelperText ml0>{input.text.length}/5000 kí tự</HelperText>
                 </Row>
                 <TextField
                     fullWidth size="small"

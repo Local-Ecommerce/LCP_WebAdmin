@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ToggleOff, ToggleOn } from '@mui/icons-material';
+import { ToggleOff, ToggleOn, PushPin } from '@mui/icons-material';
 import { DateTime } from 'luxon';
 import * as Constant from '../../Constant';
 
@@ -12,7 +12,7 @@ const TableRow = styled.tr`
 `;
 
 const TableData = styled.td`
-    padding: 16px;
+    padding: 16px 8px;
     vertical-align: top;
     border-bottom: 1px solid #dee2e6;
     vertical-align: middle;
@@ -21,6 +21,14 @@ const TableData = styled.td`
     color: ${props => props.grey ? props.theme.grey : null};
 
     height: 50px;
+`;
+
+const Text = styled.span`
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 `;
 
 const StyledToggleOnIcon = styled(ToggleOn)`
@@ -42,6 +50,29 @@ const StyledToggleOffIcon = styled(ToggleOff)`
         &:hover {
             opacity: 0.8;
         }
+    }
+`;
+
+const Type = styled.span`
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 5px;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    border-radius: 20px;
+    color: ${props => props.theme.white};
+    background-color: ${props => 
+      props.type === 'Thông tin' ? props.theme.blue
+    : props.type === 'Thông báo' ? props.theme.green
+    : props.type === 'Tin tức' ? props.theme.orange
+    : props.type === 'Ghim' ? props.theme.red
+    : props.theme.disabled};
+`;
+
+const StyledPin = styled(PushPin)`
+    && {
+        font-size: 14px;
     }
 `;
 
@@ -87,13 +118,26 @@ const PoiItem = ({ item, handleGetDetailItem, handleGetToggleStatusItem, index }
     return (
         <TableRow onClick={handleSetDetailItem}>
             <TableData grey>{index + 1}</TableData>
-            <TableData>{item.Title}</TableData>
-            <TableData>{item.Text}</TableData>
+            <TableData center><Type type={item.Type}>{item.Type}</Type></TableData>
+            <TableData>
+                
+            <Text>{item.Title}</Text>
+            </TableData>
+            <TableData><Text>{item.Text}</Text></TableData>
+
+            <TableData center>
+            {
+                    item.Priority ?
+                    <Type type={'Ghim'}><StyledPin />{'Đang ghim'}</Type>
+                    : null
+                }
+            </TableData>
             { 
                 user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager" ? 
                 null : 
                 <TableData center>{item.Apartment ? item.Apartment.ApartmentName : "Hệ thống"}</TableData>
             }
+
             <TableData center>{item.Resident ? item.Resident.ResidentName : "Admin"}</TableData>
 
             <TableData center>

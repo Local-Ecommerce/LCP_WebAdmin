@@ -132,9 +132,10 @@ const OptionLabel = styled.div`
 
 const Option = styled.div`
     padding: 10px 20px;
-    border: 1px solid ${props => props.active ? "red" : "rgba(0,0,0,0.1)"};
+    border: 1px solid ${props => props.active ? props.theme.blue : "rgba(0,0,0,0.1)"};
+    background-color: ${props => props.active ? "#FAFDFF" : null};
     border-radius: 3px;
-    color: ${props => props.active ? "red" : null};
+    color: ${props => props.active ? props.theme.blue : null};
     cursor: pointer;
     
     &:hover {
@@ -147,9 +148,9 @@ const Button = styled.button`
     align-items: center;
     justify-content: center;
     padding: 12px 25px;
-    border: 1px solid ${props => props.disabled ? props.theme.disabled : props.theme.red};
+    border: 1px solid ${props => props.disabled ? props.theme.disabled : props.theme.blue};
     background-color: ${props => props.disabled ? props.theme.disabled : props.theme.white};
-    color: ${props => props.disabled ? props.theme.white : props.theme.red};
+    color: ${props => props.disabled ? props.theme.white : props.theme.blue};
     border-radius: 3px;
     font-size: 16px;
     cursor: pointer;
@@ -157,7 +158,7 @@ const Button = styled.button`
 
     &:hover {
         opacity: 0.8;
-        background-color: ${props => props.disabled ? null : "#fbebed"};
+        background-color: ${props => props.disabled ? null : "#FAFDFF"};
     }
 
     &:focus {
@@ -328,8 +329,8 @@ const DetailProductModal = ({ display, toggle, detailItem, AddItemToCart }) => {
         if (selected && selected.id !== '') {
             const relatedItem = {...detailItem};
             relatedItem.ProductId = selected.id;
-            relatedItem.ProductName = detailItem.ProductName + " "
-            + (selected.color ? selected.color : '')
+            relatedItem.Option = 
+              (selected.color ? selected.color : '')
             + (selected.color && (selected.size || selected.weight) ? " / " : '')
             + (selected.size ? selected.size : '')
             + (selected.size && selected.weight ? " / " : '')

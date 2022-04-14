@@ -33,7 +33,6 @@ const Row = styled.div`
 
 const Align = styled.div`
     display: flex;
-    width: 70%;
     align-items: center;
 `;
 
@@ -45,7 +44,7 @@ const StyledSearchIcon = styled(Search)`
 
 const SearchBar = styled.div`
     display: flex;
-    width: 50%;
+    width: 35%;
     justify-content: center;
     align-items: center;
     border-radius: 5px;
@@ -175,9 +174,10 @@ const TableHead = styled.thead`
 const TableHeader = styled.th`
     width: ${props => props.width};
     text-align: ${props => props.center ? "center" : "left"};
-    padding: 16px;
+    padding: 16px 8px;
     font-size: 15px;
     color: ${props => props.grey ? props.theme.grey : null};
+    border-bottom: 1px solid #dee2e6;
 `;
 
 const TableBody = styled.tbody`
@@ -289,7 +289,7 @@ const Poi = () =>  {
     const [toggleStatusModal, setToggleStatusModal] = useState(false);
     const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
 
-    const [input, setInput] = useState({ title: '', text: '', apartment: '' });
+    const [input, setInput] = useState({ type: 'Tin tức', title: '', priority: false, text: '', apartment: '' });
     const [detailItem, setDetailItem] = useState({ id: '', title: '', text: '', residentId: '', apartmentId: '', status: '' });
     const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
     const [error, setError] = useState({ titleError: '', apartmentError: '', editError: '' });
@@ -305,19 +305,21 @@ const Poi = () =>  {
     const [total, setTotal] = useState(0);
     const [lastPage, setLastPage] = useState(0);
 
-    const sort = '-releasedate';
     const [typing, setTyping] = useState('');
     const [search, setSearch] = useState('');
+    const [type, setType] = useState('');
     const [status, setStatus] = useState(Constant.ACTIVE_POI);
 
     useEffect( () => {  //fetch api data
         setLoading(true);
         let url = "pois"
                 + "?limit=" + limit 
-                + "&page=" + (page + 1) 
-                + "&sort=" + sort 
+                + "&page=" + (page + 1)
+                + "&sort=-priority" 
+                + "&sort=-releasedate"
                 + "&include=apartment&include=resident"
-                + (search !== '' ? ("&search=" + search) : '') 
+                + (search !== '' ? ("&search=" + search) : '')
+                + (type !== '' ? ("&type=" + type) : '')
                 + (status !== '' ? ("&status=" + status) : '');
 
         if (user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
@@ -337,7 +339,7 @@ const Poi = () =>  {
             });
         }
         fetchData();
-    }, [change, limit, page, sort, status, search]);
+    }, [change, limit, page, status, search]);
 
     useEffect(() => {   //timer when search
         const timeOutId = setTimeout(() => setSearch(typing), 500);
@@ -360,6 +362,12 @@ const Poi = () =>  {
         setPage(0);
     }
 
+    function handleSetType(e) {
+        const { value } = e.target;
+        setType(value);
+        setPage(0);
+    }
+
     function handleSetStatus(e) {
         const { value } = e.target;
         setStatus(value);
@@ -373,7 +381,7 @@ const Poi = () =>  {
     }
 
     const handleToggleCreateModal = () => {
-        setInput({ title: '', text: '', apartment: '' });
+        setInput({ type: 'Tin tức', title: '', priority: false, text: '', apartment: '' });
         setError(error => ({ ...error, titleError: '' }));
         toggleCreateModal();
     }
@@ -387,6 +395,8 @@ const Poi = () =>  {
                 api.post(url, {
                     title: input.title,
                     text: input.text,
+                    priority: input.priority,
+                    type: input.type,
                     residentId: (user.Residents[0] ? user.Residents[0].ResidentId : null),
                     apartmentId: (user.Residents[0] ? user.Residents[0].ApartmentId : (input.apartment.ApartmentId || null))
                 })
@@ -440,6 +450,8 @@ const Poi = () =>  {
                 api.put(url, {
                     title: detailItem.title,
                     text: detailItem.text,
+                    priority: detailItem.priority,
+                    type: detailItem.type,
                     status: detailItem.status,
                     residentId: detailItem.residentId || null,
                     apartmentId: detailItem.apartmentId || null
@@ -509,28 +521,40 @@ const Poi = () =>  {
     return (
         <PageWrapper>
             <Row mb>
-                <Title>POIs</Title>
+                <Title>Điểm thú vị</Title>
 
                 <AddButton onClick={handleToggleCreateModal}>
-                    <AddIcon /> Tạo POI mới
+                    <AddIcon /> Tạo điểm thú vị mới
                 </AddButton>
             </Row>
                     
             <TableWrapper>
                 <Row mb>
-                    <Align>
-                        <SearchBar>
-                            <StyledSearchIcon />
-                            <Input id="search" placeholder="Tìm kiếm POI" onChange={handleSetSearch} />
-                            <Button onClick={() => clearSearch()}>Clear</Button>
-                        </SearchBar>
+                    <SearchBar>
+                        <StyledSearchIcon />
+                        <Input id="search" placeholder="Tìm kiếm tin tức" onChange={handleSetSearch} />
+                        <Button onClick={() => clearSearch()}>Clear</Button>
+                    </SearchBar>
 
+                    <Align>
+                        <small>Loại:&nbsp;</small>
+                        <DropdownWrapper>
+                            <Select value={type} onChange={handleSetType}>
+                                <option value=''>Toàn bộ</option>
+                                <option value={'Tin tức'}>Tin tức</option>
+                                <option value={'Thông tin'}>Thông tin</option>
+                                <option value={'Thông báo'}>Thông báo</option>
+                            </Select>
+                        </DropdownWrapper>
+                    </Align>
+
+                    <Align>
                         <small>Trạng thái:&nbsp;</small>
                         <DropdownWrapper>
                             <Select value={status} onChange={handleSetStatus}>
                                 <option value=''>Toàn bộ</option>
-                                <option value={Constant.ACTIVE_POI}>Hoạt động</option>
-                                <option value={Constant.INACTIVE_POI}>Ngừng hoạt động</option>
+                                <option value={Constant.ACTIVE_NEWS}>Hoạt động</option>
+                                <option value={Constant.INACTIVE_NEWS}>Ngừng hoạt động</option>
                             </Select>
                         </DropdownWrapper>
                     </Align>
@@ -551,16 +575,18 @@ const Poi = () =>  {
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableHeader width="3%" grey>#</TableHeader>
+                            <TableHeader width="1%" grey>#</TableHeader>
+                            <TableHeader width="10%" center>Loại</TableHeader>
                             <TableHeader width="15%">Tựa đề</TableHeader>
-                            <TableHeader width="30%">Nội dung</TableHeader>
+                            <TableHeader width="35%">Nội dung</TableHeader>
+                            <TableHeader width="10%" center>Ghim</TableHeader>
                             { 
                                 user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager"
                                 ? null : <TableHeader width="10%" center>Chung cư</TableHeader> 
                             }
                             <TableHeader width="10%" center>Quản lý</TableHeader>
                             <TableHeader width="10%" center>Ngày tạo</TableHeader>
-                            <TableHeader width="10%" center>Trạng thái</TableHeader>
+                            <TableHeader width="10%" center>Hoạt động</TableHeader>
                         </TableRow>
                     </TableHead>
                     
@@ -583,7 +609,7 @@ const Poi = () =>  {
                 <Row mt>
                     { 
                     loading || APIdata.length === 0 ? null
-                    : <small>Hiển thị {page * limit + 1} - {page * limit + APIdata.length} trong tổng số {total} pois.</small> 
+                    : <small>Hiển thị {page * limit + 1} - {page * limit + APIdata.length} trong tổng số {total} điểm thú vị.</small> 
                     }
                     <StyledPaginateContainer>
                         <ReactPaginate

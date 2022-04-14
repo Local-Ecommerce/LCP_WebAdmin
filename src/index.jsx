@@ -11,6 +11,7 @@ const theme = {
 	red: "#dc3545",
 	green: "#28a745",
 	blue: "#17a2b8",
+	orange: "#ff9800",
 	black: "rgba(0, 0, 0, 0.87)",
 	white: "#fff",
 	dark: "#555",

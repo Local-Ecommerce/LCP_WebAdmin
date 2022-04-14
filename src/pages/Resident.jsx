@@ -283,7 +283,7 @@ const Resident = ({ refresh, toggleRefresh }) =>  {
     const [typing, setTyping] = useState('');
     const [search, setSearch] = useState('');
     const [status, setStatus] = useState(Constant.VERIFIED_RESIDENT);
-    const [type, setType] = useState(Constant.CUSTOMER);
+    const [type, setType] = useState('');
 
     useEffect( () => {  //fetch api data
         setLoading(true);
@@ -537,7 +537,7 @@ const Resident = ({ refresh, toggleRefresh }) =>  {
                             <TableHeader width="15%" center>Ngày sinh</TableHeader>
                             <TableHeader width="15%" center>Số điện thoại</TableHeader>
                             <TableHeader width="15%" center>Kiểu cư dân</TableHeader>
-                            <TableHeader width="20%" center>Trạng thái</TableHeader>
+                            <TableHeader width="20%" center>Hoạt động</TableHeader>
                             {
                                 activeTab === 1 ?
                                 null :

@@ -104,6 +104,10 @@ const StyledCancelIcon = styled(Close)`
     }
 `;
 
+const Grey = styled.span`
+    color: ${props => props.theme.grey};
+`;
+
 const ResidentItem = ({ item, handleGetToggleStatusItem, handleGetDetailItem, handleGetApproveItem, handleGetRejectItem, index }) =>  {
 
     if (item === 0) {
@@ -130,14 +134,16 @@ const ResidentItem = ({ item, handleGetToggleStatusItem, handleGetDetailItem, ha
         handleGetRejectItem(item.ResidentId, item.ResidentName, /*image*/ '', item.ResidentId);
     }
     
-    let phoneNumber = item.PhoneNumber || '';
-    phoneNumber = phoneNumber.slice(0, 4) + " " + phoneNumber.slice(4, 7) + " " + phoneNumber.slice(7);
+    let phoneNumber = item.PhoneNumber || <Grey>-</Grey>;
+    if (phoneNumber.length) {
+        phoneNumber = phoneNumber.slice(0, 4) + " " + phoneNumber.slice(4, 7) + " " + phoneNumber.slice(7);
+    }
 
     return (
         <TableRow onClick={handleSetDetailItem}>
             <TableData grey>{index + 1}</TableData>
             <TableData>{item.ResidentName}</TableData>
-            <TableData center>{DateTime.fromISO(item.DateOfBirth).toFormat('dd/MM/yyyy')}</TableData>
+            <TableData center>{item.DateOfBirth ? DateTime.fromISO(item.DateOfBirth).toFormat('dd/MM/yyyy') : <Grey>-</Grey>}</TableData>
             <TableData center>{phoneNumber}</TableData>
             <TableData center>
                 {

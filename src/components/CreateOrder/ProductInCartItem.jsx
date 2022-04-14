@@ -64,7 +64,7 @@ const StyledNoImageIcon = styled(HideImage)`
     }
 `;
 
-const Category = styled.div`
+const Option = styled.div`
     font-size: 14px;
     color: ${props => props.theme.grey};
 `;
@@ -150,23 +150,7 @@ const StyledCloseIcon = styled(Close)`
 `;
 
 const ProductInCartItem = ({ item, handleChangeQuantity, RemoveItemFromCart }) =>  {
-    const [categoryName, setCategoryName] = useState('');
 
-    useEffect(() => {
-        if (item !== 0) {
-            const fetchData = () => {
-                api.get("categories?id=" + item.SystemCategoryId + "&include=parent")
-                .then(function (res) {
-                    setCategoryName(res.data.Data.List[0].SysCategoryName);
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
-            }
-            fetchData();
-        }
-    }, [])
-    
     if (item === 0) {
         return null;
     }
@@ -197,8 +181,8 @@ const ProductInCartItem = ({ item, handleChangeQuantity, RemoveItemFromCart }) =
             }
 
             <Flex3Wrapper>
-                <Category>{categoryName}</Category>
                 <Name>{item.ProductName}</Name>
+                <Option>{item.Option}</Option>
             </Flex3Wrapper>
 
             <Flex1Wrapper>

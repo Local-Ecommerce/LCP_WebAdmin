@@ -224,7 +224,7 @@ const DropdownLv1Menu = styled.ul`
     border-radius: 0 1px 2px 2px;
     overflow: hidden;
     display: ${props => props.lv1CateDropdown === true ? "" : "none"};
-    max-height: 500px;
+    max-height: 600px;
     overflow-y: auto;
     z-index: 9;
     padding: 0;
@@ -235,13 +235,14 @@ const DropdownLv2Menu = styled.ul`
     position: absolute;
     background-color: #fff;
     width: 100%;
-    right: -200px;
+    top: ${props => props.height + "px"};
+    left: 100%;
     margin-top: 1px;
     box-shadow: 0 1px 2px rgb(204, 204, 204);
     border-radius: 0 1px 2px 2px;
     overflow: hidden;
     display: ${props => props.lv2CateDropdown === true ? "" : "none"};
-    max-height: 500px;
+    max-height: 600px;
     overflow-y: auto;
     z-index: 9;
     padding: 0;
@@ -252,13 +253,14 @@ const DropdownLv3Menu = styled.ul`
     position: absolute;
     background-color: #fff;
     width: 100%;
-    right: -400px;
+    top: ${props => props.height + "px"};
+    left: 200%;
     margin-top: 1px;
     box-shadow: 0 1px 2px rgb(204, 204, 204);
     border-radius: 0 1px 2px 2px;
     overflow: hidden;
     display: ${props => props.lv3CateDropdown === true ? "" : "none"};
-    max-height: 500px;
+    max-height: 600px;
     overflow-y: auto;
     z-index: 9;
     padding: 0;
@@ -440,6 +442,8 @@ const CreateOrder = () => {
     const [lv1Categories, setLv1Categories] = useState([]);
     const [lv2Categories, setLv2Categories] = useState([]);
     const [lv3Categories, setLv3Categories] = useState([]);
+    const [lv2CategoryHeight, setLv2CategoryHeight] = useState([]);
+    const [lv3CategoryHeight, setLv3CategoryHeight] = useState([]);
 
     const [autocomplete, setAutocomplete] = useState([]);
     const [products, setProducts] = useState([]);
@@ -483,12 +487,11 @@ const CreateOrder = () => {
     }, []);
 
     useEffect (() => {
-        if ((search !== '' || category.id !== '') && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
+        if (user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
             setLoading(true);
             const fetchData = () => {
                 let url = "products" 
                 + "?apartmentid=" + user.Residents[0].ApartmentId
-                + "&include=related"
                 + "&limit=" + limit
                 + "&page=" + (page + 1)
                 + "&status=" + Constant.VERIFIED_PRODUCT
@@ -536,7 +539,7 @@ const CreateOrder = () => {
 
     function handleChange(e) {
         const { name, value } = e.target;
-        setInput(input => ({ ...input, [name]: value }));
+        setInput(input => ({ ...input, residentId: '', [name]: value }));
         setError(error => ({ ...error, [name]: '' }));
     }
 
@@ -544,6 +547,11 @@ const CreateOrder = () => {
         if (!cart.some(item => item.ProductId === newItem.ProductId)) {
             newItem.Quantity = quantity;
             setCart(cart => [...cart, newItem]);
+        } else {
+            let newCart = [...cart];
+            let index = newCart.findIndex(obj => obj.ProductId === newItem.ProductId);
+            newCart[index].Quantity = newCart[index].Quantity + quantity;
+            setCart(newCart);
         }
     }
 
@@ -566,7 +574,7 @@ const CreateOrder = () => {
 
     const handleSetManual = () => {
         setManual(!manual);
-        setInput({ name: '', phone: '', address: '', otp: '' });
+        setInput({ residentId: '', name: '', phone: '', address: '' });
     }
 
     const clearSearch = () => {
@@ -586,13 +594,15 @@ const CreateOrder = () => {
         setLv3CateDropdown(false);
     }
 
-    const handleGetLv2Category = (children) => {
+    const handleGetLv2Category = (children, index) => {
+        setLv2CategoryHeight((index + 1) * 46 + 40);
         setLv2Categories(children);
         setLv2CateDropdown(true);
         setLv3CateDropdown(false);
     }
 
-    const handleGetLv3Category = (children) => {
+    const handleGetLv3Category = (children, index) => {
+        setLv3CategoryHeight(lv2CategoryHeight + index * 46);
         setLv3Categories(children);
         setLv3CateDropdown(true);
     }
@@ -606,12 +616,17 @@ const CreateOrder = () => {
         event.preventDefault();
         const createOrder = async () => {
             const notification = toast.loading("Đang xử lí yêu cầu...");
-            const url = "orders";
+            const url = "orders/guest";
             api.post(url, {
                 residentId: input.residentId,
-                name: input.name,
-                phone: input.phone,
-                address: input.address
+                products: cart.map(item => {
+                    return { productId: item.ProductId, quantity : item.Quantity, discount: 0 }
+                }),
+                resident: {
+                    residentName: input.name,
+                    phoneNumber: input.phone,
+                    deliveryAddress: input.address
+                }
             })
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
@@ -626,12 +641,6 @@ const CreateOrder = () => {
         }
         createOrder();
     }
-
-    useEffect(() => {
-        console.log(cart.map(item => {
-            return { productId: item.ProductId, quantity : item.Quantity, discount: 0 }
-        }))
-    }, [cart])
 
     return (
         <PageWrapper>
@@ -681,52 +690,46 @@ const CreateOrder = () => {
                                         <DropdownLv1Menu lv1CateDropdown={lv1CateDropdown}>
                                             <DropdownList onClick={() => handleSetCategory('', 'Toàn bộ')}>Toàn bộ</DropdownList>
                                             {lv1Categories.map((category, index) => {
-                                                return <div key={index}>
-                                                    <DropdownList 
-                                                        key={category.SystemCategoryId}
-                                                        onClick={() => handleSetCategory(category.SystemCategoryId, category.SysCategoryName)}
-                                                        onMouseEnter={() => handleGetLv2Category(category.Children)}
-                                                    >
-                                                        {category.SysCategoryName}
-                                                        {
-                                                            category.Children && category.Children.length ?
-                                                            <ArrowRight />
-                                                            : null
-                                                        }
-                                                    </DropdownList>
-                                                </div>
+                                                return <DropdownList 
+                                                    key={category.SystemCategoryId}
+                                                    onClick={() => handleSetCategory(category.SystemCategoryId, category.SysCategoryName)}
+                                                    onMouseEnter={() => handleGetLv2Category(category.Children, index)}
+                                                >
+                                                    {category.SysCategoryName}
+                                                    {
+                                                        category.Children && category.Children.length ?
+                                                        <ArrowRight />
+                                                        : null
+                                                    }
+                                                </DropdownList>
                                             })}
                                         </DropdownLv1Menu>
 
-                                        <DropdownLv2Menu lv2CateDropdown={lv2CateDropdown}>
+                                        <DropdownLv2Menu lv2CateDropdown={lv2CateDropdown} height={lv2CategoryHeight}>
                                             {lv2Categories.map((category, index) => {
-                                                return <div key={index}>
-                                                    <DropdownList 
-                                                        key={category.SystemCategoryId}
-                                                        onClick={() => handleSetCategory(category.SystemCategoryId, category.SysCategoryName)}
-                                                        onMouseEnter={() => handleGetLv3Category(category.Children)}
-                                                    >
-                                                        {category.SysCategoryName}
-                                                        {
-                                                            category.Children && category.Children.length ?
-                                                            <ArrowRight />
-                                                            : null
-                                                        }
-                                                    </DropdownList>
-                                                </div>
+                                                return <DropdownList 
+                                                    key={category.SystemCategoryId}
+                                                    onClick={() => handleSetCategory(category.SystemCategoryId, category.SysCategoryName)}
+                                                    onMouseEnter={() => handleGetLv3Category(category.Children, index)}
+                                                >
+                                                    {category.SysCategoryName}
+                                                    {
+                                                        category.Children && category.Children.length ?
+                                                        <ArrowRight />
+                                                        : null
+                                                    }
+                                                </DropdownList>
                                             })}
                                         </DropdownLv2Menu>
 
-                                        <DropdownLv3Menu lv3CateDropdown={lv3CateDropdown}>
-                                            {lv3Categories.map((category, index) => {
-                                                return <div key={index}>
-                                                    <DropdownList 
-                                                        key={category.SystemCategoryId}
-                                                        onClick={() => handleSetCategory(category.SystemCategoryId, category.SysCategoryName)}
-                                                    >
-                                                        {category.SysCategoryName}
-                                                    </DropdownList>
-                                                </div>
+                                        <DropdownLv3Menu lv3CateDropdown={lv3CateDropdown} height={lv3CategoryHeight}>
+                                            {lv3Categories.map((category) => {
+                                                return <DropdownList 
+                                                    key={category.SystemCategoryId}
+                                                    onClick={() => handleSetCategory(category.SystemCategoryId, category.SysCategoryName)}
+                                                >
+                                                    {category.SysCategoryName}
+                                                </DropdownList>
                                             })}
                                         </DropdownLv3Menu>
                                     </SelectWrapper>
@@ -786,7 +789,7 @@ const CreateOrder = () => {
                                             <StyledFirstSearchIcon />
                 
                                             <NoProductText>
-                                                Vui lòng sử dụng thanh tìm kiếm để tìm sản phẩm.
+                                                Không tìm thấy sản phẩm.
                                             </NoProductText>
                                         </NoItemWrapper>
                                     }
@@ -828,7 +831,7 @@ const CreateOrder = () => {
                                 manual ? 
                                 <TextField
                                     maxLength={250}
-                                    type="text" value={loading ? "Đang tải..." : input.name} name='name'
+                                    type="text" value={input.name ? input.name : ''} name='name'
                                     onChange={handleChange}
                                     error={error.name !== ''}
                                 />
@@ -836,10 +839,11 @@ const CreateOrder = () => {
                                 <>
                                     <Autocomplete
                                         size="small"
-                                        onChange={(event, value) => setInput(input => ({ ...input, 
-                                            name: value.ResidentName, 
-                                            phone: value.PhoneNumber || '',
-                                            address: value.DeliveryAddress || '' 
+                                        onChange={(event, value) => setInput(input => ({ ...input,
+                                            residentId: value ? value.ResidentId : '',
+                                            name: value ? value.ResidentName : '', 
+                                            phone: value ? value.PhoneNumber : '',
+                                            address: value ? value.DeliveryAddress : ''
                                         }))}
                                         selectOnFocus disablePortal
                                         getOptionLabel={(item) => item.ResidentName}
@@ -868,7 +872,7 @@ const CreateOrder = () => {
 
                             <TextField
                                 maxLength={100} disabled={!manual}
-                                type="text" value={loading ? "Đang tải..." : input.phone} name='phone'
+                                type="text" value={input.phone ? input.phone : ''} name='phone'
                                 onChange={handleChange}
                                 error={error.phone !== ''}
                             />
@@ -883,7 +887,7 @@ const CreateOrder = () => {
 
                             <TextField
                                 maxLength={100} disabled={!manual}
-                                type="text" value={loading ? "Đang tải..." : input.address} name='address'
+                                type="text" value={input.address ? input.address : ''} name='address'
                                 onChange={handleChange}
                                 error={error.address !== ''}
                             />
