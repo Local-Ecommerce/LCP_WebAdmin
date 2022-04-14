@@ -63,11 +63,10 @@ const Type = styled.span`
     border-radius: 20px;
     color: ${props => props.theme.white};
     background-color: ${props => 
-      props.type === 'Thông tin' ? props.theme.blue
-    : props.type === 'Thông báo' ? props.theme.green
-    : props.type === 'Tin tức' ? props.theme.orange
-    : props.type === 'Ghim' ? props.theme.red
-    : props.theme.disabled};
+        props.type === Constant.NEWS_TYPE_01 ? props.theme.orange
+      : props.type === Constant.NEWS_TYPE_01 ? props.theme.blue
+      : props.type === Constant.PINNED ? props.theme.red
+      : props.theme.disabled};
 `;
 
 const StyledPin = styled(PushPin)`
@@ -128,7 +127,7 @@ const NewsItem = ({ item, handleGetDetailItem, handleGetToggleStatusItem, index 
             <TableData center>
                 {
                     item.Priority ?
-                    <Type type={'Ghim'}><StyledPin />{'Đang ghim'}</Type>
+                    <Type type={Constant.PINNED}><StyledPin />{Constant.PINNED}</Type>
                     : null
                 }
             </TableData>

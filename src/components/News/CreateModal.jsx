@@ -7,6 +7,7 @@ import imageCompression from 'browser-image-compression';
 import useClickOutside from "../../contexts/useClickOutside";
 import { ArrowDropDown, Close, AddPhotoAlternate, Add } from "@mui/icons-material";
 import { TextField, Autocomplete, Box, FormControlLabel, Checkbox } from '@mui/material';
+import * as Constant from '../../Constant';
 
 const Row = styled.div`
     display: flex;
@@ -263,9 +264,8 @@ const CreateModal = ({ display, toggle, input, error, setInput, handleAddItem })
 	const toggleDropdown = () => { setDropdown(!dropdown); }
 
     const types = [
-        'Tin tức', 
-        'Thông tin',   
-        'Thông báo'
+        Constant.NEWS_TYPE_01, 
+        Constant.NEWS_TYPE_02   
     ];
     const [autocomplete, setAutocomplete] = useState([]);
 

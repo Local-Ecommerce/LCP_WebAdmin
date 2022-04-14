@@ -289,8 +289,8 @@ const Poi = () =>  {
     const [toggleStatusModal, setToggleStatusModal] = useState(false);
     const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
 
-    const [input, setInput] = useState({ type: 'Vui chơi', title: '', priority: false, text: '', images: [{ name: 0, image: '' }], apartment: '' });
-    const [detailItem, setDetailItem] = useState({ id: '', type: 'Vui chơi', title: '', priority: false, text: '', currentImages: [], images: [], residentId: '', apartmentId: '', status: '' });
+    const [input, setInput] = useState({ type: Constant.POI_TYPE_01, title: '', priority: false, text: '', images: [{ name: 0, image: '' }], apartment: '' });
+    const [detailItem, setDetailItem] = useState({ id: '', type: Constant.POI_TYPE_01, title: '', priority: false, text: '', currentImages: [], images: [], residentId: '', apartmentId: '', status: '' });
     const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
     const [error, setError] = useState({ titleError: '', apartmentError: '', editError: '' });
 
@@ -381,7 +381,7 @@ const Poi = () =>  {
     }
 
     const handleToggleCreateModal = () => {
-        setInput({ type: 'Vui chơi', title: '', priority: false, text: '', images: [{ name: 0, image: '' }], apartment: '' });
+        setInput({ type: Constant.POI_TYPE_01, title: '', priority: false, text: '', images: [{ name: 0, image: '' }], apartment: '' });
         setError(error => ({ ...error, titleError: '' }));
         toggleCreateModal();
     }
@@ -438,7 +438,7 @@ const Poi = () =>  {
     }
 
     const handleGetDetailItem = (id) => {
-        setDetailItem({ id: id, type: 'Vui chơi', title: '', priority: false, text: '', currentImages: [], images: [], residentId: '', apartmentId: '', status: '' });
+        setDetailItem({ id: id, type: Constant.POI_TYPE_01, title: '', priority: false, text: '', currentImages: [], images: [], residentId: '', apartmentId: '', status: '' });
         toggleDetailModal();
     }
 
@@ -548,9 +548,8 @@ const Poi = () =>  {
                         <DropdownWrapper>
                             <Select value={type} onChange={handleSetType}>
                                 <option value=''>Toàn bộ</option>
-                                <option value={'Vui chơi'}>Vui chơi</option>
-                                <option value={'Mua sắm'}>Thông tin</option>
-                                <option value={'Thể thao'}>Thông báo</option>
+                                <option value={Constant.POI_TYPE_01}>{Constant.POI_TYPE_01}</option>
+                                <option value={Constant.POI_TYPE_02}>{Constant.POI_TYPE_02}</option>
                             </Select>
                         </DropdownWrapper>
                     </Align>

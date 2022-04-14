@@ -289,8 +289,8 @@ const News = () =>  {
     const [toggleStatusModal, setToggleStatusModal] = useState(false);
     const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
 
-    const [input, setInput] = useState({ type: 'Tin tức', title: '', priority: false, text: '', images: [{ name: 0, image: '' }], apartment: '' });
-    const [detailItem, setDetailItem] = useState({ id: '', type: 'Tin tức', title: '', priority: false, text: '', currentImages: [], images: [], residentId: '', apartmentId: '', status: '' });
+    const [input, setInput] = useState({ type: Constant.NEWS_TYPE_01, title: '', priority: false, text: '', images: [{ name: 0, image: '' }], apartment: '' });
+    const [detailItem, setDetailItem] = useState({ id: '', type: Constant.NEWS_TYPE_01, title: '', priority: false, text: '', currentImages: [], images: [], residentId: '', apartmentId: '', status: '' });
     const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
     const [error, setError] = useState({ titleError: '', apartmentError: '', editError: '' });
 
@@ -381,7 +381,7 @@ const News = () =>  {
     }
 
     const handleToggleCreateModal = () => {
-        setInput({ type: 'Tin tức', title: '', priority: false, text: '', images: [{ name: 0, image: '' }], apartment: '' });
+        setInput({ type: Constant.NEWS_TYPE_01, title: '', priority: false, text: '', images: [{ name: 0, image: '' }], apartment: '' });
         setError(error => ({ ...error, titleError: '' }));
         toggleCreateModal();
     }
@@ -432,7 +432,7 @@ const News = () =>  {
     }
 
     const handleGetDetailItem = (id) => {
-        setDetailItem({ id: id, type: 'Tin tức', title: '', priority: false, text: '', currentImages: [], images: [], residentId: '', apartmentId: '', status: '' });
+        setDetailItem({ id: id, type: Constant.NEWS_TYPE_01, title: '', priority: false, text: '', currentImages: [], images: [], residentId: '', apartmentId: '', status: '' });
         toggleDetailModal();
     }
 
@@ -444,9 +444,9 @@ const News = () =>  {
             .concat(detailItem.images.filter(o1 => !detailItem.currentImages.some(o2 => o1.image === o2.image)))
             .filter(item => item.image !== '').map(item => item.image.includes(',') ? item.image.split(',')[1] : item.image);
 
-            const notification = toast.loading("Đang xử lí yêu cầu...");
-            const url = "news?id=" + detailItem.id;
             const editData = async () => {
+                const notification = toast.loading("Đang xử lí yêu cầu...");
+                const url = "news?id=" + detailItem.id;
                 api.put(url, {
                     title: detailItem.title,
                     text: detailItem.text,
@@ -542,9 +542,8 @@ const News = () =>  {
                         <DropdownWrapper>
                             <Select value={type} onChange={handleSetType}>
                                 <option value=''>Toàn bộ</option>
-                                <option value={'Tin tức'}>Tin tức</option>
-                                <option value={'Thông tin'}>Thông tin</option>
-                                <option value={'Thông báo'}>Thông báo</option>
+                                <option value={Constant.NEWS_TYPE_01}>{Constant.NEWS_TYPE_01}</option>
+                                <option value={Constant.NEWS_TYPE_02}>{Constant.NEWS_TYPE_02}</option>
                             </Select>
                         </DropdownWrapper>
                     </Align>

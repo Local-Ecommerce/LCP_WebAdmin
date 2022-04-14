@@ -8,6 +8,7 @@ import imageCompression from 'browser-image-compression';
 import useClickOutside from "../../contexts/useClickOutside";
 import { ArrowDropDown, Close, AddPhotoAlternate, Add } from "@mui/icons-material";
 import { FormControlLabel, Checkbox } from '@mui/material';
+import * as Constant from '../../Constant';
 
 const ModalContentWrapper = styled.div`
     border-bottom: 1px solid #cfd2d4;
@@ -304,9 +305,8 @@ const DetailModal = ({ display, toggle, detailItem, error, setDetailItem, handle
     }
 
     const types = [
-        'Vui chơi', 
-        'Mua sắm',   
-        'Thể thao'
+        Constant.POI_TYPE_01, 
+        Constant.POI_TYPE_02   
     ];
 
     useEffect(() => {

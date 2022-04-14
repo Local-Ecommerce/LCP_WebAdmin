@@ -63,10 +63,9 @@ const Type = styled.span`
     border-radius: 20px;
     color: ${props => props.theme.white};
     background-color: ${props => 
-      props.type === 'Vui chơi' ? props.theme.blue
-    : props.type === 'Mua sắm' ? props.theme.green
-    : props.type === 'Thể thao' ? props.theme.orange
-    : props.type === 'Ghim' ? props.theme.red
+      props.type === Constant.POI_TYPE_01 ? props.theme.orange
+    : props.type === Constant.POI_TYPE_01 ? props.theme.blue
+    : props.type === Constant.PINNED ? props.theme.red
     : props.theme.disabled};
 `;
 
@@ -128,7 +127,7 @@ const PoiItem = ({ item, handleGetDetailItem, handleGetToggleStatusItem, index }
             <TableData center>
             {
                     item.Priority ?
-                    <Type type={'Ghim'}><StyledPin />{'Đang ghim'}</Type>
+                    <Type type={Constant.PINNED}><StyledPin />{Constant.PINNED}</Type>
                     : null
                 }
             </TableData>
