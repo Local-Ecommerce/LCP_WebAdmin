@@ -64,7 +64,7 @@ const Type = styled.span`
     color: ${props => props.theme.white};
     background-color: ${props => 
       props.type === Constant.POI_TYPE_01 ? props.theme.orange
-    : props.type === Constant.POI_TYPE_01 ? props.theme.blue
+    : props.type === Constant.POI_TYPE_02 ? props.theme.blue
     : props.type === Constant.PINNED ? props.theme.red
     : props.theme.disabled};
 `;
