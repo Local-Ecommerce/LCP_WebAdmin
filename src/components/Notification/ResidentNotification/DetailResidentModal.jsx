@@ -3,6 +3,7 @@
 import React from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
+import { DateTime } from 'luxon';
 import { Close, Check } from '@mui/icons-material';
 import * as Constant from '../../../Constant';
 
@@ -22,10 +23,12 @@ const ModalContentWrapper = styled.div`
 
 const LeftWrapper = styled.div`
     padding: 10px 0px 20px 20px;
+    flex: 1;
 `;
 
 const RightWrapper = styled.div`
     padding: 10px 20px 20px 20px;
+    flex: 6;
 `;
 
 const ModalButtonWrapper = styled.div`
@@ -120,7 +123,7 @@ const customStyles = {
     content: {
         top: '50%',
         left: '50%',
-        right: 'auto',
+        right: '50%',
         bottom: 'auto',
         marginRight: '-50%',
         transform: 'translate(-50%, -50%)',
@@ -182,7 +185,7 @@ const DetailResidentModal = ({ display, toggle, detailItem, handleGetApproveItem
                                 <FieldLabel mt>Ngày sinh</FieldLabel>
                                 <TextField
                                     disabled={true}
-                                    type="text" value={detailItem.DateOfBirth ? detailItem.DateOfBirth : ''}
+                                    type="text" value={detailItem.DateOfBirth ? DateTime.fromISO(detailItem.DateOfBirth).toFormat('dd/MM/yyyy') : ''}
                                 />
                             </FlexChild>
                         </Flex>

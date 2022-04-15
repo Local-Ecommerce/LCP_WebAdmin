@@ -47,9 +47,7 @@ const SidebarLayout = ({ refresh, toggleRefresh }) => (
 			style={{ width: "320px" }}
 			autoClose={5000}
 			position="top-center"
-            transition={Slide}
-            pauseOnFocusLoss={false}
-            closeOnClick={true}
+			pauseOnFocusLoss={false}
 		/>
 
 		<ContentWrapper>

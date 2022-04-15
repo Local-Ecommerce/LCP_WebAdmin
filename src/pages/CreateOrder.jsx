@@ -15,6 +15,9 @@ import ProductInCartList from '../components/CreateOrder/ProductInCartList';
 import DetailProductModal from '../components/CreateOrder/DetailProductModal';
 import ConfirmModal from '../components/CreateOrder/ConfirmModal';
 
+import { db } from "../firebase";
+import { ref, push } from "firebase/database";
+
 const PageWrapper = styled.div`
     min-width: 720px;
     max-width: 1200px;
@@ -466,7 +469,10 @@ const CreateOrder = () => {
     useEffect (() => {
         if (user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
             const fetchData = () => {
-                api.get("residents?status=" + Constant.VERIFIED_RESIDENT + "&apartmentid=" + user.Residents[0].ApartmentId)
+                api.get("residents?status=" 
+                + Constant.VERIFIED_RESIDENT 
+                + "&apartmentid=" + user.Residents[0].ApartmentId
+                + "&type=Customer")
                 .then(function (res) {
                     setAutocomplete(res.data.Data.List);
 
@@ -543,6 +549,17 @@ const CreateOrder = () => {
         setError(error => ({ ...error, [name]: '' }));
     }
 
+    const handleSetResident = (event, value) => {
+        event.preventDefault();
+        setInput(input => ({ ...input,
+            residentId: value ? value.ResidentId : '',
+            name: value ? value.ResidentName : '', 
+            phone: value ? value.PhoneNumber : '',
+            address: value ? value.DeliveryAddress : ''
+        }));
+        setError(error => ({ ...error, name: '', phone: '', address: '' }));
+    }
+
     const AddItemToCart = (newItem, quantity) => {
         if (!cart.some(item => item.ProductId === newItem.ProductId)) {
             newItem.Quantity = quantity;
@@ -612,34 +629,86 @@ const CreateOrder = () => {
         toggleDetailProductModal();
     }
 
+    const handleToggleConfirmModal = () => {
+        if (validCheck()) {
+            toggleConfirmModal();
+        }
+    }
+
     const handleCreateOrder = (event) => {
         event.preventDefault();
-        const createOrder = async () => {
-            const notification = toast.loading("Đang xử lí yêu cầu...");
-            const url = "orders/guest";
-            api.post(url, {
-                residentId: input.residentId,
-                products: cart.map(item => {
-                    return { productId: item.ProductId, quantity : item.Quantity, discount: 0 }
-                }),
-                resident: {
-                    residentName: input.name,
-                    phoneNumber: input.phone,
-                    deliveryAddress: input.address
-                }
-            })
-            .then(function (res) {
-                if (res.data.ResultMessage === "SUCCESS") {
-                    toast.update(notification, { render: "Tạo đơn thành công!", type: "success", autoClose: 5000, isLoading: false });
-                    navigate("/");
-                }
-            })
-            .catch(function (error) {
-                console.log(error);
-                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
-            });
+        if (validCheck()) {
+            const createOrder = async () => {
+                const notification = toast.loading("Đang xử lí yêu cầu...");
+                const url = "orders/guest";
+                api.post(url, {
+                    residentId: input.residentId,
+                    products: cart.map(item => {
+                        return { productId: item.ProductId, quantity : item.Quantity, discount: 0 }
+                    }),
+                    resident: {
+                        residentName: input.name,
+                        phoneNumber: input.phone,
+                        deliveryAddress: input.address
+                    }
+                })
+                .then(function (res) {
+                    if (res.data.ResultMessage === "SUCCESS") {
+                        let merchantList = [...new Map(cart.map(({ ResidentId, Image }) => ({ 
+                            ResidentId: ResidentId, Image: Image
+                        })).map(item => [item['ResidentId'], item])).values()].filter(item => (item.ResidentId));
+
+                        merchantList.forEach(item => {
+                            push(ref(db, `Notification/` + item.ResidentId), {
+                                createdDate: Date.now(),
+                                data: {
+                                    image: item.Image,
+                                    name: '',
+                                    id: ''
+                                },
+                                read: 0,
+                                receiverId: item.ResidentId,
+                                senderId: user.Residents[0].ResidentId,
+                                type: '301'
+                            });
+                        });
+                        
+                        navigate("/");
+                        toast.update(notification, { render: "Tạo đơn thành công!", type: "success", autoClose: 5000, isLoading: false });
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                    toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+                });
+            }
+            createOrder();
         }
-        createOrder();
+        toggleConfirmModal();
+    }
+
+    const validCheck = () => {
+        let check = false;
+        setError(error => ({ ...error, name: '', phone: '', address: '' }));
+
+        if (input.residentId === null || input.residentId === '') {
+            if (input.name === null || input.name === '') {
+                setError(error => ({ ...error, name: 'Vui lòng nhập tên' }));
+                check = true;
+            }
+            if (input.phone === null || input.phone === '') {
+                setError(error => ({ ...error, phone: 'Vui lòng nhập số điện thoại' }));
+                check = true;
+            }
+            if (input.address === null || input.address === '') {
+                setError(error => ({ ...error, address: 'Vui lòng nhập địa chỉ nhận hàng' }));
+                check = true;
+            }
+        }
+        if (check === true) {
+            return false;
+        }
+        return true;
     }
 
     return (
@@ -824,7 +893,7 @@ const CreateOrder = () => {
 
                             <Row spacebetween>
                                 <FieldLabel>Tên</FieldLabel>
-                                <HelperText ml0>{input.name.length}/250 kí tự</HelperText>
+                                <HelperText ml0>{input.name ? input.name.length : 0}/250 kí tự</HelperText>
                             </Row>
 
                             {
@@ -839,12 +908,7 @@ const CreateOrder = () => {
                                 <>
                                     <Autocomplete
                                         size="small"
-                                        onChange={(event, value) => setInput(input => ({ ...input,
-                                            residentId: value ? value.ResidentId : '',
-                                            name: value ? value.ResidentName : '', 
-                                            phone: value ? value.PhoneNumber : '',
-                                            address: value ? value.DeliveryAddress : ''
-                                        }))}
+                                        onChange={(event, value) => handleSetResident(event, value)}
                                         selectOnFocus disablePortal
                                         getOptionLabel={(item) => item.ResidentName}
                                         options={autocomplete}
@@ -867,7 +931,7 @@ const CreateOrder = () => {
                         <TextFieldWrapper mb0>
                             <Row spacebetween>
                                 <FieldLabel>Số điện thoại</FieldLabel>
-                                <HelperText ml0>{input.phone.length}/100 kí tự</HelperText>
+                                <HelperText ml0>{input.phone ? input.phone.length : 0}/100 kí tự</HelperText>
                             </Row>
 
                             <TextField
@@ -882,7 +946,7 @@ const CreateOrder = () => {
                         <TextFieldWrapper>
                             <Row spacebetween>
                                 <FieldLabel>Địa chỉ nhận hàng</FieldLabel>
-                                <HelperText ml0>{input.address.length}/100 kí tự</HelperText>
+                                <HelperText ml0>{input.address ? input.address.length: 0}/100 kí tự</HelperText>
                             </Row>
 
                             <TextField
@@ -917,16 +981,14 @@ const CreateOrder = () => {
                             </NoItemWrapper>
                         }
                     </ContainerWrapper>
+
+                    <FooterWrapper>
+                        <FloatRight>
+                            <Button button="button" onClick={handleToggleConfirmModal}>Tạo</Button>
+                        </FloatRight>
+                    </FooterWrapper>
                 </RightWrapper>
             </FlexWrapper>
-
-            <FooterWrapper>
-                <FloatRight>
-                    <Button button="button" onClick={toggleConfirmModal}>
-                        Tạo
-                    </Button>
-                </FloatRight>
-            </FooterWrapper>
 
             <DetailProductModal 
                 display={detailProductModal}
