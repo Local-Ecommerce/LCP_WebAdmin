@@ -686,7 +686,7 @@ const Header = ({ refresh, toggleRefresh }) => {
     return (
         <Wrapper>
             <Link to={"/"}>
-                <Logo src='./images/lcp2.png' alt="Loich Logo" />
+                <Logo src='./images/lcp.png' alt="Loich Logo" />
             </Link>
 
             <SearchField>
