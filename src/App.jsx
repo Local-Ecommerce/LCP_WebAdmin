@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { DateTime } from 'luxon';
 import styled from "styled-components";
 import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer, Slide } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import { useAuth } from "./contexts/AuthContext";
 import { Route, Routes, Outlet, Navigate } from "react-router-dom";
 

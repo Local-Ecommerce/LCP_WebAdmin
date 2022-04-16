@@ -403,7 +403,7 @@ const Poi = () =>  {
                 })
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
-                        toast.update(notification, { render: "Cập nhật thành công!", type: "success", autoClose: 5000, isLoading: false });
+                        toast.update(notification, { render: "Tạo điểm thú vị mới thành công!", type: "success", autoClose: 5000, isLoading: false });
                         toggleCreateModal();
                         setChange(!change);
                     }

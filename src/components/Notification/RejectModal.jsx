@@ -2,11 +2,6 @@ import React, { useState } from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
 import { TextField, FormControlLabel, Radio, RadioGroup } from '@mui/material';
-import { toast } from 'react-toastify';
-import { api } from "../../RequestMethod";
-
-import { db } from "../../firebase";
-import { ref, push } from "firebase/database";
 
 const ModalTitle = styled.h4`
     border-bottom: 1px solid #cfd2d4;

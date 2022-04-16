@@ -462,13 +462,14 @@ const Header = ({ refresh, toggleRefresh }) => {
     const handleApproveProductItem = (event) => {
         event.preventDefault();
         const handleApprove = async () => {
+            setApproveProductModal(false);
+            setDetailProductModal(false);
+
             const notification = toast.loading("Đang xử lí yêu cầu...");
             api.put("products/approval?id=" + approveItem.id)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
                     toggleRefresh();
-                    setApproveProductModal(false);
-                    setDetailProductModal(false);
 
                     push(ref(db, `Notification/` + approveItem.residentId), {
                         createdDate: Date.now(),
@@ -496,15 +497,16 @@ const Header = ({ refresh, toggleRefresh }) => {
 
     const handleRejectProductItem = (event, reason) => {
         event.preventDefault();
-        const notification = toast.loading("Đang xử lí yêu cầu...");
 
         const handleReject = async () => {
+            setRejectProductModal(false);
+            setDetailProductModal(false);
+
+            const notification = toast.loading("Đang xử lí yêu cầu...");
             api.put("products/rejection?id=" + rejectItem.id)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
                     toggleRefresh();
-                    setRejectProductModal(false);
-                    setDetailProductModal(false);
 
                     push(ref(db, `Notification/` + rejectItem.residentId), {
                         createdDate: Date.now(),
@@ -533,14 +535,16 @@ const Header = ({ refresh, toggleRefresh }) => {
 
     const handleApproveStoreItem = (event) => {
         event.preventDefault();
+
         const handleApprove = async () => {
+            setApproveStoreModal(false);
+            setDetailStoreModal(false);
+
             const notification = toast.loading("Đang xử lí yêu cầu...");
             api.put("stores/approval?id=" + approveItem.id)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
                     toggleRefresh();
-                    setApproveStoreModal(false);
-                    setDetailStoreModal(false);
 
                     push(ref(db, `Notification/` + approveItem.residentId), {
                         createdDate: Date.now(),
@@ -568,15 +572,16 @@ const Header = ({ refresh, toggleRefresh }) => {
 
     const handleRejectStoreItem = (event, reason) => {
         event.preventDefault();
-        const notification = toast.loading("Đang xử lí yêu cầu...");
 
         const handleReject = async () => {
+            setRejectStoreModal(false);
+            setDetailStoreModal(false);
+
+            const notification = toast.loading("Đang xử lí yêu cầu...");
             api.put("stores/rejection?id=" + rejectItem.id)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
                     toggleRefresh();
-                    setRejectStoreModal(false);
-                    setDetailStoreModal(false);
 
                     push(ref(db, `Notification/` + rejectItem.residentId), {
                         createdDate: Date.now(),
@@ -605,14 +610,16 @@ const Header = ({ refresh, toggleRefresh }) => {
 
     const handleApproveResidentItem = (event) => {
         event.preventDefault();
+
         const handleApprove = async () => {
+            setApproveResidentModal(false);
+            setDetailResidentModal(false);
+
             const notification = toast.loading("Đang xử lí yêu cầu...");
             api.put("residents/" + approveItem.id + "?status=" + Constant.VERIFIED_RESIDENT)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
                     toggleRefresh();
-                    setApproveResidentModal(false);
-                    setDetailResidentModal(false);
 
                     push(ref(db, `Notification/` + approveItem.residentId), {
                         createdDate: Date.now(),
@@ -640,15 +647,16 @@ const Header = ({ refresh, toggleRefresh }) => {
 
     const handleRejectResidentItem = (event, reason) => {
         event.preventDefault();
-        const notification = toast.loading("Đang xử lí yêu cầu...");
 
         const handleReject = async () => {
+            setRejectResidentModal(false);
+            setDetailResidentModal(false);
+            
+            const notification = toast.loading("Đang xử lí yêu cầu...");
             api.put("residents/" + rejectItem.id + "?status=" + Constant.REJECTED_RESIDENT)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
                     toggleRefresh();
-                    setRejectResidentModal(false);
-                    setDetailResidentModal(false);
 
                     push(ref(db, `Notification/` + rejectItem.residentId), {
                         createdDate: Date.now(),

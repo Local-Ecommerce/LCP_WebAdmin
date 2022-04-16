@@ -508,7 +508,7 @@ const News = () =>  {
                 if (res.data.ResultMessage === "SUCCESS") {
                     setChange(!change);
                     toggleToggleStatusModal();
-                    toast.update(notification, { render: "Cập nhật thành công!", type: "success", autoClose: 5000, isLoading: false });
+                    toast.update(notification, { render: "Tạo tin mới thành công!", type: "success", autoClose: 5000, isLoading: false });
                 }
             })
             .catch(function (error) {

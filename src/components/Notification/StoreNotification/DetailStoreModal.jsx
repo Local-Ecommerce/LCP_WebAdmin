@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
@@ -251,6 +252,8 @@ const DetailStoreModal = ({ display, toggle, detailItem, handleGetApproveItem, h
                                 {
                                     detailItem.UpdatedMerchantStore.StoreImage ?
                                     <Image src={detailItem.UpdatedMerchantStore.StoreImage ? detailItem.UpdatedMerchantStore.StoreImage : ''} />
+                                    : detailItem.StoreImage ?
+                                    <Image src={detailItem.StoreImage ? detailItem.StoreImage : ''} />
                                     : <StyledNoImageIcon />
                                 }
 

@@ -113,7 +113,7 @@ const customStyles = {
     content: {
         top: '50%',
         left: '50%',
-        right: '40%',
+        right: '30%',
         bottom: 'auto',
         marginRight: '-50%',
         transform: 'translate(-50%, -50%)',
@@ -138,6 +138,7 @@ const DetailModal = ({ display, toggle, detailItem }) => {
 
                         let url = "menus"
                         + "?sort=-createddate"
+                        + "&storeid=" + detailItem.storeId
                         + "&status=" + Constant.ACTIVE_MENU;
                         api.get(url)
                         .then(function (res2) {

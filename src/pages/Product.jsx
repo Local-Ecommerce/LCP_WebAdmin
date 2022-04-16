@@ -279,7 +279,7 @@ const Product = ({ refresh, toggleRefresh }) =>  {
     const [total, setTotal] = useState(0);
     const [lastPage, setLastPage] = useState(0);
 
-    const sort = '+updateddate';
+    const sort = '-createddate';
     const [typing, setTyping] = useState('');
     const [search, setSearch] = useState('');
     const [status, setStatus] = useState(Constant.VERIFIED_PRODUCT);
@@ -369,13 +369,14 @@ const Product = ({ refresh, toggleRefresh }) =>  {
     const handleApproveProductItem = (event) => {
         event.preventDefault();
         const handleApprove = async () => {
+            setApproveModal(false);
+            setVerifyModal(false);
+
             const notification = toast.loading("Đang xử lí yêu cầu...");
             api.put("products/approval?id=" + approveItem.id)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
                     toggleRefresh();
-                    setApproveModal(false);
-                    setDetailModal(false);
 
                     push(ref(db, `Notification/` + approveItem.residentId), {
                         createdDate: Date.now(),
@@ -390,6 +391,7 @@ const Product = ({ refresh, toggleRefresh }) =>  {
                         type: '001'
                     });
 
+                    setChange(!change);
                     toast.update(notification, { render: "Duyệt sản phẩm thành công!", type: "success", autoClose: 5000, isLoading: false });
                 }
             })
@@ -403,15 +405,16 @@ const Product = ({ refresh, toggleRefresh }) =>  {
 
     const handleRejectProductItem = (event, reason) => {
         event.preventDefault();
-        const notification = toast.loading("Đang xử lí yêu cầu...");
 
         const handleReject = async () => {
+            setRejectModal(false);
+            setVerifyModal(false);
+
+            const notification = toast.loading("Đang xử lí yêu cầu...");
             api.put("products/rejection?id=" + rejectItem.id)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
                     toggleRefresh();
-                    setRejectModal(false);
-                    setDetailModal(false);
 
                     push(ref(db, `Notification/` + rejectItem.residentId), {
                         createdDate: Date.now(),
@@ -561,6 +564,7 @@ const Product = ({ refresh, toggleRefresh }) =>  {
                 toggle={toggleRejectModal} 
                 rejectItem={rejectItem} 
                 handleRejectItem={handleRejectProductItem}
+                type={'product'}
             />
         </PageWrapper>
     )
