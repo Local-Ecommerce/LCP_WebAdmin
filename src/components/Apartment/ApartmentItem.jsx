@@ -83,6 +83,11 @@ const ApartmentItem = ({ item, handleGetEditItem, handleGetToggleStatusItem, ind
         )
     }
 
+    const handleSetToggleStatusItem = (e, status) => {
+        e.stopPropagation();
+        handleGetToggleStatusItem(item.ApartmentId, item.ApartmentName, status);
+    }
+
     const handleSetEditItem = (e) => {
         e.stopPropagation();
         handleGetEditItem(item.ApartmentId, item.ApartmentName, item.Address, item.Status);
@@ -96,9 +101,9 @@ const ApartmentItem = ({ item, handleGetEditItem, handleGetToggleStatusItem, ind
             <TableData center>
                 {
                     item.Status === Constant.ACTIVE_APARTMENT ?
-                    <StyledToggleOnIcon onClick={() => handleGetToggleStatusItem(item.ApartmentId, item.ApartmentName, true)} />
+                    <StyledToggleOnIcon onClick={(e) => handleSetToggleStatusItem(e, true)} />
                     : item.Status === Constant.INACTIVE_APARTMENT ?
-                    <StyledToggleOffIcon onClick={() => handleGetToggleStatusItem(item.ApartmentId, item.ApartmentName, false)} />
+                    <StyledToggleOffIcon onClick={(e) => handleSetToggleStatusItem(e, false)} />
                     : null
                 }    
             </TableData>
