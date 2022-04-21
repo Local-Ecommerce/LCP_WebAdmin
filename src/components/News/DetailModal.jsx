@@ -420,13 +420,13 @@ const DetailModal = ({ display, toggle, detailItem, error, setDetailItem, handle
                         <FieldLabel>Quản lí</FieldLabel>
                         <TextField
                             disabled={true}
-                            type="text" value={item.ResidentId ? item.Resident.ResidentName : "Admin"}
+                            type="text" value={item.ResidentId && item.Resident && item.Resident.ResidentName}
                         />
 
                         <FieldLabel mt>Chung cư</FieldLabel>
                         <TextField
                             disabled={true}
-                            type="text" value={item.ApartmentId ? item.Apartment.ApartmentName : "Hệ thống"}
+                            type="text" value={item.ApartmentId && item.Apartment && item.Apartment.ApartmentName}
                         />
 
                         <FieldLabel mt>Ngày tạo</FieldLabel>

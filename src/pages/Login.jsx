@@ -126,7 +126,11 @@ const Login = () => {
 
     const [loading, setLoading] = useState(false);
     const [toggle, setToggle] = useState(false);
-    const toggleForm = () => { setToggle(!toggle) }
+    const toggleForm = () => { 
+        setToggle(!toggle); 
+        setError(''); 
+        setSuccess('')
+    }
 
     const [input, setInput] = useState({ email: '', password: '', forgetEmail: '' });
     const [error, setError] = useState('');
@@ -141,59 +145,88 @@ const Login = () => {
 
     function handleLogin(e) {
         e.preventDefault();
-        setError('');
-        setSuccess('');
-        setLoading(true);
 
-        signInWithEmailAndPassword(auth, input.email, input.password)
-        .then((userCredential) => {
-            const firebaseToken = userCredential._tokenResponse.idToken;
-            console.log("Firebase Token: " + firebaseToken);
+        if (validCheck()) {
+            setError('');
+            setSuccess('');
+            setLoading(true);
+            signInWithEmailAndPassword(auth, input.email, input.password)
+            .then((userCredential) => {
+                const firebaseToken = userCredential._tokenResponse.idToken;
+                console.log("Firebase Token: " + firebaseToken);
 
-            api.post("accounts/login", {
-                firebaseToken: firebaseToken,
-                role: "R002"
-            })
-            .then(function (res) {
-                if (res.data.ResultMessage === "SUCCESS" && (res.data.Data.RoleId === "R002" 
-                || (res.data.Data.RoleId === "R001" && res.data.Data.Residents[0].Type === "MarketManager"))) {
-                    localStorage.setItem('USER', JSON.stringify(res.data.Data));
-                    localStorage.setItem('ACCESS_TOKEN', res.data.Data.RefreshTokens[0].AccessToken);
-                    localStorage.setItem('REFRESH_TOKEN', res.data.Data.RefreshTokens[0].Token);
-                    localStorage.setItem('EXPIRED_TIME', res.data.Data.RefreshTokens[0].AccessTokenExpiredDate);
-                    timer.current = setTimeout(() => {
-                        toggleSessionModal();
-                    }, DateTime.fromISO(res.data.Data.RefreshTokens[0].AccessTokenExpiredDate).diffNow().toObject().milliseconds - 300000);
-                    navigate("/");
-                } else {
+                api.post("accounts/login", {
+                    firebaseToken: firebaseToken,
+                    role: "R002"
+                })
+                .then(function (res) {
+                    if (res.data.ResultMessage === "SUCCESS" && (res.data.Data.RoleId === "R002" 
+                    || (res.data.Data.RoleId === "R001" && res.data.Data.Residents[0].Type === "MarketManager"))) {
+                        localStorage.setItem('USER', JSON.stringify(res.data.Data));
+                        localStorage.setItem('ACCESS_TOKEN', res.data.Data.RefreshTokens[0].AccessToken);
+                        localStorage.setItem('REFRESH_TOKEN', res.data.Data.RefreshTokens[0].Token);
+                        localStorage.setItem('EXPIRED_TIME', res.data.Data.RefreshTokens[0].AccessTokenExpiredDate);
+                        timer.current = setTimeout(() => {
+                            toggleSessionModal();
+                        }, DateTime.fromISO(res.data.Data.RefreshTokens[0].AccessTokenExpiredDate).diffNow().toObject().milliseconds - 300000);
+                        navigate("/");
+                    } else {
+                        setError("Tài khoản hoặc mật khẩu không hợp lệ. Vui lòng thử lại.");
+                        setLoading(false);
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
                     setError("Tài khoản hoặc mật khẩu không hợp lệ. Vui lòng thử lại.");
                     setLoading(false);
-                }
+                });
             })
-            .catch(function (error) {
+            .catch((error) => {
                 console.log(error);
                 setError("Tài khoản hoặc mật khẩu không hợp lệ. Vui lòng thử lại.");
                 setLoading(false);
-            });
-        })
-        .catch((error) => {
-            console.log(error);
-            setError("Tài khoản hoặc mật khẩu không hợp lệ. Vui lòng thử lại.");
-            setLoading(false);
-        })
+            })
+        }
     }
 
     function handleForgetPassword(e) {
         e.preventDefault();
+        
+        if (validCheck()) {
+            setError('');
+            sendPasswordResetEmail(auth, input.forgetEmail)
+            .then(() => {
+                setSuccess('Gửi thành công. Vui lòng kiểm tra email.');
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+        }
+    }
+
+    const validCheck = () => {
+        let check = false;
         setError('');
 
-        sendPasswordResetEmail(auth, input.forgetEmail)
-        .then(() => {
-            setSuccess('Gửi thành công. Vui lòng kiểm tra email.');
-        })
-        .catch((error) => {
-            console.log(error);
-        });
+        let pattern= /[^@\s]+@[^@\s]+\.[^@\s]+/;
+        
+        if (toggle === false) { //login
+            if (input.email === null || input.email === '' || !pattern.test(input.email)) {
+                setError('Vui lòng nhập đúng chuẩn email');
+                check = true;
+            }
+        } else {
+            if (input.forgetEmail === null || input.forgetEmail === '' || !pattern.test(input.forgetEmail)) {
+                setError('Vui lòng nhập đúng chuẩn email');
+                check = true;
+            }
+        }
+
+        if (check === true) {
+            return false;
+        }
+
+        return true;
     }
 
     return (

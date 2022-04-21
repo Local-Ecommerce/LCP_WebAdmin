@@ -379,7 +379,7 @@ const Apartment = () =>  {
                 })
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
-                        toast.update(notification, { render: "Cập nhật thành công!", type: "success", autoClose: 5000, isLoading: false });
+                        toast.update(notification, { render: "Tạo chung cư mới thành công!", type: "success", autoClose: 5000, isLoading: false });
                         toggleCreateModal();
                         setChange(!change);
                     }

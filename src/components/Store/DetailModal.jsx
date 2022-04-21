@@ -129,6 +129,8 @@ const DetailModal = ({ display, toggle, detailItem }) => {
 
     useEffect(() => {
         if (display) {
+            setResident({}); setMenus([]); setStore({});
+
             setLoading(true);
             const fetchData = async () => {
                 api.get("stores?id=" + detailItem.id)
@@ -186,13 +188,13 @@ const DetailModal = ({ display, toggle, detailItem }) => {
                     <FieldLabel mt>Quản lí</FieldLabel>
                     <TextField
                         disabled={true}
-                        type="text" value={resident.ResidentName}
+                        type="text" value={resident && resident.ResidentName}
                     />
 
                     <FieldLabel mt>Địa chỉ</FieldLabel>
                     <TextField
                         disabled={true}
-                        type="text" value={resident.DeliveryAddress}
+                        type="text" value={resident && resident.DeliveryAddress}
                     />
                 </LeftWrapper>
 
