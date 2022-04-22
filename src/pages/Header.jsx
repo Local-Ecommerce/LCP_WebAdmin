@@ -126,6 +126,7 @@ const Avatar = styled.img`
     height: 40px;
     border-radius: 50%;
     cursor: pointer;
+    border: 1px solid rgba(0,0,0,0.1);
 `;
 
 const StyledBadge = styled(Badge)`
@@ -324,6 +325,8 @@ const Header = ({ refresh, toggleRefresh }) => {
     const { logout } = useAuth();
     let navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem('USER'));
+    const [name, setName] = useState('');
+    const [image, setImage] = useState('');
 
     const [rejectProductModal, setRejectProductModal] = useState(false);    function toggleRejectProductModal() { setRejectProductModal(!rejectProductModal); }
     const [approveProductModal, setApproveProductModal] = useState(false);  function toggleApproveProductModal() { setApproveProductModal(!approveProductModal); }
@@ -353,6 +356,29 @@ const Header = ({ refresh, toggleRefresh }) => {
     const [residents, setResidents] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        if (user.RoleId === "R001") {
+            const fetchData = () => {
+                api.get("residents?id=" + user.Residents[0].ResidentId)
+                .then(function (res) {
+                    setName(res.data.Data.List[0].ResidentName || '');
+    
+                    api.get("accounts?id=" + res.data.Data.List[0].AccountId)
+                    .then(function (res2) {
+                        setImage(res2.data.Data.ProfileImage);
+                    })
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            }
+            fetchData();
+        } else {
+            setName('Admin');
+            setImage('images/admin.png');
+        }
+    }, [refresh]);
+
     useEffect( () => {  //fetch api data
         if (user && user.RoleId === "R001" && user.Residents[0].Type === Constant.MARKET_MANAGER) {
             setLoading(true);
@@ -366,7 +392,6 @@ const Header = ({ refresh, toggleRefresh }) => {
                 const fetchData = () => {
                     api.get(url)
                     .then(function (res) {
-                        console.log(res.data.Data.List)
                         setProducts(res.data.Data.List);
 
                         let url2 = "stores/unverified-stores";
@@ -380,7 +405,6 @@ const Header = ({ refresh, toggleRefresh }) => {
                             + "&type=" + Constant.CUSTOMER;
                             api.get(url3)
                             .then(function (res3) {
-                                console.log(res3.data.Data.List)
                                 setResidents(res3.data.Data.List);
                                 setLoading(false);
                             })
@@ -701,7 +725,7 @@ const Header = ({ refresh, toggleRefresh }) => {
                     </StyledBadge>
                 </IconButton>
             
-                <Avatar onClick={() => toggleUserDropdown(!userDropdown)} src="./images/user.png" alt="Loich Logo" />
+                <Avatar onClick={() => toggleUserDropdown(!userDropdown)} src={image} />
             </div>
 
             {
@@ -798,7 +822,7 @@ const Header = ({ refresh, toggleRefresh }) => {
                 userDropdown ?
                 <UserDropdownWrapper ref={clickOutside}>
                     <Name>
-                        {!user ? null : user.RoleId === "R002" ? "Admin" : user.Residents[0].ResidentName} <br/> 
+                        {name} <br/> 
                         <Title>{!user ? null : user.RoleId === "R002" ? "Quản lý hệ thống" : "Quản lý chung cư"}</Title> 
                     </Name>
                     

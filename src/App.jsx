@@ -55,7 +55,7 @@ const SidebarLayout = ({ refresh, toggleRefresh }) => (
 		</ContentWrapper>
 
 		<SidebarWrapper>
-			<Sidebar />
+			<Sidebar refresh={refresh} toggleRefresh={toggleRefresh} />
 		</SidebarWrapper>
 
 		<HeaderWrapper>
@@ -149,7 +149,7 @@ const App = () => {
 
                     <Route 
                         exact path="/userProfile" 
-                        element={<RequireLoggedIn> <UserProfile /> </RequireLoggedIn>}
+                        element={<RequireLoggedIn> <UserProfile refresh={refresh} toggleRefresh={toggleRefresh} /> </RequireLoggedIn>}
                     />
                 </Route>
 

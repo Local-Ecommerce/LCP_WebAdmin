@@ -7,6 +7,7 @@ import ReactPaginate from "react-paginate";
 import { AddCircle, Search, KeyboardBackspace } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
 import { api } from "../RequestMethod";
+import { DateTime } from 'luxon';
 import { toast } from 'react-toastify';
 import { useAuth } from "../contexts/AuthContext";
 import CreateModal from '../components/ApartmentResident/CreateModal';
@@ -297,15 +298,37 @@ const ApartmentResident = () =>  {
     const [apartment, setApartment] = useState({});
 
     const [createModal, setCreateModal] = useState(false);
-    function toggleCreateModal() { setCreateModal(!createModal); }
+    function toggleCreateModal() { 
+        setCreateModal(!createModal);
+        setInput({
+            role: 'MarketManager',
+            email: '',
+            fullname: 'Quản lí chung cư',
+            phoneNumber: null,
+            deliveryAddress: null,
+            dob: DateTime.fromFormat('01/01/2000', 'd/M/yyyy').toUTC().toISO(),
+            gender: 'Nam',
+            apartmentId: id
+        });
+        setError({ email: '' });
+    }
 
-    const [input, setInput] = useState({ email: '' });
+    const [input, setInput] = useState({ 
+        role: 'MarketManager',
+        email: '',
+        fullname: 'Quản lí chung cư',
+        phoneNumber: null,
+        deliveryAddress: null,
+        dob: DateTime.fromFormat('01/01/2000', 'd/M/yyyy').toUTC().toISO(),
+        gender: 'Nam',
+        apartmentId: id
+    });
+    
     const [error, setError] = useState({ email: '' });
 
     const [loading, setLoading] = useState(true);
 
     const [APIdata, setAPIdata] = useState([]);
-    const [change, setChange] = useState(false);
 
     const [limit, setLimit] = useState(10);
     const [page, setPage] = useState(0);
@@ -351,7 +374,7 @@ const ApartmentResident = () =>  {
             });
         }
         fetchData();
-    }, [change, limit, page, sort, status, search, type]);
+    }, [limit, page, sort, status, search, type]);
 
     useEffect(() => {   //timer when search
         const timeOutId = setTimeout(() => setSearch(typing), 500);
@@ -403,9 +426,8 @@ const ApartmentResident = () =>  {
         
         if (validCheck()) {
             const notification = toast.loading("Đang xử lí yêu cầu...");
-            createAuthentication(input.email, '123456', id)
+            createAuthentication(input.email, '123456', input)
             .then(() => {
-                setInput(input => ({ ...input, email: '' }));
                 toggleCreateModal();
                 toast.update(notification, { render: "Tạo tài khoản thành công!", type: "success", autoClose: 5000, isLoading: false });
             })

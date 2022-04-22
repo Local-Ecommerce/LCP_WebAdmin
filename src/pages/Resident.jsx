@@ -3,15 +3,18 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import ResidentList from '../components/Resident/ResidentList';
 import ReactPaginate from "react-paginate";
-import { Search } from '@mui/icons-material';
+import { AddCircle, Search } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
 import { api } from "../RequestMethod";
 import { toast } from 'react-toastify';
+import { DateTime } from 'luxon';
 import * as Constant from '../Constant';
 
 import { db } from "../firebase";
 import { ref, push } from "firebase/database";
+import { useAuth } from "../contexts/AuthContext";
 
+import CreateModal from '../components/Resident/CreateModal';
 import RejectModal from '../components/Notification/RejectModal';
 import ApproveModal from '../components/Notification/ApproveModal';
 import DetailModal from '../components/Notification/ResidentNotification/DetailResidentModal';
@@ -35,7 +38,7 @@ const Tab = styled.h1`
 
 const Row = styled.div`
     display: flex;
-    align-items: center;
+    align-items: ${props => props.end ? "flex-end" : "center"};
     justify-content: ${props => props.start ? "flex-start" : "space-between"};
     margin-left: ${props => props.ml ? "10px" : "0px"};
     margin-top: ${props => props.mt ? "20px" : "0px"};
@@ -252,8 +255,43 @@ const Footer = styled.div`
     padding-top: 50px;
 `;
 
+const AddButton = styled.button`
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    background-color: ${props => props.theme.green};
+    border-style: none;
+    border-radius: 5px;
+    color: ${props => props.theme.white};
+    text-decoration: none;
+    font-size: 0.9em;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
+
+    &:hover {
+    opacity: 0.8;
+    }
+
+    &:focus {
+    outline: 0;
+    }
+
+    &:active {
+    transform: translateY(1px);
+    }
+`;
+
+const AddIcon = styled(AddCircle)`
+    && {
+        margin-right: 5px;
+        font-size: 20px;
+    }
+`;
+
 const Resident = ({ refresh, toggleRefresh }) =>  {
     const user = JSON.parse(localStorage.getItem('USER'));
+    const { createAuthentication } = useAuth();
 
     const [toggleStatusModal, setToggleStatusModal] = useState(false);
     const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
@@ -263,7 +301,45 @@ const Resident = ({ refresh, toggleRefresh }) =>  {
     function toggleApproveModal() { setApproveModal(!approveModal); }
     const [detailModal, setDetailModal] = useState(false);
     function toggleDetailModal() { setDetailModal(!detailModal); }
+    const [createModal, setCreateModal] = useState(false);
+    function toggleCreateModal() { 
+        setCreateModal(!createModal); 
+        setInput({
+            role: 'Customer',
+            email: '',
+            fullname: '',
+            phoneNumber: '',
+            deliveryAddress: '',
+            dob: DateTime.fromFormat('01/01/2000', 'd/M/yyyy').toUTC().toISO(),
+            gender: 'Nam',
+            apartmentId: user.Residents[0].ApartmentId
+        });
+        setError({
+            email: '',
+            fullname: '',
+            phoneNumber: '',
+            deliveryAddress: '',
+            dob: ''
+        });
+    }
 
+    const [input, setInput] = useState({
+        role: 'Customer',
+        email: '',
+        fullname: '',
+        phoneNumber: '',
+        deliveryAddress: '',
+        dob: DateTime.fromFormat('01/01/2000', 'd/M/yyyy').toUTC().toISO(),
+        gender: 'Nam',
+        apartmentId: user.Residents[0].ApartmentId
+    });
+    const [error, setError] = useState({
+        email: '',
+        fullname: '',
+        phoneNumber: '',
+        deliveryAddress: '',
+        dob: ''
+    });
     const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
     const [rejectItem, setRejectItem] = useState({ id: '', name: '' });
     const [approveItem, setApproveItem] = useState({ id: '', name: '' });
@@ -315,6 +391,12 @@ const Resident = ({ refresh, toggleRefresh }) =>  {
         const timeOutId = setTimeout(() => setSearch(typing), 500);
         return () => clearTimeout(timeOutId);
     }, [typing]);
+
+    function handleChange(e) {
+        const { name, value } = e.target;
+        setInput(input => ({ ...input, [name]: value }));
+        setError(error => ({ ...error, [name]: '' }));
+    }
 
     const handlePageClick = (event) => {
         setPage(event.selected);
@@ -378,6 +460,59 @@ const Resident = ({ refresh, toggleRefresh }) =>  {
     const handleGetToggleStatusItem = (id, name, status) => {
         setToggleStatusItem({ id: id, name: name, status: status });
         toggleToggleStatusModal();
+    }
+
+    const handleAddItem = (event) => {
+        event.preventDefault();
+        if (validCheck()) {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
+            createAuthentication(input.email, '123456', input)
+            .then(() => {
+                toggleCreateModal();
+                toast.update(notification, { render: "Tạo tài khoản thành công!", type: "success", autoClose: 5000, isLoading: false });
+            })
+            .catch((error) => {
+                if (error.code === 'auth/email-already-in-use') {
+                    toast.update(notification, { render: "Email đã tồn tại trong hệ thống.", type: "error", autoClose: 5000, isLoading: false });
+                } else {
+                    toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+                }
+            });
+        }
+    }
+
+    const validCheck = () => {
+        let check = false;
+        setError(error => ({ ...error, email: '', fullname: '', phoneNumber: '', deliveryAddress: '', dob: '', gender: '' }));
+
+        let emailPattern = /[^@\s]+@[^@\s]+\.[^@\s]+/;
+        if (input.email === null || input.email === '' || !emailPattern.test(input.email)) {
+            setError(error => ({ ...error, email: 'Vui lòng nhập đúng chuẩn email' }));
+            check = true;
+        }
+        if (input.fullname === null || input.fullname === '') {
+            setError(error => ({ ...error, fullname: 'Vui lòng không để trống tên' }));
+            check = true;
+        }
+        let phonePattern = /(84|0[3|5|7|8|9])+([0-9]{8})\b/;
+        if (input.phoneNumber === null || input.phoneNumber === '' || !phonePattern.test(input.phoneNumber)) {
+            setError(error => ({ ...error, phoneNumber: 'Vui lòng nhập đúng chuẩn số điện thoại' }));
+            check = true;
+        }
+        if (input.deliveryAddress === null || input.deliveryAddress === '') {
+            setError(error => ({ ...error, deliveryAddress: 'Vui lòng không để trống địa chỉ' }));
+            check = true;
+        }
+        if (input.dob === null || input.dob === '' 
+            || DateTime.fromISO(input.dob).toFormat('dd/MM/yyyy') === 'Invalid DateTime') {
+            setError(error => ({ ...error, dob: 'Vui lòng nhập định dạng ngày/tháng/năm' }));
+            check = true;
+        }
+
+        if (check === true) {
+            return false;
+        }
+        return true;
     }
 
     const handleApproveResidentItem = (event) => {
@@ -476,9 +611,15 @@ const Resident = ({ refresh, toggleRefresh }) =>  {
 
     return (
         <PageWrapper>
-           <Row ml start>
-                <Tab active={activeTab === 1 ? true : false} onClick={() => handleSwitchTab(1)}>Cư dân</Tab>
-                <Tab active={activeTab === 2 ? true : false} onClick={() => handleSwitchTab(2)}>Cư dân chờ duyệt</Tab>
+           <Row end ml>
+                <Align>
+                    <Tab active={activeTab === 1 ? true : false} onClick={() => handleSwitchTab(1)}>Cư dân</Tab>
+                    <Tab active={activeTab === 2 ? true : false} onClick={() => handleSwitchTab(2)}>Cư dân chờ duyệt</Tab>
+                </Align>
+
+                <AddButton onClick={toggleCreateModal}>
+                    <AddIcon /> Tạo tài khoản
+                </AddButton>
             </Row>
 
             <TableWrapper>
@@ -602,6 +743,16 @@ const Resident = ({ refresh, toggleRefresh }) =>  {
                 toggle={toggleToggleStatusModal}
                 toggleStatusItem={toggleStatusItem}
                 handleToggleStatus={handleToggleStatus}
+            />
+
+            <CreateModal 
+                display={createModal}
+                toggle={toggleCreateModal}
+                input={input}
+                error={error} 
+                handleChange={handleChange}
+                setInput={setInput}
+                handleAddItem={handleAddItem}
             />
 
             <DetailModal 

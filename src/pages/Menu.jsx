@@ -407,7 +407,6 @@ const Menu = () =>  {
 
     const [APIdata, setAPIdata] = useState([]);
     const [apartments, setApartments] = useState([]);
-    const [change, setChange] = useState(false);
 
     const [limit, setLimit] = useState(10);
     const [page, setPage] = useState(0);
@@ -448,7 +447,7 @@ const Menu = () =>  {
             }
             fetchData();
         }
-    }, [change, limit, page, sort, status, menuSearch, apartment]);
+    }, [limit, page, sort, status, menuSearch, apartment]);
 
     useEffect( () => {  //fetch apartment
         if (user.RoleId === "R002") {
@@ -473,7 +472,7 @@ const Menu = () =>  {
         } else if (user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
             setApartment({ id: user.Residents[0].ApartmentId, name: '', address: '' });
         }
-    }, [change, apartmentSearch]);
+    }, [apartmentSearch]);
 
     useEffect(() => {   //timer when search apartment
         const timeOutId = setTimeout(() => setApartmentSearch(apartmentTyping), 500);

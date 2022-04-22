@@ -432,7 +432,6 @@ const Store = ({ refresh, toggleRefresh }) => {
     const [APIdata, setAPIdata] = useState([]);
     const [unverifiedStore, setUnverifiedStore] = useState([]);
     const [apartments, setApartments] = useState([]);
-    const [change, setChange] = useState(false);
     const [activeTab, setActiveTab] = useState(1);
 
     const [limit, setLimit] = useState(10);
@@ -446,7 +445,7 @@ const Store = ({ refresh, toggleRefresh }) => {
     const [apartmentTyping, setApartmentTyping] = useState('');
     const [storeSearch, setStoreSearch] = useState('');
     const [apartmentSearch, setApartmentSearch] = useState('');
-    const [status, setStatus] = useState(Constant.VERIFIED_MERCHANT_STORE);
+    const status = useState(Constant.VERIFIED_MERCHANT_STORE);
 
     useEffect( () => {  //fetch api data
         if (apartment.id !== '') {
@@ -492,7 +491,7 @@ const Store = ({ refresh, toggleRefresh }) => {
                 fetchData();
             }
         }
-    }, [refresh, change, limit, page, sort, status, storeSearch, apartment, activeTab]);
+    }, [refresh, limit, page, sort, status, storeSearch, apartment, activeTab]);
 
     useEffect( () => {  //fetch apartment
         if (user.RoleId === "R002") {
@@ -517,7 +516,7 @@ const Store = ({ refresh, toggleRefresh }) => {
         } else if (user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
             setApartment({ id: user.Residents[0].ApartmentId, name: '', address: '' });
         }
-    }, [change, apartmentSearch]);
+    }, [apartmentSearch]);
 
     useEffect(() => {   //timer when search apartment
         const timeOutId = setTimeout(() => setApartmentSearch(apartmentTyping), 500);

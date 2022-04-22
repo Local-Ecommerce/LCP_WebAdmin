@@ -53,16 +53,17 @@ export function AuthProvider({ children }) {
         localStorage.removeItem("EXPIRED_TIME");
     };
 
-    async function createAuthentication(email, password, apartmentId) {
+    async function createAuthentication(email, password, input) {
         await createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
             setDoc(doc(firestore, "user", userCredential.user.uid), {
-                role: 'MarketManager',
-                fullname: 'Quản lí chung cư',
-                gender: 'Nam',
-                deliveryAddress: null,
-                dob: '01/01/1900',
-                apartmentId: apartmentId
+                role: input.role,
+                fullname: input.fullname,
+                phoneNumber: input.phoneNumber,
+                gender: input.gender,
+                deliveryAddress: input.deliveryAddress,
+                dob: DateTime.fromISO(input.dob).toFormat('MM/dd/yyyy'),
+                apartmentId: input.apartmentId
             });
         })
         .catch((error) => {

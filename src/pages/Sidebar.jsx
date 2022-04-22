@@ -1,5 +1,7 @@
-import React from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { api } from "../RequestMethod";
 import SidebarData from '../components/Sidebar/SidebarData';
 import SidebarItem from '../components/Sidebar/SidebarItem';
 
@@ -36,9 +38,10 @@ const AvatarWrapper = styled.div`
 
 const Avatar = styled.img`
     vertical-align: middle;
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.1);
 `;
 
 const Name = styled.h3`
@@ -56,17 +59,42 @@ const Hello = styled.span`
     font-weight: 400;
 `;
 
-const Sidebar = () => {
+const Sidebar = ({ refresh, toggleRefresh }) => {
     const user = JSON.parse(localStorage.getItem('USER'));
+    const [name, setName] = useState('');
+    const [image, setImage] = useState('');
+
+    useEffect(() => {
+        if (user.RoleId === "R001") {
+            const fetchData = () => {
+                api.get("residents?id=" + user.Residents[0].ResidentId)
+                .then(function (res) {
+                    setName(res.data.Data.List[0].ResidentName || '');
+    
+                    api.get("accounts?id=" + res.data.Data.List[0].AccountId)
+                    .then(function (res2) {
+                        setImage(res2.data.Data.ProfileImage);
+                    })
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            }
+            fetchData();
+        } else {
+            setName('Admin');
+            setImage('images/admin.png');
+        }
+    }, [refresh]);
 
     return (
         <SidebarWrapper>
             <PaddingBlock />
 
             <AvatarWrapper>
-                <Avatar src="./images/user.png" alt="Loich Logo" />
+                <Avatar src={image} />
                 <Name>
-                    <Hello>Xin chào, </Hello>{!user ? null : user.RoleId === "R002" ? "Admin" : user.Residents[0].ResidentName} <br/> 
+                    <Hello>Xin chào, </Hello>{name} <br/> 
                 </Name>
             </AvatarWrapper>
 
