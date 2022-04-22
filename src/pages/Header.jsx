@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from "styled-components";
 import { Link } from 'react-router-dom';
-import { Notifications, Search, AccountCircleOutlined, HelpOutlineOutlined, Logout } from '@mui/icons-material';
+import { Notifications, Search, AccountCircleOutlined, HelpOutlineOutlined, Logout, Person } from '@mui/icons-material';
 import { Badge, CircularProgress } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -127,6 +127,22 @@ const Avatar = styled.img`
     border-radius: 50%;
     cursor: pointer;
     border: 1px solid rgba(0,0,0,0.1);
+`;
+
+const StyledUserIcon = styled(Person)`
+    && {
+        color: ${props => props.theme.grey};
+        font-size: 30px;
+        padding: 5px;
+        border-radius: 50%;
+        border: 1px solid rgba(0,0,0,0.1);
+        cursor: pointer;
+    }
+`;
+
+const Align = styled.div`
+    display: flex;
+    align-items: center;
 `;
 
 const StyledBadge = styled(Badge)`
@@ -725,7 +741,11 @@ const Header = ({ refresh, toggleRefresh }) => {
                     </StyledBadge>
                 </IconButton>
             
-                <Avatar onClick={() => toggleUserDropdown(!userDropdown)} src={image} />
+                {
+                    image ?
+                    <Avatar onClick={() => toggleUserDropdown(!userDropdown)} src={image} />
+                    : <StyledUserIcon onClick={() => toggleUserDropdown(!userDropdown)} />
+                }
             </div>
 
             {

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { api } from "../RequestMethod";
 import SidebarData from '../components/Sidebar/SidebarData';
 import SidebarItem from '../components/Sidebar/SidebarItem';
+import { Person } from '@mui/icons-material';
 
 const SidebarWrapper = styled.div`
     background-color: #fff;
@@ -42,6 +43,16 @@ const Avatar = styled.img`
     height: 50px;
     border-radius: 50%;
     border: 1px solid rgba(0,0,0,0.1);
+`;
+
+const StyledUserIcon = styled(Person)`
+    && {
+        color: ${props => props.theme.grey};
+        font-size: 30px;
+        padding: 10px;
+        border-radius: 50%;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
 `;
 
 const Name = styled.h3`
@@ -92,7 +103,12 @@ const Sidebar = ({ refresh, toggleRefresh }) => {
             <PaddingBlock />
 
             <AvatarWrapper>
-                <Avatar src={image} />
+                {
+                    image ?
+                    <Avatar src={image} />
+                    : <StyledUserIcon />
+                }
+
                 <Name>
                     <Hello>Xin chào, </Hello>{name} <br/> 
                 </Name>
