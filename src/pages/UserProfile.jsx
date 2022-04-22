@@ -323,11 +323,6 @@ const UserProfile = ({ refresh, toggleRefresh }) => {
         fetchData();
     }, [change]);
 
-    useEffect(() => {
-        console.log(input)
-        console.log(input.profileImage.split(",")[1])
-    }, [input])
-
 	let clickOutside = useClickOutside(() => {
         setDropdown(false);
     });
@@ -456,7 +451,7 @@ const UserProfile = ({ refresh, toggleRefresh }) => {
                     dateOfBirth: DateTime.fromISO(input.dateOfBirth).toFormat('yyyy-MM-dd'),
                     gender: input.gender,
                     deliveryAddress: input.deliveryAddress,
-                    profileImage: input.profileImage.split(",")[1]
+                    profileImage: input.profileImage.includes(',') ? input.profileImage.split(",")[1] : null
                 })
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
