@@ -2,6 +2,7 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
 import { api } from "../RequestMethod";
 import { DateTime } from 'luxon';
+import { useNavigate } from 'react-router-dom';
 
 import { auth, firestore } from "../firebase";
 import { doc, setDoc } from "firebase/firestore"; 
@@ -14,6 +15,7 @@ export function useAuth() {
 };
 
 export function AuthProvider({ children }) {
+    let navigate = useNavigate();
     const [change, setChange] = useState(false);
     const timer = useRef(null);
 
@@ -42,6 +44,7 @@ export function AuthProvider({ children }) {
         localStorage.removeItem("ACCESS_TOKEN");
         localStorage.removeItem("REFRESH_TOKEN");
         localStorage.removeItem("EXPIRED_TIME");
+        navigate("/login");
     };
 
     async function createAuthentication(email, password, input) {
