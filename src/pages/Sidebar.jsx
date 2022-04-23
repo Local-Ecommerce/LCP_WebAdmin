@@ -76,7 +76,7 @@ const Sidebar = ({ refresh, toggleRefresh }) => {
     const [image, setImage] = useState('');
 
     useEffect(() => {
-        if (user.RoleId === "R001") {
+        if (user && user.RoleId === "R001") {
             const fetchData = () => {
                 api.get("residents?id=" + user.Residents[0].ResidentId)
                 .then(function (res) {

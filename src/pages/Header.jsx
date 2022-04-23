@@ -340,6 +340,7 @@ const StyledLoadingIcon = styled(CircularProgress)`
 const Header = ({ refresh, toggleRefresh }) => {
     const { logout } = useAuth();
     let navigate = useNavigate();
+    
     const user = JSON.parse(localStorage.getItem('USER'));
     const [name, setName] = useState('');
     const [image, setImage] = useState('');
@@ -373,7 +374,7 @@ const Header = ({ refresh, toggleRefresh }) => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (user.RoleId === "R001") {
+        if (user && user.RoleId === "R001") {
             const fetchData = () => {
                 api.get("residents?id=" + user.Residents[0].ResidentId)
                 .then(function (res) {
