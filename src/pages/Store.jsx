@@ -893,6 +893,7 @@ const Store = ({ refresh, toggleRefresh }) => {
                 toggle={toggleRejectModal} 
                 rejectItem={rejectItem} 
                 handleRejectItem={handleRejectItem}
+                type={'store'}
             />
         </PageWrapper>
         </>
