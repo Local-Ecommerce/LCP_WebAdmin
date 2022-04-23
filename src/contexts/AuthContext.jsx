@@ -2,9 +2,7 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
 import { api } from "../RequestMethod";
 import { DateTime } from 'luxon';
-import { useNavigate } from 'react-router-dom';
 
-import ExtendSessionModal from './ExtendSessionModal';
 import { auth, firestore } from "../firebase";
 import { doc, setDoc } from "firebase/firestore"; 
 import { signOut, createUserWithEmailAndPassword } from "firebase/auth";
@@ -16,25 +14,19 @@ export function useAuth() {
 };
 
 export function AuthProvider({ children }) {
-    let navigate = useNavigate();
-    const [sessionModal, setSessionModal] = useState(false);
-    function toggleSessionModal() { 
-        setSessionModal(!sessionModal); 
-    };
+    const [change, setChange] = useState(false);
     const timer = useRef(null);
 
     useEffect(() => {
         const expiredTime = localStorage.getItem("EXPIRED_TIME");
         if (expiredTime && typeof expiredTime !== 'undefined' && expiredTime !== null && DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds > 0) {
             timer.current = setTimeout(() => {
-                if (!sessionModal) {
-                    toggleSessionModal();
-                }
+                extendSession();
             }, DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds);
             
             return () => clearTimeout(timer.current);
         }
-    }, []);
+    }, [change]);
 
     async function logout() {
         await signOut(auth);
@@ -45,7 +37,6 @@ export function AuthProvider({ children }) {
                 console.log(error);
             });
         };
-        setSessionModal(false);
         clearTimeout(timer.current);
         localStorage.removeItem("USER");
         localStorage.removeItem("ACCESS_TOKEN");
@@ -83,9 +74,9 @@ export function AuthProvider({ children }) {
             })
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
-                    console.log(res.data);
                     localStorage.setItem('ACCESS_TOKEN', res.data.Data.AccessToken);
                     localStorage.setItem('EXPIRED_TIME', res.data.Data.AccessTokenExpiredDate);
+                    setChange(!change);
                 }
             })
             .catch(function (error) {
@@ -99,7 +90,7 @@ export function AuthProvider({ children }) {
         logout,
         createAuthentication,
         timer,
-        toggleSessionModal
+        extendSession
     };
 
     return (
@@ -107,13 +98,6 @@ export function AuthProvider({ children }) {
             <AuthContext.Provider value={value}>
                 {children}
             </AuthContext.Provider>
-
-            <ExtendSessionModal 
-                display={sessionModal}
-                toggle={toggleSessionModal}
-                extendSession={extendSession}
-                logout={logout}
-            />
         </>
     );
 }

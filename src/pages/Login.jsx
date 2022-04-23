@@ -122,7 +122,7 @@ const Button = styled.button`
 
 const Login = () => {
     let navigate = useNavigate();
-    const { timer, toggleSessionModal } = useAuth();
+    const { timer, extendSession } = useAuth();
 
     const [loading, setLoading] = useState(false);
     const [toggle, setToggle] = useState(false);
@@ -167,7 +167,7 @@ const Login = () => {
                         localStorage.setItem('REFRESH_TOKEN', res.data.Data.RefreshTokens[0].Token);
                         localStorage.setItem('EXPIRED_TIME', res.data.Data.RefreshTokens[0].AccessTokenExpiredDate);
                         timer.current = setTimeout(() => {
-                            toggleSessionModal();
+                            extendSession();
                         }, DateTime.fromISO(res.data.Data.RefreshTokens[0].AccessTokenExpiredDate).diffNow().toObject().milliseconds);
                         navigate("/");
                     } else {
