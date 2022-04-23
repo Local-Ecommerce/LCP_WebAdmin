@@ -59,10 +59,6 @@ const customStyles = {
 const ExtendSessionModal = ({ display, toggle, extendSession, logout }) => {
     let navigate = useNavigate();
 
-    async function handleExtendSession() {
-        await extendSession();
-    }
-
     async function handleLogout() {
         await logout();
         navigate("/");
@@ -76,7 +72,7 @@ const ExtendSessionModal = ({ display, toggle, extendSession, logout }) => {
             </ModalContentWrapper>
 
             <ModalButtonWrapper>
-                {/* <ModalButton blue onClick={handleExtendSession}>Làm mới</ModalButton> */}
+                <ModalButton blue onClick={extendSession}>Làm mới</ModalButton>
                 <ModalButton onClick={handleLogout}>Đăng xuất</ModalButton>
                 <ModalButton onClick={toggle}>Quay lại</ModalButton>
             </ModalButtonWrapper>

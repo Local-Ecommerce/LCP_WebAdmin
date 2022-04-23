@@ -734,7 +734,7 @@ const Header = ({ refresh, toggleRefresh }) => {
                 <Input placeholder="Tìm kiếm" />
             </SearchField>
 
-            <div>
+            <Align>
                 <IconButton onClick={() => toggleNotificationDropdown(!notificationDropdown)}>
                     <StyledBadge badgeContent={products.length + stores.length + residents.length} overlap="circular">
                         <StyledNotificationIcon />
@@ -746,7 +746,7 @@ const Header = ({ refresh, toggleRefresh }) => {
                     <Avatar onClick={() => toggleUserDropdown(!userDropdown)} src={image} />
                     : <StyledUserIcon onClick={() => toggleUserDropdown(!userDropdown)} />
                 }
-            </div>
+            </Align>
 
             {
                 notificationDropdown ?

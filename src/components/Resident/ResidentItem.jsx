@@ -120,7 +120,8 @@ const ResidentItem = ({ item, handleGetToggleStatusItem, handleGetDetailItem, ha
         )
     }
 
-    const handleSetDetailItem = () => {
+    const handleSetDetailItem = (e) => {
+        e.stopPropagation();
         handleGetDetailItem(item);
     }
 

@@ -30,7 +30,7 @@ export function AuthProvider({ children }) {
                 if (!sessionModal) {
                     toggleSessionModal();
                 }
-            }, DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds - 300000);
+            }, DateTime.fromISO(expiredTime).diffNow().toObject().milliseconds);
             
             return () => clearTimeout(timer.current);
         }
@@ -83,14 +83,13 @@ export function AuthProvider({ children }) {
             })
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
+                    console.log(res.data);
                     localStorage.setItem('ACCESS_TOKEN', res.data.Data.AccessToken);
                     localStorage.setItem('EXPIRED_TIME', res.data.Data.AccessTokenExpiredDate);
-                    navigate("/");
                 }
             })
             .catch(function (error) {
                 console.log(error);
-                navigate("/");
             });
         }
         extendSession();

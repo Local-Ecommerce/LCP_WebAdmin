@@ -445,7 +445,7 @@ const Store = ({ refresh, toggleRefresh }) => {
     const [apartmentTyping, setApartmentTyping] = useState('');
     const [storeSearch, setStoreSearch] = useState('');
     const [apartmentSearch, setApartmentSearch] = useState('');
-    const status = useState(Constant.VERIFIED_MERCHANT_STORE);
+    const status = Constant.VERIFIED_MERCHANT_STORE;
 
     useEffect( () => {  //fetch api data
         if (apartment.id !== '') {

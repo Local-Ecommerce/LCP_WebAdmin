@@ -168,7 +168,7 @@ const Login = () => {
                         localStorage.setItem('EXPIRED_TIME', res.data.Data.RefreshTokens[0].AccessTokenExpiredDate);
                         timer.current = setTimeout(() => {
                             toggleSessionModal();
-                        }, DateTime.fromISO(res.data.Data.RefreshTokens[0].AccessTokenExpiredDate).diffNow().toObject().milliseconds - 300000);
+                        }, DateTime.fromISO(res.data.Data.RefreshTokens[0].AccessTokenExpiredDate).diffNow().toObject().milliseconds);
                         navigate("/");
                     } else {
                         setError("Tài khoản hoặc mật khẩu không hợp lệ. Vui lòng thử lại.");

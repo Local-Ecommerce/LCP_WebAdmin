@@ -775,6 +775,7 @@ const Resident = ({ refresh, toggleRefresh }) =>  {
                 toggle={toggleRejectModal} 
                 rejectItem={rejectItem} 
                 handleRejectItem={handleRejectResidentItem}
+                type={'resident'}
             />
 
         </PageWrapper>
