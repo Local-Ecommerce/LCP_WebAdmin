@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate, useParams } from "react-router-dom";
-import ApartmentResidentList from '../components/ApartmentResident/ApartmentResidentList';
 import ReactPaginate from "react-paginate";
 import { AddCircle, Search, KeyboardBackspace } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
@@ -10,8 +9,11 @@ import { api } from "../RequestMethod";
 import { DateTime } from 'luxon';
 import { toast } from 'react-toastify';
 import { useAuth } from "../contexts/AuthContext";
-import CreateModal from '../components/ApartmentResident/CreateModal';
 import * as Constant from '../Constant';
+
+import CreateModal from '../components/ApartmentResident/CreateModal';
+import ToggleStatusModal from '../components/Resident/ToggleStatusModal';
+import ApartmentResidentList from '../components/ApartmentResident/ApartmentResidentList';
 
 const PageWrapper = styled.div`
     margin: 40px;
@@ -293,9 +295,11 @@ const Footer = styled.div`
 const ApartmentResident = () =>  {
     const { id } = useParams();
     let navigate = useNavigate();
-
     const { createAuthentication } = useAuth();
-    const [apartment, setApartment] = useState({});
+
+    const [toggleStatusModal, setToggleStatusModal] = useState(false);
+    const toggleToggleStatusModal = () => { setToggleStatusModal(!toggleStatusModal) };
+    const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
 
     const [createModal, setCreateModal] = useState(false);
     function toggleCreateModal() { 
@@ -323,12 +327,12 @@ const ApartmentResident = () =>  {
         gender: 'Nam',
         apartmentId: id
     });
-    
     const [error, setError] = useState({ email: '' });
-
     const [loading, setLoading] = useState(true);
+    const [change, setChange] = useState(false);
 
     const [APIdata, setAPIdata] = useState([]);
+    const [apartment, setApartment] = useState({});
 
     const [limit, setLimit] = useState(10);
     const [page, setPage] = useState(0);
@@ -374,7 +378,7 @@ const ApartmentResident = () =>  {
             });
         }
         fetchData();
-    }, [limit, page, sort, status, search, type]);
+    }, [limit, page, sort, status, search, type, change]);
 
     useEffect(() => {   //timer when search
         const timeOutId = setTimeout(() => setSearch(typing), 500);
@@ -457,6 +461,33 @@ const ApartmentResident = () =>  {
         return true;
     }
 
+    const handleGetToggleStatusItem = (id, name, status) => {
+        setToggleStatusItem({ id: id, name: name, status: status });
+        toggleToggleStatusModal();
+    }
+
+    const handleToggleStatus = (event) => {
+        event.preventDefault();
+        const notification = toast.loading("Đang xử lí yêu cầu...");
+        let updateStatus = toggleStatusItem.status === true ? Constant.INACTIVE_RESIDENT : Constant.VERIFIED_RESIDENT
+        const url = "residents/" + toggleStatusItem.id + "?status=" + updateStatus;
+        const editData = async () => {
+            api.put(url, )
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    setChange(!change);
+                    toggleToggleStatusModal();
+                    toast.update(notification, { render: "Cập nhật thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        editData();
+    }
+
     return (
         <PageWrapper>
             <Row mb>
@@ -534,7 +565,8 @@ const ApartmentResident = () =>  {
                         </tr>
                         : 
                         <ApartmentResidentList 
-                            currentItems={APIdata} 
+                            currentItems={APIdata}
+                            handleGetToggleStatusItem={handleGetToggleStatusItem}
                         />
                         }
                     </TableBody>
@@ -580,6 +612,13 @@ const ApartmentResident = () =>  {
                 error={error} 
                 handleChange={handleChange}
                 createFirebaseAccount={createFirebaseAccount}
+            />
+
+            <ToggleStatusModal
+                display={toggleStatusModal}
+                toggle={toggleToggleStatusModal}
+                toggleStatusItem={toggleStatusItem}
+                handleToggleStatus={handleToggleStatus}
             />
         </PageWrapper>
     )

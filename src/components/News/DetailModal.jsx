@@ -454,8 +454,8 @@ const DetailModal = ({ display, toggle, detailItem, error, setDetailItem, handle
                                     </Select>
 
                                     <DropdownMenu dropdown={dropdown}>
-                                        {types.map(type => {
-                                            return <DropdownList onClick={() => handleSetType(type)}>{type}</DropdownList>
+                                        {types.map((type, index) => {
+                                            return <DropdownList key={index} onClick={() => handleSetType(type)}>{type}</DropdownList>
                                         })}
                                     </DropdownMenu>
                                 </SelectWrapper>

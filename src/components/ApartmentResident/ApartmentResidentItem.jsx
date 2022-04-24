@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import * as Constant from '../../Constant';
+import { ToggleOff, ToggleOn } from '@mui/icons-material';
 import { DateTime } from 'luxon';
 
 const TableRow = styled.tr`
@@ -41,7 +42,29 @@ const Status = styled.span`
                 "#dc3545"};
 `;
 
-const ApartmentResidentItem = ({ item, index }) =>  {
+const StyledToggleOnIcon = styled(ToggleOn)`
+    && {
+        font-size: 40px;
+        color: ${props => props.disabled ? props.theme.disabled : props.theme.green};
+        
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+`;
+
+const StyledToggleOffIcon = styled(ToggleOff)`
+    && {
+        font-size: 40px;
+        color: ${props => props.disabled ? props.theme.disabled : props.theme.red};
+
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+`;
+
+const ApartmentResidentItem = ({ item, index, handleGetToggleStatusItem }) =>  {
 
     if (item === 0) {
         return (
@@ -92,7 +115,13 @@ const ApartmentResidentItem = ({ item, index }) =>  {
                 }    
             </TableData>
             <TableData center>
-                <Status active={activeCheck}>{activeLabel}</Status>
+                {
+                    item.Type === Constant.MARKET_MANAGER && item.Status === Constant.VERIFIED_RESIDENT ?
+                    <StyledToggleOnIcon onClick={() => handleGetToggleStatusItem(item.ResidentId, item.ResidentName, true)} />
+                    : item.Type === Constant.MARKET_MANAGER && item.Status === Constant.INACTIVE_RESIDENT ?
+                    <StyledToggleOffIcon onClick={() => handleGetToggleStatusItem(item.ResidentId, item.ResidentName, false)} />
+                    : <Status active={activeCheck}>{activeLabel}</Status>
+                }
             </TableData>
         </TableRow>
     )

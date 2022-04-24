@@ -512,7 +512,7 @@ const Store = ({ refresh, toggleRefresh }) => {
                 });
             }
             fetchData();
-            toggleDisplayApartment();
+            setDisplayApartment(true);
         } else if (user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
             setApartment({ id: user.Residents[0].ApartmentId, name: '', address: '' });
         }

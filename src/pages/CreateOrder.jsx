@@ -984,7 +984,7 @@ const CreateOrder = () => {
 
                     <FooterWrapper>
                         <FloatRight>
-                            <Button button="button" onClick={handleToggleConfirmModal}>Tạo</Button>
+                            <Button disabled={!cart.length} button="button" onClick={handleToggleConfirmModal}>Tạo</Button>
                         </FloatRight>
                     </FooterWrapper>
                 </RightWrapper>

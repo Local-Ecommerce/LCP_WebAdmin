@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import styled from "styled-components";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { api } from "../RequestMethod";
 import { DateTime } from 'luxon';
 import { useNavigate } from 'react-router-dom';
@@ -122,8 +122,6 @@ const Button = styled.button`
 `;
 
 const Login = () => {
-    const user = JSON.parse(localStorage.getItem('USER'));
-
     let navigate = useNavigate();
     const { timer, extendSession } = useAuth();
 
@@ -138,12 +136,6 @@ const Login = () => {
     const [input, setInput] = useState({ email: '', password: '', forgetEmail: '' });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-
-    useEffect(() => {
-        if (user) {
-            navigate("/");
-        }
-    }, []);
 
     function handleChange(e) {
         const { name, value } = e.target;
