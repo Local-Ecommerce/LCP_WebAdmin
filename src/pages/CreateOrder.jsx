@@ -696,11 +696,12 @@ const CreateOrder = () => {
                 setError(error => ({ ...error, name: 'Vui lòng nhập tên' }));
                 check = true;
             }
-            if (input.phone === null || input.phone === '') {
-                setError(error => ({ ...error, phone: 'Vui lòng nhập số điện thoại' }));
+            let phonePattern = /(84|0[3|5|7|8|9])+([0-9]{8})\b/;
+            if (input.phone.trim() === null || input.phone.trim() === '' || !phonePattern.test(input.phone.trim())) {
+                setError(error => ({ ...error, phone: 'Vui lòng nhập đúng chuẩn số điện thoại' }));
                 check = true;
             }
-            if (input.address === null || input.address === '') {
+            if (input.address.trim() === null || input.address.trim() === '') {
                 setError(error => ({ ...error, address: 'Vui lòng nhập địa chỉ nhận hàng' }));
                 check = true;
             }

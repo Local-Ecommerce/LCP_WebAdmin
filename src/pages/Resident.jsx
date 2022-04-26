@@ -486,20 +486,20 @@ const Resident = ({ refresh, toggleRefresh }) =>  {
         setError(error => ({ ...error, email: '', fullname: '', phoneNumber: '', deliveryAddress: '', dob: '', gender: '' }));
 
         let emailPattern = /[^@\s]+@[^@\s]+\.[^@\s]+/;
-        if (input.email === null || input.email === '' || !emailPattern.test(input.email)) {
+        if (input.email.trim() === null || input.email.trim() === '' || !emailPattern.test(input.email.trim())) {
             setError(error => ({ ...error, email: 'Vui lòng nhập đúng chuẩn email' }));
             check = true;
         }
-        if (input.fullname === null || input.fullname === '') {
+        if (input.fullname.trim() === null || input.fullname.trim() === '') {
             setError(error => ({ ...error, fullname: 'Vui lòng không để trống tên' }));
             check = true;
         }
         let phonePattern = /(84|0[3|5|7|8|9])+([0-9]{8})\b/;
-        if (input.phoneNumber === null || input.phoneNumber === '' || !phonePattern.test(input.phoneNumber)) {
+        if (input.phoneNumber.trim() === null || input.phoneNumber.trim() === '' || !phonePattern.test(input.phoneNumber.trim())) {
             setError(error => ({ ...error, phoneNumber: 'Vui lòng nhập đúng chuẩn số điện thoại' }));
             check = true;
         }
-        if (input.deliveryAddress === null || input.deliveryAddress === '') {
+        if (input.deliveryAddress.trim() === null || input.deliveryAddress.trim() === '') {
             setError(error => ({ ...error, deliveryAddress: 'Vui lòng không để trống địa chỉ' }));
             check = true;
         }

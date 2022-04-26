@@ -397,11 +397,11 @@ const Apartment = () =>  {
         let check = false;
         setError(error => ({ ...error, nameError: '', addressError: '' }));
 
-        if (input.name === null || input.name === '') {
+        if (input.name.trim() === null || input.name.trim() === '') {
             setError(error => ({ ...error, nameError: 'Vui lòng nhập tên chung cư' }));
             check = true;
         }
-        if (input.address === null || input.address === '') {
+        if (input.address.trim() === null || input.address.trim() === '') {
             setError(error => ({ ...error, addressError: 'Vui lòng nhập địa chỉ chung cư' }));
             check = true;
         }
@@ -447,11 +447,11 @@ const Apartment = () =>  {
         let check = false;
         setError(error => ({ ...error, editNameError: '', editAddressError: '' }));
 
-        if (editItem.name === null || editItem.name === '') {
+        if (editItem.name.trim() === null || editItem.name.trim() === '') {
             setError(error => ({ ...error, editNameError: 'Vui lòng nhập tên chung cư' }));
             check = true;
         }
-        if (editItem.address === null || editItem.address === '') {
+        if (editItem.address.trim() === null || editItem.address.trim() === '') {
             setError(error => ({ ...error, editAddressError: 'Vui lòng nhập địa chỉ chung cư' }));
             check = true;
         }

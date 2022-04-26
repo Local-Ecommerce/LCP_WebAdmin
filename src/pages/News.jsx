@@ -619,7 +619,7 @@ const News = () =>  {
         let check = false;
         setError(error => ({ ...error, titleError: '' }));
 
-        if (input.title === null || input.title === '') {
+        if (input.title.trim() === null || input.title.trim() === '') {
             setError(error => ({ ...error, titleError: 'Vui lòng nhập tiêu đề' }));
             check = true;
         }
@@ -675,7 +675,7 @@ const News = () =>  {
         let check = false;
         setError(error => ({ ...error, editError: '' }));
 
-        if (detailItem.title === null || detailItem.title === '') {
+        if (detailItem.title.trim() === null || detailItem.title.trim() === '') {
             setError(error => ({ ...error, editError: 'Vui lòng nhập tiêu đề' }));
             check = true;
         }

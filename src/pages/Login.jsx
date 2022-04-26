@@ -212,12 +212,12 @@ const Login = () => {
         let pattern= /[^@\s]+@[^@\s]+\.[^@\s]+/;
         
         if (toggle === false) { //login
-            if (input.email === null || input.email === '' || !pattern.test(input.email)) {
+            if (input.email.trim() === null || input.email.trim() === '' || !pattern.test(input.email.trim())) {
                 setError('Vui lòng nhập đúng chuẩn email');
                 check = true;
             }
         } else {
-            if (input.forgetEmail === null || input.forgetEmail === '' || !pattern.test(input.forgetEmail)) {
+            if (input.forgetEmail.trim() === null || input.forgetEmail.trim() === '' || !pattern.test(input.forgetEmail.trim())) {
                 setError('Vui lòng nhập đúng chuẩn email');
                 check = true;
             }
@@ -232,7 +232,7 @@ const Login = () => {
 
     return (
         <PageWrapper>
-            <BackgroundImage src="https://media.istockphoto.com/photos/old-messy-bad-condition-apartment-in-chua-boc-street-hanoi-picture-id641835106"></BackgroundImage>
+            <BackgroundImage src="images/background.png"></BackgroundImage>
 
             <LoginFormContainer>
                 {

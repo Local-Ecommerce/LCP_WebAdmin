@@ -525,7 +525,7 @@ const Poi = () =>  {
         return () => clearTimeout(timeOutId);
     }, [apartmentTyping]);
 
-    useEffect(() => {   //timer when search news
+    useEffect(() => {   //timer when search poi
         const timeOutId = setTimeout(() => setPoiSearch(poiTyping), 500);
         return () => clearTimeout(timeOutId);
     }, [poiTyping]);
@@ -619,7 +619,7 @@ const Poi = () =>  {
         let check = false;
         setError(error => ({ ...error, titleError: '', apartmentError: '' }));
 
-        if (input.title === null || input.title === '') {
+        if (input.title.trim() === null || input.title.trim() === '') {
             setError(error => ({ ...error, titleError: 'Vui lòng nhập tiêu đề' }));
             check = true;
         }
@@ -681,7 +681,7 @@ const Poi = () =>  {
         let check = false;
         setError(error => ({ ...error, editError: '' }));
 
-        if (detailItem.title === null || detailItem.title === '') {
+        if (detailItem.title.trim() === null || detailItem.title.trim() === '') {
             setError(error => ({ ...error, editError: 'Vui lòng nhập tiêu đề' }));
             check = true;
         }

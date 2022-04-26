@@ -450,7 +450,7 @@ const ApartmentResident = () =>  {
         setError(error => ({ ...error, email: '' }));
 
         let pattern= /[^@\s]+@[^@\s]+\.[^@\s]+/;
-        if (input.email === null || input.email === '' || !pattern.test(input.email)) {
+        if (input.email.trim() === null || input.email.trim() === '' || !pattern.test(input.email.trim())) {
             setError(error => ({ ...error, email: 'Vui lòng nhập đúng chuẩn email' }));
             check = true;
         }

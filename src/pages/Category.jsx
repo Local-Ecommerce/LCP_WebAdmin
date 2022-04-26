@@ -291,7 +291,7 @@ const Category = () => {
         let check = false;
         setError(error => ({ ...error, name: '' }));
 
-        if (input.name === null || input.name === '') {
+        if (input.name.trim() === null || input.name.trim() === '') {
             setError(error => ({ ...error, name: 'Vui lòng nhập tên danh mục' }));
             check = true;
         }

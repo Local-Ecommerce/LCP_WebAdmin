@@ -401,7 +401,7 @@ const Home = () => {
         let check = false;
         setError(error => ({ ...error, editError: '' }));
 
-        if (detailItem.title === null || detailItem.title === '') {
+        if (detailItem.title.trim() === null || detailItem.title.trim() === '') {
             setError(error => ({ ...error, editError: 'Vui lòng nhập tiêu đề' }));
             check = true;
         }
