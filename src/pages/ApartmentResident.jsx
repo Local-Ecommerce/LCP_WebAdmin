@@ -343,7 +343,7 @@ const ApartmentResident = () =>  {
     const [typing, setTyping] = useState('');
     const [search, setSearch] = useState('');
     const [status, setStatus] = useState(Constant.VERIFIED_RESIDENT);
-    const [type, setType] = useState(Constant.CUSTOMER);
+    const [type, setType] = useState('');
 
     useEffect( () => {  //fetch api data
         setLoading(true);
@@ -472,7 +472,7 @@ const ApartmentResident = () =>  {
         let updateStatus = toggleStatusItem.status === true ? Constant.INACTIVE_RESIDENT : Constant.VERIFIED_RESIDENT
         const url = "residents/" + toggleStatusItem.id + "?status=" + updateStatus;
         const editData = async () => {
-            api.put(url, )
+            api.put(url)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
                     setChange(!change);

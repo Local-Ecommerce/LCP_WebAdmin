@@ -5,7 +5,7 @@ import { api } from "../RequestMethod";
 import { toast } from 'react-toastify';
 import * as Constant from '../Constant';
 import useClickOutside from "../contexts/useClickOutside";
-import { Notifications, ShoppingCart, ArrowDropDown, RemoveShoppingCart, AttachMoney, ShoppingCartCheckout,
+import { Notifications, ShoppingCart, ArrowDropDown, RemoveShoppingCart, Feedback, ShoppingCartCheckout,
          FormatListBulleted, Store, Inventory } from '@mui/icons-material';
 
 import NewsList from '../components/Home/NewsList';
@@ -174,12 +174,12 @@ const StyledNoCartIcon = styled(RemoveShoppingCart)`
     }
 `;
 
-const StyledMoneyIcon = styled(AttachMoney)`
+const StyledFeedbackIcon = styled(Feedback)`
     && {
         padding: 10px;
         border-radius: 50%;
         background-color: #e9f0fe;
-        color: #2f69e7;
+        color: ${props => props.theme.red};
         margin-right: 15px;
     }
 `;
@@ -318,6 +318,7 @@ const Home = () => {
         const fetchData = () => {
             api.get("dashboard?days=" + day)
             .then(function (res) {
+                console.log(res.data)
                 setDashboardData(res.data.Data);
 
                 let url2 = "news"
@@ -327,6 +328,8 @@ const Home = () => {
                     + "&status=" + Constant.ACTIVE_NEWS;
                 if (user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
                     url2 = url2 + "&apartmentid=" + user.Residents[0].ApartmentId;
+                } else if (user.RoleId === "R002") {
+                    url2 = url2 + "&apartmentid=admin";
                 }
                 api.get(url2)
                 .then(function (res2) {
@@ -470,7 +473,7 @@ const Home = () => {
                     <GridLabel>Tổng số đơn hàng</GridLabel>
                     <Align>
                         <StyledCartIcon />
-                        <GridParam>420</GridParam>
+                        <GridParam>{dashboardData.TotalCanceledOrder + dashboardData.TotalCompletedOrder}</GridParam>
                         <GridParamSmall>đơn</GridParamSmall>
                     </Align>
                 </GridItem>
@@ -479,7 +482,7 @@ const Home = () => {
                     <GridLabel>Tổng số đơn hoàn thành</GridLabel>
                     <Align>
                         <StyledCartCheckoutIcon />
-                        <GridParam>69</GridParam>
+                        <GridParam>{dashboardData.TotalCompletedOrder}</GridParam>
                         <GridParamSmall>đơn</GridParamSmall>
                     </Align>
                 </GridItem>
@@ -488,17 +491,17 @@ const Home = () => {
                     <GridLabel>Tổng số đơn thất bại</GridLabel>
                     <Align>
                         <StyledNoCartIcon />
-                        <GridParam>{420-69}</GridParam>
+                        <GridParam>{dashboardData.TotalCanceledOrder}</GridParam>
                         <GridParamSmall>đơn</GridParamSmall>
                     </Align>
                 </GridItem>
 
                 <GridItem>
-                    <GridLabel>Tổng số doanh thu</GridLabel>
+                    <GridLabel>Tổng số phản hồi</GridLabel>
                     <Align>
-                        <StyledMoneyIcon />
-                        <GridParam>69,420,000</GridParam>
-                        <GridParamSmall>vnđ</GridParamSmall>
+                        <StyledFeedbackIcon />
+                        <GridParam>{dashboardData.TotalFeedback}</GridParam>
+                        <GridParamExSmall>phản hồi</GridParamExSmall>
                     </Align>
                 </GridItem>
 
@@ -506,7 +509,7 @@ const Home = () => {
                     <GridLabel>Sản phẩm mới</GridLabel>
                     <Align>
                         <StyledProductIcon />
-                        <GridParam>420</GridParam>
+                        <GridParam>{dashboardData.TotalProduct}</GridParam>
                         <GridParamExSmall>sản phẩm</GridParamExSmall>
                     </Align>
                 </GridItem>
@@ -515,7 +518,7 @@ const Home = () => {
                     <GridLabel>Bảng giá mới</GridLabel>
                     <Align>
                         <StyledMenuIcon />
-                        <GridParam>69</GridParam>
+                        <GridParam>{dashboardData.TotalMenu}</GridParam>
                         <GridParamExSmall>bảng giá</GridParamExSmall>
                     </Align>
                 </GridItem>
@@ -524,13 +527,17 @@ const Home = () => {
                     <GridLabel>Cửa hàng mới</GridLabel>
                     <Align>
                         <StyledStoreIcon />
-                        <GridParam>0</GridParam>
+                        <GridParam>{dashboardData.TotalStore}</GridParam>
                         <GridParamExSmall>cửa hàng</GridParamExSmall>
                     </Align>
                 </GridItem>
 
                 <GridItem area={"3 / 1 / 3 / 4"}>
-                    <GridLabel>Tin mới</GridLabel>
+                    {
+                        user.RoleId === "R002" ?
+                        <GridLabel>Tin mới hệ thống</GridLabel>
+                        : <GridLabel>Tin mới chung cư</GridLabel>
+                    }
 
                     <Table>
                         <TableHead>

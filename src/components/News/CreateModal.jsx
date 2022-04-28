@@ -24,7 +24,7 @@ const ModalTitle = styled.h4`
 const FieldLabel = styled.div`
     font-weight: 400;
     font-size: 14px;
-    margin-top: ${props => props.mt ? "10px" : "0px"};
+    margin-top: ${props => props.mt ? "20px" : "0px"};
     margin-bottom: 5px;
     color: ${props => props.theme.dark};
 `;
