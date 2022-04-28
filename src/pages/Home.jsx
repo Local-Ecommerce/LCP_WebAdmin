@@ -543,11 +543,11 @@ const Home = () => {
                         <TableHead>
                             <TableRow>
                                 <TableHeader width="1%" grey>#</TableHeader>
-                                <TableHeader width="10%" center>Loại</TableHeader>
-                                <TableHeader width="15%">Tựa đề</TableHeader>
-                                <TableHeader width="35%">Nội dung</TableHeader>
-                                <TableHeader width="10%" center>Ghim</TableHeader>
-                                <TableHeader width="10%" center>Hoạt động</TableHeader>
+                                <TableHeader width="9%" center>Loại</TableHeader>
+                                <TableHeader width="20%">Tựa đề</TableHeader>
+                                <TableHeader width="40%">Nội dung</TableHeader>
+                                <TableHeader width="15%" center>Ghim</TableHeader>
+                                <TableHeader width="15%" center>Hoạt động</TableHeader>
                             </TableRow>
                         </TableHead>
 
