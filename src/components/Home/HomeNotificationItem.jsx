@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from "styled-components";
 import { DateTime } from 'luxon';
-import * as Constant from '../../Constant';
+import { Circle, HideImage } from '@mui/icons-material';
 
 const NotificationWrapper = styled.div`
     height: 50px;
@@ -52,25 +52,38 @@ const BottomText = styled.p`
     font-weight: 400;
 `;
 
-const Type = styled.span`
-    margin-right: 5px;
-    display: inline-flex;
-    align-items: center;
-    padding: 3px 5px;
-    font-size: 11px;
-    font-weight: 700;
-    text-align: center;
-    border-radius: 20px;
-    color: ${props => props.theme.white};
-    background-color: ${props => 
-        props.type === Constant.NEWS_TYPE_01 ? props.theme.orange
-      : props.type === Constant.NEWS_TYPE_02 ? props.theme.blue
-      : props.type === Constant.PINNED ? props.theme.red
-      : props.theme.disabled};
+const SeenWrapper = styled.div`
+    margin-left: auto;
+`;
+
+const StyledSeenCircle = styled(Circle)`
+    && {
+        font-size: 16px;
+        color: ${props => props.checked === 0 ? "#1976d2" : props.theme.white};
+    }
+`;
+
+const Image = styled.img`
+    vertical-align: middle;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+`;
+
+const StyledNoImageIcon = styled(HideImage)`
+    && {
+        color: rgba(0,0,0,0.2);
+        font-size: 20px;
+        padding: 10px;
+        border-radius: 50%;
+        border: 1px solid rgba(0,0,0,0.2);
+        margin-right: 10px;
+    }
 `;
 
 const NotificationItem = ({ item, handleGetItem }) => {
-    const date = DateTime.fromISO(item.ReleaseDate)
+    const date = DateTime.fromISO(item.FeedbackDate)
     const diff = date.diffNow(["years", "months", "days", "hours", "minutes"])
     let timeLabel = '';
 
@@ -99,14 +112,25 @@ const NotificationItem = ({ item, handleGetItem }) => {
 
     return (
             <NotificationWrapper onClick={handleSetItem}>
+                {
+                    item.Image ?
+                    <Image src={item.Image} />
+                    : <StyledNoImageIcon />
+                }
+
                 <TextWrapper>
-                    <TopText>
-                        <Type type={item.Type}>{item.Type}</Type>
-                        <b>{item.Title}</b> 
-                    </TopText>
+                    <TopText><b>{item.FeedbackDetail}</b></TopText>
 
                     <BottomText>{timeLabel}</BottomText>
                 </TextWrapper>
+
+                <SeenWrapper>
+                    {
+                        item.IsRead === 0 ?
+                        <StyledSeenCircle checked={item.IsRead} />
+                        : null
+                    }
+                </SeenWrapper>
             </NotificationWrapper>
     );
 };

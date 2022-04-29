@@ -338,6 +338,7 @@ const Home = () => {
 
                 api.get("feedbacks?limit=10")
                 .then(function (res3) {
+                    console.log(res3.data.Data.List);
                     setFeedbacks(res3.data.Data.List);
                 })
             })
