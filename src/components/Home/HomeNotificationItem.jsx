@@ -5,7 +5,7 @@ import { Circle, HideImage } from '@mui/icons-material';
 
 const NotificationWrapper = styled.div`
     height: 50px;
-    padding: 8px 20px;
+    padding: 8px;
     display: flex;
     align-items: center;
     border-bottom: 1px solid #dee2e6;
@@ -40,6 +40,7 @@ const TopText = styled.span`
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+    color: ${props => props.disabled ? props.theme.grey : props.theme.black};
 `;
 
 const BottomText = styled.p`
@@ -58,8 +59,10 @@ const SeenWrapper = styled.div`
 
 const StyledSeenCircle = styled(Circle)`
     && {
-        font-size: 16px;
-        color: ${props => props.checked === 0 ? "#1976d2" : props.theme.white};
+        margin: 6px;
+        font-size: 12px;
+        color: #1976d2;
+        opacity: ${props => props.checked ? 1 : 0};
     }
 `;
 
@@ -119,17 +122,13 @@ const NotificationItem = ({ item, handleGetItem }) => {
                 }
 
                 <TextWrapper>
-                    <TopText><b>{item.FeedbackDetail}</b></TopText>
+                    <TopText disabled={item.IsRead}><b>Lý Liên Kiệt đã phản hồi 1 sản phẩm.</b></TopText>
 
                     <BottomText>{timeLabel}</BottomText>
                 </TextWrapper>
 
                 <SeenWrapper>
-                    {
-                        item.IsRead === 0 ?
-                        <StyledSeenCircle checked={item.IsRead} />
-                        : null
-                    }
+                    <StyledSeenCircle checked={!item.IsRead} />
                 </SeenWrapper>
             </NotificationWrapper>
     );

@@ -4,14 +4,21 @@ import styled from 'styled-components';
 import { api } from "../RequestMethod";
 import { toast } from 'react-toastify';
 import * as Constant from '../Constant';
+import ReactPaginate from "react-paginate";
 import useClickOutside from "../contexts/useClickOutside";
-import { Notifications, ShoppingCart, ArrowDropDown, RemoveShoppingCart, Feedback, ShoppingCartCheckout,
+import { ShoppingCart, ArrowDropDown, RemoveShoppingCart, Feedback, ShoppingCartCheckout,
          FormatListBulleted, Store, Inventory } from '@mui/icons-material';
 
 import NewsList from '../components/Home/NewsList';
 import DetailModal from '../components/News/DetailModal';
 import ToggleStatusModal from '../components/News/ToggleStatusModal';
 import HomeNotificationList from '../components/Home/HomeNotificationList';
+import ResidentDetailModal from '../components/Home/ResidentDetailModal';
+import ProductDetailModal from '../components/Home/ProductDetailModal';
+import StoreDetailModal from '../components/Store/DetailModal';
+import WarnStoreModal from '../components/Home/WarnStoreModal';
+import PictureModal from '../components/Home/PictureModal';
+import NotificationDetailModal from '../components/Home/NotificationDetailModal';
 
 const PageWrapper = styled.form`
     min-width: 1000px;
@@ -215,40 +222,19 @@ const StyledStoreIcon = styled(Store)`
 `;
 
 const Tab = styled.h1`
-    color: ${props => props.active ? "#383838" : props.theme.grey};
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 5px 5px 0px 0px;
+    background-color: rgba(0,0,0,0.1);
     padding: 15px 0;
     margin: 0px;
-    border-right: ${props => props.br ? "1px solid rgba(0,0,0,0.05)" : null};
     border-bottom: ${props => props.active ? "2px solid " + props.theme.blue : "2px solid rgba(0,0,0,0.05)"};
     font-size: 14px;
-    width: 50%;
+    font-weight: 600;
+    width: 100%;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-`;
-
-const NotificationWrapper = styled.div`
-    overflow: auto;
-    overflow-x: hidden;
-
-    &&::-webkit-scrollbar {
-        display: none;
-    }
-`;
-
-const NoNotificationWrapper = styled.div`
-    height: auto;
-    margin: 0 auto;
-    text-align: center;
-`;
-
-const StyledNoNotificationIcon = styled(Notifications)`
-    && {
-        margin: 40px;
-        font-size: 77px;
-        color: #D8D8D8;
-    }
 `;
 
 const Table = styled.table`
@@ -281,14 +267,94 @@ const TableBody = styled.tbody`
     border-top: 1px solid #dee2e6;
 `;
 
-const TableData = styled.td`
-    border-bottom: 1px solid #dee2e6;
-    vertical-align: middle;
-    text-align: ${props => props.center ? "center" : "left"};
-    height: 100px;
+const TableRow = styled.tr``;
+
+const StyledPaginateContainer = styled.div`
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
+    .pagination {
+    padding: 0px;
+    margin: 0px;
+    color: #0366d6;
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    border-radius: 0.25rem;
+    }
+
+    .break-me {
+    cursor: default;
+    }
+
+    .active {
+    border-color: transparent;
+    background-color: #0366d6;
+    color: white;
+    }
+
+    .page-link {
+    position: relative;
+    display: block;
+    padding: 0.5rem 0.75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: #007bff;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    }
+
+    .page-link:hover {
+    color: #0056b3;
+    text-decoration: none;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    }
+
+    .page-link:focus {
+    z-index: 2;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    .page-link:not(:disabled):not(.disabled) {
+    cursor: pointer;
+    }
+
+    .page-item:first-child .page-link {
+    margin-left: 0;
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+    }
+
+    .page-item:last-child .page-link {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+    }
+
+    .page-item.active .page-link {
+    z-index: 1;
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+    }
+
+    .page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    cursor: auto;
+    background-color: #fff;
+    border-color: #dee2e6;
+    }
 `;
 
-const TableRow = styled.tr``;
+const SpaceBetween = styled.div`
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+`;
 
 const Footer = styled.div`
     padding: 20px;
@@ -298,6 +364,7 @@ const Home = () => {
     const user = JSON.parse(localStorage.getItem('USER'));
     const [day, setDay] = useState(7);
     const [change, setChange] = useState(false);
+    const [feedbackChange, setFeedbackChange] = useState(false);
 
     const [dropdown, setDropdown] = useState(false);
     const toggleDropdown = () => { setDropdown(!dropdown); }
@@ -310,9 +377,36 @@ const Home = () => {
     const [toggleStatusItem, setToggleStatusItem] = useState({ id: '', name: '', status: true });
     const [error, setError] = useState({ titleError: '', apartmentError: '', editError: '' });
 
+    const [productItem, setProductItem] = useState({});
+    const [productModal, setProductModal] = useState(false);
+    const toggleProductModal = () => { setProductModal(!productModal); }
+
+    const [residentItem, setResidentItem] = useState({});
+    const [residentModal, setResidentModal] = useState(false);
+    const toggleResidentModal = () => { setResidentModal(!residentModal); }
+
+    const [storeItem, setStoreItem] = useState({});
+    const [storeModal, setStoreModal] = useState(false);
+    const toggleStoreModal = () => { setStoreModal(!storeModal); }
+
+    const [warnStoreItem, setWarnStoreItem] = useState({});
+    const [warnStoreModal, setWarnStoreModal] = useState(false);
+    const toggleWarnStoreModal = () => { setWarnStoreModal(!warnStoreModal); }
+
+    const [notificationItem, setNotificationItem] = useState({});
+    const [notificationModal, setNotificationModal] = useState(false);
+    function toggleNotificationModal() { setNotificationModal(!notificationModal); }
+
+    const [picItem, setPicItem] = useState({});
+    const [pictureModal, setPictureModal] = useState(false);
+    function togglePictureModal() { setPictureModal(!pictureModal); }
+
     const [dashboardData, setDashboardData] = useState({});
     const [news, setNews] = useState([]);
     const [feedbacks, setFeedbacks] = useState([]);
+
+    const [page, setPage] = useState(0);
+    const [lastPage, setLastPage] = useState(0);
 
     useEffect( () => {
         const fetchData = () => {
@@ -335,23 +429,40 @@ const Home = () => {
                 .then(function (res2) {
                     setNews(res2.data.Data.List);
                 })
-
-                api.get("feedbacks?limit=10")
-                .then(function (res3) {
-                    console.log(res3.data.Data.List);
-                    setFeedbacks(res3.data.Data.List);
-                })
             })
             .catch(function (error) {
                 console.log(error);
             });
         }
         fetchData();
-    }, [change]);
+    }, [change, day]);
+
+    useEffect( () => {
+        const fetchData = () => {
+            let url = "feedbacks"
+                + "?limit=9" 
+                + "&page=" + (page + 1) 
+                + "&sort=-feedbackdate";
+            api.get(url)
+            .then(function (res) {
+                console.log(res.data.Data);
+                setFeedbacks(res.data.Data.List);
+                setLastPage(res.data.Data.LastPage);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        }
+        fetchData();
+    }, [page, feedbackChange]);
 
     let clickOutside = useClickOutside(() => {
         setDropdown(false);
     });
+
+    const handlePageClick = (event) => {
+        setPage(event.selected);
+    };
 
     const handleSetDay = (e, day) => {
         e.stopPropagation();
@@ -445,6 +556,78 @@ const Home = () => {
             });
         }
         editData();
+    }
+
+    const handleGetItem = (item) => {
+        setNotificationItem(item);
+        toggleNotificationModal();
+    }
+
+    const handleGetResidentItem = (item) => {
+        setResidentItem(item);
+        toggleResidentModal();
+    }
+
+    const handleGetProductItem = (id) => {
+        setProductItem({ id: id });
+        toggleProductModal();
+    }
+
+    const handleGetStoreItem = (id) => {
+        setStoreItem({ id: id });
+        toggleStoreModal();
+    }
+
+    const handleGetPicItem = (url) => {
+        setPicItem(url);
+        togglePictureModal();
+    }
+
+    const handleGetWarnStoreItem = (id, name) => {
+        setWarnStoreItem({ id: id, name: name });
+        toggleWarnStoreModal();
+    }
+
+    const handleWarnStore = (event) => {
+        event.preventDefault();
+
+        const warnStore = async () => {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
+            api.put("stores/warning?id=" + warnStore.id + "&isWarning=" + true)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    api.put("stores/warning?id=" + notificationItem.FeedbackId)
+                    toast.update(notification, { render: "Cảnh cáo cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
+                    setFeedbackChange(!feedbackChange);
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        warnStore();
+        toggleNotificationModal();
+    }
+
+    const handleSetRead = (event) => {
+        event.preventDefault();
+
+        const read = async () => {
+            api.put("feedbacks?id=" + notificationItem.FeedbackId)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    setFeedbackChange(!feedbackChange);
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                const notification = toast.loading("Đang xử lí yêu cầu...");
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        read();
+        toggleNotificationModal();
     }
     
     return (
@@ -563,9 +746,40 @@ const Home = () => {
                 </GridItem>
 
                 <GridItem p0 area={"2 / 4 / 4 / 4"}>
-                    <HomeNotificationList 
-                        currentItems={feedbacks}
-                    />
+                    <SpaceBetween>
+                        <div>
+                            <Tab>Danh sách Phản hồi</Tab>
+
+                            <HomeNotificationList 
+                                currentItems={feedbacks}
+                                handleGetItem={handleGetItem}
+                            />
+                        </div>
+
+                        <StyledPaginateContainer>
+                            <ReactPaginate
+                                nextLabel="Next >"
+                                onPageChange={handlePageClick}
+                                pageRangeDisplayed={3}
+                                marginPagesDisplayed={2}
+                                pageCount={lastPage}
+                                previousLabel="< Prev"
+                                pageClassName="page-item"
+                                pageLinkClassName="page-link"
+                                previousClassName="page-item"
+                                previousLinkClassName="page-link"
+                                nextClassName="page-item"
+                                nextLinkClassName="page-link"
+                                breakLabel="..."
+                                breakClassName="page-item"
+                                breakLinkClassName="page-link"
+                                containerClassName="pagination"
+                                activeClassName="active"
+                                forcePage={page}
+                                renderOnZeroPageCount={null}
+                            />
+                        </StyledPaginateContainer>
+                    </SpaceBetween>
                 </GridItem>
             </Grid>
 
@@ -585,6 +799,49 @@ const Home = () => {
                 toggle={toggleToggleStatusModal}
                 toggleStatusItem={toggleStatusItem}
                 handleToggleStatus={handleToggleStatus}
+            />
+
+            <NotificationDetailModal 
+                display={notificationModal} 
+                toggle={toggleNotificationModal} 
+                detailItem={notificationItem}
+                handleGetResidentItem={handleGetResidentItem}
+                handleGetProductItem={handleGetProductItem}
+                handleGetStoreItem={handleGetStoreItem}
+                handleGetWarnStoreItem={handleGetWarnStoreItem}
+                handleGetPicItem={handleGetPicItem}
+                handleSetRead={handleSetRead}
+            />
+
+            <ResidentDetailModal
+                display={residentModal} 
+                toggle={toggleResidentModal}
+                resident={residentItem}
+            />
+
+            <ProductDetailModal
+                display={productModal} 
+                toggle={toggleProductModal}
+                detailItem={productItem}
+            />
+
+            <StoreDetailModal 
+                display={storeModal}
+                toggle={toggleStoreModal}
+                detailItem={storeItem}
+            />
+
+            <WarnStoreModal
+                display={warnStoreModal} 
+                toggle={toggleWarnStoreModal} 
+                warnItem={warnStoreItem} 
+                handleWarnStore={handleWarnStore}
+            />
+
+            <PictureModal
+                display={pictureModal} 
+                toggle={togglePictureModal} 
+                url={picItem}
             />
         </PageWrapper>
     )
