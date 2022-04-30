@@ -648,7 +648,7 @@ const Resident = ({ refresh, toggleRefresh }) =>  {
                             <small>Trạng thái:&nbsp;</small>
                             <DropdownWrapper>
                                 <Select value={status} onChange={handleSetStatus}>
-                                    <option value=''>Toàn bộ</option>
+                                    <option value={Constant.VERIFIED_RESIDENT + "&status=" + Constant.INACTIVE_RESIDENT}>Toàn bộ</option>
                                     <option value={Constant.VERIFIED_RESIDENT}>Hoạt động</option>
                                     <option value={Constant.INACTIVE_RESIDENT}>Ngừng hoạt động</option>
                                 </Select>
