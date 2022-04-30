@@ -122,7 +122,7 @@ const NotificationItem = ({ item, handleGetItem }) => {
                 }
 
                 <TextWrapper>
-                    <TopText disabled={item.IsRead}><b>Lý Liên Kiệt đã phản hồi 1 sản phẩm.</b></TopText>
+                    <TopText disabled={item.IsRead}><b>{item.Resident.ResidentName} đã phản hồi 1 sản phẩm.</b></TopText>
 
                     <BottomText>{timeLabel}</BottomText>
                 </TextWrapper>

@@ -125,6 +125,11 @@ const ResidentItem = ({ item, handleGetToggleStatusItem, handleGetDetailItem, ha
         handleGetDetailItem(item);
     }
 
+    const handleSetToggleStatusItem = (e, id, name, status) => {
+        e.stopPropagation();
+        handleGetToggleStatusItem(id, name, status);
+    }
+
     const handleSetApproveItem = (e) => {
         e.stopPropagation();
         handleGetApproveItem(item.ResidentId, item.ResidentName, /*image*/ '', item.ResidentId);
@@ -162,9 +167,9 @@ const ResidentItem = ({ item, handleGetToggleStatusItem, handleGetDetailItem, ha
                     <>
                         {
                             item.Status === Constant.VERIFIED_RESIDENT ?
-                            <StyledToggleOnIcon onClick={() => handleGetToggleStatusItem(item.ResidentId, item.ResidentName, true)} />
+                            <StyledToggleOnIcon onClick={(e) => handleSetToggleStatusItem(e, item.ResidentId, item.ResidentName, true)} />
                             : item.Status === Constant.INACTIVE_RESIDENT ?
-                            <StyledToggleOffIcon onClick={() => handleGetToggleStatusItem(item.ResidentId, item.ResidentName, false)} />
+                            <StyledToggleOffIcon onClick={(e) => handleSetToggleStatusItem(e, item.ResidentId, item.ResidentName, false)} />
                             : item.Status === Constant.UNVERIFIED_RESIDENT ?
                             <Status active='unverified'>Chờ duyệt</Status>
                             : null
