@@ -276,7 +276,7 @@ const DetailModal = ({ display, toggle, detailItem, handleGetResidentItem, handl
                     <DetailLabel>Nội dung phản hồi</DetailLabel>
                     <TextArea
                         disabled rows="10"
-                        type="text" value={"Sản phẩm như hạch, reported."}
+                        type="text" value={detailItem.FeedbackDetail}
                     />
 
                     <ImageListWrapper>
