@@ -412,7 +412,6 @@ const Home = () => {
         const fetchData = () => {
             api.get("dashboard?days=" + day)
             .then(function (res) {
-                console.log(res.data)
                 setDashboardData(res.data.Data);
 
                 let url2 = "news"
@@ -568,8 +567,8 @@ const Home = () => {
         toggleResidentModal();
     }
 
-    const handleGetProductItem = (id) => {
-        setProductItem({ id: id });
+    const handleGetProductItem = (item) => {
+        setProductItem(item);
         toggleProductModal();
     }
 
@@ -607,7 +606,7 @@ const Home = () => {
             });
         }
         warnStore();
-        toggleNotificationModal();
+        toggleWarnStoreModal();
     }
 
     const handleSetRead = (event) => {

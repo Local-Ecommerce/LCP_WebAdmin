@@ -4,7 +4,6 @@ import styled from "styled-components";
 import Modal from 'react-modal';
 import { api } from "../../RequestMethod";
 import { Person, Store, Inventory } from '@mui/icons-material';
-import * as Constant from '../../Constant';
 
 const ModalTitle = styled.h4`
     border-bottom: 1px solid #cfd2d4;
@@ -178,23 +177,29 @@ const Image = styled.img`
 const DetailModal = ({ display, toggle, detailItem, handleGetResidentItem, handleGetProductItem,
                        handleGetStoreItem, handleGetWarnStoreItem, handleGetPicItem, handleSetRead }) => {
     const [images, setImages] = useState([]);
-    const [store, setStore] = useState({});
+    const [productOption, setProductOption] = useState('');
+    const [storeAddress, setStoreAddress] = useState('');
 
     useEffect(() => {
         if (display) {
             setImages([]);
+            setProductOption('');
             let imageList = detailItem.Image ? detailItem.Image.split("|").filter(item => item).map((item) => (
                 { image: item }
             )) : [];
             setImages(imageList);
 
+            let option = (detailItem.Product.Color ? detailItem.Product.Color : '')
+                        + (detailItem.Product.Color && (detailItem.Product.Size || detailItem.Product.Weight) ? " / " : '')
+                        + (detailItem.Product.Size ? detailItem.Product.Size : '')
+                        + (detailItem.Product.Size && detailItem.Product.Weight ? " / " : '')
+                        + (detailItem.Product.Weight ? detailItem.Product.Weight + "kg " : '');
+            setProductOption(option);
+
             const fetchData = () => {
-                let url = "feedbacks?id=" + detailItem.FeedbackId
-                    + "&include=resident"
-                    + "&include=product";
-                api.get(url)
+                api.get("residents?id=" + detailItem.MerchantStore.ResidentId)
                 .then(function (res) {
-                    console.log(res.data.Data);
+                    setStoreAddress(res.data.Data.List[0].DeliveryAddress);
                 })
                 .catch(function (error) {
                     console.log(error);
@@ -209,16 +214,16 @@ const DetailModal = ({ display, toggle, detailItem, handleGetResidentItem, handl
     }
 
     const handleSetProductItem = () => {
-        handleGetProductItem(detailItem.ProductId);
+        handleGetProductItem(detailItem.Product);
     }
 
     const handleSetStoreItem = () => {
-        handleGetStoreItem(detailItem.Store.StoreId);
+        handleGetStoreItem(detailItem.MerchantStore.MerchantStoreId);
     }
 
     const handleSetWarnStoreItem = () => {
         if (!detailItem.IsRead) {
-            handleGetWarnStoreItem(detailItem.Store.StoreId, detailItem.Store.StoreName);
+            handleGetWarnStoreItem(detailItem.MerchantStore.MerchantStoreId, detailItem.MerchantStore.StoreName);
         }
     }
 
@@ -237,8 +242,8 @@ const DetailModal = ({ display, toggle, detailItem, handleGetResidentItem, handl
                         
                         <DetailWrapper>
                             <DetailLabel>Khách hàng</DetailLabel>
-                            <DetailText>{"Lý Liên Kiệt"}</DetailText>
-                            <DetailText>{"090 123 4567"}</DetailText>
+                            <DetailText>{detailItem.Resident && detailItem.Resident.ResidentName}</DetailText>
+                            <DetailText>{detailItem.Resident && detailItem.Resident.PhoneNumber ? detailItem.Resident.PhoneNumber.slice(0, 4) + " " + detailItem.Resident.PhoneNumber.slice(4, 7) + " " + detailItem.Resident.PhoneNumber.slice(7) : '-'}</DetailText>
                             <DetailHyperlink onClick={handleSetResidentItem}>Xem chi tiết</DetailHyperlink>
                         </DetailWrapper>
                     </EntityWrapper>
@@ -248,8 +253,8 @@ const DetailModal = ({ display, toggle, detailItem, handleGetResidentItem, handl
                         
                         <DetailWrapper>
                             <DetailLabel>Sản phẩm bị phản hồi</DetailLabel>
-                            <DetailText>{"Bánh mì 2 trứng"}</DetailText>
-                            <DetailText>{"Tím / XL"}</DetailText>
+                            <DetailText>{detailItem.Product && detailItem.Product.ProductName}</DetailText>
+                            <DetailText>{productOption}</DetailText>
                             <DetailHyperlink onClick={handleSetProductItem}>Xem chi tiết</DetailHyperlink>
                         </DetailWrapper>
                     </EntityWrapper>
@@ -259,8 +264,8 @@ const DetailModal = ({ display, toggle, detailItem, handleGetResidentItem, handl
                         
                         <DetailWrapper>
                             <DetailLabel>Cửa hàng bị phản hồi</DetailLabel>
-                            <DetailText>{"Bánh mì Sài Thành"}</DetailText>
-                            <DetailText>{"23 Lý Thường Kiệt, Tầng 2B"}</DetailText>
+                            <DetailText>{detailItem.MerchantStore && detailItem.MerchantStore.StoreName}</DetailText>
+                            <DetailText>{storeAddress}</DetailText>
                             <DetailHyperlink onClick={handleSetStoreItem}>Xem chi tiết</DetailHyperlink>
                             &nbsp;| <DetailHyperlink disabled={detailItem.IsRead} onClick={handleSetWarnStoreItem}>Cảnh cáo</DetailHyperlink>
                         </DetailWrapper>

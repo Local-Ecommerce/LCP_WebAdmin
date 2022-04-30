@@ -70,7 +70,7 @@ const Image = styled.img`
     vertical-align: middle;
     width: 40px;
     height: 40px;
-    border-radius: 50%;
+    border-radius: 3px;
     margin-right: 10px;
 `;
 
@@ -79,7 +79,7 @@ const StyledNoImageIcon = styled(HideImage)`
         color: rgba(0,0,0,0.2);
         font-size: 20px;
         padding: 10px;
-        border-radius: 50%;
+        border-radius: 3px;
         border: 1px solid rgba(0,0,0,0.2);
         margin-right: 10px;
     }

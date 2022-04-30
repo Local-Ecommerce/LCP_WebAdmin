@@ -20,7 +20,7 @@ const LeftWrapper = styled.div`
 const RightWrapper = styled.div`
     flex: 1;
     padding: 30px 40px 30px 0px;
-    max-height: 65vh;
+    max-height: 50vh;
     overflow: auto;
     overflow-x: hidden;
 `;
@@ -60,7 +60,7 @@ const customStyles = {
     content: {
         top: '50%',
         left: '50%',
-        right: '35%',
+        right: '40%',
         bottom: 'auto',
         marginRight: '-50%',
         transform: 'translate(-50%, -50%)',
@@ -195,65 +195,32 @@ const StyledWeightIcon = styled(Scale)`
 `;
 
 const DetailModal = ({ display, toggle, detailItem }) => {
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
-    const [item, setItem] = useState({});
     const [images, setImages] = useState([]);
     const [imageSrc, setImageSrc] = useState('');
-    const [prices, setPrices] = useState([]);
     const [category, setCategory] = useState('');
-
-    const [colors, setColors] = useState([]);
-    const [sizes, setSizes] = useState([]);
-    const [weights, setWeights] = useState([]);
-    const [selected, setSelected] = useState({ id: '', color: null, size: null, weight: 0, price: '' });
 
     useEffect(() => {
         if (display) {
             setLoading(true);
-            setImages([]); setImageSrc(''); setPrices([]); setCategory('');
-            setColors([]); setSizes([]); setWeights([]);
-            setSelected({ id: '', color: null, size: null, weight: 0, price: '' });
+            setImages([]); setImageSrc(''); setCategory('');
 
-            const fetchData = async () => {
-                api.get("products?id=" + detailItem.id + "&include=related")
-                .then(function (res) {
-                    setItem(res.data.Data.List[0]);
+            let imageList = detailItem.BaseProduct.Image.split("|").filter(item => item).map((item) => (
+                { image: item }
+            ));
+            setImages(imageList);
+            setImageSrc(imageList.length ? imageList[0].image : '');
 
-                    let imageList = res.data.Data.List[0].Image.split("|").filter(item => item).map((item) => (
-                        { image: item }
-                    ));
-                    setImages(imageList);
-                    setImageSrc(imageList.length ? imageList[0].image : '');
-                    
-                    if (res.data.Data.List[0].RelatedProducts.length > 0) {
-                        setPrices(res.data.Data.List[0].RelatedProducts.map((item) => (item.DefaultPrice)));
-        
-                        setColors([...new Map(res.data.Data.List[0].RelatedProducts.map(({ Color }) => ({ 
-                            value: Color
-                        })).map(item => [item['value'], item])).values()].filter(item => (item.value))
-                        .sort((a, b) => a.value.localeCompare(b.value)));
-        
-                        setSizes([...new Map(res.data.Data.List[0].RelatedProducts.map(({ Size }) => ({ 
-                            value: Size
-                        })).map(item => [item['value'], item])).values()].filter(item => (item.value))
-                        .sort((a, b) => a.value.localeCompare(b.value)));
-        
-                        setWeights([...new Map(res.data.Data.List[0].RelatedProducts.map(({ Weight }) => ({ 
-                            value: Weight
-                        })).map(item => [item['value'], item])).values()].filter(item => (item.value))
-                        .sort((a, b) => a.value - b.value));
-                    } else {
-                        setPrices([res.data.Data.List[0].DefaultPrice]);
-                    }
-                    setLoading(false);
-                })
-                .catch(function (error) {
-                    console.log(error);
-                    setLoading(false);
-                });
-            };
-            fetchData();
+            api.get("categories?id=" + detailItem.SystemCategoryId + "&include=parent")
+            .then(function (res) {
+                setCategory(res.data.Data.List[0].SysCategoryName);
+                setLoading(false);
+            })
+            .catch(function (error) {
+                console.log(error);
+                setLoading(false);
+            });
         }
     }, [display]);
 
@@ -280,71 +247,43 @@ const DetailModal = ({ display, toggle, detailItem }) => {
                 </LeftWrapper>
 
                 <RightWrapper>
-                    <ProductCode>{loading ? '' : item.ProductCode ? item.ProductCode : null}</ProductCode>
-                    <ProductName>{loading ? '' : item.ProductName}</ProductName>
+                    <ProductCode>{loading ? '' : detailItem.BaseProduct.ProductCode}</ProductCode>
+                    <ProductName>{loading ? '' : detailItem.BaseProduct.ProductName}</ProductName>
                     <ProductCategory>{loading ? '' : category}</ProductCategory>
-                    
-                    {
-                        prices.length === 1 || (prices.length > 1 && Math.min(...prices) === Math.max(...prices)) ?
-                        <ProductPrice>{prices[0].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"}</ProductPrice>
-                        : selected && selected.price !== '' ?
-                        <ProductPrice>{selected.price} đ</ProductPrice>
-                        : prices.length > 1 ?
-                        <ProductPrice>
-                            {Math.min(...prices).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ - "} 
-                            {Math.max(...prices).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ"}
-                        </ProductPrice>
-                        : null
-                    }
-                    
+                    <ProductPrice>{loading ? '' : detailItem.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} đ</ProductPrice>
                     <Label>Miêu tả</Label>
-                    <ProductDescription>{loading ? '' : item.Description}</ProductDescription>
-                    <ProductDescription>{loading ? '' : item.BriefDescription}</ProductDescription>
+                    <ProductDescription>{loading ? '' : detailItem.BaseProduct.Description}</ProductDescription>
+                    <ProductDescription>{loading ? '' : detailItem.BaseProduct.BriefDescription}</ProductDescription>
 
                     {
-                        colors.length || sizes.length || weights.length ?
+                        detailItem.Color || detailItem.Size || detailItem.Weight ?
                         <OptionWrapper>
                             {
-                                colors.length ?
+                                detailItem.Color ?
                                 <Option>
                                     <StyledColorIcon />
                                     <OptionLabel>Màu sắc:</OptionLabel>
-
-                                    {colors.map((item, index) => {
-                                        return (
-                                            <OptionName key={index}>{index > 0 ? ', ' : null}{item.value}</OptionName>
-                                        );
-                                    })}
+                                    <OptionName>{detailItem.Color}</OptionName>
                                 </Option>
                                 : null
                             }
 
                             {
-                                sizes.length ?
+                                detailItem.Size ?
                                 <Option>
                                     <StyledSizeIcon />
                                     <OptionLabel>Kích thước:</OptionLabel>
-
-                                    {sizes.map((item, index) => {
-                                        return (
-                                            <OptionName key={index}>{index > 0 ? ', ' : null}{item.value}</OptionName>
-                                        );
-                                    })}
+                                    <OptionName>{detailItem.Size}</OptionName>
                                 </Option>
                                 : null
                             }
 
                             {
-                                weights.length ?
+                                detailItem.Weight ?
                                 <Option>
                                     <StyledWeightIcon />
                                     <OptionLabel>Trọng lượng:</OptionLabel>
-
-                                    {weights.map((item, index) => {
-                                        return (
-                                            <OptionName key={index}>{index > 0 ? ', ' : null}{item.value} kg</OptionName>
-                                        );
-                                    })}
+                                    <OptionName>{detailItem.Weight} kg</OptionName>
                                 </Option>
                                 : null
                             }
