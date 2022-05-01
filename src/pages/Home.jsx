@@ -503,9 +503,7 @@ const Home = () => {
             .then(function (res) {
                 setExportData(res.data.Data.List.filter(item => item.Payments[0]).map((item) => ({
                     'Mã đơn hàng': item.OrderId,
-                    'Mã cửa hàng': item.MerchantStore.MerchantStoreId,
-                    'Mã chung cư': item.MerchantStore.ApartmentId,
-                    'Tên cửa hàng': item.MerchantStore.StoreName,
+                    'Mã cửa hàng': item.MerchantStoreId,
                     'Ngày tạo': item.CreatedDate,
                     'Tổng cộng': item.TotalAmount,
                     'Trạng thái': item.Status === Constant.OPEN ? 'Chờ duyệt'
@@ -712,8 +710,6 @@ const Home = () => {
                 {wch:25},
                 {wch:25},
                 {wch:12},
-                {wch:12},
-                {wch:20},
                 {wch:12},
                 {wch:12},
                 {wch:12},
