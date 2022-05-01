@@ -722,7 +722,7 @@ const Store = ({ refresh, toggleRefresh }) => {
         <PageWrapper toggle={displayApartment}>
             {
                 user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager" ?
-                <Row ml start>
+                <Row ml={1} start={1}>
                     <Tab active={activeTab === 1 ? true : false} onClick={() => handleSwitchTab(1)}>Cửa hàng</Tab>
                     <Tab active={activeTab === 2 ? true : false} onClick={() => handleSwitchTab(2)}>Cửa hàng chờ duyệt</Tab>
                 </Row> 
@@ -749,7 +749,7 @@ const Store = ({ refresh, toggleRefresh }) => {
                 :
                 activeTab === 1 ?
                 <>
-                    <Row mb>
+                    <Row mb={1}>
                         <SearchBar width="50%">
                             <StyledSearchIcon />
                             <Input id="search" placeholder="Tìm kiếm cửa hàng" onChange={handleSetStoreSearch} />
@@ -794,7 +794,7 @@ const Store = ({ refresh, toggleRefresh }) => {
                         </TableBody>
                     </Table>
 
-                    <Row mt>
+                    <Row mt={1}>
                         { 
                         loading || APIdata.length === 0 ? null
                         : <small>Hiển thị {page * limit + 1} - {page * limit + APIdata.length} trong tổng số {total} cửa hàng.</small> 
@@ -826,7 +826,7 @@ const Store = ({ refresh, toggleRefresh }) => {
                 </>
                 :
                 <>
-                    <Row mb>
+                    <Row mb={1}>
                         <SearchBar>
                             <StyledSearchIcon />
                             <Input id="search" placeholder="Tìm kiếm cửa hàng" onChange={handleSetStoreSearch} />

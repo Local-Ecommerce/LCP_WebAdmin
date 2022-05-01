@@ -4,10 +4,12 @@ import styled from 'styled-components';
 import { api } from "../RequestMethod";
 import { toast } from 'react-toastify';
 import * as Constant from '../Constant';
+import * as FileSaver from 'file-saver';
+import * as XLSX from 'xlsx';
 import ReactPaginate from "react-paginate";
 import useClickOutside from "../contexts/useClickOutside";
 import { ShoppingCart, ArrowDropDown, RemoveShoppingCart, Feedback, ShoppingCartCheckout,
-         FormatListBulleted, Store, Inventory } from '@mui/icons-material';
+         FormatListBulleted, Store, Inventory, ExitToApp } from '@mui/icons-material';
 
 import NewsList from '../components/Home/NewsList';
 import DetailModal from '../components/News/DetailModal';
@@ -21,8 +23,8 @@ import PictureModal from '../components/Home/PictureModal';
 import NotificationDetailModal from '../components/Home/NotificationDetailModal';
 
 const PageWrapper = styled.form`
-    min-width: 1000px;
-    max-width: 1200px;
+    min-width: ${props => props.width};
+    max-width: ${props => props.width};
     margin: 30px auto;
 `;
 
@@ -106,8 +108,7 @@ const DropdownList = styled.li`
 
 const Grid = styled.div`
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    //grid-template-rows: 50px 50px;
+    grid-template-columns: ${props => props.grid === 3 ? "repeat(3, 1fr)" : "repeat(4, 1fr)"};
     grid-gap: 20px;
 `;
 
@@ -356,6 +357,38 @@ const SpaceBetween = styled.div`
     justify-content: space-between;
 `;
 
+const StyledExportIcon = styled(ExitToApp)`
+    && {
+        font-size: 20px;
+        margin-right: 5px;
+    }
+`;
+
+const ExportButton = styled.div`
+    display: flex;
+    align-items: center;
+    margin-left: 5px;
+    font-size: 14px;
+    padding: 9px;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 3px;
+    color: ${props => props.theme.white};
+    background-color: ${props => props.theme.green};
+    cursor: pointer;
+
+    &:hover {
+        opacity: 0.8;
+    }
+
+    &:focus {
+        outline: 0;
+    }
+
+    &:active {
+        transform: translateY(1px);
+    }
+`;
+
 const Footer = styled.div`
     padding: 20px;
 `;
@@ -437,22 +470,24 @@ const Home = () => {
     }, [change, day]);
 
     useEffect( () => {
-        const fetchData = () => {
-            let url = "feedbacks"
-                + "?limit=9" 
-                + "&page=" + (page + 1) 
-                + "&sort=-feedbackdate";
-            api.get(url)
-            .then(function (res) {
-                console.log(res.data.Data);
-                setFeedbacks(res.data.Data.List);
-                setLastPage(res.data.Data.LastPage);
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
+        if (user.Residents[0] && user.RoleId === "R001" && user.Residents[0].Type === "MarketManager") {
+            const fetchData = () => {
+                let url = "feedbacks"
+                    + "?limit=9" 
+                    + "&page=" + (page + 1) 
+                    + "&sort=-feedbackdate";
+                api.get(url)
+                .then(function (res) {
+                    console.log(res.data.Data);
+                    setFeedbacks(res.data.Data.List);
+                    setLastPage(res.data.Data.LastPage);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            }
+            fetchData();
         }
-        fetchData();
     }, [page, feedbackChange]);
 
     let clickOutside = useClickOutside(() => {
@@ -628,9 +663,21 @@ const Home = () => {
         read();
         toggleNotificationModal();
     }
+
+    const handleExportExcel = (csvData) => {
+        const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+        const fileExtension = '.xlsx';
+        const fileName = 'Thong_ke_he_thong';
+
+        const ws = XLSX.utils.json_to_sheet(csvData);
+        const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
+        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const data = new Blob([excelBuffer], {type: fileType});
+        FileSaver.saveAs(data, fileName + fileExtension);
+    }
     
     return (
-        <PageWrapper>
+        <PageWrapper width={user.RoleId === "R002" ? "900px" : "1200px"}>
             <Row mb>
                 <Title>Trang chủ</Title>
 
@@ -648,10 +695,15 @@ const Home = () => {
                             <DropdownList onClick={(e) => handleSetDay(e, 365)}>365 ngày gần nhất</DropdownList>
                         </DropdownMenu>
                     </SelectWrapper>
+
+                    <ExportButton onClick={() => handleExportExcel(news)}>
+                        <StyledExportIcon />
+                        Xuất thống kê
+                    </ExportButton>
                 </Align>
             </Row>
 
-            <Grid>
+            <Grid grid={user.RoleId === "R002" ? 3 : 4}>
                 <GridItem>
                     <GridLabel>Tổng số đơn hàng</GridLabel>
                     <Align>
@@ -679,14 +731,18 @@ const Home = () => {
                     </Align>
                 </GridItem>
 
-                <GridItem>
-                    <GridLabel>Tổng số phản hồi</GridLabel>
-                    <Align>
-                        <StyledFeedbackIcon />
-                        <GridParam>{dashboardData.TotalFeedback}</GridParam>
-                        <GridParamExSmall>phản hồi</GridParamExSmall>
-                    </Align>
-                </GridItem>
+                {
+                    user.RoleId === "R002" ?
+                    null :
+                    <GridItem>
+                        <GridLabel>Tổng số phản hồi</GridLabel>
+                        <Align>
+                            <StyledFeedbackIcon />
+                            <GridParam>{dashboardData.TotalFeedback}</GridParam>
+                            <GridParamExSmall>phản hồi</GridParamExSmall>
+                        </Align>
+                    </GridItem>
+                }
 
                 <GridItem>
                     <GridLabel>Sản phẩm mới</GridLabel>
@@ -744,42 +800,46 @@ const Home = () => {
                     </Table>
                 </GridItem>
 
-                <GridItem p0 area={"2 / 4 / 4 / 4"}>
-                    <SpaceBetween>
-                        <div>
-                            <Tab>Danh sách Phản hồi</Tab>
+                {
+                    user.RoleId === "R002" ?
+                    null :
+                    <GridItem p0 area={"2 / 4 / 4 / 4"}>
+                        <SpaceBetween>
+                            <div>
+                                <Tab>Danh sách Phản hồi</Tab>
 
-                            <HomeNotificationList 
-                                currentItems={feedbacks}
-                                handleGetItem={handleGetItem}
-                            />
-                        </div>
+                                <HomeNotificationList 
+                                    currentItems={feedbacks}
+                                    handleGetItem={handleGetItem}
+                                />
+                            </div>
 
-                        <StyledPaginateContainer>
-                            <ReactPaginate
-                                nextLabel="Next >"
-                                onPageChange={handlePageClick}
-                                pageRangeDisplayed={3}
-                                marginPagesDisplayed={2}
-                                pageCount={lastPage}
-                                previousLabel="< Prev"
-                                pageClassName="page-item"
-                                pageLinkClassName="page-link"
-                                previousClassName="page-item"
-                                previousLinkClassName="page-link"
-                                nextClassName="page-item"
-                                nextLinkClassName="page-link"
-                                breakLabel="..."
-                                breakClassName="page-item"
-                                breakLinkClassName="page-link"
-                                containerClassName="pagination"
-                                activeClassName="active"
-                                forcePage={page}
-                                renderOnZeroPageCount={null}
-                            />
-                        </StyledPaginateContainer>
-                    </SpaceBetween>
-                </GridItem>
+                            <StyledPaginateContainer>
+                                <ReactPaginate
+                                    nextLabel="Next >"
+                                    onPageChange={handlePageClick}
+                                    pageRangeDisplayed={3}
+                                    marginPagesDisplayed={2}
+                                    pageCount={lastPage}
+                                    previousLabel="< Prev"
+                                    pageClassName="page-item"
+                                    pageLinkClassName="page-link"
+                                    previousClassName="page-item"
+                                    previousLinkClassName="page-link"
+                                    nextClassName="page-item"
+                                    nextLinkClassName="page-link"
+                                    breakLabel="..."
+                                    breakClassName="page-item"
+                                    breakLinkClassName="page-link"
+                                    containerClassName="pagination"
+                                    activeClassName="active"
+                                    forcePage={page}
+                                    renderOnZeroPageCount={null}
+                                />
+                            </StyledPaginateContainer>
+                        </SpaceBetween>
+                    </GridItem>
+                }
             </Grid>
 
             <Footer />

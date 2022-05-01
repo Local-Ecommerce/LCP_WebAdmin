@@ -138,7 +138,7 @@ const ResidentDetailModal = ({ display, toggle, resident }) => {
                 <ModalContentWrapper>
                     <LeftWrapper>
                         <FieldLabel mt>Ảnh</FieldLabel>
-                        <Image src={account.AvatarImage} />         
+                        <Image src={account.AvatarImage} />        
                     </LeftWrapper>
 
                     <RightWrapper>
