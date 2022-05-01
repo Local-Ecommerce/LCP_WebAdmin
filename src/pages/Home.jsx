@@ -503,6 +503,9 @@ const Home = () => {
             .then(function (res) {
                 setExportData(res.data.Data.List.filter(item => item.Payments[0]).map((item) => ({
                     'Mã đơn hàng': item.OrderId,
+                    'Mã cửa hàng': item.MerchantStore.MerchantStoreId,
+                    'Mã chung cư': item.MerchantStore.ApartmentId,
+                    'Tên cửa hàng': item.MerchantStore.StoreName,
                     'Ngày tạo': item.CreatedDate,
                     'Tổng cộng': item.TotalAmount,
                     'Trạng thái': item.Status === Constant.OPEN ? 'Chờ duyệt'
@@ -700,26 +703,31 @@ const Home = () => {
     }
 
     const handleExportExcel = (csvData) => {
-        const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-        const fileExtension = '.xlsx';
-        const fileName = 'Thong_ke_he_thong';
+        if (exportData.length) {
+            const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+            const fileExtension = '.xlsx';
+            const fileName = 'Thong_ke_he_thong_LCP';
 
-        var wscols = [
-            {wch:25},
-            {wch:25},
-            {wch:12},
-            {wch:12},
-            {wch:12},
-            {wch:20},
-            {wch:20},
-            {wch:20}
-        ];
-        const ws = XLSX.utils.json_to_sheet(csvData);
-        ws['!cols'] = wscols;
-        const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
-        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-        const data = new Blob([excelBuffer], {type: fileType});
-        FileSaver.saveAs(data, fileName + fileExtension);
+            var wscols = [
+                {wch:25},
+                {wch:25},
+                {wch:12},
+                {wch:12},
+                {wch:20},
+                {wch:12},
+                {wch:12},
+                {wch:12},
+                {wch:20},
+                {wch:20},
+                {wch:20}
+            ];
+            const ws = XLSX.utils.json_to_sheet(csvData);
+            ws['!cols'] = wscols;
+            const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
+            const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const data = new Blob([excelBuffer], {type: fileType});
+            FileSaver.saveAs(data, fileName + fileExtension);
+        }
     }
     
     return (
