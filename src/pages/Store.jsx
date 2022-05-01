@@ -17,6 +17,7 @@ import VerifyModal from '../components/Notification/StoreNotification/DetailStor
 import RejectModal from '../components/Notification/RejectModal';
 import ApproveModal from '../components/Notification/ApproveModal';
 import DetailModal from '../components/Store/DetailModal';
+import WarnStoreModal from '../components/Store/WarnStoreModal';
 
 const PageWrapper = styled.div`
     margin: 50px 40px 50px ${props => props.toggle ? "370px" : "45px"};
@@ -419,6 +420,10 @@ const Store = ({ refresh, toggleRefresh }) => {
     const [verifyItem, setVerifyItem] = useState({});
     const [detailItem, setDetailItem] = useState({ id: '' });
 
+    const [warnStoreItem, setWarnStoreItem] = useState({});
+    const [warnStoreModal, setWarnStoreModal] = useState(false);
+    const toggleWarnStoreModal = () => { setWarnStoreModal(!warnStoreModal); }
+
     const [displayAddress, setDisplayAddress] = useState(false);
     function toggleDisplayAddress() { setDisplayAddress(!displayAddress); listRef.current.recomputeRowHeights(); }
 
@@ -661,6 +666,32 @@ const Store = ({ refresh, toggleRefresh }) => {
         handleReject();
     }
 
+    const handleGetWarnStoreItem = (id, name) => {
+        setWarnStoreItem({ id: id, name: name });
+        toggleWarnStoreModal();
+    }
+
+    const handleWarnStore = (event) => {
+        event.preventDefault();
+
+        const warnStore = async () => {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
+            api.put("stores/warning?id=" + warnStoreItem.id + "&isWarning=" + false)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    toast.update(notification, { render: "Gỡ cảnh cáo cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        warnStore();
+        toggleWarnStoreModal();
+        toggleDetailModal();
+    }
+
     return (
         <>
         {
@@ -871,6 +902,7 @@ const Store = ({ refresh, toggleRefresh }) => {
                 display={detailModal}
                 toggle={toggleDetailModal}
                 detailItem={detailItem}
+                handleGetWarnStoreItem={handleGetWarnStoreItem}
             />
 
             <VerifyModal 
@@ -894,6 +926,13 @@ const Store = ({ refresh, toggleRefresh }) => {
                 rejectItem={rejectItem} 
                 handleRejectItem={handleRejectItem}
                 type={'store'}
+            />
+
+            <WarnStoreModal
+                display={warnStoreModal} 
+                toggle={toggleWarnStoreModal} 
+                warnItem={warnStoreItem} 
+                handleWarnStore={handleWarnStore}
             />
         </PageWrapper>
         </>

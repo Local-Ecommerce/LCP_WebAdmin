@@ -14,13 +14,13 @@ import { ShoppingCart, ArrowDropDown, RemoveShoppingCart, Feedback, ShoppingCart
 import NewsList from '../components/Home/NewsList';
 import DetailModal from '../components/News/DetailModal';
 import ToggleStatusModal from '../components/News/ToggleStatusModal';
-import HomeNotificationList from '../components/Home/HomeNotificationList';
 import ResidentDetailModal from '../components/Home/ResidentDetailModal';
 import ProductDetailModal from '../components/Home/ProductDetailModal';
 import StoreDetailModal from '../components/Store/DetailModal';
 import WarnStoreModal from '../components/Home/WarnStoreModal';
 import PictureModal from '../components/Home/PictureModal';
-import NotificationDetailModal from '../components/Home/NotificationDetailModal';
+import FeedbackList from '../components/Home/FeedbackList';
+import FeedbackDetailModal from '../components/Home/FeedbackDetailModal';
 
 const PageWrapper = styled.form`
     min-width: ${props => props.width};
@@ -427,9 +427,9 @@ const Home = () => {
     const [warnStoreModal, setWarnStoreModal] = useState(false);
     const toggleWarnStoreModal = () => { setWarnStoreModal(!warnStoreModal); }
 
-    const [notificationItem, setNotificationItem] = useState({});
-    const [notificationModal, setNotificationModal] = useState(false);
-    function toggleNotificationModal() { setNotificationModal(!notificationModal); }
+    const [feedbackDetailItem, setFeedbackDetailItem] = useState({});
+    const [feedbackDetailModal, setFeedbackDetailModal] = useState(false);
+    function toggleFeedbackDetailModal() { setFeedbackDetailModal(!feedbackDetailModal); }
 
     const [picItem, setPicItem] = useState({});
     const [pictureModal, setPictureModal] = useState(false);
@@ -625,8 +625,8 @@ const Home = () => {
     }
 
     const handleGetItem = (item) => {
-        setNotificationItem(item);
-        toggleNotificationModal();
+        setFeedbackDetailItem(item);
+        toggleFeedbackDetailModal();
     }
 
     const handleGetResidentItem = (item) => {
@@ -659,12 +659,14 @@ const Home = () => {
 
         const warnStore = async () => {
             const notification = toast.loading("Đang xử lí yêu cầu...");
-            api.put("stores/warning?id=" + warnStore.id + "&isWarning=" + true)
+            api.put("stores/warning?id=" + warnStoreItem.id + "&isWarning=" + true)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
-                    api.put("stores/warning?id=" + notificationItem.FeedbackId)
-                    toast.update(notification, { render: "Cảnh cáo cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
-                    setFeedbackChange(!feedbackChange);
+                    api.put("feedbacks?id=" + feedbackDetailItem.FeedbackId)
+                    .then(function (res) {
+                        setFeedbackChange(!feedbackChange);
+                        toast.update(notification, { render: "Cảnh cáo cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
+                    })
                 }
             })
             .catch(function (error) {
@@ -674,13 +676,14 @@ const Home = () => {
         }
         warnStore();
         toggleWarnStoreModal();
+        toggleFeedbackDetailModal();
     }
 
     const handleSetRead = (event) => {
         event.preventDefault();
 
         const read = async () => {
-            api.put("feedbacks?id=" + notificationItem.FeedbackId)
+            api.put("feedbacks?id=" + feedbackDetailItem.FeedbackId)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
                     setFeedbackChange(!feedbackChange);
@@ -693,7 +696,7 @@ const Home = () => {
             });
         }
         read();
-        toggleNotificationModal();
+        toggleFeedbackDetailModal();
     }
 
     const handleExportExcel = (csvData) => {
@@ -855,7 +858,7 @@ const Home = () => {
                             <div>
                                 <Tab>Danh sách Phản hồi</Tab>
 
-                                <HomeNotificationList 
+                                <FeedbackList 
                                     currentItems={feedbacks}
                                     handleGetItem={handleGetItem}
                                 />
@@ -907,10 +910,10 @@ const Home = () => {
                 handleToggleStatus={handleToggleStatus}
             />
 
-            <NotificationDetailModal 
-                display={notificationModal} 
-                toggle={toggleNotificationModal} 
-                detailItem={notificationItem}
+            <FeedbackDetailModal 
+                display={feedbackDetailModal} 
+                toggle={toggleFeedbackDetailModal} 
+                detailItem={feedbackDetailItem}
                 handleGetResidentItem={handleGetResidentItem}
                 handleGetProductItem={handleGetProductItem}
                 handleGetStoreItem={handleGetStoreItem}

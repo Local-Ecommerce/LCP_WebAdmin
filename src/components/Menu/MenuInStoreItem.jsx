@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { api } from "../../RequestMethod";
@@ -115,7 +116,6 @@ const ProductWrapper = styled.div`
 
 const MenuInStoreItem = ({ item, menuId }) =>  {
     const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(false);
 
     const [dropdown, setDropdown] = useState(menuId === item.MenuId ? true : false);
     const toggleDropdown = () => { setDropdown(!dropdown) };

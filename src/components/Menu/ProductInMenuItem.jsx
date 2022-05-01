@@ -149,9 +149,11 @@ const ProductInMenuItem = ({ item }) =>  {
                             <ImageWrapper disabled> <Image src={related.Product.Image} /> </ImageWrapper>
 
                             <NameWrapper>
-                                {related.Product.Color ? related.Product.Color + " / " : ''}
-                                {related.Product.Size ? related.Product.Size + " / " : ''}
-                                {related.Product.Weight ? related.Product.Weight + "kg " : ''}
+                                {related.Product.Color ? related.Product.Color : ''}
+                                {related.Product.Color && (related.Product.Size || related.Product.Weight) ? " / " : ''}
+                                {related.Product.Size ? related.Product.Size : ''}
+                                {related.Product.Size && related.Product.Weight ? " / " : ''}
+                                {related.Product.Weight ? related.Product.Weight + " kg" : ''}
                             </NameWrapper>
 
                             <PriceWrapper>{related.Price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} đ</PriceWrapper>

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
 import { api } from "../../RequestMethod";
-import { HideImage } from '@mui/icons-material';
+import { HideImage, Report } from '@mui/icons-material';
 import * as Constant from '../../Constant';
 
 import MenuInStoreList from './MenuInStoreList';
@@ -22,7 +22,7 @@ const LeftWrapper = styled.div`
 `;
 
 const RightWrapper = styled.div`
-    flex: 2;
+    flex: 3;
     padding: 20px;
     max-height: 50vh;
     overflow: auto;
@@ -109,6 +109,29 @@ const Label = styled.div`
     margin-bottom: 10px;
 `;
 
+const Align = styled.div`
+    display: flex;
+`;
+
+const StyledReportIcon = styled(Report)`
+    && {
+        color: ${props => props.theme.red};
+    }
+`;
+
+const Button = styled.div`
+    cursor: pointer;
+    padding: 5px 8px;
+    background-color: ${props => props.theme.green};
+    color: ${props => props.theme.white};
+    font-size: 12px;
+    border-radius: 5px;
+`;
+
+const WarningWrapper = styled.div`
+    margin-left: 10px;
+`;
+
 const customStyles = {
     content: {
         top: '50%',
@@ -121,7 +144,7 @@ const customStyles = {
     },
 };
 
-const DetailModal = ({ display, toggle, detailItem }) => {
+const DetailModal = ({ display, toggle, detailItem, handleGetWarnStoreItem }) => {
     const [resident, setResident] = useState({});
     const [menus, setMenus] = useState([]);
     const [store, setStore] = useState({});
@@ -165,17 +188,43 @@ const DetailModal = ({ display, toggle, detailItem }) => {
         }
     }, [display]);
 
+    const handleSetWarnStoreItem = (e) => {
+        e.stopPropagation();
+        handleGetWarnStoreItem(store.MerchantStoreId, store.StoreName);
+    }
+
     return (
         <Modal isOpen={display} onRequestClose={toggle} style={customStyles} ariaHideApp={false}>
 
             <ModalContentWrapper>
                 <LeftWrapper>
-                    <Label>Cửa hàng</Label>
-                    {
-                        store.StoreImage ?
-                        <Image src={store.StoreImage ? store.StoreImage : ''} />
-                        : <StyledNoImageIcon />
-                    }
+                <Label>Cửa hàng</Label>
+                    
+                    <Align>
+                        {
+                            store.StoreImage ?
+                            <Image src={store.StoreImage ? store.StoreImage : ''} />
+                            : <StyledNoImageIcon />
+                        }
+
+                        {
+                            store.Warned === 1 ?
+                            <WarningWrapper>
+                                <StyledReportIcon />
+                                <div />
+                                <Button onClick={handleSetWarnStoreItem}>Gỡ cánh cáo</Button>
+                            </WarningWrapper>
+                            : store.Warned === 2 ?
+                            <WarningWrapper>
+                                <StyledReportIcon />
+                                <StyledReportIcon />
+                                <div />
+                                <Button onClick={handleSetWarnStoreItem}>Gỡ cánh cáo</Button>
+                            </WarningWrapper>
+                            : null
+                        }
+                        
+                    </Align>
 
                     <FieldLabel mt>Tên cửa hàng</FieldLabel>
                     <TextField

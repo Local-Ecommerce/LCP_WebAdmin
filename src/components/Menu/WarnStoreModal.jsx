@@ -65,11 +65,11 @@ const WarnStoreModal = ({ display, toggle, warnItem, handleWarnStore }) => {
             <ModalTitle>Từ chối</ModalTitle>
 
             <ModalContentWrapper>
-                Bạn có chắc muốn cảnh cáo cửa hàng【<b>{warnItem ? warnItem.name : ''}</b>】?
+                Bạn có chắc muốn gỡ cảnh cáo cửa hàng【<b>{warnItem ? warnItem.name : ''}</b>】?
             </ModalContentWrapper>
             
             <ModalButtonWrapper>
-                <ModalButton color="red" onClick={handleWarnStore}>Từ chối</ModalButton>
+                <ModalButton color="green" onClick={handleWarnStore}>Gỡ</ModalButton>
                 <ModalButton onClick={toggle}>Quay lại</ModalButton>
             </ModalButtonWrapper>
         </Modal>

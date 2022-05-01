@@ -1,11 +1,11 @@
 import { React } from 'react';
-import HomeNotificationItem from './HomeNotificationItem';
+import FeedbackItem from './FeedbackItem';
 
-const HomeNotificationList = ({ currentItems, handleGetItem }) => {
+const FeedbackList = ({ currentItems, handleGetItem }) => {
 
     return currentItems && currentItems.map((item, index) => {
         return (
-            <HomeNotificationItem 
+            <FeedbackItem 
                 item={item} 
                 key={index}
                 handleGetItem={handleGetItem}
@@ -14,4 +14,4 @@ const HomeNotificationList = ({ currentItems, handleGetItem }) => {
     });
 }
 
-export default HomeNotificationList;
+export default FeedbackList;

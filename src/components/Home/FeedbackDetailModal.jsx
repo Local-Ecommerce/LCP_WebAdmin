@@ -174,7 +174,7 @@ const Image = styled.img`
     cursor: pointer;
 `;
 
-const DetailModal = ({ display, toggle, detailItem, handleGetResidentItem, handleGetProductItem,
+const FeedbackDetailModal = ({ display, toggle, detailItem, handleGetResidentItem, handleGetProductItem,
                        handleGetStoreItem, handleGetWarnStoreItem, handleGetPicItem, handleSetRead }) => {
     const [images, setImages] = useState([]);
     const [productOption, setProductOption] = useState('');
@@ -193,7 +193,7 @@ const DetailModal = ({ display, toggle, detailItem, handleGetResidentItem, handl
                         + (detailItem.Product.Color && (detailItem.Product.Size || detailItem.Product.Weight) ? " / " : '')
                         + (detailItem.Product.Size ? detailItem.Product.Size : '')
                         + (detailItem.Product.Size && detailItem.Product.Weight ? " / " : '')
-                        + (detailItem.Product.Weight ? detailItem.Product.Weight + "kg " : '');
+                        + (detailItem.Product.Weight ? detailItem.Product.Weight + " kg" : '');
             setProductOption(option);
 
             const fetchData = () => {
@@ -252,7 +252,7 @@ const DetailModal = ({ display, toggle, detailItem, handleGetResidentItem, handl
                         <StyledInventoryIcon />
                         
                         <DetailWrapper>
-                            <DetailLabel>Sản phẩm bị phản hồi</DetailLabel>
+                            <DetailLabel>Sản phẩm được phản hồi</DetailLabel>
                             <DetailText>{detailItem.Product && detailItem.Product.ProductName}</DetailText>
                             <DetailText>{productOption}</DetailText>
                             <DetailHyperlink onClick={handleSetProductItem}>Xem chi tiết</DetailHyperlink>
@@ -263,7 +263,7 @@ const DetailModal = ({ display, toggle, detailItem, handleGetResidentItem, handl
                         <StyledStoreIcon />
                         
                         <DetailWrapper>
-                            <DetailLabel>Cửa hàng bị phản hồi</DetailLabel>
+                            <DetailLabel>Cửa hàng được phản hồi</DetailLabel>
                             <DetailText>{detailItem.MerchantStore && detailItem.MerchantStore.StoreName}</DetailText>
                             <DetailText>{storeAddress}</DetailText>
                             <DetailHyperlink onClick={handleSetStoreItem}>Xem chi tiết</DetailHyperlink>
@@ -308,4 +308,4 @@ const DetailModal = ({ display, toggle, detailItem, handleGetResidentItem, handl
     )
 };
 
-export default DetailModal;
+export default FeedbackDetailModal;

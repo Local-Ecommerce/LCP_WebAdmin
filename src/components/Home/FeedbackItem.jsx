@@ -85,7 +85,7 @@ const StyledNoImageIcon = styled(HideImage)`
     }
 `;
 
-const NotificationItem = ({ item, handleGetItem }) => {
+const FeedbackItem = ({ item, handleGetItem }) => {
     const date = DateTime.fromISO(item.FeedbackDate)
     const diff = date.diffNow(["years", "months", "days", "hours", "minutes"])
     let timeLabel = '';
@@ -134,4 +134,4 @@ const NotificationItem = ({ item, handleGetItem }) => {
     );
 };
 
-export default NotificationItem;
+export default FeedbackItem;

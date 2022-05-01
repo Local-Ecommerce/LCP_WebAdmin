@@ -268,7 +268,7 @@ const DetailProductModal = ({ display, toggle, detailItem, AddItemToCart }) => {
             ));
             setImages(imageList);
             setImageSrc(imageList.length ? imageList[0].image : '');
-
+                console.log(detailItem)
             if (detailItem.RelatedProducts.length > 0) {
                 setPrices(detailItem.RelatedProducts.map((item) => (item.DefaultPrice)));
 

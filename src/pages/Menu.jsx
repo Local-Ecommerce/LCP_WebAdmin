@@ -6,10 +6,12 @@ import ReactPaginate from "react-paginate";
 import { Search, ArrowRight, FormatListBulleted, DoubleArrow } from '@mui/icons-material';
 import { CircularProgress, Checkbox } from '@mui/material';
 import { api } from "../RequestMethod";
+import { toast } from 'react-toastify';
 import { List, AutoSizer } from 'react-virtualized';
 import * as Constant from '../Constant';
 
 import DetailModal from '../components/Menu/DetailModal';
+import WarnStoreModal from '../components/Menu/WarnStoreModal';
 
 const PageWrapper = styled.div`
     margin: 50px 40px 50px ${props => props.toggle ? "370px" : "45px"};
@@ -395,6 +397,10 @@ const Menu = () =>  {
     function toggleDetailModal() { setDetailModal(!detailModal); }
     const [detailItem, setDetailItem] = useState({ id: '', storeId: '' });
 
+    const [warnStoreItem, setWarnStoreItem] = useState({});
+    const [warnStoreModal, setWarnStoreModal] = useState(false);
+    const toggleWarnStoreModal = () => { setWarnStoreModal(!warnStoreModal); }
+
     const [displayAddress, setDisplayAddress] = useState(false);
     function toggleDisplayAddress() { setDisplayAddress(!displayAddress); listRef.current.recomputeRowHeights(); }
 
@@ -528,6 +534,32 @@ const Menu = () =>  {
 
     const handleGetDetailItem = (id, storeId) => {
         setDetailItem({ id: id, storeId: storeId });
+        toggleDetailModal();
+    }
+
+    const handleGetWarnStoreItem = (id, name) => {
+        setWarnStoreItem({ id: id, name: name });
+        toggleWarnStoreModal();
+    }
+
+    const handleWarnStore = (event) => {
+        event.preventDefault();
+
+        const warnStore = async () => {
+            const notification = toast.loading("Đang xử lí yêu cầu...");
+            api.put("stores/warning?id=" + warnStoreItem.id + "&isWarning=" + false)
+            .then(function (res) {
+                if (res.data.ResultMessage === "SUCCESS") {
+                    toast.update(notification, { render: "Gỡ cảnh cáo cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                toast.update(notification, { render: "Đã xảy ra lỗi khi xử lí yêu cầu.", type: "error", autoClose: 5000, isLoading: false });
+            });
+        }
+        warnStore();
+        toggleWarnStoreModal();
         toggleDetailModal();
     }
 
@@ -705,6 +737,14 @@ const Menu = () =>  {
                 display={detailModal}
                 toggle={toggleDetailModal}
                 detailItem={detailItem}
+                handleGetWarnStoreItem={handleGetWarnStoreItem}
+            />
+
+            <WarnStoreModal
+                display={warnStoreModal} 
+                toggle={toggleWarnStoreModal} 
+                warnItem={warnStoreItem} 
+                handleWarnStore={handleWarnStore}
             />
         </PageWrapper>
         </>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { ArrowDropUp, ArrowDropDown, Edit, Delete, AddCircle, HideImage } from '@mui/icons-material';
 import { TextField } from '@mui/material';

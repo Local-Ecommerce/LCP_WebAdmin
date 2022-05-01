@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from "styled-components";
 import { Link } from 'react-router-dom';
-import { Notifications, Search, AccountCircleOutlined, HelpOutlineOutlined, Logout, Person } from '@mui/icons-material';
+import { Notifications, AccountCircleOutlined, HelpOutlineOutlined, Logout, Person } from '@mui/icons-material';
 import { Badge, CircularProgress } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -85,39 +85,6 @@ const Row = styled.div`
 const Logo = styled.img`
     width: 80px;
     height: 40px;
-`;
-
-const SearchField = styled.div`
-    display: flex;
-    width: 31%;
-    justify-content: center;
-    align-items: center;
-    border-radius: 5px;
-    border-color: #E0E0E0;
-    border-style: solid;
-    border-width: thin;
-    height: 35px;
-    padding: 0px 3px 0px 8px;
-    background-color: #f6f6f7;
-`;
-
-const Input = styled.input`
-    padding: 4px;
-    flex-grow: 1;
-    background-color: transparent;
-    outline: none;
-    border: none;
-    margin-right: 8px;
-
-    &:focus {
-    outline: 0;
-    }
-`;
-
-const StyledSearchIcon = styled(Search)`
-    && {
-        color: grey;
-    }
 `;
 
 const Avatar = styled.img`

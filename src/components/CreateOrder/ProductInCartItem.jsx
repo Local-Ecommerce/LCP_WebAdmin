@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { api } from "../../RequestMethod";
 import { HideImage, Close, Add, Remove } from '@mui/icons-material';
 
 const ContainerWrapper = styled.div`
