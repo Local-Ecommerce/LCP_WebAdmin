@@ -367,7 +367,7 @@ const StyledExportIcon = styled(ExitToApp)`
 const ExportButton = styled.div`
     display: flex;
     align-items: center;
-    margin-left: 5px;
+    margin-left: 10px;
     font-size: 14px;
     padding: 9px;
     border: 1px solid rgba(0,0,0,0.1);
@@ -375,6 +375,7 @@ const ExportButton = styled.div`
     color: ${props => props.theme.white};
     background-color: ${props => props.theme.green};
     cursor: pointer;
+    opacity: ${props => props.disabled ? 0.6 : 1};
 
     &:hover {
         opacity: 0.8;
@@ -435,6 +436,7 @@ const Home = () => {
     function togglePictureModal() { setPictureModal(!pictureModal); }
 
     const [dashboardData, setDashboardData] = useState({});
+    const [exportData, setExportData] = useState([]);
     const [news, setNews] = useState([]);
     const [feedbacks, setFeedbacks] = useState([]);
 
@@ -489,6 +491,36 @@ const Home = () => {
             fetchData();
         }
     }, [page, feedbackChange]);
+
+    useEffect( () => {  //fetch api data
+        const fetchData = () => {
+            let url = "orders"
+                + "?sort=-createddate"
+                + "&include=product"
+                + "&include=resident"
+                + "&include=payment";
+            api.get(url)
+            .then(function (res) {
+                setExportData(res.data.Data.List.filter(item => item.Payments[0]).map((item) => ({
+                    'Mã đơn hàng': item.OrderId,
+                    'Ngày tạo': item.CreatedDate,
+                    'Tổng cộng': item.TotalAmount,
+                    'Trạng thái': item.Status === Constant.OPEN ? 'Chờ duyệt'
+                    : item.Status === Constant.CANCELED_ORDER ? 'Hủy'
+                    : item.Status === Constant.CONFIRMED ? 'Đang hoạt động'
+                    : item.Status === Constant.COMPLETED ? 'Hoàn thành' : null,
+                    'Hình thức thanh toán': item.Payments[0].PaymentMethodId === Constant.PAYMENT_MOMO ? 'MoMo' : 'Tiền mặt',
+                    'Tên khách hàng': item.Resident.ResidentName,
+                    'Số điện thoại khách hàng': item.Resident.PhoneNumber,
+                    'Địa chỉ giao hàng': item.Resident.DeliveryAddress 
+                })));
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        }
+        fetchData();
+    }, []);
 
     let clickOutside = useClickOutside(() => {
         setDropdown(false);
@@ -669,7 +701,18 @@ const Home = () => {
         const fileExtension = '.xlsx';
         const fileName = 'Thong_ke_he_thong';
 
+        var wscols = [
+            {wch:25},
+            {wch:25},
+            {wch:12},
+            {wch:12},
+            {wch:12},
+            {wch:20},
+            {wch:20},
+            {wch:20}
+        ];
         const ws = XLSX.utils.json_to_sheet(csvData);
+        ws['!cols'] = wscols;
         const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
         const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
         const data = new Blob([excelBuffer], {type: fileType});
@@ -696,10 +739,14 @@ const Home = () => {
                         </DropdownMenu>
                     </SelectWrapper>
 
-                    <ExportButton onClick={() => handleExportExcel(news)}>
-                        <StyledExportIcon />
-                        Xuất thống kê
-                    </ExportButton>
+                    {
+                        user.RoleId === "R002" ?
+                        <ExportButton disabled={!exportData.length} onClick={() => handleExportExcel(exportData)}>
+                            <StyledExportIcon />
+                            Xuất thống kê
+                        </ExportButton>
+                        : null
+                    }
                 </Align>
             </Row>
 
