@@ -492,7 +492,7 @@ const Home = () => {
         }
     }, [page, feedbackChange]);
 
-    useEffect( () => {  //fetch api data
+    useEffect( () => {
         const fetchData = () => {
             let url = "orders"
                 + "?sort=-createddate"

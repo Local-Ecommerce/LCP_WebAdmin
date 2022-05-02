@@ -414,6 +414,7 @@ const Store = ({ refresh, toggleRefresh }) => {
     function toggleVerifyModal() { setVerifyModal(!verifyModal); }
     const [detailModal, setDetailModal] = useState(false);
     function toggleDetailModal() { setDetailModal(!detailModal); }
+    const [detailModalChange, setDetailModalChange] = useState(false); 
 
     const [rejectItem, setRejectItem] = useState({ id: '', name: '' });
     const [approveItem, setApproveItem] = useState({ id: '', name: '' });
@@ -666,8 +667,8 @@ const Store = ({ refresh, toggleRefresh }) => {
         handleReject();
     }
 
-    const handleGetWarnStoreItem = (id, name) => {
-        setWarnStoreItem({ id: id, name: name });
+    const handleGetWarnStoreItem = (id, name, warn) => {
+        setWarnStoreItem({ id: id, name: name, warn: warn });
         toggleWarnStoreModal();
     }
 
@@ -676,10 +677,17 @@ const Store = ({ refresh, toggleRefresh }) => {
 
         const warnStore = async () => {
             const notification = toast.loading("Đang xử lí yêu cầu...");
-            api.put("stores/warning?id=" + warnStoreItem.id + "&isWarning=" + false)
+            api.put("stores/warning?id=" + warnStoreItem.id + "&isWarning=" + warnStoreItem.warn)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
-                    toast.update(notification, { render: "Gỡ cảnh cáo cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
+                    if (warnStoreItem.warn) {
+                        toast.update(notification, { render: "Cảnh cáo cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
+                        setDetailModalChange(!detailModalChange);
+
+                    } else {
+                        toast.update(notification, { render: "Gỡ cảnh cáo cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
+                        setDetailModalChange(!detailModalChange);
+                    }
                 }
             })
             .catch(function (error) {
@@ -689,7 +697,6 @@ const Store = ({ refresh, toggleRefresh }) => {
         }
         warnStore();
         toggleWarnStoreModal();
-        toggleDetailModal();
     }
 
     return (
@@ -902,6 +909,7 @@ const Store = ({ refresh, toggleRefresh }) => {
                 display={detailModal}
                 toggle={toggleDetailModal}
                 detailItem={detailItem}
+                detailModalChange={detailModalChange}
                 handleGetWarnStoreItem={handleGetWarnStoreItem}
             />
 

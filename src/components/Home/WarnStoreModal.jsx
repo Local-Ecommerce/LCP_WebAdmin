@@ -69,7 +69,7 @@ const WarnStoreModal = ({ display, toggle, warnItem, handleWarnStore }) => {
             </ModalContentWrapper>
             
             <ModalButtonWrapper>
-                <ModalButton color="red" onClick={handleWarnStore}>Từ chối</ModalButton>
+                <ModalButton color="red" onClick={handleWarnStore}>Cảnh cáo</ModalButton>
                 <ModalButton onClick={toggle}>Quay lại</ModalButton>
             </ModalButtonWrapper>
         </Modal>

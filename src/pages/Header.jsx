@@ -304,6 +304,11 @@ const StyledLoadingIcon = styled(CircularProgress)`
     }
 `;
 
+const ApartmentName = styled.div`
+    font-size: 14px;
+    margin-left: 10px;
+`;
+
 const Header = ({ refresh, toggleRefresh }) => {
     const { logout } = useAuth();
     let navigate = useNavigate();
@@ -311,6 +316,7 @@ const Header = ({ refresh, toggleRefresh }) => {
     const user = JSON.parse(localStorage.getItem('USER'));
     const [name, setName] = useState('');
     const [image, setImage] = useState('');
+    const [apartmentName, setApartmentName] = useState('');
 
     const [rejectProductModal, setRejectProductModal] = useState(false);    function toggleRejectProductModal() { setRejectProductModal(!rejectProductModal); }
     const [approveProductModal, setApproveProductModal] = useState(false);  function toggleApproveProductModal() { setApproveProductModal(!approveProductModal); }
@@ -350,6 +356,11 @@ const Header = ({ refresh, toggleRefresh }) => {
                     api.get("accounts?id=" + res.data.Data.List[0].AccountId)
                     .then(function (res2) {
                         setImage(res2.data.Data.ProfileImage);
+
+                        api.get("apartments?id=" + res.data.Data.List[0].ApartmentId)
+                        .then(function (res3) {
+                            setApartmentName("| " + res3.data.Data.List[0].ApartmentName);
+                        })
                     })
                 })
                 .catch(function (error) {
@@ -385,8 +396,7 @@ const Header = ({ refresh, toggleRefresh }) => {
 
                             let url3 = "residents" 
                             + "?status=" + Constant.UNVERIFIED_RESIDENT
-                            + "&apartmentid=" + user.Residents[0].ApartmentId
-                            + "&type=" + Constant.CUSTOMER;
+                            + "&apartmentid=" + user.Residents[0].ApartmentId;
                             api.get(url3)
                             .then(function (res3) {
                                 setResidents(res3.data.Data.List);
@@ -693,9 +703,13 @@ const Header = ({ refresh, toggleRefresh }) => {
 
     return (
         <Wrapper>
-            <Link to={"/"}>
-                <Logo src='./images/lcp.png' alt="Loich Logo" />
-            </Link>
+            <Align>
+                <Link to={"/"}>
+                    <Logo src='./images/lcp.png' alt="Loich Logo" />
+                </Link>
+                <ApartmentName>{apartmentName}</ApartmentName>
+            </Align>
+
             
             <Align>
                 <IconButton onClick={() => toggleNotificationDropdown(!notificationDropdown)}>

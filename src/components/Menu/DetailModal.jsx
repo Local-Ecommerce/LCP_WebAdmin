@@ -24,7 +24,7 @@ const LeftWrapper = styled.div`
 const RightWrapper = styled.div`
     flex: 3;
     padding: 20px;
-    max-height: 50vh;
+    max-height: 60vh;
     overflow: auto;
     overflow-x: hidden;
 `;
@@ -122,10 +122,11 @@ const StyledReportIcon = styled(Report)`
 const Button = styled.div`
     cursor: pointer;
     padding: 5px 8px;
-    background-color: ${props => props.theme.green};
+    background-color: ${props => props.red ? props.theme.red : props.theme.green};
     color: ${props => props.theme.white};
     font-size: 12px;
     border-radius: 5px;
+    margin-top: ${props => props.mt ? "6px" : null};
 `;
 
 const WarningWrapper = styled.div`
@@ -144,7 +145,7 @@ const customStyles = {
     },
 };
 
-const DetailModal = ({ display, toggle, detailItem, handleGetWarnStoreItem }) => {
+const DetailModal = ({ display, toggle, detailItem, detailModalChange, handleGetWarnStoreItem }) => {
     const [resident, setResident] = useState({});
     const [menus, setMenus] = useState([]);
     const [store, setStore] = useState({});
@@ -152,6 +153,8 @@ const DetailModal = ({ display, toggle, detailItem, handleGetWarnStoreItem }) =>
 
     useEffect(() => {
         if (display) {
+            setResident({}); setMenus([]); setStore({});
+
             setLoading(true);
             const fetchData = async () => {
                 api.get("stores?id=" + detailItem.storeId)
@@ -186,11 +189,16 @@ const DetailModal = ({ display, toggle, detailItem, handleGetWarnStoreItem }) =>
             };
             fetchData();
         }
-    }, [display]);
+    }, [display, detailModalChange]);
 
     const handleSetWarnStoreItem = (e) => {
         e.stopPropagation();
-        handleGetWarnStoreItem(store.MerchantStoreId, store.StoreName);
+        handleGetWarnStoreItem(store.MerchantStoreId, store.StoreName, true);
+    }
+
+    const handleSetUnWarnStoreItem = (e) => {
+        e.stopPropagation();
+        handleGetWarnStoreItem(store.MerchantStoreId, store.StoreName, false);
     }
 
     return (
@@ -198,7 +206,7 @@ const DetailModal = ({ display, toggle, detailItem, handleGetWarnStoreItem }) =>
 
             <ModalContentWrapper>
                 <LeftWrapper>
-                <Label>Cửa hàng</Label>
+                    <Label>Cửa hàng</Label>
                     
                     <Align>
                         {
@@ -212,16 +220,24 @@ const DetailModal = ({ display, toggle, detailItem, handleGetWarnStoreItem }) =>
                             <WarningWrapper>
                                 <StyledReportIcon />
                                 <div />
-                                <Button onClick={handleSetWarnStoreItem}>Gỡ cánh cáo</Button>
+                                <Button red={1} onClick={handleSetWarnStoreItem}>Cánh cáo</Button>
+                                <div />
+                                <Button mt={1} onClick={handleSetWarnStoreItem}>Gỡ cánh cáo</Button>
                             </WarningWrapper>
                             : store.Warned === 2 ?
                             <WarningWrapper>
                                 <StyledReportIcon />
                                 <StyledReportIcon />
                                 <div />
-                                <Button onClick={handleSetWarnStoreItem}>Gỡ cánh cáo</Button>
+                                <Button red={1} onClick={handleSetWarnStoreItem}>Cánh cáo</Button>
+                                <div />
+                                <Button mt={1} onClick={handleSetUnWarnStoreItem}>Gỡ cánh cáo</Button>
                             </WarningWrapper>
-                            : null
+                            :
+                            <WarningWrapper>
+                                <div />
+                                <Button red={1} onClick={handleSetWarnStoreItem}>Cánh cáo</Button>
+                            </WarningWrapper>
                         }
                         
                     </Align>
@@ -235,13 +251,13 @@ const DetailModal = ({ display, toggle, detailItem, handleGetWarnStoreItem }) =>
                     <FieldLabel mt>Quản lí</FieldLabel>
                     <TextField
                         disabled={true}
-                        type="text" value={resident.ResidentName}
+                        type="text" value={resident && resident.ResidentName}
                     />
 
                     <FieldLabel mt>Địa chỉ</FieldLabel>
                     <TextField
                         disabled={true}
-                        type="text" value={resident.DeliveryAddress}
+                        type="text" value={resident && resident.DeliveryAddress}
                     />
                 </LeftWrapper>
 

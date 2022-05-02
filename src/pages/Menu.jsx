@@ -395,6 +395,7 @@ const Menu = () =>  {
 
     const [detailModal, setDetailModal] = useState(false);
     function toggleDetailModal() { setDetailModal(!detailModal); }
+    const [detailModalChange, setDetailModalChange] = useState(false); 
     const [detailItem, setDetailItem] = useState({ id: '', storeId: '' });
 
     const [warnStoreItem, setWarnStoreItem] = useState({});
@@ -537,8 +538,8 @@ const Menu = () =>  {
         toggleDetailModal();
     }
 
-    const handleGetWarnStoreItem = (id, name) => {
-        setWarnStoreItem({ id: id, name: name });
+    const handleGetWarnStoreItem = (id, name, warn) => {
+        setWarnStoreItem({ id: id, name: name, warn: warn });
         toggleWarnStoreModal();
     }
 
@@ -547,10 +548,17 @@ const Menu = () =>  {
 
         const warnStore = async () => {
             const notification = toast.loading("Đang xử lí yêu cầu...");
-            api.put("stores/warning?id=" + warnStoreItem.id + "&isWarning=" + false)
+            api.put("stores/warning?id=" + warnStoreItem.id + "&isWarning=" + warnStoreItem.warn)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
-                    toast.update(notification, { render: "Gỡ cảnh cáo cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
+                    if (warnStoreItem.warn) {
+                        toast.update(notification, { render: "Cảnh cáo cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
+                        setDetailModalChange(!detailModalChange);
+
+                    } else {
+                        toast.update(notification, { render: "Gỡ cảnh cáo cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
+                        setDetailModalChange(!detailModalChange);
+                    }
                 }
             })
             .catch(function (error) {
@@ -560,7 +568,6 @@ const Menu = () =>  {
         }
         warnStore();
         toggleWarnStoreModal();
-        toggleDetailModal();
     }
 
     return (
@@ -737,6 +744,7 @@ const Menu = () =>  {
                 display={detailModal}
                 toggle={toggleDetailModal}
                 detailItem={detailItem}
+                detailModalChange={detailModalChange}
                 handleGetWarnStoreItem={handleGetWarnStoreItem}
             />
 
