@@ -62,7 +62,7 @@ const WarnStoreModal = ({ display, toggle, warnItem, handleWarnStore }) => {
 
     return (
         <Modal isOpen={display} onRequestClose={toggle} style={customStyles} ariaHideApp={false}>
-            <ModalTitle>Từ chối</ModalTitle>
+            <ModalTitle>Cảnh cáo cửa hàng</ModalTitle>
 
             <ModalContentWrapper>
                 Bạn có chắc muốn cảnh cáo cửa hàng【<b>{warnItem ? warnItem.name : ''}</b>】?
