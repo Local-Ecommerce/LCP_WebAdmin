@@ -561,18 +561,32 @@ const Menu = () =>  {
                                 image: warnStoreItem.storeImage ? warnStoreItem.storeImage : '',
                                 name: warnStoreItem.storeName,
                                 id: warnStoreItem.storeId,
-                                feedbackReason: warnStoreItem.warn ? 'Cảnh cáo vi phạm từ quản lí chợ.' : 'Gỡ cảnh cáo.',
+                                feedbackReason: 'Cảnh cáo vi phạm từ quản lí chợ.',
                                 feedbackImage: null
                             },
                             read: 0,
                             receiverId: warnStoreItem.merchantId,
                             senderId: user.Residents[0].ResidentId,
-                            type: warnStoreItem.warn ? '103' : '104'
+                            type: '103'
                         });
                         toast.update(notification, { render: "Cảnh cáo cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
                         setDetailModalChange(!detailModalChange);
 
                     } else {
+                        push(ref(db, `Notification/` + warnStoreItem.merchantId), {
+                            createdDate: Date.now(),
+                            data: {
+                                image: warnStoreItem.storeImage ? warnStoreItem.storeImage : '',
+                                name: warnStoreItem.storeName,
+                                id: warnStoreItem.storeId,
+                                feedbackReason: 'Gỡ cảnh cáo.',
+                                feedbackImage: null
+                            },
+                            read: 0,
+                            receiverId: warnStoreItem.merchantId,
+                            senderId: user.Residents[0].ResidentId,
+                            type: '104'
+                        });
                         toast.update(notification, { render: "Gỡ cảnh cáo cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
                         setDetailModalChange(!detailModalChange);
                     }
