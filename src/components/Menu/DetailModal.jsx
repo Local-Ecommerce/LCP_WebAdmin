@@ -170,7 +170,7 @@ const DetailModal = ({ display, toggle, detailItem, detailModalChange, handleGet
                             api.get(url)
                             .then(function (res2) {
                                 if (res2.data.ResultMessage === "SUCCESS") {
-                                    setMenus(res2.data.Data.List);
+                                    setMenus(res2.data.Data.List ? res2.data.Data.List : []);
 
                                     api.get("residents?id=" + res.data.Data.List[0].ResidentId)
                                     .then(function (res3) {
