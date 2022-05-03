@@ -145,7 +145,7 @@ const customStyles = {
     },
 };
 
-const DetailModal = ({ display, toggle, detailItem, detailModalChange, handleGetWarnStoreItem }) => {
+const DetailModal = ({ display, toggle, detailItem, detailModalChange, handleGetWarnStoreItem, hideWarnButton }) => {
     const [resident, setResident] = useState({});
     const [menus, setMenus] = useState([]);
     const [store, setStore] = useState({});
@@ -219,27 +219,39 @@ const DetailModal = ({ display, toggle, detailItem, detailModalChange, handleGet
                             store.Warned === 1 ?
                             <WarningWrapper>
                                 <StyledReportIcon />
-                                <div />
-                                <Button red={1} onClick={handleSetWarnStoreItem}>Cánh cáo</Button>
-                                <div />
-                                <Button mt={1} onClick={handleSetUnWarnStoreItem}>Gỡ cánh cáo</Button>
+                                {
+                                    hideWarnButton ?
+                                    null :
+                                    <>
+                                        <div /><Button red={1} onClick={handleSetWarnStoreItem}>Cánh cáo</Button>
+                                        <div /><Button mt={1} onClick={handleSetUnWarnStoreItem}>Gỡ cánh cáo</Button>
+                                    </>
+                                }
                             </WarningWrapper>
                             : store.Warned === 2 ?
                             <WarningWrapper>
                                 <StyledReportIcon />
                                 <StyledReportIcon />
-                                <div />
-                                <Button red={1} onClick={handleSetWarnStoreItem}>Cánh cáo</Button>
-                                <div />
-                                <Button mt={1} onClick={handleSetUnWarnStoreItem}>Gỡ cánh cáo</Button>
+                                {
+                                    hideWarnButton ?
+                                    null :
+                                    <>
+                                        <div /><Button red={1} onClick={handleSetWarnStoreItem}>Cánh cáo</Button>
+                                        <div /><Button mt={1} onClick={handleSetUnWarnStoreItem}>Gỡ cánh cáo</Button>
+                                    </>
+                                }
                             </WarningWrapper>
                             :
                             <WarningWrapper>
-                                <div />
-                                <Button red={1} onClick={handleSetWarnStoreItem}>Cánh cáo</Button>
+                                {
+                                    hideWarnButton ?
+                                    null :
+                                    <>
+                                        <div /><Button red={1} onClick={handleSetWarnStoreItem}>Cánh cáo</Button>
+                                    </>
+                                }
                             </WarningWrapper>
                         }
-                        
                     </Align>
 
                     <FieldLabel mt>Tên cửa hàng</FieldLabel>

@@ -958,6 +958,7 @@ const Home = () => {
                 display={storeModal}
                 toggle={toggleStoreModal}
                 detailItem={storeItem}
+                hideWarnButton={true}
             />
 
             <WarnStoreModal
