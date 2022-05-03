@@ -222,7 +222,7 @@ const DetailModal = ({ display, toggle, detailItem, detailModalChange, handleGet
                                 <div />
                                 <Button red={1} onClick={handleSetWarnStoreItem}>Cánh cáo</Button>
                                 <div />
-                                <Button mt={1} onClick={handleSetWarnStoreItem}>Gỡ cánh cáo</Button>
+                                <Button mt={1} onClick={handleSetUnWarnStoreItem}>Gỡ cánh cáo</Button>
                             </WarningWrapper>
                             : store.Warned === 2 ?
                             <WarningWrapper>
