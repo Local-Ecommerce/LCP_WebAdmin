@@ -188,7 +188,6 @@ const DetailModal = ({ display, toggle, detailItem, detailModalChange, handleGet
                     }
                 })
                 .catch(function (error) {
-                    toggle();
                     setLoading(false);
                 });
             };
