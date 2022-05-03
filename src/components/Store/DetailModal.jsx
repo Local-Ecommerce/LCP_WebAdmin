@@ -157,7 +157,7 @@ const DetailModal = ({ display, toggle, detailItem, detailModalChange, handleGet
 
             setLoading(true);
             const fetchData = async () => {
-                api.get("stores?id=" + detailItem.id)
+                api.get("stores?id=" + detailItem.storeId)
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
                         if (res.data.Data.List && res.data.Data.List[0] && res.data.Data.List[0].Warned < 3) {
