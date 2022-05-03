@@ -157,7 +157,7 @@ const DetailModal = ({ display, toggle, detailItem, detailModalChange, handleGet
 
             setLoading(true);
             const fetchData = async () => {
-                api.get("stores?id=" + detailItem.storeId)
+                api.get("stores?id=" + detailItem.id)
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
                         if (res.data.Data.List && res.data.Data.List[0] && res.data.Data.List[0].Warned < 3) {
@@ -165,7 +165,7 @@ const DetailModal = ({ display, toggle, detailItem, detailModalChange, handleGet
 
                             let url = "menus"
                             + "?sort=-createddate"
-                            + "&storeid=" + detailItem.storeId
+                            + "&storeid=" + detailItem.id
                             + "&status=" + Constant.ACTIVE_MENU;
                             api.get(url)
                             .then(function (res2) {
