@@ -206,7 +206,9 @@ const DetailModal = ({ display, toggle, detailItem }) => {
             setLoading(true);
             setImages([]); setImageSrc(''); setCategory('');
 
-            let imageList = detailItem.BaseProduct.Image.split("|").filter(item => item).map((item) => (
+            let imageList = detailItem.BaseProduct ? detailItem.BaseProduct.Image.split("|").filter(item => item).map((item) => (
+                { image: item }
+            )) : detailItem.Image.split("|").filter(item => item).map((item) => (
                 { image: item }
             ));
             setImages(imageList);
@@ -218,7 +220,6 @@ const DetailModal = ({ display, toggle, detailItem }) => {
                 setLoading(false);
             })
             .catch(function (error) {
-                console.log(error);
                 setLoading(false);
             });
         }

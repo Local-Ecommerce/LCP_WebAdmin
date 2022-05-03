@@ -665,7 +665,6 @@ const Home = () => {
             api.put("stores/warning?id=" + warnStoreItem.id + "&isWarning=" + true)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
-                    console.log(feedbackDetailItem)
                     api.put("feedbacks?id=" + feedbackDetailItem.FeedbackId)
                     .then(function (res) {
                         push(ref(db, `Notification/` + feedbackDetailItem.MerchantStore.ResidentId), {
@@ -696,10 +695,6 @@ const Home = () => {
         toggleWarnStoreModal();
         toggleFeedbackDetailModal();
     }
-
-    useEffect(() => {
-        console.log(feedbackDetailItem)
-    }, [feedbackDetailItem])
 
     const handleSetRead = (event) => {
         event.preventDefault();
