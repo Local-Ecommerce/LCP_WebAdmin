@@ -390,7 +390,7 @@ const DetailProductModal = ({ display, toggle, detailItem, AddItemToCart }) => {
 
         if (selected && selected.id !== '' && quantity < selected.quantity) {
             setQuantity(quantity + 1);
-        } else if (detailItem && !combination && quantity < detailItem.Quantity) {
+        } else if (detailItem && !combination.length && quantity < detailItem.Quantity) {
             setQuantity(quantity + 1);
         }
     }
@@ -521,6 +521,11 @@ const DetailProductModal = ({ display, toggle, detailItem, AddItemToCart }) => {
                             <>
                                 <QuantityLabel>Còn hàng: {selected.quantity}</QuantityLabel>
                                 <QuantityLabel>Hạn mức mua: {selected.maxBuy}</QuantityLabel>
+                            </>
+                            : !combination.length ?
+                            <>
+                                <QuantityLabel>Còn hàng: {detailItem.Quantity}</QuantityLabel>
+                                <QuantityLabel>Hạn mức mua: {detailItem.MaxBuy}</QuantityLabel>
                             </>
                             : null
                         }
