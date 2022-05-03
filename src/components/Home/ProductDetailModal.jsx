@@ -248,13 +248,13 @@ const DetailModal = ({ display, toggle, detailItem }) => {
                 </LeftWrapper>
 
                 <RightWrapper>
-                    <ProductCode>{loading ? '' : detailItem.BaseProduct.ProductCode}</ProductCode>
-                    <ProductName>{loading ? '' : detailItem.BaseProduct.ProductName}</ProductName>
+                    <ProductCode>{loading ? '' : detailItem.BaseProduct ? detailItem.BaseProduct.ProductCode : detailItem.ProductCode}</ProductCode>
+                    <ProductName>{loading ? '' : detailItem.BaseProduct ? detailItem.BaseProduct.ProductName : detailItem.ProductName}</ProductName>
                     <ProductCategory>{loading ? '' : category}</ProductCategory>
                     <ProductPrice>{loading ? '' : detailItem.DefaultPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} đ</ProductPrice>
                     <Label>Miêu tả</Label>
-                    <ProductDescription>{loading ? '' : detailItem.BaseProduct.Description}</ProductDescription>
-                    <ProductDescription>{loading ? '' : detailItem.BaseProduct.BriefDescription}</ProductDescription>
+                    <ProductDescription>{loading ? '' : detailItem.BaseProduct ? detailItem.BaseProduct.Description : detailItem.Description}</ProductDescription>
+                    <ProductDescription>{loading ? '' : detailItem.BaseProduct ? detailItem.BaseProduct.BriefDescription : detailItem.BriefDescription}</ProductDescription>
 
                     {
                         detailItem.Color || detailItem.Size || detailItem.Weight ?
