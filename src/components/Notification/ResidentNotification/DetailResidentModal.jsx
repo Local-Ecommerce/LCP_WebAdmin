@@ -133,11 +133,11 @@ const customStyles = {
 };
 
 const DetailResidentModal = ({ display, toggle, detailItem, handleGetApproveItem, handleGetRejectItem }) => {
-    const [account, setAccount] = useState({ AvatarImage: '' });
+    const [account, setAccount] = useState({ ProfileImage: '' });
 
     useEffect(() => {
         if (display) {
-            setAccount({ AvatarImage: '' });
+            setAccount({ ProfileImage: '' });
             
             api.get("accounts?id=" + detailItem.AccountId)
             .then(function (res) {
