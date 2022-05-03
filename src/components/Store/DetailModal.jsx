@@ -160,7 +160,7 @@ const DetailModal = ({ display, toggle, detailItem, detailModalChange, handleGet
                 api.get("stores?id=" + detailItem.id)
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
-                        if (res.data.Data.List && res.data.Data.List[0] && res.data.Data.List[0].Warned === 3) {
+                        if (res.data.Data.List && res.data.Data.List[0] && res.data.Data.List[0].Warned < 3) {
                             setStore(res.data.Data.List[0])
 
                             let url = "menus"
