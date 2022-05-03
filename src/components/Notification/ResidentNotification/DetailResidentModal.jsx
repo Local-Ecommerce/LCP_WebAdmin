@@ -1,11 +1,12 @@
 
 /* eslint-disable react-hooks/exhaustive-deps */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import Modal from 'react-modal';
 import { DateTime } from 'luxon';
 import { Close, Check } from '@mui/icons-material';
 import * as Constant from '../../../Constant';
+import { api } from "../../../RequestMethod";
 
 const ModalTitle = styled.div`
     border-bottom: 1px solid #cfd2d4;
@@ -132,6 +133,21 @@ const customStyles = {
 };
 
 const DetailResidentModal = ({ display, toggle, detailItem, handleGetApproveItem, handleGetRejectItem }) => {
+    const [account, setAccount] = useState({ AvatarImage: '' });
+
+    useEffect(() => {
+        if (display) {
+            setAccount({ AvatarImage: '' });
+            
+            api.get("accounts?id=" + detailItem.AccountId)
+            .then(function (res) {
+                setAccount(res.data.Data);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        }
+    }, [display])
 
     const handleSetApproveItem = () => {
         handleGetApproveItem(detailItem.ResidentId, detailItem.ResidentName, /*image*/ '', detailItem.ResidentId);
@@ -150,7 +166,7 @@ const DetailResidentModal = ({ display, toggle, detailItem, handleGetApproveItem
                 <ModalContentWrapper>
                     <LeftWrapper>
                         <FieldLabel mt>Ảnh</FieldLabel>
-                        <Image src={''} />         
+                        <Image src={account.ProfileImage ? account.ProfileImage : ''} />         
                     </LeftWrapper>
 
                     <RightWrapper>
@@ -159,7 +175,7 @@ const DetailResidentModal = ({ display, toggle, detailItem, handleGetApproveItem
                                 <FieldLabel mt>Tên</FieldLabel>
                                 <TextField
                                     disabled={true}
-                                    type="text" value={detailItem.ResidentName ? detailItem.ResidentName : ''}
+                                    type="text" value={detailItem.ResidentName ? detailItem.ResidentName : '-'}
                                 />
                             </FlexChild>
 
@@ -167,7 +183,7 @@ const DetailResidentModal = ({ display, toggle, detailItem, handleGetApproveItem
                                 <FieldLabel mt>Số điện thoại</FieldLabel>
                                 <TextField
                                     disabled={true}
-                                    type="text" value={detailItem.PhoneNumber ? detailItem.PhoneNumber.slice(0, 4) + " " + detailItem.PhoneNumber.slice(4, 7) + " " + detailItem.PhoneNumber.slice(7) : ''}
+                                    type="text" value={detailItem.PhoneNumber ? detailItem.PhoneNumber.slice(0, 4) + " " + detailItem.PhoneNumber.slice(4, 7) + " " + detailItem.PhoneNumber.slice(7) : '-'}
                                 />
                             </FlexChild>
                         </Flex>
@@ -177,7 +193,7 @@ const DetailResidentModal = ({ display, toggle, detailItem, handleGetApproveItem
                                 <FieldLabel mt>Giới tính</FieldLabel>
                                 <TextField
                                     disabled={true}
-                                    type="text" value={detailItem.Gender ? detailItem.Gender : ''}
+                                    type="text" value={detailItem.Gender ? detailItem.Gender : '-'}
                                 />
                             </FlexChild>
 
@@ -185,16 +201,32 @@ const DetailResidentModal = ({ display, toggle, detailItem, handleGetApproveItem
                                 <FieldLabel mt>Ngày sinh</FieldLabel>
                                 <TextField
                                     disabled={true}
-                                    type="text" value={detailItem.DateOfBirth ? DateTime.fromISO(detailItem.DateOfBirth).toFormat('dd/MM/yyyy') : ''}
+                                    type="text" value={detailItem.DateOfBirth ? DateTime.fromISO(detailItem.DateOfBirth).toFormat('dd/MM/yyyy') : '-'}
                                 />
                             </FlexChild>
                         </Flex>
 
-                        <FieldLabel mt>Địa chỉ</FieldLabel>
-                        <TextField
-                            disabled={true}
-                            type="text" value={detailItem.DeliveryAddress ? detailItem.DeliveryAddress : ''}
-                        />
+                        <Flex>
+                            <FlexChild mr>
+                                <FieldLabel mt>Địa chỉ</FieldLabel>
+                                <TextField
+                                    disabled={true}
+                                    type="text" value={detailItem.DeliveryAddress ? detailItem.DeliveryAddress : '-'}
+                                />
+                            </FlexChild>
+
+                            <FlexChild>
+                                <FieldLabel mt>Loại cư dân</FieldLabel>
+                                <TextField
+                                    disabled={true}
+                                    type="text" value={
+                                        detailItem.Type && detailItem.Type === 'Customer' ? 'Khách hàng'
+                                        : detailItem.Type && detailItem.Type === 'Merchant' ? 'Thương nhân'
+                                        : '-'
+                                    }
+                                />
+                            </FlexChild>
+                        </Flex>
                     </RightWrapper>
                 </ModalContentWrapper>
                 : null
