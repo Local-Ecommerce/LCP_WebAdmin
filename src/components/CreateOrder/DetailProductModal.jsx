@@ -536,7 +536,7 @@ const DetailProductModal = ({ display, toggle, detailItem, AddItemToCart }) => {
                     <Button 
                         type="button" 
                         onClick={handleAddItemToCart} 
-                        disabled={combination && combination.length && selected.id === ''}
+                        disabled={(combination && combination.length && selected.id === '') || selected.quantity === 0}
                     >
                         <StyledShoppingCartIcon />
                         Bỏ vào giỏ hàng

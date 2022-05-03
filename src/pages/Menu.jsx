@@ -551,7 +551,7 @@ const Menu = () =>  {
 
         const warnStore = async () => {
             const notification = toast.loading("Đang xử lí yêu cầu...");
-            api.put("stores/warning?id=" + warnStoreItem.id + "&isWarning=" + warnStoreItem.warn)
+            api.put("stores/warning?id=" + warnStoreItem.storeId + "&isWarning=" + warnStoreItem.warn)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
                     if (warnStoreItem.warn) {
@@ -570,7 +570,6 @@ const Menu = () =>  {
                             type: '103'
                         });
                         toast.update(notification, { render: "Cảnh cáo cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
-                        setDetailModalChange(!detailModalChange);
 
                     } else {
                         push(ref(db, `Notification/` + warnStoreItem.merchantId), {
@@ -588,7 +587,6 @@ const Menu = () =>  {
                             type: '104'
                         });
                         toast.update(notification, { render: "Gỡ cảnh cáo cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
-                        setDetailModalChange(!detailModalChange);
                     }
                 }
             })
@@ -599,6 +597,7 @@ const Menu = () =>  {
         }
         warnStore();
         toggleWarnStoreModal();
+        setDetailModalChange(!detailModalChange);
     }
 
     return (
