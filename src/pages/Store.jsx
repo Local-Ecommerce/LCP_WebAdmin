@@ -667,8 +667,8 @@ const Store = ({ refresh, toggleRefresh }) => {
         handleReject();
     }
 
-    const handleGetWarnStoreItem = (id, name, warn) => {
-        setWarnStoreItem({ id: id, name: name, warn: warn });
+    const handleGetWarnStoreItem = (storeId, merchantId, storeName, storeImage, warn) => {
+        setWarnStoreItem({ storeId: storeId, merchantId: merchantId, storeName: storeName, storeImage: storeImage, warn: warn });
         toggleWarnStoreModal();
     }
 
@@ -677,10 +677,24 @@ const Store = ({ refresh, toggleRefresh }) => {
 
         const warnStore = async () => {
             const notification = toast.loading("Đang xử lí yêu cầu...");
-            api.put("stores/warning?id=" + warnStoreItem.id + "&isWarning=" + warnStoreItem.warn)
+            api.put("stores/warning?id=" + warnStoreItem.storeId + "&isWarning=" + warnStoreItem.warn)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
                     if (warnStoreItem.warn) {
+                        push(ref(db, `Notification/` + warnStoreItem.merchantId), {
+                            createdDate: Date.now(),
+                            data: {
+                                image: warnStoreItem.storeImage ? warnStoreItem.storeImage : '',
+                                name: warnStoreItem.storeName,
+                                id: warnStoreItem.storeId,
+                                feedbackReason: warnStoreItem.warn ? 'Cảnh cáo vi phạm từ quản lí chợ.' : 'Gỡ cảnh cáo.',
+                                feedbackImage: null
+                            },
+                            read: 0,
+                            receiverId: warnStoreItem.merchantId,
+                            senderId: user.Residents[0].ResidentId,
+                            type: warnStoreItem.warn ? '103' : '104'
+                        });
                         toast.update(notification, { render: "Cảnh cáo cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
                         setDetailModalChange(!detailModalChange);
 

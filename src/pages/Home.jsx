@@ -22,6 +22,9 @@ import PictureModal from '../components/Home/PictureModal';
 import FeedbackList from '../components/Home/FeedbackList';
 import FeedbackDetailModal from '../components/Home/FeedbackDetailModal';
 
+import { db } from "../firebase";
+import { ref, push } from "firebase/database";
+
 const PageWrapper = styled.form`
     min-width: ${props => props.width};
     max-width: ${props => props.width};
@@ -480,7 +483,6 @@ const Home = () => {
                     + "&sort=-feedbackdate";
                 api.get(url)
                 .then(function (res) {
-                    console.log(res.data.Data);
                     setFeedbacks(res.data.Data.List);
                     setLastPage(res.data.Data.LastPage);
                 })
@@ -663,8 +665,23 @@ const Home = () => {
             api.put("stores/warning?id=" + warnStoreItem.id + "&isWarning=" + true)
             .then(function (res) {
                 if (res.data.ResultMessage === "SUCCESS") {
+                    console.log(feedbackDetailItem)
                     api.put("feedbacks?id=" + feedbackDetailItem.FeedbackId)
                     .then(function (res) {
+                        push(ref(db, `Notification/` + feedbackDetailItem.MerchantStore.ResidentId), {
+                            createdDate: Date.now(),
+                            data: {
+                                image: feedbackDetailItem.MerchantStore.StoreImage ? feedbackDetailItem.MerchantStore.StoreImage : '',
+                                name: feedbackDetailItem.MerchantStore.StoreName,
+                                id: feedbackDetailItem.MerchantStore.MerchantStoreId,
+                                feedbackReason: feedbackDetailItem.FeedbackDetail,
+                                feedbackImage: feedbackDetailItem.Image
+                            },
+                            read: 0,
+                            receiverId: feedbackDetailItem.MerchantStore.ResidentId,
+                            senderId: user.Residents[0].ResidentId,
+                            type: '103'
+                        });
                         setFeedbackChange(!feedbackChange);
                         toast.update(notification, { render: "Cảnh cáo cửa hàng thành công!", type: "success", autoClose: 5000, isLoading: false });
                     })
@@ -679,6 +696,10 @@ const Home = () => {
         toggleWarnStoreModal();
         toggleFeedbackDetailModal();
     }
+
+    useEffect(() => {
+        console.log(feedbackDetailItem)
+    }, [feedbackDetailItem])
 
     const handleSetRead = (event) => {
         event.preventDefault();

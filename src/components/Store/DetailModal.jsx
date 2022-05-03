@@ -193,12 +193,12 @@ const DetailModal = ({ display, toggle, detailItem, detailModalChange, handleGet
 
     const handleSetWarnStoreItem = (e) => {
         e.stopPropagation();
-        handleGetWarnStoreItem(store.MerchantStoreId, store.StoreName, true);
+        handleGetWarnStoreItem(store.MerchantStoreId, resident.ResidentId, store.StoreName, store.StoreImage ? store.StoreImage : '', true);
     }
 
     const handleSetUnWarnStoreItem = (e) => {
         e.stopPropagation();
-        handleGetWarnStoreItem(store.MerchantStoreId, store.StoreName, false);
+        handleGetWarnStoreItem(store.MerchantStoreId, resident.ResidentId, store.StoreName, store.StoreImage ? store.StoreImage : '', false);
     }
 
     return (

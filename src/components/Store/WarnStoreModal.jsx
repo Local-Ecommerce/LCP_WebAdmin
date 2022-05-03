@@ -73,8 +73,8 @@ const WarnStoreModal = ({ display, toggle, warnItem, handleWarnStore }) => {
             <ModalContentWrapper>
                 {
                     warnItem.warn ?
-                    <>Bạn có chắc muốn cảnh cáo cửa hàng【<b>{warnItem ? warnItem.name : ''}</b>】?</>
-                    : <>Bạn có chắc muốn gỡ cảnh cáo cửa hàng【<b>{warnItem ? warnItem.name : ''}</b>】?</>
+                    <>Bạn có chắc muốn cảnh cáo cửa hàng【<b>{warnItem ? warnItem.storeName : ''}</b>】?</>
+                    : <>Bạn có chắc muốn gỡ cảnh cáo cửa hàng【<b>{warnItem ? warnItem.storeName : ''}</b>】?</>
                 }
             </ModalContentWrapper>
             

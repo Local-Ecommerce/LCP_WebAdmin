@@ -62,14 +62,24 @@ const WarnStoreModal = ({ display, toggle, warnItem, handleWarnStore }) => {
 
     return (
         <Modal isOpen={display} onRequestClose={toggle} style={customStyles} ariaHideApp={false}>
-            <ModalTitle>Từ chối</ModalTitle>
+            <ModalTitle>
+                {
+                    warnItem.warn ?
+                    <>Cảnh cáo</>
+                    : <>Gỡ cảnh cáo</>
+                }
+            </ModalTitle>
 
             <ModalContentWrapper>
-                Bạn có chắc muốn gỡ cảnh cáo cửa hàng【<b>{warnItem ? warnItem.name : ''}</b>】?
+                {
+                    warnItem.warn ?
+                    <>Bạn có chắc muốn cảnh cáo cửa hàng【<b>{warnItem ? warnItem.storeName : ''}</b>】?</>
+                    : <>Bạn có chắc muốn gỡ cảnh cáo cửa hàng【<b>{warnItem ? warnItem.storeName : ''}</b>】?</>
+                }
             </ModalContentWrapper>
             
             <ModalButtonWrapper>
-                <ModalButton color="green" onClick={handleWarnStore}>Gỡ</ModalButton>
+                <ModalButton color={warnItem.warn ? "red" : "green"} onClick={handleWarnStore}>{warnItem.warn ? "Cảnh cáo" : "Gỡ"}</ModalButton>
                 <ModalButton onClick={toggle}>Quay lại</ModalButton>
             </ModalButtonWrapper>
         </Modal>
