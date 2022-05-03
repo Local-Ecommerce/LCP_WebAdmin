@@ -160,30 +160,34 @@ const DetailModal = ({ display, toggle, detailItem, detailModalChange, handleGet
                 api.get("stores?id=" + detailItem.storeId)
                 .then(function (res) {
                     if (res.data.ResultMessage === "SUCCESS") {
-                        setStore(res.data.Data.List[0])
+                        if (res.data.Data.List && res.data.Data.List[0] && res.data.Data.List[0].Warned === 3) {
+                            setStore(res.data.Data.List[0])
 
-                        let url = "menus"
-                        + "?sort=-createddate"
-                        + "&storeid=" + detailItem.storeId
-                        + "&status=" + Constant.ACTIVE_MENU;
-                        api.get(url)
-                        .then(function (res2) {
-                            if (res2.data.ResultMessage === "SUCCESS") {
-                                setMenus(res2.data.Data.List);
+                            let url = "menus"
+                            + "?sort=-createddate"
+                            + "&storeid=" + detailItem.storeId
+                            + "&status=" + Constant.ACTIVE_MENU;
+                            api.get(url)
+                            .then(function (res2) {
+                                if (res2.data.ResultMessage === "SUCCESS") {
+                                    setMenus(res2.data.Data.List);
 
-                                api.get("residents?id=" + res.data.Data.List[0].ResidentId)
-                                .then(function (res3) {
-                                    if (res3.data.ResultMessage === 'SUCCESS') {
-                                        setResident(res3.data.Data.List[0]);
-                                        setLoading(false);
-                                    }
-                                })
-                            }
-                        })
+                                    api.get("residents?id=" + res.data.Data.List[0].ResidentId)
+                                    .then(function (res3) {
+                                        if (res3.data.ResultMessage === 'SUCCESS') {
+                                            setResident(res3.data.Data.List[0]);
+                                            setLoading(false);
+                                        }
+                                    })
+                                }
+                            })
+                        } else {
+                            toggle();
+                            setLoading(false);
+                        }
                     }
                 })
                 .catch(function (error) {
-                    toggle();
                     setLoading(false);
                 });
             };
