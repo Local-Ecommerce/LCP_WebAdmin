@@ -164,13 +164,13 @@ const MenuInStoreItem = ({ item, menuId }) =>  {
 
     return (
         <>
-            <ContainerWrapper dropdown={item.ProductInMenus.length && dropdown} onClick={toggleDropdown}>
+            <ContainerWrapper dropdown={item.ProductInMenus && item.ProductInMenus.length && dropdown} onClick={toggleDropdown}>
                 <NameWrapper> 
                     {item.MenuName} 
                     {
-                        item.ProductInMenus.length && dropdown ?
+                        item.ProductInMenus && item.ProductInMenus.length && dropdown ?
                         <DropupIcon />
-                        : item.ProductInMenus.length && !dropdown ?
+                        : item.ProductInMenus && item.ProductInMenus.length && !dropdown ?
                         <DropdownIcon />
                         : null
                     }
